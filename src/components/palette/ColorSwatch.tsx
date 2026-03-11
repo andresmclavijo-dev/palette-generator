@@ -11,18 +11,17 @@ interface ColorSwatchProps {
 }
 
 export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: ColorSwatchProps) {
-  const [editing, setEditing]       = useState(false)
-  const [draft, setDraft]           = useState('')
-  const [copied, setCopied]         = useState(false)
+  const [editing,    setEditing]    = useState(false)
+  const [draft,      setDraft]      = useState('')
+  const [copied,     setCopied]     = useState(false)
   const [shadesOpen, setShadesOpen] = useState(false)
   const inputRef                    = useRef<HTMLInputElement>(null)
 
-  const labelColor = readableOn(hex)
-  const nearWhite  = isNearWhite(hex)
-  const colorName  = getColorName(hex)
-
-  const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.80)'
-  const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.58)' : 'rgba(0,0,0,0.48)'
+  const labelColor   = readableOn(hex)
+  const nearWhite    = isNearWhite(hex)
+  const colorName    = getColorName(hex)
+  const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
+  const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.42)'
 
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
@@ -54,12 +53,12 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
 
   return (
     <div
-      className="relative flex-1 flex flex-col cursor-pointer group select-none overflow-hidden"
+      className="relative flex-1 cursor-pointer group select-none overflow-hidden min-w-0 min-h-0"
       style={{
         backgroundColor: hex,
-        boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.09)' : undefined,
-        filter: locked ? 'brightness(0.91)' : undefined,
-        transition: 'background-color 0.3s ease, filter 0.15s ease',
+        boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
+        filter: locked ? 'brightness(0.90)' : undefined,
+        transition: 'background-color 0.32s ease, filter 0.15s ease',
       }}
       onClick={() => { if (!editing && !shadesOpen) onLock() }}
       role="button"
@@ -68,36 +67,34 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
     >
       {/* Hover sheen */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none"
-        style={{ backgroundColor: 'rgba(255,255,255,0.05)' }} />
+        style={{ backgroundColor: 'rgba(255,255,255,0.06)' }} />
 
       {/* Shades panel */}
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
 
-      {/* Lock icon */}
+      {/* Lock icon — top center */}
       {!shadesOpen && (
-        <div className={`absolute top-6 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
-          locked ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover:opacity-55 group-hover:scale-100'
+        <div className={`absolute top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
+          locked ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
         }`}>
-          {locked
-            ? <LockIcon color={labelOpacity} />
-            : <UnlockIcon color={labelMuted} />}
+          {locked ? <LockIcon color={labelOpacity} /> : <UnlockIcon color={labelMuted} />}
         </div>
       )}
 
-      {/* Bottom labels — pb-[72px] clears 56px toolbar + 16px gap */}
+      {/* Bottom labels
+          pb-20 clears the floating Generate button (≈48px + 16px gap) */}
       {!shadesOpen && (
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-[72px] gap-[5px] z-10">
-          {/* Color name */}
-          <span className="text-[11px] font-sans tracking-[0.12em] uppercase"
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-20 gap-[5px] z-10">
+
+          <span className="text-[11px] font-sans tracking-[0.1em] uppercase"
             style={{ color: labelMuted }}>
             {colorName}
           </span>
 
-          {/* Hex + actions */}
           <div className="flex items-center gap-[7px]">
             {editing ? (
               <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                <span className="text-[12px] font-mono" style={{ color: labelMuted }}>#</span>
+                <span className="text-[11px] font-mono" style={{ color: labelMuted }}>#</span>
                 <input
                   ref={inputRef}
                   value={draft}
@@ -105,14 +102,14 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
                   onBlur={commitEdit}
                   onKeyDown={handleInputKey}
                   maxLength={6}
-                  className="w-[68px] bg-transparent border-b text-[13px] font-mono tracking-widest uppercase text-center outline-none caret-current"
+                  className="w-[66px] bg-transparent border-b text-[13px] font-mono tracking-widest uppercase text-center outline-none caret-current"
                   style={{ color: labelOpacity, borderColor: labelMuted }}
                 />
               </div>
             ) : (
               <>
                 <button
-                  className="text-[13px] font-mono font-semibold tracking-widest uppercase"
+                  className="text-[13px] font-mono font-semibold tracking-widest uppercase transition-colors duration-150"
                   style={{ color: copied ? labelMuted : labelOpacity }}
                   onClick={handleCopy}
                   onDoubleClick={startEdit}
@@ -126,7 +123,7 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
                   onClick={e => { e.stopPropagation(); setShadesOpen(true) }}
                   title="View shades"
                 >
-                  <ShadesIcon size={14} />
+                  <ShadesIcon size={13} />
                 </button>
                 <button
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
@@ -134,7 +131,7 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
                   onClick={startEdit}
                   title="Edit hex"
                 >
-                  <EditIcon size={13} />
+                  <EditIcon size={12} />
                 </button>
               </>
             )}
@@ -166,7 +163,7 @@ function ShadesIcon({ size }: { size: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
       <line x1="3" y1="8.5" x2="21" y2="8.5"/>
-      <line x1="3" y1="13" x2="21" y2="13"/>
+      <line x1="3" y1="13"  x2="21" y2="13"/>
       <line x1="3" y1="17.5" x2="21" y2="17.5"/>
     </svg>
   )

@@ -1,11 +1,11 @@
 import type { HarmonyMode } from '../../lib/colorEngine'
 
-const MODES: { value: HarmonyMode; label: string }[] = [
-  { value: 'random',         label: 'Random'        },
-  { value: 'analogous',      label: 'Analogous'     },
-  { value: 'monochromatic',  label: 'Mono'          },
-  { value: 'complementary',  label: 'Complement'    },
-  { value: 'triadic',        label: 'Triadic'       },
+const MODES: { value: HarmonyMode; label: string; short: string }[] = [
+  { value: 'random',        label: 'Random',        short: 'Random'  },
+  { value: 'analogous',     label: 'Analogous',     short: 'Analog'  },
+  { value: 'monochromatic', label: 'Monochromatic',  short: 'Mono'    },
+  { value: 'complementary', label: 'Complementary',  short: 'Compl'   },
+  { value: 'triadic',       label: 'Triadic',        short: 'Triadic' },
 ]
 
 interface HarmonyPickerProps {
@@ -16,12 +16,7 @@ interface HarmonyPickerProps {
 export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
   return (
     <div
-      className="
-        flex items-center gap-0.5 p-1 rounded-full
-        bg-black/25 backdrop-blur-md
-        border border-white/10
-      "
-      // Prevent clicks from bubbling to swatch lock handler
+      className="flex items-center gap-0.5 overflow-x-auto scrollbar-none"
       onClick={e => e.stopPropagation()}
     >
       {MODES.map(m => (
@@ -29,15 +24,16 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           key={m.value}
           onClick={() => onChange(m.value)}
           className={`
-            px-3 py-1 rounded-full text-[11px] font-mono tracking-wider
-            transition-all duration-150 cursor-pointer
+            px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap
+            transition-all duration-150 cursor-pointer select-none shrink-0
             ${mode === m.value
-              ? 'bg-white text-black font-semibold'
-              : 'text-white/60 hover:text-white/90 hover:bg-white/10'
+              ? 'bg-[#E8F0FE] text-[#1A73E8]'
+              : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124]'
             }
           `}
         >
-          {m.label}
+          <span className="hidden sm:inline">{m.label}</span>
+          <span className="sm:hidden">{m.short}</span>
         </button>
       ))}
     </div>

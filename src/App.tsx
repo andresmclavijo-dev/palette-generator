@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import Header from './components/palette/Header'
 import PaletteCanvas from './components/palette/PaletteCanvas'
+import GenerateButton from './components/palette/GenerateButton'
 import HarmonyPicker from './components/palette/HarmonyPicker'
 import ShortcutLegend from './components/palette/ShortcutLegend'
 import CountPicker from './components/palette/CountPicker'
@@ -16,9 +18,8 @@ export default function App() {
 
   const [shareCopied, setShareCopied] = useState(false)
   const [exportOpen,  setExportOpen]  = useState(false)
-  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // ── On mount: restore palette from URL ───────────────────────
+  // ── On mount: restore from URL ────────────────────────────────
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get('p')
     if (p) {
@@ -28,26 +29,22 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Sync URL on palette change ────────────────────────────────
+  // ── Sync URL ──────────────────────────────────────────────────
   useEffect(() => {
     const url = new URL(window.location.href)
     url.searchParams.set('p', encodePalette(swatches.map(s => s.hex)))
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
-  // ── Generate ──────────────────────────────────────────────────
-  const triggerGenerate = useCallback(() => {
-    generate()
-    if (animTimerRef.current) clearTimeout(animTimerRef.current)
-  }, [generate])
-
   // ── Keyboard shortcuts ────────────────────────────────────────
+  const triggerGenerate = useCallback(() => generate(), [generate])
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
-      if (e.code === 'Space')                          { e.preventDefault(); triggerGenerate() }
-      if (e.key === 'z' && (e.metaKey || e.ctrlKey))  { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                          { setExportOpen(false) }
+      if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
+      if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
+      if (e.key === 'Escape')                         { setExportOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -65,51 +62,59 @@ export default function App() {
   const lockedCount = swatches.filter(s => s.locked).length
 
   return (
-    <div className="w-screen h-screen overflow-hidden relative select-none">
+    // 100dvh accounts for mobile browser chrome
+    <div className="w-screen h-[100dvh] flex flex-col overflow-hidden bg-white">
 
-      {/* ── Palette — constrained above 56px toolbar ── */}
-      <div className="absolute inset-0 bottom-14">
+      {/* ── Header ── */}
+      <Header />
+
+      {/* ── Palette canvas + floating generate button ── */}
+      <div className="flex-1 relative overflow-hidden">
         <PaletteCanvas
           swatches={swatches}
           onLock={lockSwatch}
           onEdit={editSwatch}
         />
+        <GenerateButton onClick={triggerGenerate} />
       </div>
 
-      {/* ── Toolbar — z-30, absorbs all pointer events so nothing below fires ── */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-14 z-30
-          flex items-center justify-between
-          bg-black/30 backdrop-blur-md border-t border-white/8 px-3"
+      {/* ── Toolbar — white, full contrast ── */}
+      <footer
+        className="h-14 bg-white border-t border-[#E8EAED] shrink-0 z-30
+          flex items-center justify-between px-3 sm:px-4 gap-2"
         onMouseDown={e => e.stopPropagation()}
         onClick={e => e.stopPropagation()}
       >
-        {/* Left: help + count + locked indicator */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Left: help + count + locked */}
+        <div className="flex items-center gap-2 shrink-0">
           <ShortcutLegend />
           <CountPicker count={count} onChange={setCount} />
           {lockedCount > 0 && (
-            <span className="text-[10px] font-mono text-white/35 tracking-wider whitespace-nowrap">
+            <span className="text-[11px] text-[#9AA0A6] whitespace-nowrap hidden sm:block">
               {lockedCount} locked
             </span>
           )}
         </div>
 
-        {/* Center: harmony picker */}
-        <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
+        {/* Center: harmony */}
+        <div className="flex-1 flex justify-center overflow-x-auto scrollbar-none px-1">
+          <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
+        </div>
 
         {/* Right: export + share */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <ToolbarBtn onClick={() => setExportOpen(o => !o)}>
-            <ExportIcon size={10} /> Export
+            <DownloadIcon size={11} />
+            <span className="hidden sm:inline">Export</span>
           </ToolbarBtn>
-          <ToolbarBtn onClick={handleShare}>
-            <ShareIcon size={10} /> {shareCopied ? 'Copied!' : 'Share'}
+          <ToolbarBtn onClick={handleShare} primary>
+            <ShareIcon size={11} />
+            <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
           </ToolbarBtn>
         </div>
-      </div>
+      </footer>
 
-      {/* ── Export panel — modal above everything ── */}
+      {/* ── Export panel ── */}
       {exportOpen && (
         <ExportPanel
           hexes={swatches.map(s => s.hex)}
@@ -120,15 +125,22 @@ export default function App() {
   )
 }
 
-function ToolbarBtn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+function ToolbarBtn({
+  onClick, children, primary = false
+}: {
+  onClick: () => void
+  children: React.ReactNode
+  primary?: boolean
+}) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
-        bg-white/10 hover:bg-white/20
-        text-white/60 hover:text-white/90
-        text-[10px] font-mono tracking-wider
-        transition-all duration-150"
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full
+        text-[12px] font-medium transition-all duration-150 select-none whitespace-nowrap
+        ${primary
+          ? 'bg-[#1A73E8] hover:bg-[#1557B0] text-white'
+          : 'border border-[#E8EAED] text-[#3C4043] hover:bg-[#F1F3F4]'
+        }`}
     >
       {children}
     </button>
@@ -145,7 +157,7 @@ function ShareIcon({ size }: { size: number }) {
   )
 }
 
-function ExportIcon({ size }: { size: number }) {
+function DownloadIcon({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

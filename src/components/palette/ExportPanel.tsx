@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 type Tab = 'css' | 'tailwind' | 'hex'
+const BRAND = '#1A73E8'
 
 interface ExportPanelProps {
   hexes: string[]
@@ -8,142 +9,103 @@ interface ExportPanelProps {
 }
 
 function buildCSS(hexes: string[]): string {
-  return [
-    ':root {',
-    ...hexes.map((h, i) => `  --color-${i + 1}: ${h};`),
-    '}'
-  ].join('\n')
+  return [':root {', ...hexes.map((h, i) => `  --color-${i + 1}: ${h};`), '}'].join('\n')
 }
-
 function buildTailwind(hexes: string[]): string {
   const inner = hexes.map((h, i) => `      ${i + 1}: '${h}',`).join('\n')
   return `// tailwind.config.js\ncolors: {\n  brand: {\n${inner}\n  },\n}`
 }
-
 function buildHex(hexes: string[]): string {
-  return hexes.join('  ')
+  return hexes.join('\n')
 }
 
 export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
-  const [tab, setTab]     = useState<Tab>('css')
+  const [tab,    setTab]    = useState<Tab>('css')
   const [copied, setCopied] = useState(false)
 
-  const content = tab === 'css'
-    ? buildCSS(hexes)
-    : tab === 'tailwind'
-    ? buildTailwind(hexes)
-    : buildHex(hexes)
+  const content =
+    tab === 'css'      ? buildCSS(hexes) :
+    tab === 'tailwind' ? buildTailwind(hexes) :
+                         buildHex(hexes)
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content)
       setCopied(true)
-      setTimeout(() => setCopied(false), 1600)
+      setTimeout(() => setCopied(false), 1800)
     } catch { /* silent */ }
   }
 
   const TABS: { id: Tab; label: string }[] = [
-    { id: 'css',      label: 'CSS Vars'  },
-    { id: 'tailwind', label: 'Tailwind'  },
-    { id: 'hex',      label: 'Hex List'  },
+    { id: 'css',      label: 'CSS Variables' },
+    { id: 'tailwind', label: 'Tailwind'      },
+    { id: 'hex',      label: 'Hex List'      },
   ]
 
   return (
-    <>
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
       <div
-        className="absolute inset-0 z-30"
-        onClick={onClose}
-      />
-
-      {/* Panel */}
-      <div
-        className="
-          absolute bottom-16 right-4 z-40
-          w-72 rounded-2xl overflow-hidden
-          bg-black/75 backdrop-blur-xl
-          border border-white/10
-          shadow-2xl
-        "
+        className="relative w-full max-w-lg mx-4 mb-0 rounded-t-2xl bg-white border border-gray-200 shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-gray-200" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/8">
-          <span className="text-[11px] font-mono text-white/50 tracking-widest uppercase">Export</span>
-          <button
-            onClick={onClose}
-            className="w-5 h-5 flex items-center justify-center text-white/30 hover:text-white/70 transition-colors"
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <div className="flex items-center justify-between px-5 pt-2 pb-3 border-b border-gray-100">
+          <span className="text-[15px] font-semibold text-gray-800">Export Palette</span>
+          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
 
+        {/* Swatch strip */}
+        <div className="flex h-10 mx-5 mt-4 rounded-xl overflow-hidden border border-gray-100">
+          {hexes.map((h, i) => <div key={i} className="flex-1" style={{ backgroundColor: h }} />)}
+        </div>
+
         {/* Tabs */}
-        <div className="flex gap-0 border-b border-white/8">
+        <div className="flex gap-1 px-5 mt-3">
           {TABS.map(t => (
             <button
               key={t.id}
-              onClick={() => { setTab(t.id); setCopied(false) }}
-              className={`
-                flex-1 py-2.5 text-[10px] font-mono tracking-wider
-                transition-all duration-150
-                ${tab === t.id
-                  ? 'text-white/90 border-b-2 border-white/40'
-                  : 'text-white/35 hover:text-white/60'
-                }
-              `}
+              onClick={() => setTab(t.id)}
+              className={`px-3 h-8 rounded-full text-[12px] font-medium transition-all duration-150
+                ${tab === t.id ? 'text-white' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
+              style={tab === t.id ? { backgroundColor: BRAND } : undefined}
             >
               {t.label}
             </button>
           ))}
         </div>
 
-        {/* Color preview row */}
-        <div className="flex h-8">
-          {hexes.map(h => (
-            <div key={h} className="flex-1" style={{ backgroundColor: h }} />
-          ))}
+        {/* Code */}
+        <div className="mx-5 mt-3 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <pre className="p-4 text-[12px] font-mono text-gray-700 leading-relaxed overflow-x-auto whitespace-pre">
+            {content}
+          </pre>
         </div>
 
-        {/* Code block */}
-        <pre className="px-4 py-3 text-[11px] font-mono text-white/65 leading-relaxed whitespace-pre-wrap break-all">
-          {content}
-        </pre>
-
         {/* Copy button */}
-        <div className="px-4 pb-4">
+        <div className="px-5 py-4">
           <button
             onClick={handleCopy}
-            className="
-              w-full py-2.5 rounded-xl
-              bg-white/10 hover:bg-white/18
-              text-[11px] font-mono tracking-wider
-              text-white/70 hover:text-white/95
-              transition-all duration-150
-              flex items-center justify-center gap-2
-            "
+            className={`w-full h-10 rounded-full text-[13px] font-semibold transition-all duration-150
+              ${copied
+                ? 'bg-green-500 text-white'
+                : 'text-white hover:opacity-90 active:scale-98'
+              }`}
+            style={!copied ? { backgroundColor: BRAND } : undefined}
           >
-            {copied ? (
-              <>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2"/>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                </svg>
-                Copy all
-              </>
-            )}
+            {copied ? '✓ Copied to clipboard' : 'Copy'}
           </button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
