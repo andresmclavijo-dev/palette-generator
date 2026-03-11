@@ -2,8 +2,7 @@ import chroma from 'chroma-js'
 
 export type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
-// --- Shades (light → dark, 10 steps) ---
-
+// ── Shades (light → dark, N steps) ────────────────────────────────
 export function generateShades(hex: string, count = 10): string[] {
   try {
     const [h, s] = chroma(hex).hsl()
@@ -17,162 +16,161 @@ export function generateShades(hex: string, count = 10): string[] {
   }
 }
 
-// --- Color naming (HSL-based, no external deps) ---
+// ── Color naming — refined hue ranges ─────────────────────────────
+// Each entry: [hueMax, name, vivid override, dark override]
+type HueEntry = { max: number; base: string; vivid?: string; dark?: string; pale?: string }
 
-const HUE_NAMES: [number, string][] = [
-  [15,  'Red'],
-  [30,  'Orange'],
-  [50,  'Yellow'],
-  [70,  'Lime'],
-  [150, 'Green'],
-  [185, 'Teal'],
-  [210, 'Cyan'],
-  [250, 'Blue'],
-  [280, 'Indigo'],
-  [320, 'Purple'],
-  [345, 'Pink'],
-  [360, 'Red'],
+const HUE_MAP: HueEntry[] = [
+  { max: 8,   base: 'Red',    vivid: 'Crimson',  dark: 'Maroon',   pale: 'Blush'    },
+  { max: 20,  base: 'Red',    vivid: 'Scarlet',  dark: 'Maroon',   pale: 'Rose'     },
+  { max: 32,  base: 'Orange', vivid: 'Tangerine',dark: 'Rust',     pale: 'Peach'    },
+  { max: 45,  base: 'Amber',  vivid: 'Gold',     dark: 'Brown',    pale: 'Cream'    },
+  { max: 58,  base: 'Yellow', vivid: 'Yellow',   dark: 'Olive',    pale: 'Butter'   },
+  { max: 75,  base: 'Lime',   vivid: 'Chartreuse',dark: 'Moss',    pale: 'Mint'     },
+  { max: 150, base: 'Green',  vivid: 'Emerald',  dark: 'Forest',   pale: 'Sage'     },
+  { max: 175, base: 'Teal',   vivid: 'Jade',     dark: 'Teal',     pale: 'Seafoam'  },
+  { max: 195, base: 'Cyan',   vivid: 'Aqua',     dark: 'Teal',     pale: 'Ice'      },
+  { max: 225, base: 'Sky',    vivid: 'Azure',    dark: 'Navy',     pale: 'Mist'     },
+  { max: 255, base: 'Blue',   vivid: 'Cobalt',   dark: 'Navy',     pale: 'Powder'   },
+  { max: 275, base: 'Indigo', vivid: 'Indigo',   dark: 'Midnight', pale: 'Lavender' },
+  { max: 295, base: 'Violet', vivid: 'Violet',   dark: 'Plum',     pale: 'Wisteria' },
+  { max: 320, base: 'Purple', vivid: 'Magenta',  dark: 'Plum',     pale: 'Lilac'    },
+  { max: 338, base: 'Pink',   vivid: 'Hot Pink', dark: 'Berry',    pale: 'Blush'    },
+  { max: 350, base: 'Rose',   vivid: 'Rose',     dark: 'Crimson',  pale: 'Petal'    },
+  { max: 360, base: 'Red',    vivid: 'Crimson',  dark: 'Maroon',   pale: 'Blush'    },
 ]
 
 export function getColorName(hex: string): string {
   try {
     const [h, s, l] = chroma(hex).hsl()
-    if (s < 0.08) {
-      if (l > 0.92) return 'White'
-      if (l > 0.70) return 'Light Gray'
-      if (l > 0.40) return 'Gray'
-      if (l > 0.15) return 'Dark Gray'
+    // Achromatic
+    if (isNaN(s) || s < 0.06) {
+      if (l > 0.93) return 'White'
+      if (l > 0.78) return 'Silver'
+      if (l > 0.55) return 'Light Gray'
+      if (l > 0.30) return 'Gray'
+      if (l > 0.12) return 'Dark Gray'
       return 'Black'
     }
-    const hue = isNaN(h) ? 0 : h
-    const hueName = HUE_NAMES.find(([max]) => hue <= max)?.[1] ?? 'Red'
-    const lightPrefix =
-      l > 0.88 ? 'Pale '   :
-      l > 0.72 ? 'Light '  :
-      l > 0.55 ? ''        :
-      l > 0.35 ? 'Deep '   : 'Dark '
-    const satSuffix = s < 0.25 ? ' Mist' : s > 0.80 ? ' Vivid' : ''
-    return `${lightPrefix}${hueName}${satSuffix}`
+    const hue = isNaN(h) ? 0 : ((h % 360) + 360) % 360
+    const entry = HUE_MAP.find(e => hue <= e.max) ?? HUE_MAP[HUE_MAP.length - 1]
+
+    // Choose variant based on lightness + saturation
+    if (l > 0.88) return entry.pale  ?? `Light ${entry.base}`
+    if (l > 0.70) return `Light ${entry.base}`
+    if (l < 0.22) return entry.dark  ?? `Dark ${entry.base}`
+    if (l < 0.38) return entry.dark  ?? `Deep ${entry.base}`
+    if (s > 0.75) return entry.vivid ?? entry.base
+
+    return entry.base
   } catch {
     return ''
   }
 }
 
+// ── Swatch ────────────────────────────────────────────────────────
 export interface Swatch {
   id: string
   hex: string
   locked: boolean
 }
 
-// --- Generators ---
-
+// ── Generators ────────────────────────────────────────────────────
 export function randomPalette(count = 5): string[] {
   return Array.from({ length: count }, () => chroma.random().hex())
 }
 
 export function analogousPalette(seed: string, count = 5): string[] {
   const [h, s, l] = chroma(seed).hsl()
-  return Array.from({ length: count }, (_, i) =>
-    chroma.hsl((h + (i - 2) * 28 + 360) % 360, s, l).hex()
-  )
+  const step = count <= 3 ? 35 : count <= 4 ? 30 : 25
+  return Array.from({ length: count }, (_, i) => {
+    const offset = (i - Math.floor(count / 2)) * step
+    return chroma.hsl(((h + offset) + 360) % 360, s, l).hex()
+  })
 }
 
 export function monochromaticPalette(seed: string, count = 5): string[] {
   const [h, s] = chroma(seed).hsl()
   return Array.from({ length: count }, (_, i) =>
-    chroma.hsl(h, s, 0.15 + i * 0.17).hex()
+    chroma.hsl(h, s, 0.15 + i * (0.70 / (count - 1))).hex()
   )
 }
 
-export function complementaryPalette(seed: string): string[] {
+export function complementaryPalette(seed: string, count = 5): string[] {
   const [h, s, l] = chroma(seed).hsl()
-  // Two shades of seed + two shades of complement
-  return [
-    chroma.hsl(h, s, Math.min(l + 0.12, 0.9)).hex(),
+  const all = [
+    chroma.hsl(h, s, Math.min(l + 0.15, 0.88)).hex(),
     chroma.hsl(h, s, l).hex(),
-    chroma.hsl(h, s, Math.max(l - 0.12, 0.1)).hex(),
+    chroma.hsl(h, s, Math.max(l - 0.15, 0.12)).hex(),
     chroma.hsl((h + 180) % 360, s, l).hex(),
-    chroma.hsl((h + 180) % 360, s, Math.max(l - 0.1, 0.1)).hex(),
+    chroma.hsl((h + 180) % 360, s, Math.max(l - 0.12, 0.12)).hex(),
   ]
+  return all.slice(0, count)
 }
 
-export function triadicPalette(seed: string): string[] {
+export function triadicPalette(seed: string, count = 5): string[] {
   const [h, s, l] = chroma(seed).hsl()
-  return [
+  const all = [
     chroma.hsl(h, s, l).hex(),
-    chroma.hsl(h, s, Math.max(l - 0.15, 0.1)).hex(),
+    chroma.hsl(h, s, Math.max(l - 0.18, 0.12)).hex(),
     chroma.hsl((h + 120) % 360, s, l).hex(),
     chroma.hsl((h + 240) % 360, s, l).hex(),
-    chroma.hsl((h + 240) % 360, s, Math.max(l - 0.15, 0.1)).hex(),
+    chroma.hsl((h + 240) % 360, s, Math.max(l - 0.18, 0.12)).hex(),
   ]
+  return all.slice(0, count)
 }
-
-// --- Dispatch by mode ---
 
 export function generateByMode(mode: HarmonyMode, seed: string | null, count = 5): string[] {
   const s = seed ?? chroma.random().hex()
   switch (mode) {
-    case 'analogous':      return analogousPalette(s, count)
-    case 'monochromatic':  return monochromaticPalette(s, count)
-    case 'complementary':  return complementaryPalette(s)
-    case 'triadic':        return triadicPalette(s)
+    case 'analogous':     return analogousPalette(s, count)
+    case 'monochromatic': return monochromaticPalette(s, count)
+    case 'complementary': return complementaryPalette(s, count)
+    case 'triadic':       return triadicPalette(s, count)
     case 'random':
-    default:               return randomPalette(count)
+    default:              return randomPalette(count)
   }
 }
 
-// --- Swatch factory ---
-
+// ── Swatch factory ────────────────────────────────────────────────
 export function makeSwatch(hex: string, locked = false): Swatch {
   return { id: crypto.randomUUID(), hex, locked }
 }
 
-// --- Merge: locked swatches survive regeneration ---
-
 export function mergePalette(current: Swatch[], freshHexes: string[]): Swatch[] {
-  return current.map((swatch, i) =>
-    swatch.locked ? swatch : makeSwatch(freshHexes[i])
-  )
+  return Array.from({ length: freshHexes.length }, (_, i) => {
+    const existing = current[i]
+    return existing?.locked ? existing : makeSwatch(freshHexes[i])
+  })
 }
 
-// --- Visual helpers ---
-
-/** True when lightness > 0.88 — swatch needs an edge shadow */
+// ── Visual helpers ────────────────────────────────────────────────
 export function isNearWhite(hex: string): boolean {
-  try {
-    return chroma(hex).get('hsl.l') > 0.88
-  } catch {
-    return false
-  }
+  try { return chroma(hex).get('hsl.l') > 0.88 } catch { return false }
 }
 
-/** Returns '#ffffff' or '#000000' for best readability on bg */
 export function readableOn(bg: string): string {
   try {
     return chroma.contrast(bg, '#ffffff') > chroma.contrast(bg, '#000000')
-      ? '#ffffff'
-      : '#000000'
-  } catch {
-    return '#000000'
-  }
+      ? '#ffffff' : '#000000'
+  } catch { return '#000000' }
 }
 
-/** Validate a hex string — returns cleaned hex or null */
 export function parseHex(raw: string): string | null {
-  const cleaned = raw.trim().replace(/^#/, '')
-  if (/^[0-9a-fA-F]{6}$/.test(cleaned)) return `#${cleaned.toUpperCase()}`
-  if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
-    const expanded = cleaned.split('').map(c => c + c).join('')
-    return `#${expanded.toUpperCase()}`
-  }
+  const c = raw.trim().replace(/^#/, '')
+  if (/^[0-9a-fA-F]{6}$/.test(c)) return `#${c.toUpperCase()}`
+  if (/^[0-9a-fA-F]{3}$/.test(c)) return `#${c.split('').map(x => x+x).join('').toUpperCase()}`
   return null
 }
 
-// --- Contrast helper (WCAG) ---
+export function encodePalette(hexes: string[]): string {
+  return hexes.map(h => h.replace('#', '')).join('-')
+}
 
-export function getContrastLevel(hex: string): 'AA' | 'AAA' | 'fail' {
-  const ratio = chroma.contrast(hex, '#ffffff')
-  if (ratio >= 7) return 'AAA'
-  if (ratio >= 4.5) return 'AA'
-  return 'fail'
+export function decodePalette(param: string): string[] | null {
+  const parts = param.split('-')
+  if (parts.length < 3 || parts.length > 8) return null
+  const valid = parts.every(p => /^[0-9a-fA-F]{6}$/.test(p))
+  if (!valid) return null
+  return parts.map(p => `#${p.toUpperCase()}`)
 }
