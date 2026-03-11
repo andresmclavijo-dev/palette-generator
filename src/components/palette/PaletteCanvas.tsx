@@ -23,4 +23,3 @@ export default function PaletteCanvas({ swatches, onLock, onEdit }: PaletteCanva
     </div>
   )
 }
-
