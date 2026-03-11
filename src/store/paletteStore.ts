@@ -25,6 +25,7 @@ interface PaletteState {
   editSwatch: (id: string, hex: string) => void
   setHarmonyMode: (mode: HarmonyMode) => void
   setSeedColor: (hex: string) => void
+  reorderSwatches: (fromIndex: number, toIndex: number) => void
   undo: () => void
 }
 
@@ -86,6 +87,16 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
     const next = swatches.map(s => s.id === id ? { ...s, hex } : s)
     const hist = pushHistory(history, historyIndex, next)
     set({ swatches: next, seedColor: hex, ...hist })
+  },
+
+  reorderSwatches: (fromIndex, toIndex) => {
+    const { swatches, history, historyIndex } = get()
+    if (fromIndex === toIndex) return
+    const next = [...swatches]
+    const [moved] = next.splice(fromIndex, 1)
+    next.splice(toIndex, 0, moved)
+    const hist = pushHistory(history, historyIndex, next)
+    set({ swatches: next, ...hist })
   },
 
   setHarmonyMode: (harmonyMode) => set({ harmonyMode }),

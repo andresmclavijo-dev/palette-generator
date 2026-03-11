@@ -11,4 +11,28 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
+
+/* Mobile bottom sheet animation */
+.sheet-slide-up {
+  animation: sheetUp 0.3s cubic-bezier(.32,.72,0,1);
+}
+
+.sheet-backdrop {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Hide scrollbar for harmony picker overflow */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

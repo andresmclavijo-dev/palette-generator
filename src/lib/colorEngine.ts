@@ -140,7 +140,10 @@ export function makeSwatch(hex: string, locked = false): Swatch {
 export function mergePalette(current: Swatch[], freshHexes: string[]): Swatch[] {
   return Array.from({ length: freshHexes.length }, (_, i) => {
     const existing = current[i]
-    return existing?.locked ? existing : makeSwatch(freshHexes[i])
+    if (existing?.locked) return existing
+    // Preserve ID so React reuses the DOM node → CSS background transition animates
+    if (existing) return { ...existing, hex: freshHexes[i] }
+    return makeSwatch(freshHexes[i])
   })
 }
 

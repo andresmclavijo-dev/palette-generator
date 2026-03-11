@@ -6,11 +6,13 @@ interface ColorSwatchProps {
   hex: string
   locked: boolean
   index: number
+  isDragging: boolean
   onLock: () => void
   onEdit: (hex: string) => void
+  onDragStart: () => void
 }
 
-export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: ColorSwatchProps) {
+export default function ColorSwatch({ hex, locked, index, isDragging, onLock, onEdit, onDragStart }: ColorSwatchProps) {
   const [editing,    setEditing]    = useState(false)
   const [draft,      setDraft]      = useState('')
   const [copied,     setCopied]     = useState(false)
@@ -51,6 +53,12 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
     e.stopPropagation()
   }
 
+  const handleDragPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    onDragStart()
+  }
+
   return (
     <div
       className="relative flex-1 cursor-pointer group select-none overflow-hidden min-w-0 min-h-0"
@@ -58,7 +66,9 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
         backgroundColor: hex,
         boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
         filter: locked ? 'brightness(0.90)' : undefined,
-        transition: 'background-color 0.32s ease, filter 0.15s ease',
+        transition: 'background-color 0.4s cubic-bezier(.4,0,.2,1), filter 0.15s ease',
+        opacity: isDragging ? 0.6 : 1,
+        zIndex: isDragging ? 20 : undefined,
       }}
       onClick={() => { if (!editing && !shadesOpen) onLock() }}
       role="button"
@@ -72,21 +82,37 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
       {/* Shades panel */}
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
 
+      {/* Drag handle — top-right, always visible on mobile, hover on desktop */}
+      {!shadesOpen && (
+        <div
+          className="absolute top-2 right-2 z-10
+            opacity-40 sm:opacity-0 sm:group-hover:opacity-60 sm:hover:!opacity-100
+            sm:top-3 sm:right-3
+            transition-opacity duration-150 cursor-grab active:cursor-grabbing
+            w-10 h-10 sm:w-7 sm:h-7 flex items-center justify-center rounded-full"
+          style={{ color: labelOpacity, touchAction: 'none' }}
+          onPointerDown={handleDragPointerDown}
+          title="Drag to reorder"
+        >
+          <GripIcon color="currentColor" />
+        </div>
+      )}
+
       {/* Lock icon — top center */}
       {!shadesOpen && (
-        <div className={`absolute top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
+        <div className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
           locked ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
         }`}>
           {locked ? <LockIcon color={labelOpacity} /> : <UnlockIcon color={labelMuted} />}
         </div>
       )}
 
-      {/* Bottom labels
-          pb-20 clears the floating Generate button (≈48px + 16px gap) */}
+      {/* Labels — positioned differently on mobile vs desktop */}
       {!shadesOpen && (
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-20 gap-[5px] z-10">
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center
+          pb-4 sm:pb-20 gap-[5px] z-10">
 
-          <span className="text-[11px] font-sans tracking-[0.1em] uppercase"
+          <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.1em] uppercase truncate max-w-full px-2"
             style={{ color: labelMuted }}>
             {colorName}
           </span>
@@ -109,7 +135,8 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
             ) : (
               <>
                 <button
-                  className="text-[13px] font-mono font-semibold tracking-widest uppercase transition-colors duration-150"
+                  className="text-[12px] sm:text-[13px] font-mono font-semibold tracking-widest uppercase transition-colors duration-150
+                    min-h-[44px] sm:min-h-0 flex items-center"
                   style={{ color: copied ? labelMuted : labelOpacity }}
                   onClick={handleCopy}
                   onDoubleClick={startEdit}
@@ -117,8 +144,9 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
                 >
                   {copied ? '✓ Copied' : hex.toUpperCase()}
                 </button>
+                {/* Hide shades/edit icons on mobile — no hover there */}
                 <button
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   style={{ color: labelMuted }}
                   onClick={e => { e.stopPropagation(); setShadesOpen(true) }}
                   title="View shades"
@@ -126,7 +154,7 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
                   <ShadesIcon size={13} />
                 </button>
                 <button
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-150"
                   style={{ color: labelMuted }}
                   onClick={startEdit}
                   title="Edit hex"
@@ -139,6 +167,19 @@ export default function ColorSwatch({ hex, locked, index, onLock, onEdit }: Colo
         </div>
       )}
     </div>
+  )
+}
+
+function GripIcon({ color }: { color: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={color} stroke="none">
+      <circle cx="9" cy="6" r="1.5"/>
+      <circle cx="15" cy="6" r="1.5"/>
+      <circle cx="9" cy="12" r="1.5"/>
+      <circle cx="15" cy="12" r="1.5"/>
+      <circle cx="9" cy="18" r="1.5"/>
+      <circle cx="15" cy="18" r="1.5"/>
+    </svg>
   )
 }
 
