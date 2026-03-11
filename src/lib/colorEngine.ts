@@ -2,6 +2,62 @@ import chroma from 'chroma-js'
 
 export type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
+// --- Shades (light → dark, 10 steps) ---
+
+export function generateShades(hex: string, count = 10): string[] {
+  try {
+    const [h, s] = chroma(hex).hsl()
+    const safeS = isNaN(s) ? 0 : s
+    return Array.from({ length: count }, (_, i) => {
+      const l = 0.95 - i * (0.80 / (count - 1))
+      return chroma.hsl(h, safeS, l).hex()
+    })
+  } catch {
+    return Array.from({ length: count }, () => '#888888')
+  }
+}
+
+// --- Color naming (HSL-based, no external deps) ---
+
+const HUE_NAMES: [number, string][] = [
+  [15,  'Red'],
+  [30,  'Orange'],
+  [50,  'Yellow'],
+  [70,  'Lime'],
+  [150, 'Green'],
+  [185, 'Teal'],
+  [210, 'Cyan'],
+  [250, 'Blue'],
+  [280, 'Indigo'],
+  [320, 'Purple'],
+  [345, 'Pink'],
+  [360, 'Red'],
+]
+
+export function getColorName(hex: string): string {
+  try {
+    const [h, s, l] = chroma(hex).hsl()
+    if (s < 0.08) {
+      if (l > 0.92) return 'White'
+      if (l > 0.70) return 'Light Gray'
+      if (l > 0.40) return 'Gray'
+      if (l > 0.15) return 'Dark Gray'
+      return 'Black'
+    }
+    const hue = isNaN(h) ? 0 : h
+    const hueName = HUE_NAMES.find(([max]) => hue <= max)?.[1] ?? 'Red'
+    const lightPrefix =
+      l > 0.88 ? 'Pale '   :
+      l > 0.72 ? 'Light '  :
+      l > 0.55 ? ''        :
+      l > 0.35 ? 'Deep '   : 'Dark '
+    const satSuffix = s < 0.25 ? ' Mist' : s > 0.80 ? ' Vivid' : ''
+    return `${lightPrefix}${hueName}${satSuffix}`
+  } catch {
+    return ''
+  }
+}
+
 export interface Swatch {
   id: string
   hex: string

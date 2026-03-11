@@ -19,6 +19,7 @@ interface PaletteState {
 
   // Actions
   generate: () => void
+  setSwatches: (swatches: Swatch[]) => void
   lockSwatch: (id: string) => void
   editSwatch: (id: string, hex: string) => void
   setHarmonyMode: (mode: HarmonyMode) => void
@@ -45,14 +46,16 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
 
   generate: () => {
     const { swatches, harmonyMode, seedColor, history, historyIndex } = get()
-    // Pick seed: prefer explicit seedColor, else use first unlocked swatch
-    const seed = seedColor
-      ?? swatches.find(s => !s.locked)?.hex
-      ?? null
+    const seed = seedColor ?? swatches.find(s => !s.locked)?.hex ?? null
     const freshHexes = generateByMode(harmonyMode, seed)
     const next = mergePalette(swatches, freshHexes)
     const hist = pushHistory(history, historyIndex, next)
     set({ swatches: next, ...hist })
+  },
+
+  setSwatches: (swatches) => {
+    const hist = pushHistory(get().history, get().historyIndex, swatches)
+    set({ swatches, ...hist })
   },
 
   lockSwatch: (id) =>
