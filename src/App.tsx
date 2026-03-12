@@ -12,6 +12,7 @@ import type { VisionMode } from './components/palette/VisionSimulator'
 import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import SignInModal from './components/ui/SignInModal'
+import PaymentSuccessModal from './components/ui/PaymentSuccessModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
@@ -23,7 +24,7 @@ const BRAND = '#1A73E8'
 const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
-  const { isPro } = usePro()
+  const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count,
@@ -571,6 +572,9 @@ export default function App() {
 
       {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} onSignIn={() => setSignInOpen(true)} />
+
+      {/* Payment success modal — shown when returning from Stripe without being signed in */}
+      <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
 
       {/* Save toast */}
       {saveToast && (
