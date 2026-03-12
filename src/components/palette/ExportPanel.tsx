@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { getColorName, slugifyColorName } from '../../lib/colorEngine'
+import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
+import { usePro } from '../../hooks/usePro'
 
 type Tab = 'css' | 'tailwind' | 'hex'
 const BRAND = '#1A73E8'
@@ -9,33 +10,65 @@ interface ExportPanelProps {
   onClose: () => void
 }
 
-function buildCSS(hexes: string[]): string {
+const WATERMARK = '/* Made with Paletta · paletta.app */'
+
+function getSlug(h: string, seen: Record<string, number>): string {
+  let slug = slugifyColorName(getColorName(h) || 'color')
+  if (!slug) slug = 'color'
+  seen[slug] = (seen[slug] || 0) + 1
+  return seen[slug] > 1 ? `${slug}-${seen[slug]}` : slug
+}
+
+function buildCSS(hexes: string[], isPro: boolean): string {
   const seen: Record<string, number> = {}
-  const lines = hexes.map((h) => {
-    let slug = slugifyColorName(getColorName(h) || 'color')
-    if (!slug) slug = 'color'
-    seen[slug] = (seen[slug] || 0) + 1
-    const key = seen[slug] > 1 ? `${slug}-${seen[slug]}` : slug
-    return `  --color-${key}: ${h};`
-  })
-  return [':root {', ...lines, '}'].join('\n')
+  const lines: string[] = []
+  for (const h of hexes) {
+    const key = getSlug(h, seen)
+    if (isPro) {
+      const shades = generateShades(h, 10)
+      shades.forEach((s, i) => {
+        lines.push(`  --color-${key}-${TAILWIND_SHADE_LABELS[i]}: ${s};`)
+      })
+    } else {
+      lines.push(`  --color-${key}: ${h};`)
+    }
+  }
+  const prefix = isPro ? '' : WATERMARK + '\n'
+  return prefix + [':root {', ...lines, '}'].join('\n')
 }
-function buildTailwind(hexes: string[]): string {
-  const inner = hexes.map((h, i) => `      ${i + 1}: '${h}',`).join('\n')
-  return `// tailwind.config.js\ncolors: {\n  brand: {\n${inner}\n  },\n}`
+
+function buildTailwind(hexes: string[], isPro: boolean): string {
+  const seen: Record<string, number> = {}
+  if (isPro) {
+    const blocks = hexes.map(h => {
+      const key = getSlug(h, seen)
+      const shades = generateShades(h, 10)
+      const inner = shades.map((s, i) => `        ${TAILWIND_SHADE_LABELS[i]}: '${s}',`).join('\n')
+      return `    '${key}': {\n${inner}\n    },`
+    }).join('\n')
+    return `// tailwind.config.js\ncolors: {\n${blocks}\n}`
+  }
+  const inner = hexes.map(h => {
+    const key = getSlug(h, seen)
+    return `    '${key}': '${h}',`
+  }).join('\n')
+  return WATERMARK + `\n// tailwind.config.js\ncolors: {\n${inner}\n}`
 }
-function buildHex(hexes: string[]): string {
-  return hexes.join('\n')
+
+function buildHex(hexes: string[], isPro: boolean): string {
+  const prefix = isPro ? '' : WATERMARK + '\n'
+  return prefix + hexes.join('\n')
 }
 
 export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
+  const { isPro } = usePro()
   const [tab,    setTab]    = useState<Tab>('css')
   const [copied, setCopied] = useState(false)
 
   const content =
-    tab === 'css'      ? buildCSS(hexes) :
-    tab === 'tailwind' ? buildTailwind(hexes) :
-                         buildHex(hexes)
+    tab === 'css'      ? buildCSS(hexes, isPro) :
+    tab === 'tailwind' ? buildTailwind(hexes, isPro) :
+                         buildHex(hexes, isPro)
 
   const handleCopy = async () => {
     try {
@@ -101,7 +134,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
         </div>
 
         {/* Copy button */}
-        <div className="px-5 py-4">
+        <div className="px-5 pt-4 pb-2">
           <button
             onClick={handleCopy}
             className={`w-full h-10 rounded-full text-[13px] font-semibold transition-all duration-150
@@ -114,6 +147,15 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
             {copied ? '✓ Copied to clipboard' : 'Copy'}
           </button>
         </div>
+
+        {/* Pro upgrade note */}
+        {!isPro && (
+          <div className="px-5 pb-4 text-center">
+            <span className="text-[11px] text-gray-400">
+              ⬆ Upgrade for shade scales + no watermark
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )

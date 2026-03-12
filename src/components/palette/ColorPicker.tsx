@@ -42,6 +42,15 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   useEffect(() => { onChangeRef.current = onChange }, [onChange])
 
+  // Sync internal color when hex prop changes (e.g. opened on a different swatch)
+  useEffect(() => {
+    const normalized = hex.startsWith('#') ? hex : '#' + hex
+    if (normalized.toLowerCase() !== color.toLowerCase()) {
+      skipFirst.current = true // don't notify parent of their own change
+      setColor(normalized)
+    }
+  }, [hex]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Animate in on mobile
   useEffect(() => {
     if (IS_MOBILE) requestAnimationFrame(() => setVisible(true))

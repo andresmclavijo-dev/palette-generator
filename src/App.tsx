@@ -5,6 +5,9 @@ import CountPicker from './components/palette/CountPicker'
 import ExportPanel from './components/palette/ExportPanel'
 import AiPrompt from './components/palette/AiPrompt'
 import SaveModal from './components/palette/SaveModal'
+import ImagePalette from './components/palette/ImagePalette'
+import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
+import type { VisionMode } from './components/palette/VisionSimulator'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette } from './lib/colorEngine'
 
@@ -23,6 +26,7 @@ export default function App() {
   const [helpOpen,     setHelpOpen]     = useState(false)
   const [saveOpen,     setSaveOpen]     = useState(false)
   const [aiOpen,       setAiOpen]       = useState(false)
+  const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -35,10 +39,15 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get('p')
+    const params = new URLSearchParams(window.location.search)
+    const p = params.get('p')
     if (p) {
       const hexes = decodePalette(p)
-      if (hexes) setSwatches(hexes.map(h => makeSwatch(h)))
+      if (hexes) {
+        const lockedParam = params.get('locked')
+        const lockedBits = lockedParam ? lockedParam.split(',') : []
+        setSwatches(hexes.map((h, i) => makeSwatch(h, lockedBits[i] === '1')))
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -46,6 +55,12 @@ export default function App() {
   useEffect(() => {
     const url = new URL(window.location.href)
     url.searchParams.set('p', encodePalette(swatches.map(s => s.hex)))
+    const lockedStr = swatches.map(s => s.locked ? '1' : '0').join(',')
+    if (swatches.some(s => s.locked)) {
+      url.searchParams.set('locked', lockedStr)
+    } else {
+      url.searchParams.delete('locked')
+    }
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
@@ -76,6 +91,12 @@ export default function App() {
   const handleAiPalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
   }
+
+  const handleImagePalette = (hexes: string[]) => {
+    setSwatches(hexes.map(h => makeSwatch(h)))
+  }
+
+  const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden bg-white">
@@ -134,20 +155,24 @@ export default function App() {
         </div>
       </header>
 
-      {/* -- Harmony tab bar + AI toggle -- */}
+      {/* -- Harmony tab bar + tools -- */}
       <div
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
-        <button
-          onClick={() => setAiOpen(o => !o)}
-          className={`shrink-0 ml-2 flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-            aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-          }`}
-        >
-          ✨ <span className="hidden sm:inline">AI</span>
-        </button>
+        <div className="flex items-center gap-1 shrink-0 ml-2">
+          <ImagePalette onPalette={handleImagePalette} />
+          <VisionSimulator mode={visionMode} onChange={setVisionMode} />
+          <button
+            onClick={() => setAiOpen(o => !o)}
+            className={`flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
+              aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+            }`}
+          >
+            ✨ <span className="hidden sm:inline">AI</span>
+          </button>
+        </div>
       </div>
 
       {/* -- AI prompt bar (collapsible) -- */}
@@ -158,7 +183,17 @@ export default function App() {
       )}
 
       {/* -- Palette canvas -- */}
-      <main className="flex-1 overflow-hidden relative pb-[56px] sm:pb-0">
+      <main className="flex-1 overflow-hidden relative pb-[56px] sm:pb-0" style={{ filter: visionFilter }}>
+        {/* Vision mode badge */}
+        {visionMode !== 'normal' && (
+          <button
+            onClick={() => setVisionMode('normal')}
+            className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium text-gray-700 hover:bg-white transition-all"
+          >
+            👁 {visionMode.charAt(0).toUpperCase() + visionMode.slice(1)}
+            <span className="text-gray-400 ml-1">✕</span>
+          </button>
+        )}
         <PaletteCanvas
           swatches={swatches}
           onLock={lockSwatch}
@@ -275,6 +310,8 @@ export default function App() {
       {saveOpen && (
         <SaveModal onClose={() => setSaveOpen(false)} />
       )}
+
+      <VisionFilterDefs />
     </div>
   )
 }
