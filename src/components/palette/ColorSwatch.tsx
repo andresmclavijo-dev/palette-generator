@@ -225,13 +225,12 @@ export default function ColorSwatch({
         </span>
       </div>
 
-      {/* Center: hex value */}
+      {/* Center: hex value — tap opens picker on mobile */}
       <div className="flex-1 flex justify-center z-10 min-w-0">
         <button
           className="text-[14px] font-mono font-bold tracking-wider uppercase truncate"
           style={{ color: labelColor }}
-          onClick={handleCopy}
-          onDoubleClick={handleHexDoubleClick}
+          onClick={(e) => { e.stopPropagation(); setPickerOpen(true) }}
         >
           {copied ? 'Copied' : hex.toUpperCase()}
         </button>

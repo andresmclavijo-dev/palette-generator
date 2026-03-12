@@ -90,6 +90,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     <div
       ref={pickerRef}
       className="relative w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+      onPointerDown={e => e.stopPropagation()}
       onClick={e => e.stopPropagation()}
     >
       {/* Close button */}
