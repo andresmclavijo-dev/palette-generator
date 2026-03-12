@@ -54,6 +54,11 @@ export default function App() {
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
 
+  // Auto-close Pro modal when user becomes Pro
+  useEffect(() => {
+    if (isPro) setProModalOpen(false)
+  }, [isPro])
+
   const showCopyToast = useCallback(() => {
     setCopyToast(true)
     setTimeout(() => setCopyToast(false), 1500)
