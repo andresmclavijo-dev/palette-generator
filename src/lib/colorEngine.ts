@@ -3,7 +3,7 @@ import chroma from 'chroma-js'
 export type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
 // ── Shades (light → dark, N steps) ────────────────────────────────
-export function generateShades(hex: string, count = 9): string[] {
+export function generateShades(hex: string, count = 10): string[] {
   try {
     const [h, s] = chroma(hex).hsl()
     const safeS = isNaN(s) ? 0 : s
@@ -203,6 +203,27 @@ export function parseHex(raw: string): string | null {
   if (/^[0-9a-fA-F]{3}$/.test(c)) return `#${c.split('').map(x => x+x).join('').toUpperCase()}`
   return null
 }
+
+// ── Slugify color name for CSS variables ─────────────────────────
+export function slugifyColorName(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+}
+
+// ── Deduplicate color names across a palette ─────────────────────
+export function getDeduplicatedNames(hexes: string[]): string[] {
+  const names = hexes.map(h => getColorName(h))
+  const freq: Record<string, number> = {}
+  for (const n of names) if (n) freq[n] = (freq[n] || 0) + 1
+  const seen: Record<string, number> = {}
+  return names.map(name => {
+    if (!name || freq[name] <= 1) return name
+    seen[name] = (seen[name] || 0) + 1
+    return seen[name] === 1 ? name : `${name} ${seen[name]}`
+  })
+}
+
+// ── Tailwind shade labels ────────────────────────────────────────
+export const TAILWIND_SHADE_LABELS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
 export function encodePalette(hexes: string[]): string {
   return hexes.map(h => h.replace('#', '')).join('-')

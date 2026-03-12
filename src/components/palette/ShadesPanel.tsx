@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { generateShades, getColorName, readableOn } from '../../lib/colorEngine'
+import { generateShades, getColorName, readableOn, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640
@@ -10,7 +10,7 @@ interface ShadesPanelProps {
 }
 
 export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
-  const shades = generateShades(hex, 9)
+  const shades = generateShades(hex, 10)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
   const colorName = getColorName(hex)
@@ -52,7 +52,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
           className="text-[10px] font-mono tracking-widest opacity-40 group-hover/shade:opacity-70 transition-opacity select-none"
           style={{ color: labelColor }}
         >
-          {(i + 1) * 100}
+          {TAILWIND_SHADE_LABELS[i] ?? (i + 1) * 100}
         </span>
         <span
           className="text-[11px] font-mono tracking-wider opacity-60 group-hover/shade:opacity-100 transition-opacity select-none"

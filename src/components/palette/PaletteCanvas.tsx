@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Swatch } from '../../lib/colorEngine'
+import { getDeduplicatedNames } from '../../lib/colorEngine'
 import ColorSwatch from './ColorSwatch'
 
 interface PaletteCanvasProps {
@@ -64,6 +65,8 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder }: P
     }
   }, [dragIndex, swatches.length])
 
+  const dedupedNames = useMemo(() => getDeduplicatedNames(swatches.map(s => s.hex)), [swatches])
+
   // Compute visual reorder during drag
   const displayOrder = (() => {
     const indices = swatches.map((_, i) => i)
@@ -89,6 +92,7 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder }: P
             locked={swatch.locked}
             index={swatchIdx}
             isDragging={dragIndex === swatchIdx}
+            dedupedName={dedupedNames[swatchIdx]}
             onLock={() => onLock(swatch.id)}
             onEdit={(hex) => onEdit(swatch.id, hex)}
             onDragStart={() => handleDragStart(swatchIdx)}

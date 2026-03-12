@@ -21,13 +21,14 @@ interface ColorSwatchProps {
   locked: boolean
   index: number
   isDragging: boolean
+  dedupedName?: string
   onLock: () => void
   onEdit: (hex: string) => void
   onDragStart: () => void
 }
 
 export default function ColorSwatch({
-  hex, locked, index, isDragging, onLock, onEdit, onDragStart,
+  hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart,
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
   const [shadesOpen, setShadesOpen] = useState(false)
@@ -39,7 +40,8 @@ export default function ColorSwatch({
 
   const lightBg    = isLight(hex)
   const nearWhite  = isNearWhite(hex)
-  const colorName  = getColorName(hex)
+  const colorName  = dedupedName || getColorName(hex)
+  const staggerDelay = locked ? '0ms' : `${index * 40}ms`
   const iconColor  = lightBg ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.85)'
   const labelColor = lightBg ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'
   const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
@@ -215,7 +217,8 @@ export default function ColorSwatch({
       style={{
         backgroundColor: hex,
         boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
-        transition: 'background-color 0.4s cubic-bezier(.4,0,.2,1)',
+        transition: 'background-color 300ms cubic-bezier(.4,0,.2,1)',
+        transitionDelay: staggerDelay,
         opacity: isDragging ? 0.6 : 1,
         zIndex: isDragging ? 20 : undefined,
       }}
@@ -325,7 +328,7 @@ export default function ColorSwatch({
       style={{
         backgroundColor: hex,
         boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
-        transition: 'background-color 0.4s cubic-bezier(.4,0,.2,1), filter 0.15s ease',
+        transition: `background-color 300ms cubic-bezier(.4,0,.2,1) ${staggerDelay}, filter 0.15s ease`,
         opacity: isDragging ? 0.6 : 1,
         zIndex: isDragging ? 20 : undefined,
       }}

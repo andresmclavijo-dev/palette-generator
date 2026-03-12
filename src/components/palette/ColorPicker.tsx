@@ -111,19 +111,17 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
             </svg>
           </button>
 
-          {/* Color preview */}
-          <div className="mx-4 mt-2 rounded-xl h-16 border border-gray-100" style={{ backgroundColor: color }} />
-
-          {/* Native color input — opens iOS system picker, no pointer event bugs */}
-          <div className="mx-4 mt-3 flex flex-col items-center gap-2">
-            <label className="text-xs text-gray-400 font-medium tracking-wide uppercase">Tap to pick color</label>
+          {/* Color preview — tap target with hidden native input overlay */}
+          <div className="mx-4 mt-2 rounded-xl h-20 border border-gray-100 relative cursor-pointer overflow-hidden" style={{ backgroundColor: color }}>
             <input
               type="color"
               value={color}
               onChange={e => setColor(e.target.value)}
-              className="w-full h-14 rounded-xl border border-gray-200 cursor-pointer"
-              style={{ padding: '4px' }}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-white/70 text-xs font-medium tracking-wide uppercase" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Tap to change</span>
+            </div>
           </div>
 
           {/* Hex display + copy */}

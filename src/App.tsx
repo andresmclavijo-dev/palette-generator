@@ -3,6 +3,8 @@ import PaletteCanvas from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
 import CountPicker from './components/palette/CountPicker'
 import ExportPanel from './components/palette/ExportPanel'
+import AiPrompt from './components/palette/AiPrompt'
+import SaveModal from './components/palette/SaveModal'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette } from './lib/colorEngine'
 
@@ -19,6 +21,8 @@ export default function App() {
   const [exportOpen,   setExportOpen]   = useState(false)
   const [showHint,     setShowHint]     = useState(false)
   const [helpOpen,     setHelpOpen]     = useState(false)
+  const [saveOpen,     setSaveOpen]     = useState(false)
+  const [aiOpen,       setAiOpen]       = useState(false)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -55,7 +59,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setSaveOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -67,6 +71,10 @@ export default function App() {
       setShareCopied(true)
       setTimeout(() => setShareCopied(false), 2000)
     } catch { /* silent */ }
+  }
+
+  const handleAiPalette = (hexes: string[]) => {
+    setSwatches(hexes.map(h => makeSwatch(h)))
   }
 
   return (
@@ -99,6 +107,18 @@ export default function App() {
             </svg>
             <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
           </button>
+
+          {/* Save button — desktop only */}
+          <button
+            onClick={() => setSaveOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span className="hidden sm:inline">Save</span>
+          </button>
+
           <button
             onClick={() => setExportOpen(o => !o)}
             className="flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
@@ -114,16 +134,31 @@ export default function App() {
         </div>
       </header>
 
-      {/* -- Harmony tab bar -- */}
+      {/* -- Harmony tab bar + AI toggle -- */}
       <div
-        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
+        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
+        <button
+          onClick={() => setAiOpen(o => !o)}
+          className={`shrink-0 ml-2 flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
+            aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+          }`}
+        >
+          ✨ <span className="hidden sm:inline">AI</span>
+        </button>
       </div>
 
+      {/* -- AI prompt bar (collapsible) -- */}
+      {aiOpen && (
+        <div className="flex-none h-11 bg-white border-b border-gray-100 flex items-center px-3 sm:px-4 z-20 shrink-0">
+          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} />
+        </div>
+      )}
+
       {/* -- Palette canvas -- */}
-      <main className="flex-1 overflow-hidden relative pb-[72px] sm:pb-0">
+      <main className="flex-1 overflow-hidden relative pb-[56px] sm:pb-0">
         <PaletteCanvas
           swatches={swatches}
           onLock={lockSwatch}
@@ -184,33 +219,11 @@ export default function App() {
         </div>
       </main>
 
-      {/* -- Mobile footer -- */}
+      {/* -- Mobile footer (Task 5: simplified — Undo, Generate, Count, Export) -- */}
       <footer
         className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center px-2 gap-1"
         style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
-        {/* Help */}
-        <div className="relative shrink-0">
-          <button
-            onClick={() => setHelpOpen(o => !o)}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all text-[15px] font-semibold"
-          >
-            ?
-          </button>
-          {helpOpen && (
-            <div className="absolute bottom-12 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
-              <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
-                <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
-                <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Tap lock icon</span></div>
-                <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Tap hex</span></div>
-              </div>
-              <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)}>X</button>
-            </div>
-          )}
-        </div>
-
         {/* Undo */}
         <button
           onClick={undo}
@@ -236,14 +249,31 @@ export default function App() {
           </button>
         </div>
 
-        {/* Count picker — compact, only 3·4·5·6✦ */}
+        {/* Count picker — compact */}
         <div className="shrink-0">
           <CountPicker count={count} onChange={setCount} compact />
         </div>
+
+        {/* Export */}
+        <button
+          onClick={() => setExportOpen(o => !o)}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
+          title="Export"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
       </footer>
 
       {exportOpen && (
         <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
+      )}
+
+      {saveOpen && (
+        <SaveModal onClose={() => setSaveOpen(false)} />
       )}
     </div>
   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getColorName, slugifyColorName } from '../../lib/colorEngine'
 
 type Tab = 'css' | 'tailwind' | 'hex'
 const BRAND = '#1A73E8'
@@ -9,7 +10,15 @@ interface ExportPanelProps {
 }
 
 function buildCSS(hexes: string[]): string {
-  return [':root {', ...hexes.map((h, i) => `  --color-${i + 1}: ${h};`), '}'].join('\n')
+  const seen: Record<string, number> = {}
+  const lines = hexes.map((h) => {
+    let slug = slugifyColorName(getColorName(h) || 'color')
+    if (!slug) slug = 'color'
+    seen[slug] = (seen[slug] || 0) + 1
+    const key = seen[slug] > 1 ? `${slug}-${seen[slug]}` : slug
+    return `  --color-${key}: ${h};`
+  })
+  return [':root {', ...lines, '}'].join('\n')
 }
 function buildTailwind(hexes: string[]): string {
   const inner = hexes.map((h, i) => `      ${i + 1}: '${h}',`).join('\n')
