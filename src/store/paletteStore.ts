@@ -99,7 +99,10 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
     set({ swatches: next, ...hist })
   },
 
-  setHarmonyMode: (harmonyMode) => set({ harmonyMode }),
+  setHarmonyMode: (harmonyMode) => {
+    set({ harmonyMode })
+    get().generate()
+  },
   setSeedColor: (hex) => set({ seedColor: hex }),
 
   undo: () => {

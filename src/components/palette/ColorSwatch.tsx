@@ -32,6 +32,9 @@ export default function ColorSwatch({
   const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
   const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.42)'
 
+  // Drop shadow filter for lock icons — visible on any background
+  const iconShadow = 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
+
   // Dismiss action bar on outside tap (mobile)
   useEffect(() => {
     if (!showActions || !IS_COARSE) return
@@ -77,6 +80,7 @@ export default function ColorSwatch({
     if (editing || shadesOpen) return
     if (IS_COARSE) {
       if (showActions) {
+        // Second tap on body = lock + dismiss bar
         onLock()
         setShowActions(false)
       } else {
@@ -99,10 +103,15 @@ export default function ColorSwatch({
     setShowActions(false)
   }
 
+  const handleDismissBar = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowActions(false)
+  }
+
   // Action bar visibility
   const barShow = IS_COARSE ? (showActions && !editing && !shadesOpen) : false
   const barHoverClass = !IS_COARSE
-    ? 'group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto'
+    ? 'group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto'
     : ''
 
   return (
@@ -112,7 +121,6 @@ export default function ColorSwatch({
       style={{
         backgroundColor: hex,
         boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
-        filter: locked ? 'brightness(0.90)' : undefined,
         transition: 'background-color 0.4s cubic-bezier(.4,0,.2,1), filter 0.15s ease',
         opacity: isDragging ? 0.6 : 1,
         zIndex: isDragging ? 20 : undefined,
@@ -127,6 +135,14 @@ export default function ColorSwatch({
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none"
         style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
       />
+
+      {/* Dark overlay when locked */}
+      {locked && (
+        <div
+          className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-150"
+          style={{ backgroundColor: 'rgba(0,0,0,0.12)' }}
+        />
+      )}
 
       {/* Shades panel */}
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
@@ -146,37 +162,42 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Lock icon — top center */}
+      {/* Lock icon — top center, white fill + drop shadow for contrast */}
       {!shadesOpen && (
-        <div className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
-          locked
-            ? 'opacity-100 scale-100'
-            : IS_COARSE
-              ? (showActions ? 'opacity-50 scale-100' : 'opacity-0 scale-90')
-              : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
-        }`}>
-          {locked ? <LockIcon color={labelOpacity} /> : <UnlockIcon color={labelMuted} />}
+        <div
+          className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
+            locked
+              ? 'opacity-100 scale-100'
+              : IS_COARSE
+                ? (showActions ? 'opacity-50 scale-100' : 'opacity-0 scale-90')
+                : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
+          }`}
+          style={{ filter: iconShadow }}
+        >
+          {locked ? <LockedFilledIcon /> : <UnlockIcon />}
         </div>
       )}
 
-      {/* Bottom: action bar + labels */}
+      {/* Center: action bar + bottom labels */}
       {!shadesOpen && (
         <div className={`absolute bottom-0 left-0 right-0 flex flex-col items-center gap-[5px] z-10
           ${isLast ? 'pb-[80px] sm:pb-20' : 'pb-4 sm:pb-20'}`}>
 
-          {/* Floating action bar — pill */}
+          {/* Floating action bar — centered pill */}
           {!editing && (
             <div
               className={`flex items-center bg-white rounded-full shadow-md overflow-hidden
-                transition-all duration-150 mb-1
-                ${barShow ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+                transition-all duration-150 ease-out mb-1
+                ${barShow
+                  ? 'opacity-100 translate-y-0 pointer-events-auto action-bar-enter'
+                  : 'opacity-0 translate-y-2 pointer-events-none'}
                 ${barHoverClass}
               `}
               onClick={e => e.stopPropagation()}
             >
               <button
                 onClick={handleCopy}
-                className="flex items-center justify-center w-11 h-11 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                 title="Copy hex"
               >
                 {copied ? <CheckIcon /> : <CopyIcon />}
@@ -184,7 +205,7 @@ export default function ColorSwatch({
               <div className="w-px h-5 bg-gray-200" />
               <button
                 onClick={handleOpenShades}
-                className="flex items-center justify-center w-11 h-11 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                 title="View shades"
               >
                 <ShadesIcon />
@@ -192,11 +213,24 @@ export default function ColorSwatch({
               <div className="w-px h-5 bg-gray-200" />
               <button
                 onClick={startEdit}
-                className="flex items-center justify-center w-11 h-11 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                 title="Edit hex"
               >
                 <EditIcon />
               </button>
+              {/* Close button — mobile */}
+              {IS_COARSE && (
+                <>
+                  <div className="w-px h-5 bg-gray-200" />
+                  <button
+                    onClick={handleDismissBar}
+                    className="flex items-center justify-center w-12 h-12 text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                    title="Close"
+                  >
+                    <CloseIcon />
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -243,7 +277,7 @@ export default function ColorSwatch({
   )
 }
 
-/* ── Icons — consistent 18px / stroke-width 1.5 for chrome, 20px for actions ── */
+/* ── Icons ── */
 
 function GripIcon({ color }: { color: string }) {
   return (
@@ -258,27 +292,29 @@ function GripIcon({ color }: { color: string }) {
   )
 }
 
-function LockIcon({ color }: { color: string }) {
+// Locked state — filled/solid body with white fill
+function LockedFilledIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" fill="white" stroke="white" strokeWidth="1.5"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="white" strokeWidth="1.5"/>
     </svg>
   )
 }
 
-function UnlockIcon({ color }: { color: string }) {
+// Unlocked state — outline with white fill
+function UnlockIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2"/>
-      <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+    <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" fill="white" stroke="white" strokeWidth="1.5"/>
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" fill="none" stroke="white" strokeWidth="1.5"/>
     </svg>
   )
 }
 
 function CopyIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="9" y="9" width="13" height="13" rx="2"/>
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
     </svg>
@@ -287,7 +323,7 @@ function CopyIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   )
@@ -295,7 +331,7 @@ function CheckIcon() {
 
 function ShadesIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
       <line x1="3" y1="8.5" x2="21" y2="8.5"/>
       <line x1="3" y1="13" x2="21" y2="13"/>
@@ -306,9 +342,18 @@ function ShadesIcon() {
 
 function EditIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   )
 }

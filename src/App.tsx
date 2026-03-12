@@ -195,20 +195,18 @@ export default function App() {
 
         {/* ─ Mobile footer ─ */}
         <div className="flex sm:hidden h-12 items-center justify-between px-3">
-          {/* Left: help + locked badge */}
-          <div className="flex items-center gap-2 shrink-0 min-w-[60px]">
-            <button
-              onClick={() => setHelpOpen(o => !o)}
-              className="w-11 h-11 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all text-[13px] font-semibold"
-            >
-              ?
-            </button>
-            {lockedCount > 0 && (
-              <span className="text-[11px] font-medium text-gray-400 whitespace-nowrap">
-                {lockedCount}
-              </span>
-            )}
-          </div>
+          {/* Left: Controls button */}
+          <button
+            onClick={() => setMobileSheet(true)}
+            className="flex items-center gap-1.5 h-11 px-3 rounded-full text-gray-600 hover:bg-gray-100 text-[12px] font-medium transition-all"
+            title="Controls"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Controls
+          </button>
 
           {/* Center: Generate button */}
           <button
@@ -222,25 +220,15 @@ export default function App() {
             Generate
           </button>
 
-          {/* Right: Controls button */}
+          {/* Right: locked count */}
           <div className="flex items-center shrink-0 min-w-[60px] justify-end">
-            <button
-              onClick={() => setMobileSheet(true)}
-              className="w-11 h-11 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all"
-              title="Controls"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="21" x2="4" y2="14"/>
-                <line x1="4" y1="10" x2="4" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12" y2="3"/>
-                <line x1="20" y1="21" x2="20" y2="16"/>
-                <line x1="20" y1="12" x2="20" y2="3"/>
-                <line x1="1" y1="14" x2="7" y2="14"/>
-                <line x1="9" y1="8" x2="15" y2="8"/>
-                <line x1="17" y1="16" x2="23" y2="16"/>
-              </svg>
-            </button>
+            {lockedCount > 0 ? (
+              <span className="text-[11px] font-medium text-gray-400 whitespace-nowrap">
+                {lockedCount} locked
+              </span>
+            ) : (
+              <span className="w-[60px]" />
+            )}
           </div>
         </div>
       </footer>
@@ -253,9 +241,17 @@ export default function App() {
             className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl sheet-slide-up"
             onClick={e => e.stopPropagation()}
           >
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-1">
+            {/* Handle + close */}
+            <div className="flex justify-center pt-3 pb-1 relative">
               <div className="w-10 h-1 rounded-full bg-gray-200" />
+              <button
+                onClick={() => setMobileSheet(false)}
+                className="absolute right-4 top-2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
             </div>
 
             {/* Harmony section */}
