@@ -21,24 +21,17 @@ interface ProUpgradeModalProps {
   onSignIn?: () => void
 }
 
-export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeModalProps) {
-  const { user, isSignedIn } = useAuth()
+export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps) {
+  const { user } = useAuth()
 
   if (!open) return null
 
   const handleMonthly = () => {
-    if (!user) return
-    window.open(getCheckoutUrl('monthly', user.id), '_blank')
+    window.open(getCheckoutUrl('monthly', user?.id), '_blank')
   }
 
   const handleYearly = () => {
-    if (!user) return
-    window.open(getCheckoutUrl('yearly', user.id), '_blank')
-  }
-
-  const handleSignIn = () => {
-    onClose()
-    onSignIn?.()
+    window.open(getCheckoutUrl('yearly', user?.id), '_blank')
   }
 
   return (
@@ -85,35 +78,23 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
         {/* Divider */}
         <div className="border-t border-gray-100 my-4" />
 
-        {/* CTA */}
+        {/* CTA — always visible */}
         <div className="space-y-2">
-          {isSignedIn ? (
-            <>
-              <button
-                onClick={handleMonthly}
-                className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-                style={{ backgroundColor: BRAND }}
-              >
-                Subscribe Monthly — $5/mo
-              </button>
-              <button
-                onClick={handleYearly}
-                className="flex items-center justify-center w-full h-11 rounded-full text-[14px] font-semibold transition-all hover:bg-blue-50 active:scale-95 border"
-                style={{ borderColor: BRAND, color: BRAND }}
-              >
-                Subscribe Yearly — $36/yr
-                <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 40%</span>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={handleSignIn}
-              className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: BRAND }}
-            >
-              Sign in to upgrade
-            </button>
-          )}
+          <button
+            onClick={handleMonthly}
+            className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+            style={{ backgroundColor: BRAND }}
+          >
+            Subscribe Monthly — $5/mo
+          </button>
+          <button
+            onClick={handleYearly}
+            className="flex items-center justify-center w-full h-11 rounded-full text-[14px] font-semibold transition-all hover:bg-blue-50 active:scale-95 border"
+            style={{ borderColor: BRAND, color: BRAND }}
+          >
+            Subscribe Yearly — $45/yr
+            <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 25%</span>
+          </button>
           <button
             onClick={onClose}
             className="w-full h-11 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"

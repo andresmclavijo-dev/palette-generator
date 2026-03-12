@@ -21,6 +21,55 @@ async function getRawBody(req: VercelRequest): Promise<Buffer> {
   return Buffer.concat(chunks)
 }
 
+async function upgradeByUserId(userId: string, sessionId: string) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ is_pro: true })
+    .eq('id', userId)
+
+  if (error) {
+    console.error('Supabase update by userId failed:', error)
+    return false
+  }
+  console.log(`User ${userId} upgraded to Pro via session ${sessionId}`)
+  return true
+}
+
+async function upgradeByEmail(email: string, sessionId: string) {
+  // Try to find existing profile by email
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .single()
+
+  if (existing) {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_pro: true })
+      .eq('id', existing.id)
+
+    if (error) {
+      console.error('Supabase update by email failed:', error)
+      return false
+    }
+    console.log(`User ${existing.id} (${email}) upgraded to Pro via session ${sessionId}`)
+    return true
+  }
+
+  // No existing profile — create one
+  const { error } = await supabase
+    .from('profiles')
+    .insert({ email, is_pro: true })
+
+  if (error) {
+    console.error('Supabase insert for new email failed:', error)
+    return false
+  }
+  console.log(`New profile created for ${email} as Pro via session ${sessionId}`)
+  return true
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -43,23 +92,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const userId = session.client_reference_id
+    const email = session.customer_details?.email
 
-    if (!userId) {
-      console.error('No client_reference_id on checkout session', session.id)
-      return res.status(200).json({ received: true, warning: 'no client_reference_id' })
+    // Signed-in user: match by Supabase user ID
+    if (userId) {
+      const ok = await upgradeByUserId(userId, session.id)
+      if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
+      return res.status(200).json({ received: true })
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ is_pro: true })
-      .eq('id', userId)
-
-    if (error) {
-      console.error('Supabase update failed:', error)
-      return res.status(500).json({ error: 'Failed to update profile' })
+    // Signed-out user: match by email from Stripe checkout
+    if (email) {
+      const ok = await upgradeByEmail(email, session.id)
+      if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
+      return res.status(200).json({ received: true })
     }
 
-    console.log(`User ${userId} upgraded to Pro via session ${session.id}`)
+    console.error('No client_reference_id or email on checkout session', session.id)
   }
 
   return res.status(200).json({ received: true })
