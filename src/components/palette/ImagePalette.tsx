@@ -46,7 +46,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
         className="hidden"
         onChange={handleFile}
       />
-      <Tooltip text="Extract palette from any photo">
+      <Tooltip text="Extract from image">
         <button
           onClick={handleClick}
           disabled={loading}

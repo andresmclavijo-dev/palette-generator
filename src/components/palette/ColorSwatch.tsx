@@ -26,10 +26,11 @@ interface ColorSwatchProps {
   onLock: () => void
   onEdit: (hex: string) => void
   onDragStart: () => void
+  onCopyToast?: () => void
 }
 
 export default function ColorSwatch({
-  hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart,
+  hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart, onCopyToast,
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
   const [shadesOpen, setShadesOpen] = useState(false)
@@ -86,16 +87,13 @@ export default function ColorSwatch({
     return () => document.removeEventListener('pointerdown', handler)
   }, [infoOpen])
 
-  const [copyToast, setCopyToast] = useState(false)
-
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
     try {
       await navigator.clipboard.writeText(hex)
       setCopied(true)
-      setCopyToast(true)
+      onCopyToast?.()
       setTimeout(() => setCopied(false), 1400)
-      setTimeout(() => setCopyToast(false), 1400)
     } catch { /* silent */ }
   }
 
@@ -395,25 +393,25 @@ export default function ColorSwatch({
             `}
             onClick={e => e.stopPropagation()}
           >
-            <Tooltip text="Copy hex" position="top">
+            <Tooltip text="Copy hex">
               <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 {copied ? <CheckIcon /> : <CopyIcon />}
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="View shades" position="top">
+            <Tooltip text="View shades">
               <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <ShadesIcon />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="Color info" position="top">
+            <Tooltip text="Color info">
               <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <InfoIcon />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="Edit color" position="top">
+            <Tooltip text="Edit color">
               <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <EditIcon />
               </button>
@@ -454,11 +452,6 @@ export default function ColorSwatch({
     <>
       {mobileLayout}
       {desktopLayout}
-      {copyToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg pointer-events-none">
-          Copied!
-        </div>
-      )}
     </>
   )
 }

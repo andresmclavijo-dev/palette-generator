@@ -34,7 +34,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
 
   return (
     <div className="relative shrink-0 hidden sm:block">
-      <Tooltip text="Simulate color blindness modes">
+      <Tooltip text="Simulate color blindness">
         <button
           onClick={handleClick}
           className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${

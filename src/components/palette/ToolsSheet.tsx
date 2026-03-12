@@ -95,7 +95,7 @@ export default function ToolsSheet({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-1 pb-3 border-b border-gray-100">
-          <span className="text-[15px] font-semibold text-gray-800">Tools</span>
+          <span className="text-[15px] font-semibold text-gray-800">Pro Tools</span>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"

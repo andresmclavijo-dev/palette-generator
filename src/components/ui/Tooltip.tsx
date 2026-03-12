@@ -1,19 +1,35 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 
 interface TooltipProps {
   text: string
   children: ReactNode
-  position?: 'top' | 'bottom'
+  disabled?: boolean
 }
 
-export default function Tooltip({ text, children, position = 'bottom' }: TooltipProps) {
+export default function Tooltip({ text, children, disabled }: TooltipProps) {
   const [visible, setVisible] = useState(false)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const triggerRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const show = useCallback(() => {
-    timerRef.current = setTimeout(() => setVisible(true), 400)
+  const updatePos = useCallback(() => {
+    if (!triggerRef.current) return
+    const rect = triggerRef.current.getBoundingClientRect()
+    setPos({
+      top: rect.top - 8,
+      left: rect.left + rect.width / 2,
+    })
   }, [])
+
+  const show = useCallback(() => {
+    if (disabled) return
+    timerRef.current = setTimeout(() => {
+      updatePos()
+      setVisible(true)
+    }, 350)
+  }, [disabled, updatePos])
 
   const hide = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -21,27 +37,44 @@ export default function Tooltip({ text, children, position = 'bottom' }: Tooltip
     setVisible(false)
   }, [])
 
-  const isTop = position === 'top'
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (disabled) hide()
+  }, [disabled, hide])
 
   return (
-    <div
-      className="relative inline-flex"
-      onMouseEnter={show}
-      onMouseLeave={hide}
-      onFocus={show}
-      onBlur={hide}
-    >
-      {children}
+    <>
       <div
-        className={`absolute left-1/2 -translate-x-1/2 z-[80] pointer-events-none transition-opacity duration-150
-          ${isTop ? 'bottom-full mb-2' : 'top-full mt-2'}
-          ${visible ? 'opacity-100' : 'opacity-0'}
-        `}
+        ref={triggerRef}
+        className="inline-flex"
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
       >
-        <div className="px-2.5 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-medium shadow-lg whitespace-nowrap">
-          {text}
-        </div>
+        {children}
       </div>
-    </div>
+      {visible && createPortal(
+        <div
+          className="fixed pointer-events-none"
+          style={{
+            top: pos.top,
+            left: pos.left,
+            transform: 'translate(-50%, -100%)',
+            zIndex: 9999,
+          }}
+        >
+          <div className="px-2.5 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-medium shadow-lg whitespace-nowrap pointer-events-none">
+            {text}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   )
 }
