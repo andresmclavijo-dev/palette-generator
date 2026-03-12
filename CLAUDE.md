@@ -144,18 +144,20 @@ Vertical stacked swatches on mobile, drag handle, floating action bar (Copy/Shad
 Action bar centered in swatch, slide-up animation, auto-generate on harmony switch, lock icon contrast fix, stronger lock feedback
 
 ### ✅ M8 — Layout overhaul
-Harmony tabs moved to top nav, footer removed, floating controls (?, Generate, count), color picker on hex click, bigger labels, mobile scroll harmony bar
+Harmony tabs moved to top nav, footer removed, floating controls (?, Generate, count), color picker on hex double-click, bigger labels (12px name, 16px hex bold), mobile scroll harmony bar
 
 ---
 
 ## Roadmap
 
 ### M9 — Interaction polish (next)
-- [ ] Mobile action bar ✕ close button (tap outside or ✕ to dismiss)
-- [ ] Lock visual feedback — filled lock icon + stronger overlay (rgba 0,0,0,0.12) when locked
-- [ ] Drag to reorder swatches — desktop (mouse drag) + mobile (long press drag)
-- [ ] Onboarding hints — "Tap to lock" tooltip on first visit, "Drag to reorder" hint
-- [ ] Shades icon — replace table/grid icon with a gradient strip icon (more intuitive)
+- [ ] Action bar anchored inside swatch (stays within swatch bounds, no overflow)
+- [ ] Last swatch color name fix (name clipped or missing on bottom swatch)
+- [ ] Mobile safe area padding for Generate button (avoid home indicator overlap)
+- [ ] Drag handle contrast (better visibility on light/dark swatches)
+- [ ] Harmony tab hover states (subtle bg on hover for inactive tabs)
+- [ ] Lock visual feedback — filled icon + dark overlay when locked
+- [ ] Onboarding "tap to lock" tooltip (first-visit hint on mobile)
 
 ### M10 — Growth + conversion
 - [ ] Pro upsell modal — when user taps 6/7/8, show compelling upgrade prompt (not just tooltip)
