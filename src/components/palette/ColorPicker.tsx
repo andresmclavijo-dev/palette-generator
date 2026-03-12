@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
-import { parseHex } from '../../lib/colorEngine'
 
-const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640
+const IS_MOBILE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 interface ColorPickerProps {
   hex: string
@@ -34,35 +33,31 @@ function fallbackCopy(text: string): Promise<void> {
 }
 
 export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
-  const [color, setColor] = useState(hex)
-  const [draft, setDraft] = useState(hex.replace('#', ''))
+  const [color, setColor] = useState(hex.startsWith('#') ? hex : '#' + hex)
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
-  const skipNotify = useRef(true)
+  const onChangeRef = useRef(onChange)
+  const skipFirst = useRef(true)
+
+  useEffect(() => { onChangeRef.current = onChange }, [onChange])
 
   // Animate in on mobile
   useEffect(() => {
     if (IS_MOBILE) requestAnimationFrame(() => setVisible(true))
   }, [])
 
-  // Sync draft text when picker color changes
+  // Notify parent, skip mount
   useEffect(() => {
-    setDraft(color.replace('#', ''))
-  }, [color])
+    if (skipFirst.current) { skipFirst.current = false; return }
+    try { onChangeRef.current(color) } catch { /* silent */ }
+  }, [color]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Notify parent — skip initial render
+  // Close on outside click (desktop)
   useEffect(() => {
-    if (skipNotify.current) { skipNotify.current = false; return }
-    try { onChange(color) } catch { /* silent */ }
-  }, [color, onChange])
-
-  // Close on outside mousedown — uses contains() check
-  useEffect(() => {
+    if (IS_MOBILE) return
     const handler = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        onClose()
-      }
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) onClose()
     }
     const timer = setTimeout(() => document.addEventListener('mousedown', handler), 10)
     return () => { clearTimeout(timer); document.removeEventListener('mousedown', handler) }
@@ -70,28 +65,10 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   // Close on Escape
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.stopPropagation(); onClose() }
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
-
-  // Real-time hex input sync
-  const handleDraftChange = (raw: string) => {
-    const cleaned = raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
-    setDraft(cleaned)
-    if (cleaned.length === 6) {
-      const parsed = parseHex(cleaned)
-      if (parsed) setColor(parsed.toLowerCase())
-    }
-  }
-
-  const commitHex = () => {
-    const parsed = parseHex(draft)
-    if (!parsed) return
-    setColor(parsed.toLowerCase())
-  }
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -102,26 +79,96 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     } catch { /* silent */ }
   }
 
-  const pickerContent = (
-    <>
-      {/* Close button */}
+  const displayHex = color.replace('#', '').toUpperCase()
+
+  // ── MOBILE: native <input type="color"> — zero pointer event issues on iOS ──
+  if (IS_MOBILE) {
+    return (
+      <div className="fixed inset-0 z-[60]" onClick={onClose}>
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <div
+          ref={pickerRef}
+          className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl"
+          style={{
+            paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)',
+            transform: visible ? 'translateY(0)' : 'translateY(100%)',
+            transition: 'transform 220ms ease-out',
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Drag handle */}
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 rounded-full bg-gray-200" />
+          </div>
+
+          {/* Close */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose() }}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+
+          {/* Color preview */}
+          <div className="mx-4 mt-2 rounded-xl h-16 border border-gray-100" style={{ backgroundColor: color }} />
+
+          {/* Native color input — opens iOS system picker, no pointer event bugs */}
+          <div className="mx-4 mt-3 flex flex-col items-center gap-2">
+            <label className="text-xs text-gray-400 font-medium tracking-wide uppercase">Tap to pick color</label>
+            <input
+              type="color"
+              value={color}
+              onChange={e => setColor(e.target.value)}
+              className="w-full h-14 rounded-xl border border-gray-200 cursor-pointer"
+              style={{ padding: '4px' }}
+            />
+          </div>
+
+          {/* Hex display + copy */}
+          <div className="flex items-center gap-2 mx-4 mt-3 mb-2">
+            <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
+              <span className="text-[12px] text-gray-400 font-mono">#</span>
+              <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
+            </div>
+            <button
+              onClick={handleCopy}
+              className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
+            >
+              {copied
+                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── DESKTOP: react-colorful floating card ──
+  return (
+    <div
+      ref={pickerRef}
+      className="relative w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+      onMouseDown={e => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
+    >
+      {/* Close */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose() }}
-        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors"
-        title="Close"
+        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
 
-      {/* Color preview */}
-      <div
-        className="mx-4 mt-4 rounded-xl h-16 border border-gray-100"
-        style={{ backgroundColor: color }}
-      />
+      {/* Preview */}
+      <div className="mx-4 mt-4 rounded-xl h-16 border border-gray-100" style={{ backgroundColor: color }} />
 
-      {/* react-colorful hex picker — no HSL conversion needed */}
+      {/* react-colorful — works great on desktop */}
       <div className="mx-4 mt-3 react-colorful-wrapper">
         <HexColorPicker color={color} onChange={setColor} />
       </div>
@@ -131,67 +178,27 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         <div className="flex-1 flex items-center gap-1 px-3 h-9 rounded-lg bg-gray-50 border border-gray-200">
           <span className="text-[12px] text-gray-400 font-mono">#</span>
           <input
-            value={draft}
-            onChange={e => handleDraftChange(e.target.value)}
-            onBlur={commitHex}
-            onKeyDown={e => { if (e.key === 'Enter') commitHex(); e.stopPropagation() }}
+            value={displayHex}
+            onChange={e => {
+              const cleaned = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
+              if (cleaned.length === 6) setColor('#' + cleaned)
+            }}
+            onKeyDown={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             maxLength={6}
             className="flex-1 min-w-0 bg-transparent text-[13px] font-mono uppercase outline-none"
-            onClick={e => e.stopPropagation()}
           />
         </div>
         <button
           onClick={handleCopy}
           className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
-          title="Copy hex"
         >
-          {copied ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          )}
+          {copied
+            ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          }
         </button>
       </div>
-    </>
-  )
-
-  // Mobile — fixed bottom sheet
-  if (IS_MOBILE) {
-    return (
-      <div
-        className="fixed inset-0 z-[60]"
-        onClick={onClose}
-      >
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm sheet-backdrop" />
-        <div
-          ref={pickerRef}
-          className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl overflow-hidden"
-          style={{
-            paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
-            transform: visible ? 'translateY(0)' : 'translateY(100%)',
-            transition: 'transform 200ms ease-out',
-          }}
-          onClick={e => e.stopPropagation()}
-          onMouseDown={e => e.stopPropagation()}
-        >
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-gray-200" />
-          </div>
-          {pickerContent}
-        </div>
-      </div>
-    )
-  }
-
-  // Desktop — floating card
-  return (
-    <div
-      ref={pickerRef}
-      className="relative w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-      onMouseDown={e => e.stopPropagation()}
-      onClick={e => e.stopPropagation()}
-    >
-      {pickerContent}
     </div>
   )
 }
