@@ -24,7 +24,7 @@ const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
   const { isPro } = usePro()
-  const { isSignedIn } = useAuth()
+  const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count,
     generate, lockSwatch, editSwatch, reorderSwatches,
@@ -245,9 +245,13 @@ export default function App() {
               Sign In
             </button>
           ) : (
-            <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
-              A
-            </div>
+            <button
+              onClick={signOut}
+              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold cursor-pointer hover:bg-blue-200 transition-colors"
+              title="Sign out"
+            >
+              {(user?.email?.[0] ?? 'U').toUpperCase()}
+            </button>
           )}
 
           {/* Divider before Export — desktop */}
@@ -534,7 +538,7 @@ export default function App() {
       />
 
       {/* Sign In modal */}
-      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
+      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
 
       {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />

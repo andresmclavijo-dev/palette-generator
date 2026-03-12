@@ -1,9 +1,10 @@
 interface SignInModalProps {
   open: boolean
   onClose: () => void
+  onGoogleSignIn: () => void
 }
 
-export default function SignInModal({ open, onClose }: SignInModalProps) {
+export default function SignInModal({ open, onClose, onGoogleSignIn }: SignInModalProps) {
   if (!open) return null
 
   return (
@@ -27,8 +28,9 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
           <p className="text-[13px] text-gray-500 mt-2">Save palettes, access Pro features, sync across devices</p>
         </div>
 
-        <div className="px-6 pb-4">
+        <div className="px-6 pb-6">
           <button
+            onClick={() => { onGoogleSignIn(); onClose() }}
             className="flex items-center justify-center gap-3 w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
             style={{ backgroundColor: '#1A73E8' }}
           >
@@ -40,10 +42,6 @@ export default function SignInModal({ open, onClose }: SignInModalProps) {
             </svg>
             Continue with Google
           </button>
-        </div>
-
-        <div className="px-6 pb-6 text-center">
-          <span className="text-xs text-gray-400">Authentication coming in the next update</span>
         </div>
       </div>
     </div>
