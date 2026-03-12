@@ -19,7 +19,6 @@ export default function App() {
   const [exportOpen,   setExportOpen]   = useState(false)
   const [showHint,     setShowHint]     = useState(false)
   const [helpOpen,     setHelpOpen]     = useState(false)
-  const [mobileSheet,  setMobileSheet]  = useState(false)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setMobileSheet(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -69,8 +68,6 @@ export default function App() {
       setTimeout(() => setShareCopied(false), 2000)
     } catch { /* silent */ }
   }
-
-  const lockedCount = swatches.filter(s => s.locked).length
 
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden bg-white">
@@ -117,6 +114,14 @@ export default function App() {
         </div>
       </header>
 
+      {/* -- Harmony tab bar -- */}
+      <div
+        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 z-30 shrink-0 overflow-x-auto scrollbar-none"
+        onClick={e => e.stopPropagation()}
+      >
+        <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
+      </div>
+
       {/* -- Palette canvas -- */}
       <main className="flex-1 overflow-hidden relative">
         <PaletteCanvas
@@ -126,8 +131,34 @@ export default function App() {
           onReorder={reorderSwatches}
         />
 
-        {/* Floating Generate button — desktop only */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
+        {/* Floating help button — bottom left */}
+        <div className="absolute bottom-4 left-4 z-20">
+          <div className="relative">
+            <button
+              onClick={() => setHelpOpen(o => !o)}
+              className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
+            >
+              ?
+            </button>
+            {helpOpen && (
+              <div className="absolute bottom-12 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
+                <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
+                  <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
+                  <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
+                  <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
+                  <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
+                  <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
+                </div>
+                <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)}>X</button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Floating Generate button — bottom center */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none">
           {showHint && (
             <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
@@ -135,83 +166,7 @@ export default function App() {
           )}
           <button
             onClick={triggerGenerate}
-            className="pointer-events-auto flex items-center gap-2 px-6 py-3 rounded-full text-white text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
-            style={{ backgroundColor: BRAND }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-            </svg>
-            Generate
-          </button>
-        </div>
-      </main>
-
-      {/* -- Footer -- */}
-      <footer
-        className="flex-none bg-white border-t border-gray-200 z-30 shrink-0"
-        onClick={e => e.stopPropagation()}
-        onMouseDown={e => e.stopPropagation()}
-      >
-        {/* ─ Desktop footer ─ */}
-        <div className="hidden sm:flex h-14 items-center justify-between px-4 gap-3">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="relative">
-              <button
-                onClick={() => setHelpOpen(o => !o)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all text-[13px] font-semibold"
-              >
-                ?
-              </button>
-              {helpOpen && (
-                <div className="absolute bottom-10 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
-                  <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
-                    <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
-                    <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
-                    <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
-                    <div className="flex justify-between"><span>Edit hex</span><span className="text-gray-400">Double-click</span></div>
-                    <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
-                  </div>
-                  <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)}>X</button>
-                </div>
-              )}
-            </div>
-            {lockedCount > 0 && (
-              <span className="text-[12px] font-medium text-gray-400 whitespace-nowrap">
-                {lockedCount} locked
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1 flex justify-center min-w-0 overflow-x-auto">
-            <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
-          </div>
-
-          <div className="shrink-0">
-            <CountPicker count={count} onChange={setCount} />
-          </div>
-        </div>
-
-        {/* ─ Mobile footer ─ */}
-        <div className="flex sm:hidden h-12 items-center justify-between px-3">
-          {/* Left: Controls button */}
-          <button
-            onClick={() => setMobileSheet(true)}
-            className="flex items-center gap-1.5 h-11 px-3 rounded-full text-gray-600 hover:bg-gray-100 text-[12px] font-medium transition-all"
-            title="Controls"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-            Controls
-          </button>
-
-          {/* Center: Generate button */}
-          <button
-            onClick={triggerGenerate}
-            className="flex items-center gap-2 px-5 h-9 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-sm active:scale-95 transition-all duration-150"
+            className="pointer-events-auto flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
             style={{ backgroundColor: BRAND }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -219,66 +174,15 @@ export default function App() {
             </svg>
             Generate
           </button>
+        </div>
 
-          {/* Right: locked count */}
-          <div className="flex items-center shrink-0 min-w-[60px] justify-end">
-            {lockedCount > 0 ? (
-              <span className="text-[11px] font-medium text-gray-400 whitespace-nowrap">
-                {lockedCount} locked
-              </span>
-            ) : (
-              <span className="w-[60px]" />
-            )}
+        {/* Floating count picker — bottom right */}
+        <div className="absolute bottom-4 right-4 z-20">
+          <div className="bg-white shadow-md rounded-full px-2 py-1">
+            <CountPicker count={count} onChange={setCount} />
           </div>
         </div>
-      </footer>
-
-      {/* -- Mobile controls bottom sheet -- */}
-      {mobileSheet && (
-        <div className="fixed inset-0 z-50 sm:hidden" onClick={() => setMobileSheet(false)}>
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm sheet-backdrop" />
-          <div
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl sheet-slide-up"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Handle + close */}
-            <div className="flex justify-center pt-3 pb-1 relative">
-              <div className="w-10 h-1 rounded-full bg-gray-200" />
-              <button
-                onClick={() => setMobileSheet(false)}
-                className="absolute right-4 top-2 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Harmony section */}
-            <div className="px-5 pt-3 pb-2">
-              <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Harmony</div>
-              <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
-            </div>
-
-            {/* Count section */}
-            <div className="px-5 pt-2 pb-2">
-              <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Colors</div>
-              <CountPicker count={count} onChange={setCount} />
-            </div>
-
-            {/* Done button */}
-            <div className="px-5 pt-2 pb-6">
-              <button
-                onClick={() => setMobileSheet(false)}
-                className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all active:scale-95"
-                style={{ backgroundColor: BRAND }}
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </main>
 
       {exportOpen && (
         <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />

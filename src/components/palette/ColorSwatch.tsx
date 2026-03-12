@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { getColorName, isNearWhite, parseHex, readableOn } from '../../lib/colorEngine'
+import { getColorName, isNearWhite, readableOn } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
+import ColorPicker from './ColorPicker'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
@@ -18,12 +19,10 @@ interface ColorSwatchProps {
 export default function ColorSwatch({
   hex, locked, index, isLast, isDragging, onLock, onEdit, onDragStart,
 }: ColorSwatchProps) {
-  const [editing,     setEditing]     = useState(false)
-  const [draft,       setDraft]       = useState('')
-  const [copied,      setCopied]      = useState(false)
-  const [shadesOpen,  setShadesOpen]  = useState(false)
-  const [showActions, setShowActions] = useState(false)
-  const inputRef  = useRef<HTMLInputElement>(null)
+  const [copied,       setCopied]       = useState(false)
+  const [shadesOpen,   setShadesOpen]   = useState(false)
+  const [showActions,  setShowActions]  = useState(false)
+  const [pickerOpen,   setPickerOpen]   = useState(false)
   const swatchRef = useRef<HTMLDivElement>(null)
 
   const labelColor   = readableOn(hex)
@@ -32,7 +31,7 @@ export default function ColorSwatch({
   const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
   const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.42)'
 
-  // Drop shadow filter for lock icons — visible on any background
+  // Drop shadow filter for lock icons
   const iconShadow = 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
 
   // Dismiss action bar on outside tap (mobile)
@@ -56,31 +55,10 @@ export default function ColorSwatch({
     } catch { /* silent */ }
   }
 
-  const startEdit = (e?: React.MouseEvent) => {
-    e?.stopPropagation()
-    setDraft(hex.replace('#', ''))
-    setEditing(true)
-    setShowActions(false)
-    setTimeout(() => inputRef.current?.select(), 0)
-  }
-
-  const commitEdit = () => {
-    const parsed = parseHex(draft)
-    if (parsed) onEdit(parsed)
-    setEditing(false)
-  }
-
-  const handleInputKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter')  commitEdit()
-    if (e.key === 'Escape') setEditing(false)
-    e.stopPropagation()
-  }
-
   const handleSwatchClick = () => {
-    if (editing || shadesOpen) return
+    if (shadesOpen || pickerOpen) return
     if (IS_COARSE) {
       if (showActions) {
-        // Second tap on body = lock + dismiss bar
         onLock()
         setShowActions(false)
       } else {
@@ -108,8 +86,20 @@ export default function ColorSwatch({
     setShowActions(false)
   }
 
+  const handleOpenPicker = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setPickerOpen(true)
+    setShowActions(false)
+  }
+
+  const handleHexDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setPickerOpen(true)
+    setShowActions(false)
+  }
+
   // Action bar visibility
-  const barShow = IS_COARSE ? (showActions && !editing && !shadesOpen) : false
+  const barShow = IS_COARSE ? (showActions && !shadesOpen && !pickerOpen) : false
   const barHoverClass = !IS_COARSE
     ? 'group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto'
     : ''
@@ -147,8 +137,23 @@ export default function ColorSwatch({
       {/* Shades panel */}
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
 
+      {/* Color picker popover */}
+      {pickerOpen && (
+        <div
+          className="absolute z-50 left-1/2 -translate-x-1/2 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2"
+          style={{ marginBottom: isLast ? 80 : 16 }}
+          onClick={e => e.stopPropagation()}
+        >
+          <ColorPicker
+            hex={hex}
+            onChange={onEdit}
+            onClose={() => setPickerOpen(false)}
+          />
+        </div>
+      )}
+
       {/* Drag handle — left on mobile, right on desktop */}
-      {!shadesOpen && (
+      {!shadesOpen && !pickerOpen && (
         <div
           className="absolute top-2 left-2 sm:left-auto sm:right-3 sm:top-3 z-10
             opacity-40 sm:opacity-0 sm:group-hover:opacity-60 sm:hover:!opacity-100
@@ -162,8 +167,8 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Lock icon — top center, white fill + drop shadow for contrast */}
-      {!shadesOpen && (
+      {/* Lock icon — top center */}
+      {!shadesOpen && !pickerOpen && (
         <div
           className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
             locked
@@ -179,15 +184,14 @@ export default function ColorSwatch({
       )}
 
       {/* Center: action bar + bottom labels */}
-      {!shadesOpen && (
+      {!shadesOpen && !pickerOpen && (
         <div className={`absolute bottom-0 left-0 right-0 flex flex-col items-center gap-[5px] z-10
           ${isLast ? 'pb-[80px] sm:pb-20' : 'pb-4 sm:pb-20'}`}>
 
-          {/* Floating action bar — centered pill */}
-          {!editing && (
-            <div
+          {/* Floating action bar — positioned 20px above hex label area */}
+          <div
               className={`flex items-center bg-white rounded-full shadow-md overflow-hidden
-                transition-all duration-150 ease-out mb-1
+                transition-all duration-150 ease-out mb-5
                 ${barShow
                   ? 'opacity-100 translate-y-0 pointer-events-auto action-bar-enter'
                   : 'opacity-0 translate-y-2 pointer-events-none'}
@@ -212,9 +216,9 @@ export default function ColorSwatch({
               </button>
               <div className="w-px h-5 bg-gray-200" />
               <button
-                onClick={startEdit}
+                onClick={handleOpenPicker}
                 className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                title="Edit hex"
+                title="Edit color"
               >
                 <EditIcon />
               </button>
@@ -232,45 +236,26 @@ export default function ColorSwatch({
                 </>
               )}
             </div>
-          )}
 
           {/* Color name */}
           <span
-            className="text-[10px] sm:text-[11px] font-sans tracking-[0.1em] uppercase truncate max-w-full px-2"
+            className="text-[11px] sm:text-[12px] font-sans tracking-[0.12em] uppercase truncate max-w-full px-2"
             style={{ color: labelMuted }}
           >
             {colorName}
           </span>
 
-          {/* Hex value / editor */}
-          <div className="flex items-center">
-            {editing ? (
-              <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                <span className="text-[11px] font-mono" style={{ color: labelMuted }}>#</span>
-                <input
-                  ref={inputRef}
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  onBlur={commitEdit}
-                  onKeyDown={handleInputKey}
-                  maxLength={6}
-                  className="w-[66px] bg-transparent border-b text-[13px] font-mono tracking-widest uppercase text-center outline-none caret-current"
-                  style={{ color: labelOpacity, borderColor: labelMuted }}
-                />
-              </div>
-            ) : (
-              <button
-                className="text-[12px] sm:text-[13px] font-mono font-semibold tracking-widest uppercase transition-colors duration-150
-                  min-h-[44px] sm:min-h-0 flex items-center"
-                style={{ color: labelOpacity }}
-                onClick={handleCopy}
-                onDoubleClick={startEdit}
-                title="Click to copy"
-              >
-                {copied ? 'Copied' : hex.toUpperCase()}
-              </button>
-            )}
-          </div>
+          {/* Hex value */}
+          <button
+            className="text-[14px] sm:text-[16px] font-mono font-bold tracking-widest uppercase transition-colors duration-150
+              min-h-[44px] sm:min-h-0 flex items-center"
+            style={{ color: labelOpacity }}
+            onClick={handleCopy}
+            onDoubleClick={handleHexDoubleClick}
+            title="Click to copy · Double-click to edit"
+          >
+            {copied ? 'Copied' : hex.toUpperCase()}
+          </button>
         </div>
       )}
     </div>
@@ -292,7 +277,6 @@ function GripIcon({ color }: { color: string }) {
   )
 }
 
-// Locked state — filled/solid body with white fill
 function LockedFilledIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
@@ -302,7 +286,6 @@ function LockedFilledIcon() {
   )
 }
 
-// Unlocked state — outline with white fill
 function UnlockIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">

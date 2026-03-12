@@ -1,0 +1,214 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import chroma from 'chroma-js'
+import { parseHex } from '../../lib/colorEngine'
+
+interface ColorPickerProps {
+  hex: string
+  onChange: (hex: string) => void
+  onClose: () => void
+}
+
+export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
+  const initial = (() => {
+    try {
+      const [h, s, v] = chroma(hex).hsv()
+      return { h: isNaN(h) ? 0 : h, s, v }
+    } catch { return { h: 0, s: 1, v: 1 } }
+  })()
+
+  const [hue, setHue] = useState(initial.h)
+  const [sat, setSat] = useState(initial.s)
+  const [val, setVal] = useState(initial.v)
+  const [draft, setDraft] = useState(hex.replace('#', ''))
+  const [copied, setCopied] = useState(false)
+
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const pickerRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+
+  const currentHex = (() => {
+    try { return chroma.hsv(hue, sat, val).hex() }
+    catch { return '#000000' }
+  })()
+
+  // Draw SV canvas whenever hue changes
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const w = canvas.width
+    const h = canvas.height
+
+    const baseColor = chroma.hsv(hue, 1, 1).css()
+
+    // White to hue-color (left to right)
+    const gradH = ctx.createLinearGradient(0, 0, w, 0)
+    gradH.addColorStop(0, '#ffffff')
+    gradH.addColorStop(1, baseColor)
+    ctx.fillStyle = gradH
+    ctx.fillRect(0, 0, w, h)
+
+    // Transparent to black (top to bottom)
+    const gradV = ctx.createLinearGradient(0, 0, 0, h)
+    gradV.addColorStop(0, 'rgba(0,0,0,0)')
+    gradV.addColorStop(1, 'rgba(0,0,0,1)')
+    ctx.fillStyle = gradV
+    ctx.fillRect(0, 0, w, h)
+  }, [hue])
+
+  // Sync draft when color changes
+  useEffect(() => {
+    setDraft(currentHex.replace('#', ''))
+  }, [currentHex])
+
+  // Notify parent on every change
+  useEffect(() => {
+    onChange(currentHex)
+  }, [currentHex, onChange])
+
+  // SV canvas interaction
+  const updateFromCanvas = useCallback((clientX: number, clientY: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
+    setSat(x)
+    setVal(1 - y)
+  }, [])
+
+  const handleCanvasPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    dragging.current = true
+    updateFromCanvas(e.clientX, e.clientY)
+  }
+
+  // Document-level pointer tracking for canvas drag
+  useEffect(() => {
+    const handleMove = (e: PointerEvent) => {
+      if (dragging.current) updateFromCanvas(e.clientX, e.clientY)
+    }
+    const handleUp = () => { dragging.current = false }
+    document.addEventListener('pointermove', handleMove)
+    document.addEventListener('pointerup', handleUp)
+    return () => {
+      document.removeEventListener('pointermove', handleMove)
+      document.removeEventListener('pointerup', handleUp)
+    }
+  }, [updateFromCanvas])
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: PointerEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 10)
+    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
+  }, [onClose])
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.stopPropagation(); onClose() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const handleHexCommit = () => {
+    const parsed = parseHex(draft)
+    if (parsed) {
+      try {
+        const [h, s, v] = chroma(parsed).hsv()
+        setHue(isNaN(h) ? 0 : h)
+        setSat(s)
+        setVal(v)
+      } catch { /* ignore */ }
+    }
+  }
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(currentHex)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    } catch { /* silent */ }
+  }
+
+  return (
+    <div
+      ref={pickerRef}
+      className="w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+      onClick={e => e.stopPropagation()}
+    >
+      {/* SV Canvas */}
+      <div className="relative mx-4 mt-4 rounded-xl overflow-hidden" style={{ height: 160 }}>
+        <canvas
+          ref={canvasRef}
+          width={544}
+          height={320}
+          className="w-full h-full cursor-crosshair"
+          style={{ imageRendering: 'auto' }}
+          onPointerDown={handleCanvasPointerDown}
+        />
+        <div
+          className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+          style={{
+            left: `${sat * 100}%`,
+            top: `${(1 - val) * 100}%`,
+            backgroundColor: currentHex,
+          }}
+        />
+      </div>
+
+      {/* Hue slider */}
+      <div className="mx-4 mt-3">
+        <input
+          type="range"
+          min={0}
+          max={360}
+          value={hue}
+          onChange={e => setHue(Number(e.target.value))}
+          className="hue-slider w-full h-3 rounded-full appearance-none cursor-pointer"
+          onClick={e => e.stopPropagation()}
+        />
+      </div>
+
+      {/* Preview swatch + hex input + buttons */}
+      <div className="flex items-center gap-2 mx-4 mt-3 mb-4">
+        <div
+          className="w-9 h-9 rounded-lg shrink-0 border border-gray-200"
+          style={{ backgroundColor: currentHex }}
+        />
+        <div className="flex-1 flex items-center gap-1 px-3 h-9 rounded-lg bg-gray-50 border border-gray-200">
+          <span className="text-[12px] text-gray-400 font-mono">#</span>
+          <input
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            onBlur={handleHexCommit}
+            onKeyDown={e => { if (e.key === 'Enter') handleHexCommit(); e.stopPropagation() }}
+            maxLength={6}
+            className="flex-1 min-w-0 bg-transparent text-[13px] font-mono uppercase outline-none"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+        <button
+          onClick={handleCopy}
+          className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
+          title="Copy hex"
+        >
+          {copied ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          )}
+        </button>
+      </div>
+    </div>
+  )
+}

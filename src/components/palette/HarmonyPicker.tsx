@@ -27,13 +27,12 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
             px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap
             transition-all duration-150 cursor-pointer select-none shrink-0
             ${mode === m.value
-              ? 'bg-[#E8F0FE] text-[#1A73E8]'
+              ? 'bg-[#1A73E8] text-white'
               : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124]'
             }
           `}
         >
-          <span className="hidden sm:inline">{m.label}</span>
-          <span className="sm:hidden">{m.short}</span>
+          {m.label}
         </button>
       ))}
     </div>
