@@ -10,8 +10,11 @@ import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSi
 import type { VisionMode } from './components/palette/VisionSimulator'
 import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
+import SignInModal from './components/ui/SignInModal'
+import MobileDrawer from './components/ui/MobileDrawer'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
+import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 
@@ -20,6 +23,7 @@ const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
   const { isPro } = usePro()
+  const { isSignedIn } = useAuth()
   const {
     swatches, harmonyMode, count,
     generate, lockSwatch, editSwatch, reorderSwatches,
@@ -37,6 +41,8 @@ export default function App() {
   const [saveToast,    setSaveToast]    = useState('')
   const [proToolsOpen, setProToolsOpen] = useState(false)
   const [copyToast,    setCopyToast]    = useState(false)
+  const [signInOpen,   setSignInOpen]   = useState(false)
+  const [drawerOpen,   setDrawerOpen]   = useState(false)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const proToolsBtnRef = useRef<HTMLButtonElement>(null)
   const proToolsDropRef = useRef<HTMLDivElement>(null)
@@ -115,7 +121,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -172,33 +178,69 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Share */}
+          {/* Share — desktop only */}
           <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
               </svg>
-              <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
+              <span>{shareCopied ? 'Copied!' : 'Share'}</span>
             </button>
           </Tooltip>
 
-          {/* Save */}
+          {/* Mobile: Sign In text */}
+          <button
+            onClick={() => setSignInOpen(true)}
+            className="sm:hidden text-[13px] text-gray-600 font-medium hover:text-gray-900 transition-colors px-1"
+          >
+            Sign In
+          </button>
+
+          {/* Mobile: Hamburger */}
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="sm:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-all"
+            aria-label="Menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          {/* Save — desktop only */}
           <Tooltip text="Save palette">
             <button
               onClick={handleSave}
-              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
-              <span className="hidden sm:inline">Save</span>
+              <span>Save</span>
             </button>
           </Tooltip>
+
+          {/* Sign In — desktop only */}
+          {!isSignedIn ? (
+            <button
+              onClick={() => setSignInOpen(true)}
+              className="hidden sm:block text-sm text-gray-600 font-medium hover:text-gray-900 transition-colors px-2"
+            >
+              Sign In
+            </button>
+          ) : (
+            <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
+              A
+            </div>
+          )}
+
+          {/* Divider before Export — desktop */}
+          <div className="hidden sm:block w-px h-5 bg-gray-200" />
 
           {/* Export */}
           <Tooltip text="Export palette">
@@ -455,6 +497,28 @@ export default function App() {
         visionMode={visionMode}
         onVisionChange={setVisionMode}
       />
+
+      {/* Mobile drawer */}
+      <MobileDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSave={handleSave}
+        onShare={async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href)
+            setSaveToast('Link copied!')
+            setTimeout(() => setSaveToast(''), 2000)
+          } catch { /* silent */ }
+        }}
+        onSignIn={() => setSignInOpen(true)}
+        onProGate={openProModal}
+        onImagePalette={() => { if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
+        onVisionSim={() => { if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
+        onAiPalette={() => { if (!isPro) { openProModal(); return }; setAiOpen(true) }}
+      />
+
+      {/* Sign In modal */}
+      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} />
 
       {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
