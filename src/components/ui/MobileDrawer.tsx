@@ -8,6 +8,7 @@ interface MobileDrawerProps {
   onClose: () => void
   onSave: () => void
   onShare: () => void
+  onExport: () => void
   onSignIn: () => void
   onProGate: () => void
   onImagePalette: () => void
@@ -16,7 +17,7 @@ interface MobileDrawerProps {
 }
 
 export default function MobileDrawer({
-  open, onClose, onSave, onShare, onSignIn, onProGate,
+  open, onClose, onSave, onShare, onExport, onSignIn, onProGate,
   onImagePalette, onVisionSim, onAiPalette,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
@@ -91,6 +92,23 @@ export default function MobileDrawer({
             <div className="text-left min-w-0">
               <span className="text-[14px] font-medium text-gray-800 block">Share palette</span>
               <span className="text-[11px] text-gray-400">Copy shareable link</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleRow(onExport)}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+            <div className="text-left min-w-0">
+              <span className="text-[14px] font-medium text-gray-800 block">Export palette</span>
+              <span className="text-[11px] text-gray-400">CSS, Tailwind, or hex codes</span>
             </div>
           </button>
 

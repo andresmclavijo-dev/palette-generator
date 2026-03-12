@@ -44,10 +44,12 @@ export default function App() {
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
+  const [avatarOpen,   setAvatarOpen]   = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const proToolsBtnRef = useRef<HTMLButtonElement>(null)
   const proToolsDropRef = useRef<HTMLDivElement>(null)
+  const avatarRef = useRef<HTMLDivElement>(null)
   const [proToolsPos, setProToolsPos] = useState({ top: 0, left: 0 })
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
@@ -82,6 +84,22 @@ export default function App() {
       document.removeEventListener('mousedown', handler)
     }
   }, [proToolsOpen])
+
+  // Close avatar dropdown on outside click
+  useEffect(() => {
+    if (!avatarOpen) return
+    const handler = (e: MouseEvent) => {
+      if (avatarRef.current?.contains(e.target as Node)) return
+      setAvatarOpen(false)
+    }
+    const raf = requestAnimationFrame(() => {
+      document.addEventListener('mousedown', handler)
+    })
+    return () => {
+      cancelAnimationFrame(raf)
+      document.removeEventListener('mousedown', handler)
+    }
+  }, [avatarOpen])
 
   useEffect(() => {
     const isMobile = window.innerWidth < 640
@@ -128,7 +146,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -171,9 +189,9 @@ export default function App() {
     <div className="w-screen h-screen flex flex-col overflow-hidden bg-white">
 
       {/* -- Header Row 1: Navbar -- */}
-      <header className="flex-none h-12 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
+      <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
         <span className="text-[22px] sm:text-[24px] font-bold tracking-tight text-gray-900">
-          <span className="text-blue-500">P</span>aletta
+          Paletta
         </span>
 
         <div className="flex items-center gap-1 sm:gap-2">
@@ -236,23 +254,38 @@ export default function App() {
               Sign In
             </button>
           ) : (
-            <button
-              onClick={signOut}
-              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold cursor-pointer hover:bg-blue-200 transition-colors"
-              title="Sign out"
-            >
-              {(user?.email?.[0] ?? 'U').toUpperCase()}
-            </button>
+            <div ref={avatarRef} className="relative hidden sm:block">
+              <button
+                onClick={() => setAvatarOpen(o => !o)}
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold cursor-pointer hover:bg-blue-200 transition-colors"
+              >
+                {(user?.email?.[0] ?? 'U').toUpperCase()}
+              </button>
+              {avatarOpen && (
+                <div className="absolute right-0 top-10 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                  <div className="px-4 py-2">
+                    <span className="text-[12px] text-gray-400 break-all">{user?.email}</span>
+                  </div>
+                  <div className="mx-2 h-px bg-gray-100" />
+                  <button
+                    onClick={() => { setAvatarOpen(false); signOut() }}
+                    className="w-full text-left px-4 py-2.5 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Divider before Export — desktop */}
           <div className="hidden sm:block w-px h-5 bg-gray-200" />
 
-          {/* Export */}
+          {/* Export — desktop only */}
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
               style={{ backgroundColor: BRAND }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -260,13 +293,12 @@ export default function App() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              <span className="hidden sm:inline">Export</span>
+              Export
             </button>
           </Tooltip>
 
           {/* Go Pro CTA — desktop only */}
           <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
-            <span className="text-[11px] text-gray-400 whitespace-nowrap">✦ Pro launching soon</span>
             <button
               onClick={openProModal}
               className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-blue-50"
@@ -514,6 +546,7 @@ export default function App() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onSave={handleSave}
+        onExport={() => setExportOpen(true)}
         onShare={async () => {
           try {
             await navigator.clipboard.writeText(window.location.href)
