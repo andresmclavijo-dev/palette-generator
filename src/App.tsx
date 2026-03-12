@@ -12,7 +12,7 @@ import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
 import { usePaletteStore } from './store/paletteStore'
-import { makeSwatch, decodePalette, encodePalette } from './lib/colorEngine'
+import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 
 const BRAND = '#1A73E8'
 const FREE_COUNTS = [3, 4, 5]
@@ -204,10 +204,23 @@ export default function App() {
               }`}
             >
               ✨ AI
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>PRO</span>
             </button>
           </Tooltip>
         </div>
       </div>
+
+      {/* -- Palette auto-name (desktop only) -- */}
+      {(() => {
+        const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
+        const unique = [...new Set(names)]
+        const display = unique.slice(0, 3).join(' · ')
+        return display ? (
+          <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] text-gray-400 font-medium tracking-wide">
+            {display}
+          </div>
+        ) : null
+      })()}
 
       {/* -- AI prompt bar (collapsible) -- */}
       {aiOpen && (
@@ -257,7 +270,7 @@ export default function App() {
               </button>
             </Tooltip>
             {helpOpen && (
-              <div className="absolute bottom-12 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
+              <div className="absolute bottom-12 left-0 z-50 min-w-[280px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
                 <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
                 <div className="space-y-1.5">
                   <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>

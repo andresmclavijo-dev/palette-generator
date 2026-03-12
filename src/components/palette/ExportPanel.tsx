@@ -152,7 +152,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
         {!isPro && (
           <div className="px-5 pb-4 text-center">
             <span className="text-[11px] text-gray-400">
-              ⬆ Upgrade for shade scales + no watermark
+              ✦ Free plan includes <span className="font-mono">/* Made with Paletta */</span> comment · Upgrade to remove
             </span>
           </div>
         )}

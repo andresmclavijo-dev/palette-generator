@@ -86,12 +86,16 @@ export default function ColorSwatch({
     return () => document.removeEventListener('pointerdown', handler)
   }, [infoOpen])
 
+  const [copyToast, setCopyToast] = useState(false)
+
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
     try {
       await navigator.clipboard.writeText(hex)
       setCopied(true)
+      setCopyToast(true)
       setTimeout(() => setCopied(false), 1400)
+      setTimeout(() => setCopyToast(false), 1400)
     } catch { /* silent */ }
   }
 
@@ -450,6 +454,11 @@ export default function ColorSwatch({
     <>
       {mobileLayout}
       {desktopLayout}
+      {copyToast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg pointer-events-none">
+          Copied!
+        </div>
+      )}
     </>
   )
 }
