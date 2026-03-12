@@ -20,7 +20,6 @@ interface ColorSwatchProps {
   hex: string
   locked: boolean
   index: number
-  isLast: boolean
   isDragging: boolean
   onLock: () => void
   onEdit: (hex: string) => void
@@ -28,7 +27,7 @@ interface ColorSwatchProps {
 }
 
 export default function ColorSwatch({
-  hex, locked, index, isLast, isDragging, onLock, onEdit, onDragStart,
+  hex, locked, index, isDragging, onLock, onEdit, onDragStart,
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
   const [shadesOpen, setShadesOpen] = useState(false)
@@ -115,15 +114,19 @@ export default function ColorSwatch({
   }
 
   const handleOpenPicker = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setPickerOpen(true)
-    setShowActions(false)
+    try {
+      e.stopPropagation()
+      setPickerOpen(true)
+      setShowActions(false)
+    } catch (err) { console.error('Failed to open picker:', err) }
   }
 
   const handleHexDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setPickerOpen(true)
-    setShowActions(false)
+    try {
+      e.stopPropagation()
+      setPickerOpen(true)
+      setShowActions(false)
+    } catch (err) { console.error('Failed to open picker:', err) }
   }
 
   const handleToggleInfo = (e: React.MouseEvent) => {
@@ -141,11 +144,11 @@ export default function ColorSwatch({
     ? 'group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto'
     : ''
 
-  // Color picker popover (shared between mobile & desktop)
-  const pickerPopover = pickerOpen && (
+  // Color picker — mobile renders as fixed bottom sheet (handled by ColorPicker internally)
+  // Desktop renders as floating card positioned inside the swatch
+  const pickerDesktop = pickerOpen && !IS_COARSE && (
     <div
-      className="absolute z-50 left-1/2 -translate-x-1/2 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2"
-      style={{ marginBottom: isLast ? 80 : 16 }}
+      className="absolute z-50 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
       onClick={e => e.stopPropagation()}
     >
       <PickerErrorBoundary fallback={
@@ -161,6 +164,24 @@ export default function ColorSwatch({
         />
       </PickerErrorBoundary>
     </div>
+  )
+
+  // Mobile picker — rendered outside the overflow-hidden swatch via fixed positioning
+  const pickerMobile = pickerOpen && IS_COARSE && (
+    <PickerErrorBoundary fallback={
+      <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setPickerOpen(false)}>
+        <div className="w-full bg-white rounded-t-2xl p-6 text-center text-sm text-gray-500" onClick={e => e.stopPropagation()}>
+          Color picker unavailable
+          <button onClick={() => setPickerOpen(false)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+        </div>
+      </div>
+    }>
+      <ColorPicker
+        hex={hex}
+        onChange={onEdit}
+        onClose={() => setPickerOpen(false)}
+      />
+    </PickerErrorBoundary>
   )
 
   // Info popover
@@ -205,7 +226,7 @@ export default function ColorSwatch({
       )}
 
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
-      {pickerPopover}
+      {pickerMobile}
       {infoPopover}
 
       {/* Left: drag handle + color name */}
@@ -323,7 +344,7 @@ export default function ColorSwatch({
       )}
 
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
-      {pickerPopover}
+      {pickerDesktop}
       {infoPopover}
 
       {/* Drag handle — top right */}
