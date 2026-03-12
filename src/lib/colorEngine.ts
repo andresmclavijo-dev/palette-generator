@@ -3,7 +3,7 @@ import chroma from 'chroma-js'
 export type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
 // ── Shades (light → dark, N steps) ────────────────────────────────
-export function generateShades(hex: string, count = 10): string[] {
+export function generateShades(hex: string, count = 9): string[] {
   try {
     const [h, s] = chroma(hex).hsl()
     const safeS = isNaN(s) ? 0 : s
@@ -55,12 +55,18 @@ export function getColorName(hex: string): string {
     const hue = isNaN(h) ? 0 : ((h % 360) + 360) % 360
     const entry = HUE_MAP.find(e => hue <= e.max) ?? HUE_MAP[HUE_MAP.length - 1]
 
-    // Choose variant based on lightness + saturation
-    if (l > 0.88) return entry.pale  ?? `Light ${entry.base}`
+    // More granular naming to avoid duplicates in analogous/random modes
+    if (l > 0.88) return entry.pale ?? `Light ${entry.base}`
+    if (l > 0.78) return `Pale ${entry.base}`
     if (l > 0.70) return `Light ${entry.base}`
-    if (l < 0.22) return entry.dark  ?? `Dark ${entry.base}`
-    if (l < 0.38) return entry.dark  ?? `Deep ${entry.base}`
-    if (s > 0.75) return entry.vivid ?? entry.base
+    if (l < 0.15) return `Deep ${entry.dark ?? entry.base}`
+    if (l < 0.22) return entry.dark ?? `Dark ${entry.base}`
+    if (l < 0.30) return `Dark ${entry.base}`
+    if (l < 0.38) return entry.dark ?? `Deep ${entry.base}`
+    if (s > 0.85) return entry.vivid ?? `Vivid ${entry.base}`
+    if (s > 0.65) return entry.vivid ?? entry.base
+    if (s < 0.25) return `Muted ${entry.base}`
+    if (s < 0.45) return `Soft ${entry.base}`
 
     return entry.base
   } catch {
