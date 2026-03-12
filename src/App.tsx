@@ -131,8 +131,8 @@ export default function App() {
           onReorder={reorderSwatches}
         />
 
-        {/* Floating help button — bottom left */}
-        <div className="absolute floating-bottom left-4 z-20">
+        {/* Floating help button — bottom left (desktop only) */}
+        <div className="absolute floating-bottom left-4 z-20 hidden sm:block">
           <div className="relative">
             <button
               onClick={() => setHelpOpen(o => !o)}
@@ -157,8 +157,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Floating Generate button — bottom center */}
-        <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none">
+        {/* Floating Generate button — bottom center (desktop only) */}
+        <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
           {showHint && (
             <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
@@ -176,13 +176,83 @@ export default function App() {
           </button>
         </div>
 
-        {/* Floating count picker — bottom right */}
-        <div className="absolute floating-bottom right-4 z-20">
+        {/* Floating count picker — bottom right (desktop only) */}
+        <div className="absolute floating-bottom right-4 z-20 hidden sm:block">
           <div className="bg-white shadow-md rounded-full px-2 py-1">
             <CountPicker count={count} onChange={setCount} />
           </div>
         </div>
       </main>
+
+      {/* -- Mobile footer -- */}
+      <footer
+        className="flex-none sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
+        style={{ height: `calc(56px + env(safe-area-inset-bottom, 0px))`, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        {/* Help */}
+        <div className="relative">
+          <button
+            onClick={() => setHelpOpen(o => !o)}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all text-[15px] font-semibold"
+          >
+            ?
+          </button>
+          {helpOpen && (
+            <div className="absolute bottom-12 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
+              <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
+                <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
+                <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Tap lock icon</span></div>
+                <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Tap hex</span></div>
+              </div>
+              <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)}>X</button>
+            </div>
+          )}
+        </div>
+
+        {/* Undo */}
+        <button
+          onClick={undo}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all"
+          title="Undo"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+
+        {/* Generate */}
+        <button
+          onClick={triggerGenerate}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
+          style={{ backgroundColor: BRAND }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          Generate
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={handleShare}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all"
+          title={shareCopied ? 'Copied!' : 'Share'}
+        >
+          {shareCopied ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          )}
+        </button>
+
+        {/* Count picker */}
+        <CountPicker count={count} onChange={setCount} />
+      </footer>
 
       {exportOpen && (
         <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />

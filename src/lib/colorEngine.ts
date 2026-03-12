@@ -163,6 +163,20 @@ export function readableOn(bg: string): string {
   } catch { return '#000000' }
 }
 
+export function getColorInfo(hex: string): { rgb: string; hsl: string } {
+  try {
+    const c = chroma(hex)
+    const [r, g, b] = c.rgb()
+    const [h, s, l] = c.hsl()
+    return {
+      rgb: `${r}, ${g}, ${b}`,
+      hsl: `${Math.round(isNaN(h) ? 0 : h)}°, ${Math.round((isNaN(s) ? 0 : s) * 100)}%, ${Math.round(l * 100)}%`,
+    }
+  } catch {
+    return { rgb: '0, 0, 0', hsl: '0°, 0%, 0%' }
+  }
+}
+
 export function parseHex(raw: string): string | null {
   const c = raw.trim().replace(/^#/, '')
   if (/^[0-9a-fA-F]{6}$/.test(c)) return `#${c.toUpperCase()}`

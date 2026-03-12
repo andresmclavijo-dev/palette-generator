@@ -1,9 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
-import { getColorName, isNearWhite, isLight } from '../../lib/colorEngine'
+import { Component, useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { getColorName, getColorInfo, isNearWhite, isLight } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+
+/* ── Error boundary for ColorPicker ── */
+interface EBProps { children: ReactNode; fallback: ReactNode }
+interface EBState { hasError: boolean }
+
+class PickerErrorBoundary extends Component<EBProps, EBState> {
+  state: EBState = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children }
+}
 
 interface ColorSwatchProps {
   hex: string
@@ -19,25 +30,23 @@ interface ColorSwatchProps {
 export default function ColorSwatch({
   hex, locked, index, isLast, isDragging, onLock, onEdit, onDragStart,
 }: ColorSwatchProps) {
-  const [copied,       setCopied]       = useState(false)
-  const [shadesOpen,   setShadesOpen]   = useState(false)
-  const [showActions,  setShowActions]  = useState(false)
-  const [pickerOpen,   setPickerOpen]   = useState(false)
-  const [showHint,     setShowHint]     = useState(false)
+  const [copied,     setCopied]     = useState(false)
+  const [shadesOpen, setShadesOpen] = useState(false)
+  const [showActions, setShowActions] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [infoOpen,   setInfoOpen]   = useState(false)
+  const [showHint,   setShowHint]   = useState(false)
   const swatchRef = useRef<HTMLDivElement>(null)
 
-  // Auto light/dark icon logic — luminance threshold 0.4
   const lightBg    = isLight(hex)
   const nearWhite  = isNearWhite(hex)
   const colorName  = getColorName(hex)
   const iconColor  = lightBg ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.85)'
   const labelColor = lightBg ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'
   const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
-
-  // Lock icon: always white + strong drop shadow (item 3)
   const lockShadow = 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))'
 
-  // Onboarding "tap to lock" tooltip — mobile only, first swatch, first visit
+  // Onboarding tooltip — mobile only, first swatch, first visit
   useEffect(() => {
     if (!IS_COARSE || index !== 0) return
     const seen = localStorage.getItem('paletta-tap-hint')
@@ -62,6 +71,18 @@ export default function ColorSwatch({
     return () => document.removeEventListener('pointerdown', handler)
   }, [showActions])
 
+  // Close info popover on outside tap
+  useEffect(() => {
+    if (!infoOpen) return
+    const handler = (e: PointerEvent) => {
+      if (swatchRef.current && !swatchRef.current.contains(e.target as Node)) {
+        setInfoOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', handler)
+    return () => document.removeEventListener('pointerdown', handler)
+  }, [infoOpen])
+
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
     try {
@@ -71,18 +92,9 @@ export default function ColorSwatch({
     } catch { /* silent */ }
   }
 
-  const handleSwatchClick = () => {
+  const handleDesktopClick = () => {
     if (shadesOpen || pickerOpen) return
-    if (IS_COARSE) {
-      if (showActions) {
-        onLock()
-        setShowActions(false)
-      } else {
-        setShowActions(true)
-      }
-    } else {
-      onLock()
-    }
+    onLock()
     if (showHint) {
       setShowHint(false)
       localStorage.setItem('paletta-tap-hint', '1')
@@ -101,11 +113,6 @@ export default function ColorSwatch({
     setShowActions(false)
   }
 
-  const handleDismissBar = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setShowActions(false)
-  }
-
   const handleOpenPicker = (e: React.MouseEvent) => {
     e.stopPropagation()
     setPickerOpen(true)
@@ -118,16 +125,169 @@ export default function ColorSwatch({
     setShowActions(false)
   }
 
-  // Action bar visibility
-  const barShow = IS_COARSE ? (showActions && !shadesOpen && !pickerOpen) : false
+  const handleToggleInfo = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setInfoOpen(o => !o)
+  }
+
+  const handleMobileLock = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onLock()
+  }
+
+  // Desktop hover action bar classes
   const barHoverClass = !IS_COARSE
     ? 'group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto'
     : ''
 
-  return (
+  // Color picker popover (shared between mobile & desktop)
+  const pickerPopover = pickerOpen && (
+    <div
+      className="absolute z-50 left-1/2 -translate-x-1/2 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2"
+      style={{ marginBottom: isLast ? 80 : 16 }}
+      onClick={e => e.stopPropagation()}
+    >
+      <PickerErrorBoundary fallback={
+        <div className="w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center text-sm text-gray-500">
+          Color picker unavailable
+          <button onClick={() => setPickerOpen(false)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+        </div>
+      }>
+        <ColorPicker
+          hex={hex}
+          onChange={onEdit}
+          onClose={() => setPickerOpen(false)}
+        />
+      </PickerErrorBoundary>
+    </div>
+  )
+
+  // Info popover
+  const infoPopover = infoOpen && (() => {
+    const info = getColorInfo(hex)
+    return (
+      <div
+        className="absolute z-50 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-24"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="w-56 bg-white rounded-xl shadow-xl border border-gray-200 p-4 text-[12px]">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-semibold text-gray-800 text-[13px]">{colorName || 'Color'}</span>
+            <button onClick={() => setInfoOpen(false)} className="text-gray-400 hover:text-gray-600 text-[14px]">✕</button>
+          </div>
+          <div className="space-y-1.5 text-gray-600 font-mono">
+            <div className="flex justify-between"><span className="text-gray-400 font-sans">HEX</span><span>{hex.toUpperCase()}</span></div>
+            <div className="flex justify-between"><span className="text-gray-400 font-sans">RGB</span><span>{info.rgb}</span></div>
+            <div className="flex justify-between"><span className="text-gray-400 font-sans">HSL</span><span>{info.hsl}</span></div>
+          </div>
+        </div>
+      </div>
+    )
+  })()
+
+  /* ── MOBILE layout (< 640px) ── horizontal inline row ── */
+  const mobileLayout = (
     <div
       ref={swatchRef}
-      className="relative flex-1 cursor-pointer group select-none overflow-hidden min-w-0 min-h-0"
+      className="sm:hidden relative flex-1 min-h-0 flex items-center select-none overflow-hidden"
+      style={{
+        backgroundColor: hex,
+        boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
+        transition: 'background-color 0.4s cubic-bezier(.4,0,.2,1)',
+        opacity: isDragging ? 0.6 : 1,
+        zIndex: isDragging ? 20 : undefined,
+      }}
+    >
+      {/* Dark overlay when locked */}
+      {locked && (
+        <div className="absolute inset-0 pointer-events-none z-[1]" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
+      )}
+
+      {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
+      {pickerPopover}
+      {infoPopover}
+
+      {/* Left: drag handle + color name */}
+      <div className="flex items-center gap-1.5 pl-2 z-10 shrink-0">
+        <div
+          className="w-10 h-10 flex items-center justify-center cursor-grab active:cursor-grabbing"
+          style={{ color: iconColor, touchAction: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}
+          onPointerDown={handleDragPointerDown}
+        >
+          <GripIcon color="currentColor" />
+        </div>
+        <span
+          className="text-[10px] font-sans tracking-[0.08em] uppercase truncate max-w-[72px]"
+          style={{ color: labelMuted }}
+        >
+          {colorName}
+        </span>
+      </div>
+
+      {/* Center: hex value */}
+      <div className="flex-1 flex justify-center z-10">
+        <button
+          className="text-[16px] font-mono font-bold tracking-widest uppercase"
+          style={{ color: labelColor }}
+          onClick={handleCopy}
+          onDoubleClick={handleHexDoubleClick}
+        >
+          {copied ? 'Copied' : hex.toUpperCase()}
+        </button>
+      </div>
+
+      {/* Right: 4 icon buttons */}
+      <div className="flex items-center gap-0 pr-1 z-10 shrink-0">
+        <button
+          onClick={handleOpenShades}
+          className="w-11 h-11 flex items-center justify-center"
+          style={{ color: iconColor }}
+          title="Shades"
+        >
+          <ShadesIcon size={18} />
+        </button>
+        <button
+          onClick={handleCopy}
+          className="w-11 h-11 flex items-center justify-center"
+          style={{ color: iconColor }}
+          title="Copy"
+        >
+          {copied ? <CheckIcon size={18} /> : <CopyIcon size={18} />}
+        </button>
+        <button
+          onClick={handleToggleInfo}
+          className="w-11 h-11 flex items-center justify-center"
+          style={{ color: iconColor }}
+          title="Info"
+        >
+          <InfoIcon size={18} />
+        </button>
+        <button
+          onClick={handleMobileLock}
+          className="w-11 h-11 flex items-center justify-center"
+          style={{ color: iconColor }}
+          title={locked ? 'Unlock' : 'Lock'}
+        >
+          {locked ? <LockedFilledIcon size={18} color={iconColor} /> : <UnlockIcon size={18} color={iconColor} />}
+        </button>
+      </div>
+
+      {/* Onboarding hint */}
+      {showHint && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none onboarding-tooltip">
+          <div className="px-4 py-2 rounded-xl bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
+            Tap lock to keep a color
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  /* ── DESKTOP layout (≥ 640px) ── centered vertical ── */
+  const desktopLayout = (
+    <div
+      ref={swatchRef}
+      className="hidden sm:block relative flex-1 cursor-pointer group select-none overflow-hidden min-w-0 min-h-0"
       style={{
         backgroundColor: hex,
         boxShadow: nearWhite ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : undefined,
@@ -135,7 +295,7 @@ export default function ColorSwatch({
         opacity: isDragging ? 0.6 : 1,
         zIndex: isDragging ? 20 : undefined,
       }}
-      onClick={handleSwatchClick}
+      onClick={handleDesktopClick}
       role="button"
       aria-label={locked ? `Unlock ${hex}` : `Lock ${hex}`}
     >
@@ -145,44 +305,22 @@ export default function ColorSwatch({
         style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
       />
 
-      {/* Dark overlay when locked */}
       {locked && (
-        <div
-          className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200"
-          style={{ backgroundColor: 'rgba(0,0,0,0.15)' }}
-        />
+        <div className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
       )}
 
-      {/* Shades panel */}
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
+      {pickerPopover}
+      {infoPopover}
 
-      {/* Color picker popover */}
-      {pickerOpen && (
-        <div
-          className="absolute z-50 left-1/2 -translate-x-1/2 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2"
-          style={{ marginBottom: isLast ? 80 : 16 }}
-          onClick={e => e.stopPropagation()}
-        >
-          <ColorPicker
-            hex={hex}
-            onChange={onEdit}
-            onClose={() => setPickerOpen(false)}
-          />
-        </div>
-      )}
-
-      {/* Drag handle — left on mobile, right on desktop */}
+      {/* Drag handle — top right */}
       {!shadesOpen && !pickerOpen && (
         <div
-          className="absolute top-2 left-2 sm:left-auto sm:right-3 sm:top-3 z-10
-            opacity-50 sm:opacity-0 sm:group-hover:opacity-70 sm:hover:!opacity-100
+          className="absolute right-3 top-3 z-10
+            opacity-0 group-hover:opacity-70 hover:!opacity-100
             transition-opacity duration-150 cursor-grab active:cursor-grabbing
             w-11 h-11 flex items-center justify-center rounded-full"
-          style={{
-            color: iconColor,
-            touchAction: 'none',
-            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))',
-          }}
+          style={{ color: iconColor, touchAction: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}
           onPointerDown={handleDragPointerDown}
           title="Drag to reorder"
         >
@@ -190,15 +328,11 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Lock icon — top center, always white + drop shadow */}
+      {/* Lock icon — top center */}
       {!shadesOpen && !pickerOpen && (
         <div
-          className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-200 ${
-            locked
-              ? 'opacity-100 scale-110'
-              : IS_COARSE
-                ? (showActions ? 'opacity-50 scale-100' : 'opacity-0 scale-90')
-                : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
+          className={`absolute top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-200 ${
+            locked ? 'opacity-100 scale-110' : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
           }`}
           style={{ filter: lockShadow }}
         >
@@ -206,87 +340,45 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Onboarding "tap to lock" tooltip — mobile, first swatch */}
-      {showHint && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none onboarding-tooltip">
-          <div className="px-4 py-2 rounded-xl bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
-            Tap to lock a color
-          </div>
-        </div>
-      )}
-
-      {/* Action bar + labels — full-height container, bar above labels */}
+      {/* Action bar + labels */}
       {!shadesOpen && !pickerOpen && (
         <div className="absolute inset-0 flex flex-col items-center z-10 pointer-events-none">
-          {/* Spacer pushes content to bottom half */}
           <div className="flex-1 min-h-[40px]" />
 
-          {/* Floating action bar */}
+          {/* Desktop hover action bar */}
           <div
             className={`flex items-center bg-white rounded-full shadow-md overflow-hidden pointer-events-auto shrink-0
-              transition-all duration-150 ease-out
-              ${barShow
-                ? 'opacity-100 translate-y-0 action-bar-enter'
-                : 'opacity-0 translate-y-2 pointer-events-none'}
+              transition-all duration-150 ease-out opacity-0 translate-y-2 pointer-events-none
               ${barHoverClass}
             `}
             onClick={e => e.stopPropagation()}
           >
-            <button
-              onClick={handleCopy}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-              title="Copy hex"
-            >
+            <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Copy hex">
               {copied ? <CheckIcon /> : <CopyIcon />}
             </button>
             <div className="w-px h-5 bg-gray-200" />
-            <button
-              onClick={handleOpenShades}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-              title="View shades"
-            >
+            <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="View shades">
               <ShadesIcon />
             </button>
             <div className="w-px h-5 bg-gray-200" />
-            <button
-              onClick={handleOpenPicker}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-              title="Edit color"
-            >
+            <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Color info">
+              <InfoIcon />
+            </button>
+            <div className="w-px h-5 bg-gray-200" />
+            <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Edit color">
               <EditIcon />
             </button>
-            {IS_COARSE && (
-              <>
-                <div className="w-px h-5 bg-gray-200" />
-                <button
-                  onClick={handleDismissBar}
-                  className="flex items-center justify-center w-12 h-12 text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                  title="Close"
-                >
-                  <CloseIcon />
-                </button>
-              </>
-            )}
           </div>
 
-          {/* 8px gap between action bar and labels */}
           <div className="h-3 shrink-0" />
 
-          {/* Labels container */}
-          <div className={`flex flex-col items-center gap-[5px] shrink-0 pointer-events-auto
-            ${isLast ? 'pb-16 sm:pb-20' : 'pb-4 sm:pb-20'}`}>
-            {/* Color name */}
-            <span
-              className="text-[11px] sm:text-[12px] font-sans tracking-[0.12em] uppercase truncate max-w-full px-2"
-              style={{ color: labelMuted }}
-            >
+          {/* Labels */}
+          <div className={`flex flex-col items-center gap-[5px] shrink-0 pointer-events-auto pb-20`}>
+            <span className="text-[12px] font-sans tracking-[0.12em] uppercase truncate max-w-full px-2" style={{ color: labelMuted }}>
               {colorName}
             </span>
-
-            {/* Hex value */}
             <button
-              className="text-[14px] sm:text-[16px] font-mono font-bold tracking-widest uppercase transition-colors duration-150
-                min-h-[44px] sm:min-h-0 flex items-center"
+              className="text-[16px] font-mono font-bold tracking-widest uppercase transition-colors duration-150"
               style={{ color: labelColor }}
               onClick={handleCopy}
               onDoubleClick={handleHexDoubleClick}
@@ -299,6 +391,13 @@ export default function ColorSwatch({
       )}
     </div>
   )
+
+  return (
+    <>
+      {mobileLayout}
+      {desktopLayout}
+    </>
+  )
 }
 
 /* ── Icons ── */
@@ -306,59 +405,52 @@ export default function ColorSwatch({
 function GripIcon({ color }: { color: string }) {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill={color} stroke="none">
-      <circle cx="9" cy="5" r="1.8"/>
-      <circle cx="15" cy="5" r="1.8"/>
-      <circle cx="9" cy="12" r="1.8"/>
-      <circle cx="15" cy="12" r="1.8"/>
-      <circle cx="9" cy="19" r="1.8"/>
-      <circle cx="15" cy="19" r="1.8"/>
+      <circle cx="9" cy="5" r="1.8"/><circle cx="15" cy="5" r="1.8"/>
+      <circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/>
+      <circle cx="9" cy="19" r="1.8"/><circle cx="15" cy="19" r="1.8"/>
     </svg>
   )
 }
 
-// Lock icons — always white fill for visibility on any background
-function LockedFilledIcon() {
+function LockedFilledIcon({ size = 20, color = 'white' }: { size?: number; color?: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" fill="white" stroke="white" strokeWidth="1.5"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="white" strokeWidth="1.5"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" fill={color} stroke={color} strokeWidth="1.5"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke={color} strokeWidth="1.5"/>
     </svg>
   )
 }
 
-function UnlockIcon() {
+function UnlockIcon({ size = 18, color = 'white' }: { size?: number; color?: string }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" fill="white" stroke="white" strokeWidth="1.5"/>
-      <path d="M7 11V7a5 5 0 0 1 9.9-1" fill="none" stroke="white" strokeWidth="1.5"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" fill={color} stroke={color} strokeWidth="1.5"/>
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" fill="none" stroke={color} strokeWidth="1.5"/>
     </svg>
   )
 }
 
-function CopyIcon() {
+function CopyIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
     </svg>
   )
 }
 
-function CheckIcon() {
+function CheckIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   )
 }
 
-function ShadesIcon() {
+function ShadesIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <line x1="3" y1="8.5" x2="21" y2="8.5"/>
-      <line x1="3" y1="13" x2="21" y2="13"/>
-      <line x1="3" y1="17.5" x2="21" y2="17.5"/>
+      <line x1="3" y1="8.5" x2="21" y2="8.5"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="17.5" x2="21" y2="17.5"/>
     </svg>
   )
 }
@@ -372,11 +464,10 @@ function EditIcon() {
   )
 }
 
-function CloseIcon() {
+function InfoIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18"/>
-      <line x1="6" y1="6" x2="18" y2="18"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
     </svg>
   )
 }

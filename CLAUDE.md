@@ -108,10 +108,11 @@ interface PaletteState {
 - Floating elements sit over the canvas with `position: fixed` or `absolute`
 
 ### Mobile (< 640px)
-- Swatches stack vertically (full width rows)
+- Swatches stack vertically as horizontal inline rows (Coolors-style: grip+name | hex | shades/copy/info/lock)
 - Harmony tab bar scrolls horizontally (`overflow-x-auto`, hidden scrollbar)
-- Same three floating elements
-- Action bar appears on first tap, dismissed by ✕ or tapping swatch body
+- Persistent footer (56px + safe area): ? help, ↺ undo, Generate pill, ↗ share, count picker
+- Floating controls hidden on mobile (replaced by footer)
+- Info popover shows color name, hex, RGB, HSL
 
 ---
 
@@ -154,7 +155,7 @@ Harmony tabs moved to top nav, footer removed, floating controls (?, Generate, c
 ### ✅ M9 — Interaction polish
 Action bar anchored inside swatch, last swatch label fix, mobile safe area padding, drag handle contrast, harmony tab hover states, lock visual feedback (filled icon + overlay), onboarding "tap to lock" tooltip
 
-### M10 — Icon contrast & mobile fixes (in progress)
+### ✅ M10 — Icon contrast & mobile fixes
 - [x] Remove mystery chevron (fixed double overflow-x-auto on harmony bar)
 - [x] Action bar position (bar above labels with 12px gap, flex-col layout)
 - [x] Lock icon always white with drop-shadow(0 1px 3px rgba(0,0,0,0.5))
@@ -162,13 +163,20 @@ Action bar anchored inside swatch, last swatch label fix, mobile safe area paddi
 - [x] Mobile safe area (floating-bottom with env(safe-area-inset-bottom))
 - [x] Count picker visibility (32px items, 13px font, clear active state)
 
-### M11 — Growth + conversion
+### ✅ M11 — Crash fix, mobile layout overhaul, persistent footer
+- [x] Fix ColorPicker crash (mounted ref to skip initial onChange, try/catch guards, error boundary)
+- [x] Fix missing hex codes on mobile (complete layout rewrite — no more overflow clipping)
+- [x] Coolors-style mobile layout (horizontal inline row: grip+name | hex | shades/copy/info/lock)
+- [x] Persistent mobile footer (56px + safe area: ?, undo, Generate, share, count picker)
+- [x] Info button popover (shows color name, hex, RGB, HSL values)
+
+### M12 — Growth + conversion
 - [ ] Pro upsell modal — when user taps 6/7/8, show compelling upgrade prompt (not just tooltip)
 - [ ] First-visit tagline — "Generate beautiful color palettes instantly" shown once
 - [ ] Palette history — last 10 generated palettes, swipeable
 - [ ] Save palette — requires account (auth needed, big feature, plan carefully)
 
-### M12 — Pro features (paid tier)
+### M13 — Pro features (paid tier)
 - [ ] 6–8 colors unlocked for Pro users
 - [ ] AI palette from text prompt ("sunset over ocean")
 - [ ] Image → palette extraction (upload photo)

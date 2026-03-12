@@ -25,6 +25,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
+  const mounted = useRef(false)
 
   const currentHex = (() => {
     try { return chroma.hsv(hue, sat, val).hex() }
@@ -33,28 +34,28 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   // Draw SV canvas whenever hue changes
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    const w = canvas.width
-    const h = canvas.height
+    try {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      const w = canvas.width
+      const h = canvas.height
 
-    const baseColor = chroma.hsv(hue, 1, 1).css()
+      const baseColor = chroma.hsv(hue, 1, 1).css()
 
-    // White to hue-color (left to right)
-    const gradH = ctx.createLinearGradient(0, 0, w, 0)
-    gradH.addColorStop(0, '#ffffff')
-    gradH.addColorStop(1, baseColor)
-    ctx.fillStyle = gradH
-    ctx.fillRect(0, 0, w, h)
+      const gradH = ctx.createLinearGradient(0, 0, w, 0)
+      gradH.addColorStop(0, '#ffffff')
+      gradH.addColorStop(1, baseColor)
+      ctx.fillStyle = gradH
+      ctx.fillRect(0, 0, w, h)
 
-    // Transparent to black (top to bottom)
-    const gradV = ctx.createLinearGradient(0, 0, 0, h)
-    gradV.addColorStop(0, 'rgba(0,0,0,0)')
-    gradV.addColorStop(1, 'rgba(0,0,0,1)')
-    ctx.fillStyle = gradV
-    ctx.fillRect(0, 0, w, h)
+      const gradV = ctx.createLinearGradient(0, 0, 0, h)
+      gradV.addColorStop(0, 'rgba(0,0,0,0)')
+      gradV.addColorStop(1, 'rgba(0,0,0,1)')
+      ctx.fillStyle = gradV
+      ctx.fillRect(0, 0, w, h)
+    } catch { /* silent */ }
   }, [hue])
 
   // Sync draft when color changes
@@ -62,9 +63,10 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     setDraft(currentHex.replace('#', ''))
   }, [currentHex])
 
-  // Notify parent on every change
+  // Notify parent on every change — skip initial mount to prevent crash loops
   useEffect(() => {
-    onChange(currentHex)
+    if (!mounted.current) { mounted.current = true; return }
+    try { onChange(currentHex) } catch { /* silent */ }
   }, [currentHex, onChange])
 
   // SV canvas interaction
