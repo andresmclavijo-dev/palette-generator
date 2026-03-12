@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import PaletteCanvas from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
 import CountPicker from './components/palette/CountPicker'
@@ -37,7 +38,9 @@ export default function App() {
   const [proToolsOpen, setProToolsOpen] = useState(false)
   const [copyToast,    setCopyToast]    = useState(false)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const proToolsRef = useRef<HTMLDivElement>(null)
+  const proToolsBtnRef = useRef<HTMLButtonElement>(null)
+  const proToolsDropRef = useRef<HTMLDivElement>(null)
+  const [proToolsPos, setProToolsPos] = useState({ top: 0, left: 0 })
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
 
@@ -49,13 +52,22 @@ export default function App() {
   // Close Pro Tools dropdown on outside click
   useEffect(() => {
     if (!proToolsOpen) return
-    const handler = (e: PointerEvent) => {
-      if (proToolsRef.current && !proToolsRef.current.contains(e.target as Node)) {
-        setProToolsOpen(false)
-      }
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (
+        proToolsBtnRef.current?.contains(target) ||
+        proToolsDropRef.current?.contains(target)
+      ) return
+      setProToolsOpen(false)
     }
-    document.addEventListener('pointerdown', handler)
-    return () => document.removeEventListener('pointerdown', handler)
+    // Delay listener attachment so the opening click doesn't immediately close
+    const raf = requestAnimationFrame(() => {
+      document.addEventListener('mousedown', handler)
+    })
+    return () => {
+      cancelAnimationFrame(raf)
+      document.removeEventListener('mousedown', handler)
+    }
   }, [proToolsOpen])
 
   useEffect(() => {
@@ -226,72 +238,25 @@ export default function App() {
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
-          {/* Pro Tools dropdown */}
-          <div className="relative" ref={proToolsRef}>
-            <Tooltip text="Pro tools">
-              <button
-                onClick={() => setProToolsOpen(o => !o)}
-                className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-                  proToolsOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                }`}
-              >
-                <span className="text-amber-500">✦</span> Pro Tools
-              </button>
-            </Tooltip>
-            {proToolsOpen && (
-              <div className="absolute top-full mt-1 right-0 z-50 w-72 bg-white rounded-xl shadow-xl border border-gray-200 py-2 overflow-hidden">
-                <button
-                  onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[13px] font-medium text-gray-800">From Image</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
-                    </div>
-                    <p className="text-[11px] text-gray-500">Extract palette from any photo</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[13px] font-medium text-gray-800">Vision Sim</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
-                    </div>
-                    <p className="text-[11px] text-gray-500">Simulate color blindness modes</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setAiOpen(true) }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                    <span className="text-[14px]">✨</span>
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[13px] font-medium text-gray-800">AI Palette</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
-                    </div>
-                    <p className="text-[11px] text-gray-500">Generate palette from a text prompt</p>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Pro Tools dropdown trigger */}
+          <Tooltip text="Pro tools">
+            <button
+              ref={proToolsBtnRef}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!proToolsOpen && proToolsBtnRef.current) {
+                  const rect = proToolsBtnRef.current.getBoundingClientRect()
+                  setProToolsPos({ top: rect.bottom + 8, left: rect.left })
+                }
+                setProToolsOpen(o => !o)
+              }}
+              className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
+                proToolsOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+              }`}
+            >
+              <span className="text-amber-500">✦</span> Pro Tools
+            </button>
+          </Tooltip>
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <Tooltip text="Generate from prompt">
@@ -506,6 +471,71 @@ export default function App() {
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium whitespace-nowrap shadow-lg pointer-events-none">
           Copied!
         </div>
+      )}
+
+      {/* Pro Tools dropdown — portal to body to avoid overflow clipping */}
+      {proToolsOpen && createPortal(
+        <div
+          ref={proToolsDropRef}
+          className="bg-white rounded-xl shadow-xl border border-gray-100 p-2 min-w-[280px]"
+          style={{
+            position: 'fixed',
+            top: proToolsPos.top,
+            left: proToolsPos.left,
+            zIndex: 9999,
+          }}
+        >
+          <button
+            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-medium text-gray-800">From Image</span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+              </div>
+              <p className="text-[11px] text-gray-500">Extract palette from any photo</p>
+            </div>
+          </button>
+          <button
+            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-medium text-gray-800">Vision Sim</span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+              </div>
+              <p className="text-[11px] text-gray-500">Simulate color blindness modes</p>
+            </div>
+          </button>
+          <button
+            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setAiOpen(true) }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+              <span className="text-[14px]">✨</span>
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-medium text-gray-800">AI Palette</span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+              </div>
+              <p className="text-[11px] text-gray-500">Generate palette from a text prompt</p>
+            </div>
+          </button>
+        </div>,
+        document.body
       )}
 
       <VisionFilterDefs />
