@@ -152,6 +152,10 @@ export function isNearWhite(hex: string): boolean {
   try { return chroma(hex).get('hsl.l') > 0.88 } catch { return false }
 }
 
+export function isLight(hex: string): boolean {
+  try { return chroma(hex).luminance() > 0.4 } catch { return true }
+}
+
 export function readableOn(bg: string): string {
   try {
     return chroma.contrast(bg, '#ffffff') > chroma.contrast(bg, '#000000')

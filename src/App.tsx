@@ -116,7 +116,7 @@ export default function App() {
 
       {/* -- Harmony tab bar -- */}
       <div
-        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 z-30 shrink-0 overflow-x-auto scrollbar-none"
+        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />

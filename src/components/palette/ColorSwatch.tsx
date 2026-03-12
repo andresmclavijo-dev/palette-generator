@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getColorName, isNearWhite, readableOn } from '../../lib/colorEngine'
+import { getColorName, isNearWhite, isLight } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 
@@ -26,14 +26,16 @@ export default function ColorSwatch({
   const [showHint,     setShowHint]     = useState(false)
   const swatchRef = useRef<HTMLDivElement>(null)
 
-  const labelColor   = readableOn(hex)
-  const nearWhite    = isNearWhite(hex)
-  const colorName    = getColorName(hex)
-  const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
-  const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.42)'
+  // Auto light/dark icon logic — luminance threshold 0.4
+  const lightBg    = isLight(hex)
+  const nearWhite  = isNearWhite(hex)
+  const colorName  = getColorName(hex)
+  const iconColor  = lightBg ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.85)'
+  const labelColor = lightBg ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'
+  const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
 
-  // Drop shadow filter for lock icons + drag handle
-  const iconShadow = 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
+  // Lock icon: always white + strong drop shadow (item 3)
+  const lockShadow = 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))'
 
   // Onboarding "tap to lock" tooltip — mobile only, first swatch, first visit
   useEffect(() => {
@@ -81,7 +83,6 @@ export default function ColorSwatch({
     } else {
       onLock()
     }
-    // Dismiss onboarding hint on any tap
     if (showHint) {
       setShowHint(false)
       localStorage.setItem('paletta-tap-hint', '1')
@@ -137,7 +138,6 @@ export default function ColorSwatch({
       onClick={handleSwatchClick}
       role="button"
       aria-label={locked ? `Unlock ${hex}` : `Lock ${hex}`}
-      tabIndex={index}
     >
       {/* Hover sheen */}
       <div
@@ -179,9 +179,9 @@ export default function ColorSwatch({
             transition-opacity duration-150 cursor-grab active:cursor-grabbing
             w-11 h-11 flex items-center justify-center rounded-full"
           style={{
-            color: labelOpacity,
+            color: iconColor,
             touchAction: 'none',
-            filter: iconShadow,
+            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))',
           }}
           onPointerDown={handleDragPointerDown}
           title="Drag to reorder"
@@ -190,7 +190,7 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Lock icon — top center, with pulse on lock */}
+      {/* Lock icon — top center, always white + drop shadow */}
       {!shadesOpen && !pickerOpen && (
         <div
           className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-200 ${
@@ -200,7 +200,7 @@ export default function ColorSwatch({
                 ? (showActions ? 'opacity-50 scale-100' : 'opacity-0 scale-90')
                 : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
           }`}
-          style={{ filter: iconShadow }}
+          style={{ filter: lockShadow }}
         >
           {locked ? <LockedFilledIcon /> : <UnlockIcon />}
         </div>
@@ -215,11 +215,15 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Action bar — anchored centered in swatch */}
+      {/* Action bar + labels — full-height container, bar above labels */}
       {!shadesOpen && !pickerOpen && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+        <div className="absolute inset-0 flex flex-col items-center z-10 pointer-events-none">
+          {/* Spacer pushes content to bottom half */}
+          <div className="flex-1 min-h-[40px]" />
+
+          {/* Floating action bar */}
           <div
-            className={`flex items-center bg-white rounded-full shadow-md overflow-hidden pointer-events-auto
+            className={`flex items-center bg-white rounded-full shadow-md overflow-hidden pointer-events-auto shrink-0
               transition-all duration-150 ease-out
               ${barShow
                 ? 'opacity-100 translate-y-0 action-bar-enter'
@@ -251,7 +255,6 @@ export default function ColorSwatch({
             >
               <EditIcon />
             </button>
-            {/* Close button — mobile */}
             {IS_COARSE && (
               <>
                 <div className="w-px h-5 bg-gray-200" />
@@ -265,33 +268,33 @@ export default function ColorSwatch({
               </>
             )}
           </div>
-        </div>
-      )}
 
-      {/* Bottom labels */}
-      {!shadesOpen && !pickerOpen && (
-        <div className={`absolute bottom-0 left-0 right-0 flex flex-col items-center gap-[5px] z-10
-          ${isLast ? 'pb-16 sm:pb-20' : 'pb-4 sm:pb-20'}`}>
+          {/* 8px gap between action bar and labels */}
+          <div className="h-3 shrink-0" />
 
-          {/* Color name */}
-          <span
-            className="text-[11px] sm:text-[12px] font-sans tracking-[0.12em] uppercase truncate max-w-full px-2"
-            style={{ color: labelMuted }}
-          >
-            {colorName}
-          </span>
+          {/* Labels container */}
+          <div className={`flex flex-col items-center gap-[5px] shrink-0 pointer-events-auto
+            ${isLast ? 'pb-16 sm:pb-20' : 'pb-4 sm:pb-20'}`}>
+            {/* Color name */}
+            <span
+              className="text-[11px] sm:text-[12px] font-sans tracking-[0.12em] uppercase truncate max-w-full px-2"
+              style={{ color: labelMuted }}
+            >
+              {colorName}
+            </span>
 
-          {/* Hex value */}
-          <button
-            className="text-[14px] sm:text-[16px] font-mono font-bold tracking-widest uppercase transition-colors duration-150
-              min-h-[44px] sm:min-h-0 flex items-center"
-            style={{ color: labelOpacity }}
-            onClick={handleCopy}
-            onDoubleClick={handleHexDoubleClick}
-            title="Click to copy · Double-click to edit"
-          >
-            {copied ? 'Copied' : hex.toUpperCase()}
-          </button>
+            {/* Hex value */}
+            <button
+              className="text-[14px] sm:text-[16px] font-mono font-bold tracking-widest uppercase transition-colors duration-150
+                min-h-[44px] sm:min-h-0 flex items-center"
+              style={{ color: labelColor }}
+              onClick={handleCopy}
+              onDoubleClick={handleHexDoubleClick}
+              title="Click to copy · Double-click to edit"
+            >
+              {copied ? 'Copied' : hex.toUpperCase()}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -313,6 +316,7 @@ function GripIcon({ color }: { color: string }) {
   )
 }
 
+// Lock icons — always white fill for visibility on any background
 function LockedFilledIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">

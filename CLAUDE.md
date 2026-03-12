@@ -88,7 +88,8 @@ interface PaletteState {
 - Size: 20–24px
 - Stroke-width: 1.5
 - Color: Inherit from context, white with drop-shadow on colored backgrounds
-- Lock icon: White fill + `drop-shadow(0 1px 2px rgba(0,0,0,0.4))` so visible on any swatch color
+- Lock icon: Always white fill + `drop-shadow(0 1px 3px rgba(0,0,0,0.5))` — never inherits swatch color
+- Drag handle + labels: Auto light/dark via `chroma.luminance() > 0.4` — light bg → dark icons, dark bg → light icons
 
 ---
 
@@ -150,22 +151,24 @@ Harmony tabs moved to top nav, footer removed, floating controls (?, Generate, c
 
 ## Roadmap
 
-### M9 — Interaction polish (next)
-- [ ] Action bar anchored inside swatch (stays within swatch bounds, no overflow)
-- [ ] Last swatch color name fix (name clipped or missing on bottom swatch)
-- [ ] Mobile safe area padding for Generate button (avoid home indicator overlap)
-- [ ] Drag handle contrast (better visibility on light/dark swatches)
-- [ ] Harmony tab hover states (subtle bg on hover for inactive tabs)
-- [ ] Lock visual feedback — filled icon + dark overlay when locked
-- [ ] Onboarding "tap to lock" tooltip (first-visit hint on mobile)
+### ✅ M9 — Interaction polish
+Action bar anchored inside swatch, last swatch label fix, mobile safe area padding, drag handle contrast, harmony tab hover states, lock visual feedback (filled icon + overlay), onboarding "tap to lock" tooltip
 
-### M10 — Growth + conversion
+### M10 — Icon contrast & mobile fixes (in progress)
+- [x] Remove mystery chevron (fixed double overflow-x-auto on harmony bar)
+- [x] Action bar position (bar above labels with 12px gap, flex-col layout)
+- [x] Lock icon always white with drop-shadow(0 1px 3px rgba(0,0,0,0.5))
+- [x] Auto light/dark icon logic (chroma luminance > 0.4 threshold for drag handle, labels)
+- [x] Mobile safe area (floating-bottom with env(safe-area-inset-bottom))
+- [x] Count picker visibility (32px items, 13px font, clear active state)
+
+### M11 — Growth + conversion
 - [ ] Pro upsell modal — when user taps 6/7/8, show compelling upgrade prompt (not just tooltip)
 - [ ] First-visit tagline — "Generate beautiful color palettes instantly" shown once
 - [ ] Palette history — last 10 generated palettes, swipeable
 - [ ] Save palette — requires account (auth needed, big feature, plan carefully)
 
-### M11 — Pro features (paid tier)
+### M12 — Pro features (paid tier)
 - [ ] 6–8 colors unlocked for Pro users
 - [ ] AI palette from text prompt ("sunset over ocean")
 - [ ] Image → palette extraction (upload photo)

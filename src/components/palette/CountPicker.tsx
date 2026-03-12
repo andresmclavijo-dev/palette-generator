@@ -13,10 +13,10 @@ export default function CountPicker({ count, onChange }: CountPickerProps) {
 
   return (
     <div
-      className="flex items-center gap-0.5"
+      className="flex items-center gap-1"
       onClick={e => e.stopPropagation()}
     >
-      <span className="text-[11px] text-[#9AA0A6] mr-1 select-none hidden sm:block">Colors</span>
+      <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>
 
       {ALL_COUNTS.map(n => {
         const isPro  = n > FREE_MAX
@@ -30,10 +30,11 @@ export default function CountPicker({ count, onChange }: CountPickerProps) {
                 else { setProTooltip(null); onChange(n) }
               }}
               className={`
-                relative w-7 h-7 rounded-full text-[12px] font-medium
+                relative w-8 h-8 rounded-full text-[13px] font-semibold
                 transition-all duration-150 select-none
+                flex items-center justify-center
                 ${active
-                  ? 'bg-[#1A73E8] text-white'
+                  ? 'bg-[#1A73E8] text-white shadow-sm'
                   : isPro
                     ? 'text-[#BDBDBD] cursor-default'
                     : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124] cursor-pointer'

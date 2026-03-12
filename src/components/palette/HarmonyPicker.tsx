@@ -16,7 +16,7 @@ interface HarmonyPickerProps {
 export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
   return (
     <div
-      className="flex items-center gap-0.5 overflow-x-auto scrollbar-none"
+      className="flex items-center gap-0.5 flex-1 min-w-0 overflow-x-auto scrollbar-none"
       onClick={e => e.stopPropagation()}
     >
       {MODES.map(m => (
