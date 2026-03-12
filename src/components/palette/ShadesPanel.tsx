@@ -121,7 +121,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
 
   // Desktop: inline overlay (existing behavior)
   return (
-    <div className="absolute inset-0 z-20 flex flex-col" onClick={e => e.stopPropagation()}>
+    <div className="absolute inset-0 z-20 flex flex-col pb-20" onClick={e => e.stopPropagation()}>
       <button
         onClick={onClose}
         className="absolute top-2 right-2 z-30 w-11 h-11 rounded-full flex items-center justify-center

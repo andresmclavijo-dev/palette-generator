@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import PaletteCanvas from './components/palette/PaletteCanvas'
+import type { ActivePanel } from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
 import CountPicker from './components/palette/CountPicker'
 import ExportPanel from './components/palette/ExportPanel'
@@ -43,6 +44,7 @@ export default function App() {
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
+  const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const proToolsBtnRef = useRef<HTMLButtonElement>(null)
   const proToolsDropRef = useRef<HTMLDivElement>(null)
@@ -53,6 +55,11 @@ export default function App() {
   const showCopyToast = useCallback(() => {
     setCopyToast(true)
     setTimeout(() => setCopyToast(false), 1500)
+  }, [])
+
+  const handlePanelChange = useCallback((panel: ActivePanel) => {
+    setActivePanel(panel)
+    if (panel) setHelpOpen(false)
   }, [])
 
   // Close Pro Tools dropdown on outside click
@@ -121,7 +128,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -131,7 +138,8 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(window.location.href)
       setShareCopied(true)
-      setTimeout(() => setShareCopied(false), 2000)
+      setSaveToast('Link copied!')
+      setTimeout(() => { setShareCopied(false); setSaveToast('') }, 2000)
     } catch { /* silent */ }
   }
 
@@ -229,8 +237,11 @@ export default function App() {
           {!isSignedIn ? (
             <button
               onClick={() => setSignInOpen(true)}
-              className="hidden sm:block text-sm text-gray-600 font-medium hover:text-gray-900 transition-colors px-2"
+              className="hidden sm:flex items-center gap-1.5 text-sm text-gray-600 font-medium hover:text-gray-900 transition-colors px-2"
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
               Sign In
             </button>
           ) : (
@@ -363,6 +374,8 @@ export default function App() {
             onEdit={editSwatch}
             onReorder={reorderSwatches}
             onCopyToast={showCopyToast}
+            activePanel={activePanel}
+            onPanelChange={handlePanelChange}
           />
         </div>
 
@@ -371,7 +384,10 @@ export default function App() {
           <div className="relative">
             <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
               <button
-                onClick={() => setHelpOpen(o => !o)}
+                onClick={() => {
+                  if (helpOpen) { setHelpOpen(false) }
+                  else { setHelpOpen(true); setActivePanel(null) }
+                }}
                 className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
               >
                 ?

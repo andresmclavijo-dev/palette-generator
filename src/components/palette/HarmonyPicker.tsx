@@ -61,7 +61,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
       {/* Right fade gradient — scroll hint */}
       {showFade && (
         <div
-          className="absolute right-0 top-0 bottom-0 w-10 pointer-events-none sm:hidden"
+          className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none sm:hidden"
           style={{ background: 'linear-gradient(to right, transparent, white)' }}
         />
       )}

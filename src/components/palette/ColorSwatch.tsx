@@ -4,6 +4,7 @@ import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } fr
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 import Tooltip from '../ui/Tooltip'
+import type { ActivePanel } from './PaletteCanvas'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
@@ -27,17 +28,21 @@ interface ColorSwatchProps {
   onEdit: (hex: string) => void
   onDragStart: () => void
   onCopyToast?: () => void
+  activePanel: ActivePanel
+  onPanelChange: (panel: ActivePanel) => void
 }
 
 export default function ColorSwatch({
   hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart, onCopyToast,
+  activePanel, onPanelChange,
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
-  const [shadesOpen, setShadesOpen] = useState(false)
   const [showActions, setShowActions] = useState(false)
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [infoOpen,   setInfoOpen]   = useState(false)
   const [showHint,   setShowHint]   = useState(false)
+
+  const shadesOpen = activePanel?.type === 'shades' && activePanel.swatchIndex === index
+  const pickerOpen = activePanel?.type === 'picker' && activePanel.swatchIndex === index
+  const infoOpen   = activePanel?.type === 'info'   && activePanel.swatchIndex === index
   const swatchRef = useRef<HTMLDivElement>(null)
 
   const lightBg    = isLight(hex)
@@ -80,12 +85,12 @@ export default function ColorSwatch({
     if (!infoOpen) return
     const handler = (e: PointerEvent) => {
       if (swatchRef.current && !swatchRef.current.contains(e.target as Node)) {
-        setInfoOpen(false)
+        onPanelChange(null)
       }
     }
     document.addEventListener('pointerdown', handler)
     return () => document.removeEventListener('pointerdown', handler)
-  }, [infoOpen])
+  }, [infoOpen, onPanelChange])
 
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.stopPropagation()
@@ -98,7 +103,7 @@ export default function ColorSwatch({
   }
 
   const handleDesktopClick = () => {
-    if (shadesOpen || pickerOpen) return
+    if (activePanel) { onPanelChange(null); return }
     onLock()
     if (showHint) {
       setShowHint(false)
@@ -114,14 +119,14 @@ export default function ColorSwatch({
 
   const handleOpenShades = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setShadesOpen(true)
+    onPanelChange({ type: 'shades', swatchIndex: index })
     setShowActions(false)
   }
 
   const handleOpenPicker = (e: React.MouseEvent) => {
     try {
       e.stopPropagation()
-      setPickerOpen(true)
+      onPanelChange({ type: 'picker', swatchIndex: index })
       setShowActions(false)
     } catch (err) { console.error('Failed to open picker:', err) }
   }
@@ -129,14 +134,14 @@ export default function ColorSwatch({
   const handleHexDoubleClick = (e: React.MouseEvent) => {
     try {
       e.stopPropagation()
-      setPickerOpen(true)
+      onPanelChange({ type: 'picker', swatchIndex: index })
       setShowActions(false)
     } catch (err) { console.error('Failed to open picker:', err) }
   }
 
   const handleToggleInfo = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setInfoOpen(o => !o)
+    onPanelChange(infoOpen ? null : { type: 'info', swatchIndex: index })
   }
 
   const handleMobileLock = (e: React.MouseEvent) => {
@@ -159,13 +164,13 @@ export default function ColorSwatch({
       <PickerErrorBoundary fallback={
         <div className="w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center text-sm text-gray-500">
           Color picker unavailable
-          <button onClick={() => setPickerOpen(false)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
         </div>
       }>
         <ColorPicker
           hex={hex}
           onChange={onEdit}
-          onClose={() => setPickerOpen(false)}
+          onClose={() => onPanelChange(null)}
         />
       </PickerErrorBoundary>
     </div>
@@ -174,17 +179,17 @@ export default function ColorSwatch({
   // Mobile picker — rendered outside the overflow-hidden swatch via fixed positioning
   const pickerMobile = pickerOpen && IS_COARSE && (
     <PickerErrorBoundary fallback={
-      <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setPickerOpen(false)}>
+      <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => onPanelChange(null)}>
         <div className="w-full bg-white rounded-t-2xl p-6 text-center text-sm text-gray-500" onClick={e => e.stopPropagation()}>
           Color picker unavailable
-          <button onClick={() => setPickerOpen(false)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
         </div>
       </div>
     }>
       <ColorPicker
         hex={hex}
         onChange={onEdit}
-        onClose={() => setPickerOpen(false)}
+        onClose={() => onPanelChange(null)}
       />
     </PickerErrorBoundary>
   )
@@ -200,7 +205,7 @@ export default function ColorSwatch({
         <div className="w-56 bg-white rounded-xl shadow-xl border border-gray-200 p-4 text-[12px]">
           <div className="flex items-center justify-between mb-3">
             <span className="font-semibold text-gray-800 text-[13px]">{colorName || 'Color'}</span>
-            <button onClick={() => setInfoOpen(false)} className="text-gray-400 hover:text-gray-600 text-[14px]">✕</button>
+            <button onClick={() => onPanelChange(null)} className="text-gray-400 hover:text-gray-600 text-[14px]">✕</button>
           </div>
           <div className="space-y-1.5 text-gray-600 font-mono">
             <div className="flex justify-between"><span className="text-gray-400 font-sans">HEX</span><span>{hex.toUpperCase()}</span></div>
@@ -231,7 +236,7 @@ export default function ColorSwatch({
         <div className="absolute inset-0 pointer-events-none z-[1]" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
       )}
 
-      {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
+      {shadesOpen && <ShadesPanel hex={hex} onClose={() => onPanelChange(null)} />}
       {pickerMobile}
       {infoPopover}
 
@@ -257,7 +262,7 @@ export default function ColorSwatch({
         <button
           className="text-[14px] font-mono font-bold tracking-wider uppercase truncate"
           style={{ color: labelColor }}
-          onClick={(e) => { e.stopPropagation(); setPickerOpen(true) }}
+          onClick={(e) => { e.stopPropagation(); onPanelChange({ type: 'picker', swatchIndex: index }) }}
         >
           {copied ? 'Copied' : hex.toUpperCase()}
         </button>
@@ -349,7 +354,7 @@ export default function ColorSwatch({
         <div className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
       )}
 
-      {shadesOpen && <ShadesPanel hex={hex} onClose={() => setShadesOpen(false)} />}
+      {shadesOpen && <ShadesPanel hex={hex} onClose={() => onPanelChange(null)} />}
       {pickerDesktop}
       {infoPopover}
 
@@ -399,19 +404,19 @@ export default function ColorSwatch({
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="View shades">
+            <Tooltip text="View shades" disabled={shadesOpen}>
               <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <ShadesIcon />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="Color info">
+            <Tooltip text="Color info" disabled={infoOpen}>
               <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <InfoIcon />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <Tooltip text="Edit color">
+            <Tooltip text="Edit color" disabled={pickerOpen}>
               <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
                 <EditIcon />
               </button>

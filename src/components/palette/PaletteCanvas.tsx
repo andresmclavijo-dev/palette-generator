@@ -3,15 +3,19 @@ import type { Swatch } from '../../lib/colorEngine'
 import { getDeduplicatedNames } from '../../lib/colorEngine'
 import ColorSwatch from './ColorSwatch'
 
+export type ActivePanel = { type: 'picker' | 'shades' | 'info'; swatchIndex: number } | null
+
 interface PaletteCanvasProps {
   swatches: Swatch[]
   onLock: (id: string) => void
   onEdit: (id: string, hex: string) => void
   onReorder: (fromIndex: number, toIndex: number) => void
   onCopyToast?: () => void
+  activePanel: ActivePanel
+  onPanelChange: (panel: ActivePanel) => void
 }
 
-export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, onCopyToast }: PaletteCanvasProps) {
+export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, onCopyToast, activePanel, onPanelChange }: PaletteCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
@@ -98,6 +102,8 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, onC
             onEdit={(hex) => onEdit(swatch.id, hex)}
             onDragStart={() => handleDragStart(swatchIdx)}
             onCopyToast={onCopyToast}
+            activePanel={activePanel}
+            onPanelChange={onPanelChange}
           />
         )
       })}
