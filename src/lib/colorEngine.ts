@@ -177,6 +177,20 @@ export function getColorInfo(hex: string): { rgb: string; hsl: string } {
   }
 }
 
+export function getContrastBadge(hex: string): { ratio: number; level: 'AAA' | 'AA' | 'Fail'; pass: boolean } {
+  try {
+    const white = chroma.contrast(hex, '#ffffff')
+    const black = chroma.contrast(hex, '#000000')
+    const ratio = Math.max(white, black)
+    const rounded = Math.round(ratio * 10) / 10
+    if (ratio >= 7) return { ratio: rounded, level: 'AAA', pass: true }
+    if (ratio >= 4.5) return { ratio: rounded, level: 'AA', pass: true }
+    return { ratio: rounded, level: 'Fail', pass: false }
+  } catch {
+    return { ratio: 1, level: 'Fail', pass: false }
+  }
+}
+
 export function parseHex(raw: string): string | null {
   const c = raw.trim().replace(/^#/, '')
   if (/^[0-9a-fA-F]{6}$/.test(c)) return `#${c.toUpperCase()}`

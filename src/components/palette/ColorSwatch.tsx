@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { getColorName, getColorInfo, isNearWhite, isLight } from '../../lib/colorEngine'
+import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 
@@ -45,6 +45,7 @@ export default function ColorSwatch({
   const labelColor = lightBg ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'
   const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
   const lockShadow = 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))'
+  const contrast = getContrastBadge(hex)
 
   // Onboarding tooltip — mobile only, first swatch, first visit
   useEffect(() => {
@@ -272,6 +273,19 @@ export default function ColorSwatch({
         </button>
       </div>
 
+      {/* WCAG contrast badge */}
+      {!shadesOpen && !pickerOpen && (
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/20 text-white`}>
+            {contrast.ratio}:1 {contrast.pass ? (
+              <span className="text-green-300">{contrast.level} ✓</span>
+            ) : (
+              <span className="text-red-300">✗</span>
+            )}
+          </span>
+        </div>
+      )}
+
       {/* Onboarding hint */}
       {showHint && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none onboarding-tooltip">
@@ -386,6 +400,14 @@ export default function ColorSwatch({
             >
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>
+            {/* WCAG contrast badge */}
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/20 text-white mt-1`}>
+              {contrast.ratio}:1 {contrast.pass ? (
+                <span className="text-green-300">{contrast.level} ✓</span>
+              ) : (
+                <span className="text-red-300">✗</span>
+              )}
+            </span>
           </div>
         </div>
       )}

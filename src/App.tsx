@@ -123,7 +123,7 @@ export default function App() {
       </div>
 
       {/* -- Palette canvas -- */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative pb-[72px] sm:pb-0">
         <PaletteCanvas
           swatches={swatches}
           onLock={lockSwatch}
@@ -186,8 +186,8 @@ export default function App() {
 
       {/* -- Mobile footer -- */}
       <footer
-        className="flex-none sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
-        style={{ height: `calc(56px + env(safe-area-inset-bottom, 0px))`, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
+        style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Help */}
         <div className="relative">

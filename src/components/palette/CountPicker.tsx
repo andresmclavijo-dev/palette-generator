@@ -2,32 +2,44 @@ import { useState } from 'react'
 
 const FREE_MAX   = 5
 const ALL_COUNTS = [3, 4, 5, 6, 7, 8]
+const BRAND = '#1A73E8'
 
 interface CountPickerProps {
   count: number
   onChange: (n: number) => void
 }
 
+const PRO_FEATURES = [
+  { icon: '🎨', text: '6–8 colors per palette' },
+  { icon: '✨', text: 'AI palette from text prompt' },
+  { icon: '🖼', text: 'Image → palette extraction' },
+  { icon: '♿', text: 'WCAG contrast checker' },
+  { icon: '👁', text: 'Color blindness preview' },
+  { icon: '💾', text: 'Save & organize palettes' },
+  { icon: '📦', text: 'PNG / SVG export' },
+]
+
 export default function CountPicker({ count, onChange }: CountPickerProps) {
-  const [proTooltip, setProTooltip] = useState<number | null>(null)
+  const [proModal, setProModal] = useState(false)
 
   return (
-    <div
-      className="flex items-center gap-1"
-      onClick={e => e.stopPropagation()}
-    >
-      <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>
+    <>
+      <div
+        className="flex items-center gap-1"
+        onClick={e => e.stopPropagation()}
+      >
+        <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>
 
-      {ALL_COUNTS.map(n => {
-        const isPro  = n > FREE_MAX
-        const active = n === count
+        {ALL_COUNTS.map(n => {
+          const isPro  = n > FREE_MAX
+          const active = n === count
 
-        return (
-          <div key={n} className="relative">
+          return (
             <button
+              key={n}
               onClick={() => {
-                if (isPro) setProTooltip(proTooltip === n ? null : n)
-                else { setProTooltip(null); onChange(n) }
+                if (isPro) setProModal(true)
+                else onChange(n)
               }}
               className={`
                 relative w-8 h-8 rounded-full text-[13px] font-semibold
@@ -47,19 +59,65 @@ export default function CountPicker({ count, onChange }: CountPickerProps) {
                 <span className="absolute -top-0.5 -right-0.5 text-[7px] text-amber-400 leading-none select-none">✦</span>
               )}
             </button>
+          )
+        })}
+      </div>
 
-            {isPro && proTooltip === n && (
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap
-                px-3 py-2 rounded-xl bg-[#202124] border border-white/10
-                text-[10px] font-medium text-white/80 text-center shadow-xl">
-                <div className="text-amber-400 font-semibold mb-0.5">✦ Pro feature</div>
-                <div className="text-white/55">More colors coming soon</div>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#202124]" />
+      {/* Pro upgrade modal */}
+      {proModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center"
+          onClick={() => setProModal(false)}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <div
+            className="relative w-[340px] max-w-[90vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 pt-6 pb-4 text-center">
+              <div className="text-amber-400 text-[24px] mb-2">✦</div>
+              <h2 className="text-[20px] font-bold text-gray-900">Paletta Pro</h2>
+              <p className="text-[13px] text-gray-500 mt-1">Everything you need for professional color work</p>
+            </div>
+
+            {/* Feature list */}
+            <div className="px-6 pb-4">
+              <div className="space-y-2.5">
+                {PRO_FEATURES.map(f => (
+                  <div key={f.text} className="flex items-center gap-3">
+                    <span className="text-[16px] w-6 text-center shrink-0">{f.icon}</span>
+                    <span className="text-[13px] text-gray-700">{f.text}</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* Pricing */}
+            <div className="px-6 pb-2 text-center">
+              <p className="text-[15px] font-semibold text-gray-900">$5/month <span className="text-[13px] font-normal text-gray-400">or</span> $45/year</p>
+            </div>
+
+            {/* Buttons */}
+            <div className="px-6 pt-3 pb-6 space-y-2">
+              <a
+                href="mailto:hello@paletta.app?subject=Paletta%20Pro%20Waitlist"
+                className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+                style={{ backgroundColor: BRAND }}
+                onClick={() => setProModal(false)}
+              >
+                Join waitlist
+              </a>
+              <button
+                onClick={() => setProModal(false)}
+                className="w-full h-11 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"
+              >
+                Maybe later
+              </button>
+            </div>
           </div>
-        )
-      })}
-    </div>
+        </div>
+      )}
+    </>
   )
 }

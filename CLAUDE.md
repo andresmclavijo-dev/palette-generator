@@ -170,19 +170,25 @@ Action bar anchored inside swatch, last swatch label fix, mobile safe area paddi
 - [x] Persistent mobile footer (56px + safe area: ?, undo, Generate, share, count picker)
 - [x] Info button popover (shows color name, hex, RGB, HSL values)
 
-### M12 — Growth + conversion
-- [ ] Pro upsell modal — when user taps 6/7/8, show compelling upgrade prompt (not just tooltip)
+### ✅ M12 — Crash fixes, shades bottom sheet, WCAG badges, Pro modal
+- [x] ColorPicker hardened (✕ close button, error boundary, try/catch guards, Escape + outside click)
+- [x] Shades panel as mobile bottom sheet (fixed inset-0, white bg, z-50, drag handle, color name title, animate from bottom)
+- [x] Mobile footer fixed to bottom (position: fixed, padding-bottom: max(safe-area, 16px), z-40)
+- [x] WCAG contrast badge on each swatch (contrast ratio + AA/AAA pass/fail badge)
+- [x] Pro upgrade modal (replaces tooltip — feature list, pricing, "Join waitlist" mailto, "Maybe later")
+
+### M13 — Growth + conversion
 - [ ] First-visit tagline — "Generate beautiful color palettes instantly" shown once
 - [ ] Palette history — last 10 generated palettes, swipeable
 - [ ] Save palette — requires account (auth needed, big feature, plan carefully)
 
-### M13 — Pro features (paid tier)
+### M14 — Pro features (paid tier)
 - [ ] 6–8 colors unlocked for Pro users
 - [ ] AI palette from text prompt ("sunset over ocean")
 - [ ] Image → palette extraction (upload photo)
 - [ ] Full shade scales 100–900 (Tailwind-style)
 - [ ] PNG / SVG export
-- [ ] Contrast checker (WCAG AA/AAA)
+- [ ] Contrast checker (WCAG AA/AAA) — enhanced version
 - [ ] Color blindness preview (deuteranopia, protanopia, tritanopia)
 - [ ] Team sharing / collections
 
