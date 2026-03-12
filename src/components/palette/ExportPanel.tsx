@@ -99,8 +99,8 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-2 pb-3 border-b border-gray-100">
           <span className="text-[15px] font-semibold text-gray-800">Export Palette</span>
-          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="block">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>

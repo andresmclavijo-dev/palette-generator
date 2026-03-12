@@ -46,14 +46,13 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
 
         {/* Buttons */}
         <div className="px-6 pt-2 pb-6 space-y-2">
-          <a
-            href="mailto:hello@paletta.app?subject=Paletta%20Pro"
+          <button
+            onClick={onClose}
             className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
             style={{ backgroundColor: BRAND }}
-            onClick={onClose}
           >
-            Join the waitlist
-          </a>
+            Get Pro when it launches
+          </button>
           <button
             onClick={onClose}
             className="w-full h-11 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"

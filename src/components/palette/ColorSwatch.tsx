@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
+import Tooltip from '../ui/Tooltip'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
@@ -266,7 +267,7 @@ export default function ColorSwatch({
           onClick={handleOpenShades}
           className="w-11 h-11 flex items-center justify-center"
           style={{ color: iconColor }}
-          title="Shades"
+          aria-label="Shades"
         >
           <ShadesIcon size={18} />
         </button>
@@ -274,7 +275,7 @@ export default function ColorSwatch({
           onClick={handleCopy}
           className="w-11 h-11 flex items-center justify-center"
           style={{ color: iconColor }}
-          title="Copy"
+          aria-label="Copy"
         >
           {copied ? <CheckIcon size={18} /> : <CopyIcon size={18} />}
         </button>
@@ -282,7 +283,7 @@ export default function ColorSwatch({
           onClick={handleToggleInfo}
           className="w-11 h-11 flex items-center justify-center"
           style={{ color: iconColor }}
-          title="Info"
+          aria-label="Info"
         >
           <InfoIcon size={18} />
         </button>
@@ -290,7 +291,7 @@ export default function ColorSwatch({
           onClick={handleMobileLock}
           className="w-11 h-11 flex items-center justify-center"
           style={{ color: iconColor }}
-          title={locked ? 'Unlock' : 'Lock'}
+          aria-label={locked ? 'Unlock' : 'Lock'}
         >
           {locked ? <LockedFilledIcon size={18} color={iconColor} /> : <UnlockIcon size={18} color={iconColor} />}
         </button>
@@ -359,7 +360,7 @@ export default function ColorSwatch({
             w-11 h-11 flex items-center justify-center rounded-full"
           style={{ color: iconColor, touchAction: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}
           onPointerDown={handleDragPointerDown}
-          title="Drag to reorder"
+          aria-label="Drag to reorder"
         >
           <GripIcon color="currentColor" />
         </div>
@@ -390,21 +391,29 @@ export default function ColorSwatch({
             `}
             onClick={e => e.stopPropagation()}
           >
-            <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Copy hex">
-              {copied ? <CheckIcon /> : <CopyIcon />}
-            </button>
+            <Tooltip text="Copy hex" position="top">
+              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                {copied ? <CheckIcon /> : <CopyIcon />}
+              </button>
+            </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="View shades">
-              <ShadesIcon />
-            </button>
+            <Tooltip text="View shades" position="top">
+              <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                <ShadesIcon />
+              </button>
+            </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Color info">
-              <InfoIcon />
-            </button>
+            <Tooltip text="Color info" position="top">
+              <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                <InfoIcon />
+              </button>
+            </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
-            <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" title="Edit color">
-              <EditIcon />
-            </button>
+            <Tooltip text="Edit color" position="top">
+              <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                <EditIcon />
+              </button>
+            </Tooltip>
           </div>
 
           <div className="h-3 shrink-0" />
@@ -419,7 +428,7 @@ export default function ColorSwatch({
               style={{ color: labelColor }}
               onClick={handleCopy}
               onDoubleClick={handleHexDoubleClick}
-              title="Click to copy · Double-click to edit"
+              aria-label="Click to copy, double-click to edit"
             >
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>

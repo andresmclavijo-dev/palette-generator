@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import ProBadge from '../ui/ProBadge'
+import Tooltip from '../ui/Tooltip'
 
 export type VisionMode = 'normal' | 'deuteranopia' | 'protanopia' | 'tritanopia'
 
@@ -33,21 +34,23 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
 
   return (
     <div className="relative shrink-0 hidden sm:block">
-      <button
-        onClick={handleClick}
-        className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-          mode !== 'normal'
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-        }`}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-        <span>Vision</span>
-        <ProBadge />
-      </button>
+      <Tooltip text="Simulate color blindness modes">
+        <button
+          onClick={handleClick}
+          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
+            mode !== 'normal'
+              ? 'bg-blue-50 text-blue-600'
+              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+          }`}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span>Vision</span>
+          <ProBadge />
+        </button>
+      </Tooltip>
 
       {/* Dropdown */}
       {dropOpen && (

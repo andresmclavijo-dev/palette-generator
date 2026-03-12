@@ -7,12 +7,15 @@ import AiPrompt from './components/palette/AiPrompt'
 import ImagePalette from './components/palette/ImagePalette'
 import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
 import type { VisionMode } from './components/palette/VisionSimulator'
+import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
+import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette } from './lib/colorEngine'
 
 const BRAND = '#1A73E8'
+const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
   const { isPro } = usePro()
@@ -29,6 +32,7 @@ export default function App() {
   const [aiOpen,       setAiOpen]       = useState(false)
   const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
   const [proModalOpen, setProModalOpen] = useState(false)
+  const [toolsOpen,    setToolsOpen]    = useState(false)
   const [saveToast,    setSaveToast]    = useState('')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -79,7 +83,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false); setToolsOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -103,10 +107,16 @@ export default function App() {
 
   const handleSave = () => {
     if (!isPro) { openProModal(); return }
-    // Future: save to Supabase
     console.log('Save palette:', swatches.map(s => s.hex))
     setSaveToast('Palette saved!')
     setTimeout(() => setSaveToast(''), 2000)
+  }
+
+  // Mobile: cycle through free counts
+  const handleMobileCountCycle = () => {
+    const idx = FREE_COUNTS.indexOf(count)
+    const next = FREE_COUNTS[(idx + 1) % FREE_COUNTS.length]
+    setCount(next)
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
@@ -114,7 +124,7 @@ export default function App() {
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden bg-white">
 
-      {/* -- Header -- */}
+      {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-12 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: BRAND }}>
@@ -129,62 +139,73 @@ export default function App() {
           <span className="text-[15px] sm:text-[17px] font-semibold text-gray-800 tracking-tight">Paletta</span>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
-          </button>
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Share */}
+          <Tooltip text={shareCopied ? 'Copied!' : 'Share link'} position="bottom">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
+            </button>
+          </Tooltip>
 
-          {/* Save button — both desktop and mobile */}
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span className="hidden sm:inline">Save</span>
-          </button>
+          {/* Save */}
+          <Tooltip text="Save palette" position="bottom">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span className="hidden sm:inline">Save</span>
+            </button>
+          </Tooltip>
 
-          <button
-            onClick={() => setExportOpen(o => !o)}
-            className="flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: BRAND }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            <span className="hidden sm:inline">Export</span>
-          </button>
+          {/* Export */}
+          <Tooltip text="Export palette" position="bottom">
+            <button
+              onClick={() => setExportOpen(o => !o)}
+              className="flex items-center gap-1.5 px-2.5 sm:px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
+              style={{ backgroundColor: BRAND }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </Tooltip>
         </div>
       </header>
 
-      {/* -- Harmony tab bar + tools -- */}
+      {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
-        <div className="flex items-center gap-1 shrink-0 ml-2">
+        {/* Desktop-only tools */}
+        <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
-          <button
-            onClick={() => setAiOpen(o => !o)}
-            className={`flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-              aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-          >
-            ✨ <span className="hidden sm:inline">AI</span>
-          </button>
+          <Tooltip text="Generate palette from text">
+            <button
+              onClick={() => setAiOpen(o => !o)}
+              className={`flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
+                aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+              }`}
+            >
+              ✨ AI
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -197,11 +218,8 @@ export default function App() {
 
       {/* -- Palette canvas -- */}
       <main
-        className="flex-1 overflow-hidden relative sm:pb-0"
-        style={{
-          filter: visionFilter,
-          paddingBottom: undefined,
-        }}
+        className="flex-1 overflow-hidden relative"
+        style={{ filter: visionFilter }}
       >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (
@@ -213,8 +231,12 @@ export default function App() {
             <span className="text-gray-400 ml-1">✕</span>
           </button>
         )}
-        {/* Mobile scroll wrapper with footer clearance */}
-        <div className="w-full h-full sm:contents" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+
+        {/* Palette with mobile footer clearance */}
+        <div
+          className="w-full h-full sm:[all:unset] sm:contents"
+          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))' }}
+        >
           <PaletteCanvas
             swatches={swatches}
             onLock={lockSwatch}
@@ -226,12 +248,14 @@ export default function App() {
         {/* Floating help button — bottom left (desktop only) */}
         <div className="absolute floating-bottom left-4 z-20 hidden sm:block">
           <div className="relative">
-            <button
-              onClick={() => setHelpOpen(o => !o)}
-              className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
-            >
-              ?
-            </button>
+            <Tooltip text="Keyboard shortcuts" position="top">
+              <button
+                onClick={() => setHelpOpen(o => !o)}
+                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
+              >
+                ?
+              </button>
+            </Tooltip>
             {helpOpen && (
               <div className="absolute bottom-12 left-0 z-50 w-52 rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
                 <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
@@ -276,46 +300,59 @@ export default function App() {
         </div>
       </main>
 
-      {/* -- Mobile footer -- */}
+      {/* -- Mobile footer: Undo | Generate | Colors | Tools | Export -- */}
       <footer
-        className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center px-2 gap-1"
+        className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
         style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button
           onClick={undo}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
-          title="Undo"
+          aria-label="Undo"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
           </svg>
         </button>
 
-        {/* Generate — centered, takes remaining space */}
-        <div className="flex-1 flex justify-center">
-          <button
-            onClick={triggerGenerate}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
-            style={{ backgroundColor: BRAND }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-            </svg>
-            Generate
-          </button>
-        </div>
+        {/* Generate — pill, centered */}
+        <button
+          onClick={triggerGenerate}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
+          style={{ backgroundColor: BRAND }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+          </svg>
+          Generate
+        </button>
 
-        {/* Count picker — compact */}
-        <div className="shrink-0">
-          <CountPicker count={count} onChange={setCount} onProGate={openProModal} compact />
-        </div>
+        {/* Colors — cycle pill */}
+        <button
+          onClick={handleMobileCountCycle}
+          className="h-9 px-3 rounded-full bg-gray-100 text-[13px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
+          aria-label={`${count} colors, tap to change`}
+        >
+          {count}
+        </button>
+
+        {/* Tools */}
+        <button
+          onClick={() => setToolsOpen(true)}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
+          aria-label="Tools"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
 
         {/* Export */}
         <button
           onClick={() => setExportOpen(o => !o)}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
-          title="Export"
+          aria-label="Export"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -329,7 +366,18 @@ export default function App() {
         <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
       )}
 
-      {/* Unified Pro upgrade modal — single source of truth */}
+      {/* Mobile tools bottom sheet */}
+      <ToolsSheet
+        open={toolsOpen}
+        onClose={() => setToolsOpen(false)}
+        onProGate={openProModal}
+        onImagePalette={handleImagePalette}
+        onAiOpen={() => { setAiOpen(true); setToolsOpen(false) }}
+        visionMode={visionMode}
+        onVisionChange={setVisionMode}
+      />
+
+      {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
 
       {/* Save toast */}
