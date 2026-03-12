@@ -4,16 +4,18 @@ import HarmonyPicker from './components/palette/HarmonyPicker'
 import CountPicker from './components/palette/CountPicker'
 import ExportPanel from './components/palette/ExportPanel'
 import AiPrompt from './components/palette/AiPrompt'
-import SaveModal from './components/palette/SaveModal'
 import ImagePalette from './components/palette/ImagePalette'
 import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
 import type { VisionMode } from './components/palette/VisionSimulator'
+import ProUpgradeModal from './components/ui/ProUpgradeModal'
+import { usePro } from './hooks/usePro'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette } from './lib/colorEngine'
 
 const BRAND = '#1A73E8'
 
 export default function App() {
+  const { isPro } = usePro()
   const {
     swatches, harmonyMode, count,
     generate, lockSwatch, editSwatch, reorderSwatches,
@@ -24,10 +26,13 @@ export default function App() {
   const [exportOpen,   setExportOpen]   = useState(false)
   const [showHint,     setShowHint]     = useState(false)
   const [helpOpen,     setHelpOpen]     = useState(false)
-  const [saveOpen,     setSaveOpen]     = useState(false)
   const [aiOpen,       setAiOpen]       = useState(false)
   const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
+  const [proModalOpen, setProModalOpen] = useState(false)
+  const [saveToast,    setSaveToast]    = useState('')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const openProModal = useCallback(() => setProModalOpen(true), [])
 
   useEffect(() => {
     const isMobile = window.innerWidth < 640
@@ -74,7 +79,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setSaveOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setProModalOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -94,6 +99,14 @@ export default function App() {
 
   const handleImagePalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
+  }
+
+  const handleSave = () => {
+    if (!isPro) { openProModal(); return }
+    // Future: save to Supabase
+    console.log('Save palette:', swatches.map(s => s.hex))
+    setSaveToast('Palette saved!')
+    setTimeout(() => setSaveToast(''), 2000)
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
@@ -129,10 +142,10 @@ export default function App() {
             <span className="hidden sm:inline">{shareCopied ? 'Copied!' : 'Share'}</span>
           </button>
 
-          {/* Save button — desktop only */}
+          {/* Save button — both desktop and mobile */}
           <button
-            onClick={() => setSaveOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+            onClick={handleSave}
+            className="flex items-center gap-1.5 px-3 sm:px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -162,8 +175,8 @@ export default function App() {
       >
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         <div className="flex items-center gap-1 shrink-0 ml-2">
-          <ImagePalette onPalette={handleImagePalette} />
-          <VisionSimulator mode={visionMode} onChange={setVisionMode} />
+          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
+          <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <button
             onClick={() => setAiOpen(o => !o)}
             className={`flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
@@ -178,12 +191,18 @@ export default function App() {
       {/* -- AI prompt bar (collapsible) -- */}
       {aiOpen && (
         <div className="flex-none h-11 bg-white border-b border-gray-100 flex items-center px-3 sm:px-4 z-20 shrink-0">
-          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} />
+          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} onProGate={openProModal} />
         </div>
       )}
 
       {/* -- Palette canvas -- */}
-      <main className="flex-1 overflow-hidden relative pb-[56px] sm:pb-0" style={{ filter: visionFilter }}>
+      <main
+        className="flex-1 overflow-hidden relative sm:pb-0"
+        style={{
+          filter: visionFilter,
+          paddingBottom: undefined,
+        }}
+      >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (
           <button
@@ -194,12 +213,15 @@ export default function App() {
             <span className="text-gray-400 ml-1">✕</span>
           </button>
         )}
-        <PaletteCanvas
-          swatches={swatches}
-          onLock={lockSwatch}
-          onEdit={editSwatch}
-          onReorder={reorderSwatches}
-        />
+        {/* Mobile scroll wrapper with footer clearance */}
+        <div className="w-full h-full sm:contents" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+          <PaletteCanvas
+            swatches={swatches}
+            onLock={lockSwatch}
+            onEdit={editSwatch}
+            onReorder={reorderSwatches}
+          />
+        </div>
 
         {/* Floating help button — bottom left (desktop only) */}
         <div className="absolute floating-bottom left-4 z-20 hidden sm:block">
@@ -249,12 +271,12 @@ export default function App() {
         {/* Floating count picker — bottom right (desktop only) */}
         <div className="absolute floating-bottom right-4 z-20 hidden sm:block">
           <div className="bg-white shadow-md rounded-full px-2 py-1">
-            <CountPicker count={count} onChange={setCount} />
+            <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
           </div>
         </div>
       </main>
 
-      {/* -- Mobile footer (Task 5: simplified — Undo, Generate, Count, Export) -- */}
+      {/* -- Mobile footer -- */}
       <footer
         className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center px-2 gap-1"
         style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
@@ -286,7 +308,7 @@ export default function App() {
 
         {/* Count picker — compact */}
         <div className="shrink-0">
-          <CountPicker count={count} onChange={setCount} compact />
+          <CountPicker count={count} onChange={setCount} onProGate={openProModal} compact />
         </div>
 
         {/* Export */}
@@ -307,8 +329,14 @@ export default function App() {
         <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
       )}
 
-      {saveOpen && (
-        <SaveModal onClose={() => setSaveOpen(false)} />
+      {/* Unified Pro upgrade modal — single source of truth */}
+      <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
+
+      {/* Save toast */}
+      {saveToast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
+          {saveToast}
+        </div>
       )}
 
       <VisionFilterDefs />

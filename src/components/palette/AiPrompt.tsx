@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ProBadge from '../ui/ProBadge'
 
 const BRAND = '#1A73E8'
 const STORAGE_KEY = 'paletta-ai-uses'
@@ -7,6 +8,7 @@ const MAX_FREE = 3
 interface AiPromptProps {
   onPalette: (hexes: string[]) => void
   onFallback: () => void
+  onProGate: () => void
 }
 
 function getUsageCount(): number {
@@ -16,7 +18,7 @@ function incrementUsage() {
   try { localStorage.setItem(STORAGE_KEY, String(getUsageCount() + 1)) } catch { /* silent */ }
 }
 
-export default function AiPrompt({ onPalette, onFallback }: AiPromptProps) {
+export default function AiPrompt({ onPalette, onFallback, onProGate }: AiPromptProps) {
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
@@ -29,7 +31,8 @@ export default function AiPrompt({ onPalette, onFallback }: AiPromptProps) {
   }
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || loading || exhausted) return
+    if (exhausted) { onProGate(); return }
+    if (!prompt.trim() || loading) return
 
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
     if (!apiKey) {
@@ -86,17 +89,16 @@ export default function AiPrompt({ onPalette, onFallback }: AiPromptProps) {
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') handleGenerate(); e.stopPropagation() }}
-          placeholder="Describe a palette… e.g. Warm Mediterranean cafe"
+          placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette… e.g. Warm Mediterranean cafe'}
           disabled={exhausted}
           className="flex-1 min-w-0 h-8 px-3 rounded-full bg-gray-50 border border-gray-200 text-[12px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-300 disabled:opacity-50"
         />
         <div className="relative shrink-0">
           <button
             onClick={handleGenerate}
-            disabled={loading || exhausted || !prompt.trim()}
+            disabled={loading || (!exhausted && !prompt.trim())}
             className="flex items-center gap-1.5 h-8 px-3 rounded-full text-white text-[12px] font-medium transition-all disabled:opacity-40"
             style={{ backgroundColor: BRAND }}
-            title={exhausted ? '3 free uses per day' : 'Generate with AI'}
           >
             {loading ? (
               <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
@@ -108,15 +110,20 @@ export default function AiPrompt({ onPalette, onFallback }: AiPromptProps) {
             )}
             <span className="hidden sm:inline">Generate</span>
           </button>
-          <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white" style={{ backgroundColor: BRAND }}>
-            PRO
+          <span className="absolute -top-1.5 -right-1.5">
+            <ProBadge />
           </span>
         </div>
       </div>
 
       {/* Usage indicator */}
       {exhausted && (
-        <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">3 free uses per day</span>
+        <button
+          onClick={onProGate}
+          className="text-[10px] text-blue-500 whitespace-nowrap shrink-0 hover:underline"
+        >
+          Upgrade to Pro
+        </button>
       )}
 
       {/* Toast */}

@@ -1,7 +1,6 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import ProBadge from '../ui/ProBadge'
-import ProGate from '../ui/ProGate'
 
 export type VisionMode = 'normal' | 'deuteranopia' | 'protanopia' | 'tritanopia'
 
@@ -15,19 +14,15 @@ const MODES: { value: VisionMode; label: string }[] = [
 interface VisionSimulatorProps {
   mode: VisionMode
   onChange: (mode: VisionMode) => void
+  onProGate: () => void
 }
 
-export default function VisionSimulator({ mode, onChange }: VisionSimulatorProps) {
+export default function VisionSimulator({ mode, onChange, onProGate }: VisionSimulatorProps) {
   const { isPro } = usePro()
   const [dropOpen, setDropOpen] = useState(false)
-  const [gateOpen, setGateOpen] = useState(false)
-  const btnRef = useRef<HTMLButtonElement>(null)
 
   const handleClick = () => {
-    if (!isPro) {
-      setGateOpen(true)
-      return
-    }
+    if (!isPro) { onProGate(); return }
     setDropOpen(o => !o)
   }
 
@@ -39,7 +34,6 @@ export default function VisionSimulator({ mode, onChange }: VisionSimulatorProps
   return (
     <div className="relative shrink-0 hidden sm:block">
       <button
-        ref={btnRef}
         onClick={handleClick}
         className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
           mode !== 'normal'
@@ -51,7 +45,7 @@ export default function VisionSimulator({ mode, onChange }: VisionSimulatorProps
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
           <circle cx="12" cy="12" r="3"/>
         </svg>
-        <span className="hidden sm:inline">Vision</span>
+        <span>Vision</span>
         <ProBadge />
       </button>
 
@@ -74,8 +68,6 @@ export default function VisionSimulator({ mode, onChange }: VisionSimulatorProps
           ))}
         </div>
       )}
-
-      <ProGate open={gateOpen} onClose={() => setGateOpen(false)} anchorRef={btnRef} />
     </div>
   )
 }
