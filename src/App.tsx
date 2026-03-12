@@ -132,7 +132,7 @@ export default function App() {
         />
 
         {/* Floating help button — bottom left */}
-        <div className="absolute bottom-4 left-4 z-20">
+        <div className="absolute floating-bottom left-4 z-20">
           <div className="relative">
             <button
               onClick={() => setHelpOpen(o => !o)}
@@ -158,7 +158,7 @@ export default function App() {
         </div>
 
         {/* Floating Generate button — bottom center */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none">
+        <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none">
           {showHint && (
             <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
@@ -177,7 +177,7 @@ export default function App() {
         </div>
 
         {/* Floating count picker — bottom right */}
-        <div className="absolute bottom-4 right-4 z-20">
+        <div className="absolute floating-bottom right-4 z-20">
           <div className="bg-white shadow-md rounded-full px-2 py-1">
             <CountPicker count={count} onChange={setCount} />
           </div>

@@ -86,3 +86,20 @@ html, body, #root {
   background: transparent;
   border: none;
 }
+
+/* Safe area — floating controls above home indicator */
+.floating-bottom {
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Onboarding tooltip fade in/out */
+.onboarding-tooltip {
+  animation: onboardFade 3s ease-in-out;
+  animation-fill-mode: forwards;
+}
+@keyframes onboardFade {
+  0%   { opacity: 0; transform: translateY(4px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}

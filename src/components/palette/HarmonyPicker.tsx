@@ -1,11 +1,11 @@
 import type { HarmonyMode } from '../../lib/colorEngine'
 
-const MODES: { value: HarmonyMode; label: string; short: string }[] = [
-  { value: 'random',        label: 'Random',        short: 'Random'  },
-  { value: 'analogous',     label: 'Analogous',     short: 'Analog'  },
-  { value: 'monochromatic', label: 'Monochromatic',  short: 'Mono'    },
-  { value: 'complementary', label: 'Complementary',  short: 'Compl'   },
-  { value: 'triadic',       label: 'Triadic',        short: 'Triadic' },
+const MODES: { value: HarmonyMode; label: string }[] = [
+  { value: 'random',        label: 'Random'        },
+  { value: 'analogous',     label: 'Analogous'     },
+  { value: 'monochromatic', label: 'Monochromatic' },
+  { value: 'complementary', label: 'Complementary' },
+  { value: 'triadic',       label: 'Triadic'       },
 ]
 
 interface HarmonyPickerProps {

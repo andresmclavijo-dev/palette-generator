@@ -23,6 +23,7 @@ export default function ColorSwatch({
   const [shadesOpen,   setShadesOpen]   = useState(false)
   const [showActions,  setShowActions]  = useState(false)
   const [pickerOpen,   setPickerOpen]   = useState(false)
+  const [showHint,     setShowHint]     = useState(false)
   const swatchRef = useRef<HTMLDivElement>(null)
 
   const labelColor   = readableOn(hex)
@@ -31,8 +32,21 @@ export default function ColorSwatch({
   const labelOpacity = labelColor === '#ffffff' ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.78)'
   const labelMuted   = labelColor === '#ffffff' ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.42)'
 
-  // Drop shadow filter for lock icons
+  // Drop shadow filter for lock icons + drag handle
   const iconShadow = 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
+
+  // Onboarding "tap to lock" tooltip — mobile only, first swatch, first visit
+  useEffect(() => {
+    if (!IS_COARSE || index !== 0) return
+    const seen = localStorage.getItem('paletta-tap-hint')
+    if (seen) return
+    const timer = setTimeout(() => setShowHint(true), 1200)
+    const dismiss = setTimeout(() => {
+      setShowHint(false)
+      localStorage.setItem('paletta-tap-hint', '1')
+    }, 4500)
+    return () => { clearTimeout(timer); clearTimeout(dismiss) }
+  }, [index])
 
   // Dismiss action bar on outside tap (mobile)
   useEffect(() => {
@@ -66,6 +80,11 @@ export default function ColorSwatch({
       }
     } else {
       onLock()
+    }
+    // Dismiss onboarding hint on any tap
+    if (showHint) {
+      setShowHint(false)
+      localStorage.setItem('paletta-tap-hint', '1')
     }
   }
 
@@ -129,8 +148,8 @@ export default function ColorSwatch({
       {/* Dark overlay when locked */}
       {locked && (
         <div
-          className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-150"
-          style={{ backgroundColor: 'rgba(0,0,0,0.12)' }}
+          className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200"
+          style={{ backgroundColor: 'rgba(0,0,0,0.15)' }}
         />
       )}
 
@@ -156,10 +175,14 @@ export default function ColorSwatch({
       {!shadesOpen && !pickerOpen && (
         <div
           className="absolute top-2 left-2 sm:left-auto sm:right-3 sm:top-3 z-10
-            opacity-40 sm:opacity-0 sm:group-hover:opacity-60 sm:hover:!opacity-100
+            opacity-50 sm:opacity-0 sm:group-hover:opacity-70 sm:hover:!opacity-100
             transition-opacity duration-150 cursor-grab active:cursor-grabbing
             w-11 h-11 flex items-center justify-center rounded-full"
-          style={{ color: labelOpacity, touchAction: 'none' }}
+          style={{
+            color: labelOpacity,
+            touchAction: 'none',
+            filter: iconShadow,
+          }}
           onPointerDown={handleDragPointerDown}
           title="Drag to reorder"
         >
@@ -167,12 +190,12 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Lock icon — top center */}
+      {/* Lock icon — top center, with pulse on lock */}
       {!shadesOpen && !pickerOpen && (
         <div
-          className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-150 ${
+          className={`absolute top-3 sm:top-5 left-1/2 -translate-x-1/2 z-10 transition-all duration-200 ${
             locked
-              ? 'opacity-100 scale-100'
+              ? 'opacity-100 scale-110'
               : IS_COARSE
                 ? (showActions ? 'opacity-50 scale-100' : 'opacity-0 scale-90')
                 : 'opacity-0 scale-90 group-hover:opacity-50 group-hover:scale-100'
@@ -183,59 +206,72 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Center: action bar + bottom labels */}
+      {/* Onboarding "tap to lock" tooltip — mobile, first swatch */}
+      {showHint && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none onboarding-tooltip">
+          <div className="px-4 py-2 rounded-xl bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
+            Tap to lock a color
+          </div>
+        </div>
+      )}
+
+      {/* Action bar — anchored centered in swatch */}
+      {!shadesOpen && !pickerOpen && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div
+            className={`flex items-center bg-white rounded-full shadow-md overflow-hidden pointer-events-auto
+              transition-all duration-150 ease-out
+              ${barShow
+                ? 'opacity-100 translate-y-0 action-bar-enter'
+                : 'opacity-0 translate-y-2 pointer-events-none'}
+              ${barHoverClass}
+            `}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={handleCopy}
+              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              title="Copy hex"
+            >
+              {copied ? <CheckIcon /> : <CopyIcon />}
+            </button>
+            <div className="w-px h-5 bg-gray-200" />
+            <button
+              onClick={handleOpenShades}
+              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              title="View shades"
+            >
+              <ShadesIcon />
+            </button>
+            <div className="w-px h-5 bg-gray-200" />
+            <button
+              onClick={handleOpenPicker}
+              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              title="Edit color"
+            >
+              <EditIcon />
+            </button>
+            {/* Close button — mobile */}
+            {IS_COARSE && (
+              <>
+                <div className="w-px h-5 bg-gray-200" />
+                <button
+                  onClick={handleDismissBar}
+                  className="flex items-center justify-center w-12 h-12 text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                  title="Close"
+                >
+                  <CloseIcon />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom labels */}
       {!shadesOpen && !pickerOpen && (
         <div className={`absolute bottom-0 left-0 right-0 flex flex-col items-center gap-[5px] z-10
-          ${isLast ? 'pb-[80px] sm:pb-20' : 'pb-4 sm:pb-20'}`}>
-
-          {/* Floating action bar — positioned 20px above hex label area */}
-          <div
-              className={`flex items-center bg-white rounded-full shadow-md overflow-hidden
-                transition-all duration-150 ease-out mb-5
-                ${barShow
-                  ? 'opacity-100 translate-y-0 pointer-events-auto action-bar-enter'
-                  : 'opacity-0 translate-y-2 pointer-events-none'}
-                ${barHoverClass}
-              `}
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={handleCopy}
-                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                title="Copy hex"
-              >
-                {copied ? <CheckIcon /> : <CopyIcon />}
-              </button>
-              <div className="w-px h-5 bg-gray-200" />
-              <button
-                onClick={handleOpenShades}
-                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                title="View shades"
-              >
-                <ShadesIcon />
-              </button>
-              <div className="w-px h-5 bg-gray-200" />
-              <button
-                onClick={handleOpenPicker}
-                className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                title="Edit color"
-              >
-                <EditIcon />
-              </button>
-              {/* Close button — mobile */}
-              {IS_COARSE && (
-                <>
-                  <div className="w-px h-5 bg-gray-200" />
-                  <button
-                    onClick={handleDismissBar}
-                    className="flex items-center justify-center w-12 h-12 text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                    title="Close"
-                  >
-                    <CloseIcon />
-                  </button>
-                </>
-              )}
-            </div>
+          ${isLast ? 'pb-16 sm:pb-20' : 'pb-4 sm:pb-20'}`}>
 
           {/* Color name */}
           <span
@@ -279,7 +315,7 @@ function GripIcon({ color }: { color: string }) {
 
 function LockedFilledIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="11" width="18" height="11" rx="2" fill="white" stroke="white" strokeWidth="1.5"/>
       <path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="white" strokeWidth="1.5"/>
     </svg>
