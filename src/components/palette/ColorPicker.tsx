@@ -8,13 +8,29 @@ interface ColorPickerProps {
   onClose: () => void
 }
 
+function safeHsv(hex: string): { h: number; s: number; v: number } {
+  try {
+    const [h, s, v] = chroma(hex).hsv()
+    return { h: isNaN(h) ? 0 : h, s: isNaN(s) ? 0 : s, v: isNaN(v) ? 1 : v }
+  } catch {
+    return { h: 0, s: 1, v: 1 }
+  }
+}
+
+function safeHsvToHex(h: number, s: number, v: number): string {
+  try {
+    return chroma.hsv(
+      isNaN(h) ? 0 : h,
+      isNaN(s) ? 0 : Math.max(0, Math.min(1, s)),
+      isNaN(v) ? 1 : Math.max(0, Math.min(1, v)),
+    ).hex()
+  } catch {
+    return '#000000'
+  }
+}
+
 export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
-  const initial = (() => {
-    try {
-      const [h, s, v] = chroma(hex).hsv()
-      return { h: isNaN(h) ? 0 : h, s, v }
-    } catch { return { h: 0, s: 1, v: 1 } }
-  })()
+  const initial = safeHsv(hex)
 
   const [hue, setHue] = useState(initial.h)
   const [sat, setSat] = useState(initial.s)
@@ -27,10 +43,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   const dragging = useRef(false)
   const mounted = useRef(false)
 
-  const currentHex = (() => {
-    try { return chroma.hsv(hue, sat, val).hex() }
-    catch { return '#000000' }
-  })()
+  const currentHex = safeHsvToHex(hue, sat, val)
 
   // Draw SV canvas whenever hue changes
   useEffect(() => {
@@ -41,8 +54,11 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
       if (!ctx) return
       const w = canvas.width
       const h = canvas.height
+      if (w <= 0 || h <= 0) return
 
-      const baseColor = chroma.hsv(hue, 1, 1).css()
+      let baseColor: string
+      try { baseColor = chroma.hsv(isNaN(hue) ? 0 : hue, 1, 1).css() }
+      catch { baseColor = 'red' }
 
       const gradH = ctx.createLinearGradient(0, 0, w, 0)
       gradH.addColorStop(0, '#ffffff')
@@ -60,7 +76,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   // Sync draft when color changes
   useEffect(() => {
-    setDraft(currentHex.replace('#', ''))
+    try { setDraft(currentHex.replace('#', '')) } catch { /* silent */ }
   }, [currentHex])
 
   // Notify parent on every change — skip initial mount to prevent crash loops
@@ -69,20 +85,24 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     try { onChange(currentHex) } catch { /* silent */ }
   }, [currentHex, onChange])
 
-  // SV canvas interaction
+  // SV canvas interaction — guard ref
   const updateFromCanvas = useCallback((clientX: number, clientY: number) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const rect = canvas.getBoundingClientRect()
-    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
-    setSat(x)
-    setVal(1 - y)
+    try {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      if (rect.width <= 0 || rect.height <= 0) return
+      const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+      const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
+      setSat(x)
+      setVal(1 - y)
+    } catch { /* silent */ }
   }, [])
 
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
     e.stopPropagation()
     e.preventDefault()
+    if (!canvasRef.current) return
     dragging.current = true
     updateFromCanvas(e.clientX, e.clientY)
   }
@@ -90,7 +110,9 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   // Document-level pointer tracking for canvas drag
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
-      if (dragging.current) updateFromCanvas(e.clientX, e.clientY)
+      if (!dragging.current) return
+      if (!canvasRef.current) return
+      try { updateFromCanvas(e.clientX, e.clientY) } catch { /* silent */ }
     }
     const handleUp = () => { dragging.current = false }
     document.addEventListener('pointermove', handleMove)
@@ -104,9 +126,11 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   // Close on outside click
   useEffect(() => {
     const handler = (e: PointerEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        onClose()
-      }
+      try {
+        if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+          onClose()
+        }
+      } catch { /* silent */ }
     }
     const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 10)
     return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
@@ -122,15 +146,22 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   }, [onClose])
 
   const handleHexCommit = () => {
-    const parsed = parseHex(draft)
-    if (parsed) {
-      try {
-        const [h, s, v] = chroma(parsed).hsv()
-        setHue(isNaN(h) ? 0 : h)
-        setSat(s)
-        setVal(v)
-      } catch { /* ignore */ }
-    }
+    try {
+      const parsed = parseHex(draft)
+      if (!parsed) return
+      const hsv = safeHsv(parsed)
+      setHue(hsv.h)
+      setSat(hsv.s)
+      setVal(hsv.v)
+    } catch { /* silent */ }
+  }
+
+  const handleDraftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      // Only allow hex characters
+      const cleaned = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
+      setDraft(cleaned)
+    } catch { /* silent */ }
   }
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -172,8 +203,8 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         <div
           className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
           style={{
-            left: `${sat * 100}%`,
-            top: `${(1 - val) * 100}%`,
+            left: `${Math.max(0, Math.min(100, sat * 100))}%`,
+            top: `${Math.max(0, Math.min(100, (1 - val) * 100))}%`,
             backgroundColor: currentHex,
           }}
         />
@@ -185,8 +216,10 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           type="range"
           min={0}
           max={360}
-          value={hue}
-          onChange={e => setHue(Number(e.target.value))}
+          value={isNaN(hue) ? 0 : hue}
+          onChange={e => {
+            try { setHue(Number(e.target.value)) } catch { /* silent */ }
+          }}
           className="hue-slider w-full h-3 rounded-full appearance-none cursor-pointer"
           onClick={e => e.stopPropagation()}
         />
@@ -202,9 +235,14 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           <span className="text-[12px] text-gray-400 font-mono">#</span>
           <input
             value={draft}
-            onChange={e => setDraft(e.target.value)}
+            onChange={handleDraftChange}
             onBlur={handleHexCommit}
-            onKeyDown={e => { if (e.key === 'Enter') handleHexCommit(); e.stopPropagation() }}
+            onKeyDown={e => {
+              try {
+                if (e.key === 'Enter') handleHexCommit()
+                e.stopPropagation()
+              } catch { /* silent */ }
+            }}
             maxLength={6}
             className="flex-1 min-w-0 bg-transparent text-[13px] font-mono uppercase outline-none"
             onClick={e => e.stopPropagation()}

@@ -209,16 +209,16 @@ export default function ColorSwatch({
       {infoPopover}
 
       {/* Left: drag handle + color name */}
-      <div className="flex items-center gap-1.5 pl-2 z-10 shrink-0">
+      <div className="flex items-center gap-1 pl-1 z-10 min-w-0 shrink-0" style={{ maxWidth: '40%' }}>
         <div
-          className="w-10 h-10 flex items-center justify-center cursor-grab active:cursor-grabbing"
+          className="w-9 h-9 flex items-center justify-center cursor-grab active:cursor-grabbing shrink-0"
           style={{ color: iconColor, touchAction: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}
           onPointerDown={handleDragPointerDown}
         >
           <GripIcon color="currentColor" />
         </div>
         <span
-          className="text-[10px] font-sans tracking-[0.08em] uppercase truncate max-w-[72px]"
+          className="text-[10px] font-sans tracking-[0.06em] uppercase truncate min-w-0"
           style={{ color: labelMuted }}
         >
           {colorName}
@@ -226,9 +226,9 @@ export default function ColorSwatch({
       </div>
 
       {/* Center: hex value */}
-      <div className="flex-1 flex justify-center z-10">
+      <div className="flex-1 flex justify-center z-10 min-w-0">
         <button
-          className="text-[16px] font-mono font-bold tracking-widest uppercase"
+          className="text-[14px] font-mono font-bold tracking-wider uppercase truncate"
           style={{ color: labelColor }}
           onClick={handleCopy}
           onDoubleClick={handleHexDoubleClick}

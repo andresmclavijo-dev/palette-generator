@@ -110,7 +110,7 @@ interface PaletteState {
 ### Mobile (< 640px)
 - Swatches stack vertically as horizontal inline rows (Coolors-style: grip+name | hex | shades/copy/info/lock)
 - Harmony tab bar scrolls horizontally (`overflow-x-auto`, hidden scrollbar)
-- Persistent footer (56px + safe area): ? help, ↺ undo, Generate pill, ↗ share, count picker
+- Persistent footer (56px + safe area): ? help, ↺ undo, Generate pill (centered), count picker (3·4·5·6✦ compact)
 - Floating controls hidden on mobile (replaced by footer)
 - Info popover shows color name, hex, RGB, HSL
 
@@ -171,18 +171,26 @@ Action bar anchored inside swatch, last swatch label fix, mobile safe area paddi
 - [x] Info button popover (shows color name, hex, RGB, HSL values)
 
 ### ✅ M12 — Crash fixes, shades bottom sheet, WCAG badges, Pro modal
+WCAG contrast badges added, Pro upgrade modal added, Coolors-style mobile layout stable, shades bottom sheet working, color picker crash partially fixed
 - [x] ColorPicker hardened (✕ close button, error boundary, try/catch guards, Escape + outside click)
 - [x] Shades panel as mobile bottom sheet (fixed inset-0, white bg, z-50, drag handle, color name title, animate from bottom)
 - [x] Mobile footer fixed to bottom (position: fixed, padding-bottom: max(safe-area, 16px), z-40)
 - [x] WCAG contrast badge on each swatch (contrast ratio + AA/AAA pass/fail badge)
 - [x] Pro upgrade modal (replaces tooltip — feature list, pricing, "Join waitlist" mailto, "Maybe later")
 
-### M13 — Growth + conversion
+### ✅ M13 — Picker crash fix, footer cleanup, shade scale fix, name truncation
+- [x] ColorPicker complete rewrite — safeHsv/safeHsvToHex helpers, all canvas/ref ops guarded, hex input sanitized, NaN-safe throughout
+- [x] Remove duplicate Share button from mobile footer
+- [x] Simplified mobile footer: ? help, ↺ undo, Generate (blue pill, flex-1 centered), count picker (3·4·5·6✦ compact)
+- [x] Shade scale stops at 900 (was 1000) — matches Tailwind/Material standard
+- [x] Color name truncation fixed — proper min-w-0 + truncate, hex reduced to 14px on mobile for room
+
+### M14 — Growth + conversion
 - [ ] First-visit tagline — "Generate beautiful color palettes instantly" shown once
 - [ ] Palette history — last 10 generated palettes, swipeable
 - [ ] Save palette — requires account (auth needed, big feature, plan carefully)
 
-### M14 — Pro features (paid tier)
+### M15 — Pro features (paid tier)
 - [ ] 6–8 colors unlocked for Pro users
 - [ ] AI palette from text prompt ("sunset over ocean")
 - [ ] Image → palette extraction (upload photo)
@@ -197,9 +205,9 @@ Action bar anchored inside swatch, last swatch label fix, mobile safe area paddi
 ## Known Issues (unresolved)
 
 - Drag to reorder not yet implemented
-- Pro features (6–8 colors) not gated with real payment — just tooltips
+- Pro features (6–8 colors) not gated with real payment — just Pro modal with waitlist
 - No account/auth system yet
-- Color picker "Picker" dropdown label is unclear — should be "Mode" or removed
+- Color picker canvas crash on desktop — persistent issue across M11–M13, fully rewritten in M13 with safeHsv helpers and NaN guards. If crash recurs, needs complete rewrite with different canvas approach
 - Shades panel icon (looks like a table) — unintuitive, needs redesign
 
 ---

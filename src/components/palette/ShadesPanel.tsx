@@ -10,7 +10,7 @@ interface ShadesPanelProps {
 }
 
 export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
-  const shades = generateShades(hex, 10)
+  const shades = generateShades(hex, 9)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [visible, setVisible] = useState(false)
   const colorName = getColorName(hex)

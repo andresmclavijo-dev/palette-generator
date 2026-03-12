@@ -2,11 +2,13 @@ import { useState } from 'react'
 
 const FREE_MAX   = 5
 const ALL_COUNTS = [3, 4, 5, 6, 7, 8]
+const COMPACT_COUNTS = [3, 4, 5, 6]
 const BRAND = '#1A73E8'
 
 interface CountPickerProps {
   count: number
   onChange: (n: number) => void
+  compact?: boolean
 }
 
 const PRO_FEATURES = [
@@ -19,8 +21,9 @@ const PRO_FEATURES = [
   { icon: '📦', text: 'PNG / SVG export' },
 ]
 
-export default function CountPicker({ count, onChange }: CountPickerProps) {
+export default function CountPicker({ count, onChange, compact }: CountPickerProps) {
   const [proModal, setProModal] = useState(false)
+  const counts = compact ? COMPACT_COUNTS : ALL_COUNTS
 
   return (
     <>
@@ -28,9 +31,9 @@ export default function CountPicker({ count, onChange }: CountPickerProps) {
         className="flex items-center gap-1"
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>
+        {!compact && <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>}
 
-        {ALL_COUNTS.map(n => {
+        {counts.map(n => {
           const isPro  = n > FREE_MAX
           const active = n === count
 
