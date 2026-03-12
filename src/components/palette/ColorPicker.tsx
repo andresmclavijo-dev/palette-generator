@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { HslColorPicker } from 'react-colorful'
-import chroma from 'chroma-js'
+import { HexColorPicker } from 'react-colorful'
 import { parseHex } from '../../lib/colorEngine'
 
 const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640
@@ -9,20 +8,6 @@ interface ColorPickerProps {
   hex: string
   onChange: (hex: string) => void
   onClose: () => void
-}
-
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  try {
-    const [h, s, l] = chroma(hex).hsl()
-    return { h: isNaN(h) ? 0 : h, s: isNaN(s) ? 0 : Math.round(s * 100), l: isNaN(l) ? 50 : Math.round(l * 100) }
-  } catch {
-    return { h: 0, s: 100, l: 50 }
-  }
-}
-
-function hslToHex(hsl: { h: number; s: number; l: number }): string {
-  try { return chroma.hsl(hsl.h, hsl.s / 100, hsl.l / 100).hex() }
-  catch { return '#000000' }
 }
 
 function copyToClipboard(text: string): Promise<void> {
@@ -49,14 +34,12 @@ function fallbackCopy(text: string): Promise<void> {
 }
 
 export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
-  const [hsl, setHsl] = useState(() => hexToHsl(hex))
+  const [color, setColor] = useState(hex)
   const [draft, setDraft] = useState(hex.replace('#', ''))
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const skipNotify = useRef(true)
-
-  const currentHex = hslToHex(hsl)
 
   // Animate in on mobile
   useEffect(() => {
@@ -65,14 +48,14 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   // Sync draft text when picker color changes
   useEffect(() => {
-    setDraft(currentHex.replace('#', ''))
-  }, [currentHex])
+    setDraft(color.replace('#', ''))
+  }, [color])
 
   // Notify parent — skip initial render
   useEffect(() => {
     if (skipNotify.current) { skipNotify.current = false; return }
-    try { onChange(currentHex) } catch { /* silent */ }
-  }, [currentHex, onChange])
+    try { onChange(color) } catch { /* silent */ }
+  }, [color, onChange])
 
   // Close on outside mousedown — uses contains() check
   useEffect(() => {
@@ -94,27 +77,26 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  // Bug 1: Real-time hex → HSL sync as user types
+  // Real-time hex input sync
   const handleDraftChange = (raw: string) => {
     const cleaned = raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
     setDraft(cleaned)
     if (cleaned.length === 6) {
       const parsed = parseHex(cleaned)
-      if (parsed) setHsl(hexToHsl(parsed))
+      if (parsed) setColor(parsed.toLowerCase())
     }
   }
 
   const commitHex = () => {
     const parsed = parseHex(draft)
     if (!parsed) return
-    setHsl(hexToHsl(parsed))
+    setColor(parsed.toLowerCase())
   }
 
-  // Bug 2: Robust copy with fallback
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      await copyToClipboard(currentHex)
+      await copyToClipboard(color)
       setCopied(true)
       setTimeout(() => setCopied(false), 1200)
     } catch { /* silent */ }
@@ -136,12 +118,12 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
       {/* Color preview */}
       <div
         className="mx-4 mt-4 rounded-xl h-16 border border-gray-100"
-        style={{ backgroundColor: currentHex }}
+        style={{ backgroundColor: color }}
       />
 
-      {/* react-colorful HSL picker */}
+      {/* react-colorful hex picker — no HSL conversion needed */}
       <div className="mx-4 mt-3 react-colorful-wrapper">
-        <HslColorPicker color={hsl} onChange={setHsl} />
+        <HexColorPicker color={color} onChange={setColor} />
       </div>
 
       {/* Hex input + copy */}
@@ -173,17 +155,14 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     </>
   )
 
-  // Bug 4: Mobile — fixed bottom sheet
+  // Mobile — fixed bottom sheet
   if (IS_MOBILE) {
     return (
       <div
         className="fixed inset-0 z-[60]"
         onClick={onClose}
       >
-        {/* Backdrop */}
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm sheet-backdrop" />
-
-        {/* Bottom sheet */}
         <div
           ref={pickerRef}
           className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl overflow-hidden"
@@ -195,11 +174,9 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           onClick={e => e.stopPropagation()}
           onMouseDown={e => e.stopPropagation()}
         >
-          {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-gray-200" />
           </div>
-
           {pickerContent}
         </div>
       </div>
