@@ -172,18 +172,9 @@ export default function App() {
 
       {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-12 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: BRAND }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" fill="white" opacity="0.9"/>
-              <circle cx="6.5" cy="11.5" r="1.5" fill="#4285F4"/>
-              <circle cx="9.5" cy="7.5" r="1.5" fill="#34A853"/>
-              <circle cx="14.5" cy="7.5" r="1.5" fill="#FBBC04"/>
-              <circle cx="17.5" cy="11.5" r="1.5" fill="#EA4335"/>
-            </svg>
-          </div>
-          <span className="text-[15px] sm:text-[17px] font-semibold text-gray-800 tracking-tight">Paletta</span>
-        </div>
+        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight text-gray-900">
+          <span className="text-blue-500">P</span>aletta
+        </span>
 
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Share — desktop only */}
