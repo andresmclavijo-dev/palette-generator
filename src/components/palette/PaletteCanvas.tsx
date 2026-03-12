@@ -36,8 +36,7 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder }: P
       const fraction = isVertical
         ? (e.clientY - rect.top) / rect.height
         : (e.clientX - rect.left) / rect.width
-      const len = overRef.current !== null ? swatches.length : 0
-      if (!len) return
+      if (!swatches.length) return
       const idx = Math.max(0, Math.min(swatches.length - 1, Math.floor(fraction * swatches.length)))
       overRef.current = idx
       setOverIndex(idx)
@@ -81,7 +80,7 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder }: P
       className="flex flex-col sm:flex-row w-full h-full"
       style={{ touchAction: dragIndex !== null ? 'none' : undefined }}
     >
-      {displayOrder.map((swatchIdx) => {
+      {displayOrder.map((swatchIdx, displayIdx) => {
         const swatch = swatches[swatchIdx]
         return (
           <ColorSwatch
@@ -89,6 +88,7 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder }: P
             hex={swatch.hex}
             locked={swatch.locked}
             index={swatchIdx}
+            isLast={displayIdx === displayOrder.length - 1}
             isDragging={dragIndex === swatchIdx}
             onLock={() => onLock(swatch.id)}
             onEdit={(hex) => onEdit(swatch.id, hex)}

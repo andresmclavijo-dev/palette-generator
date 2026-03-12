@@ -126,8 +126,8 @@ export default function App() {
           onReorder={reorderSwatches}
         />
 
-        {/* Floating Generate button */}
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none">
+        {/* Floating Generate button — desktop only */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
           {showHint && (
             <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
@@ -135,7 +135,7 @@ export default function App() {
           )}
           <button
             onClick={triggerGenerate}
-            className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
+            className="pointer-events-auto flex items-center gap-2 px-6 py-3 rounded-full text-white text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
             style={{ backgroundColor: BRAND }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -152,13 +152,13 @@ export default function App() {
         onClick={e => e.stopPropagation()}
         onMouseDown={e => e.stopPropagation()}
       >
-        <div className="h-12 sm:h-14 flex items-center justify-between px-3 sm:px-4 gap-2 sm:gap-3">
-          {/* Left: help + locked */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* ─ Desktop footer ─ */}
+        <div className="hidden sm:flex h-14 items-center justify-between px-4 gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <div className="relative">
               <button
                 onClick={() => setHelpOpen(o => !o)}
-                className="w-9 h-9 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all text-[13px] font-semibold"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all text-[13px] font-semibold"
               >
                 ?
               </button>
@@ -184,19 +184,52 @@ export default function App() {
             )}
           </div>
 
-          {/* Center: harmony — desktop only */}
-          <div className="hidden sm:flex flex-1 justify-center min-w-0 overflow-x-auto">
+          <div className="flex-1 flex justify-center min-w-0 overflow-x-auto">
             <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
           </div>
 
-          {/* Right: count — desktop only, and mobile tune button */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Mobile: tune button to open bottom sheet */}
+          <div className="shrink-0">
+            <CountPicker count={count} onChange={setCount} />
+          </div>
+        </div>
+
+        {/* ─ Mobile footer ─ */}
+        <div className="flex sm:hidden h-12 items-center justify-between px-3">
+          {/* Left: help + locked badge */}
+          <div className="flex items-center gap-2 shrink-0 min-w-[60px]">
+            <button
+              onClick={() => setHelpOpen(o => !o)}
+              className="w-11 h-11 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all text-[13px] font-semibold"
+            >
+              ?
+            </button>
+            {lockedCount > 0 && (
+              <span className="text-[11px] font-medium text-gray-400 whitespace-nowrap">
+                {lockedCount}
+              </span>
+            )}
+          </div>
+
+          {/* Center: Generate button */}
+          <button
+            onClick={triggerGenerate}
+            className="flex items-center gap-2 px-5 h-9 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-sm active:scale-95 transition-all duration-150"
+            style={{ backgroundColor: BRAND }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Generate
+          </button>
+
+          {/* Right: Controls button */}
+          <div className="flex items-center shrink-0 min-w-[60px] justify-end">
             <button
               onClick={() => setMobileSheet(true)}
-              className="sm:hidden flex items-center gap-1.5 px-3 h-9 rounded-full text-gray-600 hover:bg-gray-100 text-[12px] font-medium transition-all"
+              className="w-11 h-11 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all"
+              title="Controls"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="4" y1="21" x2="4" y2="14"/>
                 <line x1="4" y1="10" x2="4" y2="3"/>
                 <line x1="12" y1="21" x2="12" y2="12"/>
@@ -207,12 +240,7 @@ export default function App() {
                 <line x1="9" y1="8" x2="15" y2="8"/>
                 <line x1="17" y1="16" x2="23" y2="16"/>
               </svg>
-              Adjust
             </button>
-            {/* Desktop: count picker */}
-            <div className="hidden sm:block">
-              <CountPicker count={count} onChange={setCount} />
-            </div>
           </div>
         </div>
       </footer>
@@ -233,13 +261,13 @@ export default function App() {
             {/* Harmony section */}
             <div className="px-5 pt-3 pb-2">
               <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Harmony</div>
-              <HarmonyPicker mode={harmonyMode} onChange={(m) => { setHarmonyMode(m); }} />
+              <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
             </div>
 
             {/* Count section */}
             <div className="px-5 pt-2 pb-2">
               <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Colors</div>
-              <CountPicker count={count} onChange={(n) => { setCount(n); }} />
+              <CountPicker count={count} onChange={setCount} />
             </div>
 
             {/* Done button */}

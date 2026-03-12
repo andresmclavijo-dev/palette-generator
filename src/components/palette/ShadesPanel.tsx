@@ -26,8 +26,8 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
       <button
         onClick={onClose}
         className="
-          absolute top-4 right-4 z-30
-          w-7 h-7 rounded-full
+          absolute top-2 right-2 z-30
+          w-11 h-11 rounded-full
           flex items-center justify-center
           bg-black/20 hover:bg-black/40
           text-white/70 hover:text-white
@@ -35,7 +35,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
         "
         aria-label="Close shades"
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
