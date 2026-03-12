@@ -1,5 +1,7 @@
 import { Sparkles, Image, Eye, Heart, Layers, Download, LayoutGrid } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useAuth } from '../../hooks/useAuth'
+import { getCheckoutUrl } from '../../lib/stripe'
 
 const BRAND = '#1A73E8'
 
@@ -16,10 +18,28 @@ const PRO_FEATURES: { Icon: LucideIcon; bg: string; color: string; text: string 
 interface ProUpgradeModalProps {
   open: boolean
   onClose: () => void
+  onSignIn?: () => void
 }
 
-export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps) {
+export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeModalProps) {
+  const { user, isSignedIn } = useAuth()
+
   if (!open) return null
+
+  const handleMonthly = () => {
+    if (!user) return
+    window.open(getCheckoutUrl('monthly', user.id), '_blank')
+  }
+
+  const handleYearly = () => {
+    if (!user) return
+    window.open(getCheckoutUrl('yearly', user.id), '_blank')
+  }
+
+  const handleSignIn = () => {
+    onClose()
+    onSignIn?.()
+  }
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
@@ -44,7 +64,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
             <span className="text-yellow-400 text-2xl leading-none">✦</span>
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900">Unlock Paletta Pro</h2>
-          <p className="text-sm text-gray-400 mt-1">$5/month · Cancel anytime</p>
+          <p className="text-sm text-gray-400 mt-1">Cancel anytime</p>
         </div>
 
         {/* Divider */}
@@ -67,13 +87,33 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
 
         {/* CTA */}
         <div className="space-y-2">
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: BRAND }}
-          >
-            Get Pro when it launches
-          </button>
+          {isSignedIn ? (
+            <>
+              <button
+                onClick={handleMonthly}
+                className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+                style={{ backgroundColor: BRAND }}
+              >
+                Subscribe Monthly — $5/mo
+              </button>
+              <button
+                onClick={handleYearly}
+                className="flex items-center justify-center w-full h-11 rounded-full text-[14px] font-semibold transition-all hover:bg-blue-50 active:scale-95 border"
+                style={{ borderColor: BRAND, color: BRAND }}
+              >
+                Subscribe Yearly — $36/yr
+                <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 40%</span>
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleSignIn}
+              className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+              style={{ backgroundColor: BRAND }}
+            >
+              Sign in to upgrade
+            </button>
+          )}
           <button
             onClick={onClose}
             className="w-full h-11 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"

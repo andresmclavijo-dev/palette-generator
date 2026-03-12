@@ -541,7 +541,7 @@ export default function App() {
       <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
 
       {/* Unified Pro upgrade modal */}
-      <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
+      <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} onSignIn={() => setSignInOpen(true)} />
 
       {/* Save toast */}
       {saveToast && (
