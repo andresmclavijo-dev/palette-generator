@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { HslColorPicker } from 'react-colorful'
 import chroma from 'chroma-js'
 import { parseHex } from '../../lib/colorEngine'
 
@@ -8,52 +9,49 @@ interface ColorPickerProps {
   onClose: () => void
 }
 
-function hexToHsl(hex: string): [number, number, number] {
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
   try {
     const [h, s, l] = chroma(hex).hsl()
-    return [isNaN(h) ? 0 : h, isNaN(s) ? 0 : s, isNaN(l) ? 0.5 : l]
+    return { h: isNaN(h) ? 0 : h, s: isNaN(s) ? 0 : Math.round(s * 100), l: isNaN(l) ? 50 : Math.round(l * 100) }
   } catch {
-    return [0, 1, 0.5]
+    return { h: 0, s: 100, l: 50 }
   }
 }
 
-function hslToHex(h: number, s: number, l: number): string {
-  try { return chroma.hsl(h, s, l).hex() }
+function hslToHex(hsl: { h: number; s: number; l: number }): string {
+  try { return chroma.hsl(hsl.h, hsl.s / 100, hsl.l / 100).hex() }
   catch { return '#000000' }
 }
 
 export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
-  const [h, s, l] = hexToHsl(hex)
-  const [hue, setHue] = useState(h)
-  const [sat, setSat] = useState(s)
-  const [lit, setLit] = useState(l)
+  const [hsl, setHsl] = useState(() => hexToHsl(hex))
   const [draft, setDraft] = useState(hex.replace('#', ''))
   const [copied, setCopied] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const skipNotify = useRef(true)
 
-  const currentHex = hslToHex(hue, sat, lit)
+  const currentHex = hslToHex(hsl)
 
-  // Sync draft text when sliders change
+  // Sync draft text when color changes
   useEffect(() => {
     setDraft(currentHex.replace('#', ''))
   }, [currentHex])
 
-  // Notify parent — skip the initial render
+  // Notify parent — skip initial render
   useEffect(() => {
     if (skipNotify.current) { skipNotify.current = false; return }
     try { onChange(currentHex) } catch { /* silent */ }
   }, [currentHex, onChange])
 
-  // Close on outside click
+  // Close on outside mousedown — uses contains() check
   useEffect(() => {
-    const handler = (e: PointerEvent) => {
+    const handler = (e: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
         onClose()
       }
     }
-    const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 10)
-    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
+    const timer = setTimeout(() => document.addEventListener('mousedown', handler), 10)
+    return () => { clearTimeout(timer); document.removeEventListener('mousedown', handler) }
   }, [onClose])
 
   // Close on Escape
@@ -68,8 +66,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   const commitHex = () => {
     const parsed = parseHex(draft)
     if (!parsed) return
-    const [nh, ns, nl] = hexToHsl(parsed)
-    setHue(nh); setSat(ns); setLit(nl)
+    setHsl(hexToHsl(parsed))
   }
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -81,16 +78,11 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     } catch { /* silent */ }
   }
 
-  // Background gradient for saturation slider
-  const satBg = `linear-gradient(to right, ${hslToHex(hue, 0, lit)}, ${hslToHex(hue, 1, lit)})`
-  // Background gradient for lightness slider
-  const litBg = `linear-gradient(to right, #000000, ${hslToHex(hue, sat, 0.5)}, #ffffff)`
-
   return (
     <div
       ref={pickerRef}
       className="relative w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-      onPointerDown={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
       onClick={e => e.stopPropagation()}
     >
       {/* Close button */}
@@ -104,54 +96,15 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         </svg>
       </button>
 
-      {/* Large color preview */}
+      {/* Color preview */}
       <div
-        className="mx-4 mt-4 rounded-xl h-24 border border-gray-100"
+        className="mx-4 mt-4 rounded-xl h-16 border border-gray-100"
         style={{ backgroundColor: currentHex }}
       />
 
-      {/* Hue slider */}
-      <div className="mx-4 mt-4">
-        <label className="flex items-center justify-between text-[11px] text-gray-400 mb-1">
-          <span>Hue</span><span>{Math.round(hue)}°</span>
-        </label>
-        <input
-          type="range" min={0} max={360} step={1}
-          value={hue}
-          onChange={e => setHue(Number(e.target.value))}
-          className="hue-slider w-full h-3 rounded-full appearance-none cursor-pointer"
-          onClick={e => e.stopPropagation()}
-        />
-      </div>
-
-      {/* Saturation slider */}
-      <div className="mx-4 mt-3">
-        <label className="flex items-center justify-between text-[11px] text-gray-400 mb-1">
-          <span>Saturation</span><span>{Math.round(sat * 100)}%</span>
-        </label>
-        <input
-          type="range" min={0} max={100} step={1}
-          value={Math.round(sat * 100)}
-          onChange={e => setSat(Number(e.target.value) / 100)}
-          className="w-full h-3 rounded-full appearance-none cursor-pointer color-slider"
-          style={{ background: satBg }}
-          onClick={e => e.stopPropagation()}
-        />
-      </div>
-
-      {/* Lightness slider */}
-      <div className="mx-4 mt-3">
-        <label className="flex items-center justify-between text-[11px] text-gray-400 mb-1">
-          <span>Lightness</span><span>{Math.round(lit * 100)}%</span>
-        </label>
-        <input
-          type="range" min={0} max={100} step={1}
-          value={Math.round(lit * 100)}
-          onChange={e => setLit(Number(e.target.value) / 100)}
-          className="w-full h-3 rounded-full appearance-none cursor-pointer color-slider"
-          style={{ background: litBg }}
-          onClick={e => e.stopPropagation()}
-        />
+      {/* react-colorful HSL picker */}
+      <div className="mx-4 mt-3 react-colorful-wrapper">
+        <HslColorPicker color={hsl} onChange={setHsl} />
       </div>
 
       {/* Hex input + copy */}

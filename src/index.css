@@ -53,68 +53,20 @@ html, body, #root {
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Hue slider — rainbow gradient */
-.hue-slider {
-  background: linear-gradient(to right,
-    #ff0000 0%, #ffff00 17%, #00ff00 33%,
-    #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%
-  );
-  outline: none;
-  border: none;
+/* react-colorful — make picker fill container width */
+.react-colorful-wrapper .react-colorful {
+  width: 100%;
+  height: auto;
 }
-.hue-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  cursor: pointer;
+.react-colorful-wrapper .react-colorful__saturation {
+  border-radius: 8px;
+  height: 150px;
 }
-.hue-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  cursor: pointer;
-}
-.hue-slider::-moz-range-track {
-  background: transparent;
-  border: none;
-}
-
-/* Color slider (saturation / lightness) — dynamic gradient background */
-.color-slider {
-  outline: none;
-  border: none;
-}
-.color-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  cursor: pointer;
-}
-.color-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  cursor: pointer;
-}
-.color-slider::-moz-range-track {
-  background: transparent;
-  border: none;
+.react-colorful-wrapper .react-colorful__hue,
+.react-colorful-wrapper .react-colorful__lightness {
+  border-radius: 8px;
+  height: 12px;
+  margin-top: 10px;
 }
 
 /* Safe area — floating controls above home indicator */
