@@ -99,10 +99,9 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 200,
+          max_tokens: 150,
           temperature: 0,
-          system: `You are a color palette API. You output ONLY raw JSON. No text, no markdown, no explanation.\n\nRULES:\n- Return exactly ${colorCount} hex colors\n- Colors MUST match the mood/theme described\n- "dark" = hex values under #444444\n- "pastel" = soft, desaturated, light colors\n- "neon" = saturated, bright, electric colors\n- "warm" = reds, oranges, yellows\n- "cool" = blues, teals, purples\n- NEVER return colors that contradict the description\n\nOUTPUT FORMAT: ["#hex1","#hex2",...] — nothing else`,
-          messages: [{ role: 'user', content: prompt.trim() }],
+          messages: [{ role: 'user', content: `You are a color palette API. Return ONLY a JSON array of hex strings, nothing else.\n\nSTRICT RULES:\n- Return exactly ${colorCount} hex colors\n- Every color MUST visually match: "${prompt.trim()}"\n- "dark" = ALL hex values must have lightness below 35%. Examples: #1a1a2e, #0d1117, #2d1b69\n- "pastel" = ALL colors soft, desaturated, light (lightness above 75%)\n- "neon" = ALL colors vibrant, fully saturated, electric\n- "warm" = reds, oranges, yellows only\n- "cool" = blues, teals, purples only\n- NEVER include colors that contradict the description\n- Output raw JSON array only — no text, no markdown, no explanation\n\nDESCRIPTION: "${prompt.trim()}"\nOUTPUT: ["#hex1","#hex2",...${colorCount} items]` }],
         }),
       })
 
@@ -113,9 +112,27 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       const match = text.match(/\[.*\]/)
       if (!match) throw new Error('No JSON array in response')
 
-      const hexes: string[] = JSON.parse(match[0])
+      let hexes: string[] = JSON.parse(match[0])
       if (!Array.isArray(hexes) || hexes.length < 3 || !hexes.every((h: string) => /^#[0-9a-fA-F]{6}$/.test(h))) {
         throw new Error('Invalid hex array')
+      }
+
+      // Post-processing: darken colors if prompt asked for "dark"
+      if (prompt.trim().toLowerCase().includes('dark')) {
+        hexes = hexes.map(hex => {
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255
+          if (lightness > 0.4) {
+            const scale = 0.3
+            const dr = Math.round(r * scale)
+            const dg = Math.round(g * scale)
+            const db = Math.round(b * scale)
+            return `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`
+          }
+          return hex
+        })
       }
 
       onPalette(hexes.slice(0, colorCount))

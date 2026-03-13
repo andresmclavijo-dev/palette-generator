@@ -127,7 +127,7 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">
-                  {imageLoading ? 'Analyzing\u2026' : 'From Image'}
+                  {imageLoading ? 'Analyzing\u2026' : 'Image'}
                 </span>
                 {!isPro && <ProBadge />}
               </div>
@@ -151,7 +151,7 @@ export default function ToolsSheet({
             </div>
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
+                <span className="text-[14px] font-medium text-gray-800">Vision</span>
                 {!isPro && <ProBadge />}
                 {visionMode !== 'normal' && (
                   <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
@@ -201,7 +201,7 @@ export default function ToolsSheet({
             </div>
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
+                <span className="text-[14px] font-medium text-gray-800">AI</span>
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">3 free prompts per day</p>
             </div>

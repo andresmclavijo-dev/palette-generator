@@ -75,7 +75,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 shrink-0">
           <div>
-            <span className="text-[16px] font-semibold text-gray-800">Saved Palettes</span>
+            <span className="text-[16px] font-semibold text-gray-800">My Palettes</span>
             {!loading && palettes.length > 0 && (
               <span className="ml-2 text-[12px] text-gray-400">{palettes.length}{!isPro ? `/${FREE_SAVE_LIMIT}` : ''}</span>
             )}

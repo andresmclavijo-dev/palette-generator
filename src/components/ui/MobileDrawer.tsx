@@ -100,7 +100,7 @@ export default function MobileDrawer({
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
               </div>
-              <span className="text-[14px] font-medium text-gray-800">Saved palettes</span>
+              <span className="text-[14px] font-medium text-gray-800">My Palettes</span>
             </button>
           )}
 
@@ -179,7 +179,7 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">From Image</span>
+              <span className="text-[14px] font-medium text-gray-800">Image</span>
               {!isPro && <ProBadge />}
             </div>
           </button>
@@ -194,7 +194,7 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
+              <span className="text-[14px] font-medium text-gray-800">Vision</span>
               {!isPro && <ProBadge />}
             </div>
           </button>
@@ -207,7 +207,7 @@ export default function MobileDrawer({
               <span className="text-[16px]">✨</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
+              <span className="text-[14px] font-medium text-gray-800">AI</span>
               {isPro ? (
                 <span className="text-[10px] text-gray-400">Unlimited</span>
               ) : (

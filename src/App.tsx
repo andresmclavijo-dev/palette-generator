@@ -21,6 +21,7 @@ import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
+import { extractColorsFromFile } from './lib/kMeans'
 
 const BRAND = '#1A73E8'
 const FREE_COUNTS = [3, 4, 5]
@@ -63,6 +64,7 @@ export default function App() {
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const avatarRef = useRef<HTMLDivElement>(null)
+  const mobileFileRef = useRef<HTMLInputElement>(null)
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
 
@@ -178,6 +180,21 @@ export default function App() {
 
   const handleImagePalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
+  }
+
+  const handleMobileImageClick = () => {
+    if (isPro) { mobileFileRef.current?.click() }
+    else { openProModal() }
+  }
+
+  const handleMobileFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    try {
+      const colors = await extractColorsFromFile(file)
+      setSwatches(colors.slice(0, count).map(h => makeSwatch(h)))
+    } catch { /* silent */ }
   }
 
   const handleSave = () => {
@@ -615,6 +632,9 @@ export default function App() {
         onVisionChange={setVisionMode}
       />
 
+      {/* Hidden file input for mobile image extraction */}
+      <input ref={mobileFileRef} type="file" accept="image/*" className="hidden" onChange={handleMobileFile} />
+
       {/* Mobile drawer */}
       <MobileDrawer
         open={drawerOpen}
@@ -631,8 +651,8 @@ export default function App() {
         onSignIn={() => setSignInOpen(true)}
         onSignOut={signOut}
         onProGate={openProModal}
-        onImagePalette={() => { setToolsOpen(true) }}
-        onVisionSim={() => { setToolsOpen(true) }}
+        onImagePalette={handleMobileImageClick}
+        onVisionSim={() => { if (isPro) { setToolsOpen(true) } else { openProModal() } }}
         onAiPalette={() => { setAiOpen(true) }}
         onSavedPalettes={() => setSavedOpen(true)}
         isPro={isPro}
