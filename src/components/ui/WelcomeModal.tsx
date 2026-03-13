@@ -28,18 +28,17 @@ export default function WelcomeModal() {
           <h2 className="text-[22px] font-bold text-gray-900">Welcome to Paletta</h2>
         </div>
 
-        <div className="flex items-center justify-center gap-3 px-6 py-5">
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-50 text-[12px] font-medium text-gray-600">
+        <div className="flex flex-col items-center gap-2 px-6 py-5">
+          <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
             <kbd className="px-1.5 py-0.5 rounded bg-gray-200 font-mono text-[10px]">Space</kbd>
-            to generate
+            <span>to generate</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-50 text-[12px] font-medium text-gray-600">
-            <span className="text-[14px]">Click</span>
-            to lock
+          <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
+            <span>Click a color to lock it</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-50 text-[12px] font-medium text-gray-600">
-            <span className="text-[14px]">AI</span>
-            included
+          <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
+            <span>✨</span>
+            <span>AI palette included</span>
           </div>
         </div>
 

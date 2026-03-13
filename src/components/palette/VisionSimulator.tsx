@@ -129,7 +129,7 @@ export default function VisionSimulator({ mode, onChange, onProGate, onSignIn }:
               }`}
             >
               {m.label}
-              {mode === m.value && <span className="float-right">&check;</span>}
+              {mode === m.value && <span className="float-right">{'\u2713'}</span>}
             </button>
           ))}
         </div>,

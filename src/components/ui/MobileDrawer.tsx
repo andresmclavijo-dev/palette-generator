@@ -182,7 +182,7 @@ export default function MobileDrawer({
 
         {/* Pro Tools section */}
         <div className="px-5 pt-2 pb-1">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{isPro ? 'Tools' : 'Pro Tools'}</span>
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tools</span>
         </div>
 
         <div className="px-3 py-1">
@@ -232,7 +232,6 @@ export default function MobileDrawer({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
-                {!isPro && <ProBadge />}
               </div>
               <span className="text-[11px] text-gray-400">Generate from a text prompt</span>
             </div>
