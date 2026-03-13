@@ -60,11 +60,16 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
     setTimeout(() => setToast(''), 3000)
   }
 
-  const handleGenerate = async () => {
+  const handleUpgradeOrGenerate = () => {
     if (exhausted) {
+      onClose()
       onProGate()
       return
     }
+    handleGenerate()
+  }
+
+  const handleGenerate = async () => {
     if (!prompt.trim() || loading) return
 
     // Increment usage BEFORE the API call so it counts regardless of success/failure
@@ -95,7 +100,8 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 200,
-          system: `You are a professional color palette designer. The user will describe a mood, theme, or aesthetic. You MUST return exactly ${colorCount} colors that strongly match their description. If they say "dark", return dark colors. If they say "pastel", return soft light colors. If they say "neon", return vibrant saturated colors. NEVER return random or generic colors that ignore the description. Return ONLY a valid JSON array of exactly ${colorCount} hex color strings. No explanation, no markdown, no extra text. Example: ["#1a1a2e","#16213e","#0f3460","#533483","#e94560"]`,
+          temperature: 0,
+          system: `You are a color palette API. You output ONLY raw JSON. No text, no markdown, no explanation.\n\nRULES:\n- Return exactly ${colorCount} hex colors\n- Colors MUST match the mood/theme described\n- "dark" = hex values under #444444\n- "pastel" = soft, desaturated, light colors\n- "neon" = saturated, bright, electric colors\n- "warm" = reds, oranges, yellows\n- "cool" = blues, teals, purples\n- NEVER return colors that contradict the description\n\nOUTPUT FORMAT: ["#hex1","#hex2",...] — nothing else`,
           messages: [{ role: 'user', content: prompt.trim() }],
         }),
       })
@@ -153,7 +159,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleGenerate() }
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleUpgradeOrGenerate() }
               e.stopPropagation()
             }}
             placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette\u2026 e.g. Warm Mediterranean cafe at sunset'}
@@ -164,38 +170,44 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         </div>
 
         <div className="px-6 pb-5">
-          <button
-            onClick={handleGenerate}
-            disabled={loading || (!exhausted && !prompt.trim())}
-            className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2"
-            style={{ backgroundColor: BRAND }}
-          >
-            {loading ? (
-              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-              </svg>
-            ) : (
-              <>
-                <span>✨</span>
-                Generate
-              </>
-            )}
-          </button>
+          {exhausted ? (
+            <button
+              onClick={handleUpgradeOrGenerate}
+              className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+              style={{ backgroundColor: BRAND }}
+            >
+              Upgrade for unlimited ✨
+            </button>
+          ) : (
+            <button
+              onClick={handleUpgradeOrGenerate}
+              disabled={loading || !prompt.trim()}
+              className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2"
+              style={{ backgroundColor: BRAND }}
+            >
+              {loading ? (
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                </svg>
+              ) : (
+                <>
+                  <span>✨</span>
+                  Generate
+                </>
+              )}
+            </button>
+          )}
 
           {/* Usage counter for non-Pro users */}
-          {!isPro && (
+          {!isPro && !exhausted && (
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
-              {exhausted ? (
-                <button
-                  onClick={onProGate}
-                  className="text-blue-500 hover:underline"
-                >
-                  Upgrade to Pro for unlimited
-                </button>
-              ) : (
-                <>{remaining} of {AI_MAX_FREE} free prompts today</>
-              )}
+              {remaining} of {AI_MAX_FREE} free prompts today
+            </p>
+          )}
+          {exhausted && (
+            <p className="text-center text-[11px] text-gray-400 mt-2.5">
+              You've used your {AI_MAX_FREE} free prompts today
             </p>
           )}
         </div>

@@ -372,24 +372,22 @@ export default function App() {
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
-          <div className="flex flex-col items-center">
-            <Tooltip text="Generate from prompt">
-              <button
-                onClick={() => setAiOpen(true)}
-                className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-              >
-                ✨ AI
-                {!isPro && (
+          <Tooltip text="Generate from prompt">
+            <button
+              onClick={() => setAiOpen(true)}
+              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            >
+              ✨ AI
+              {!isPro && (
+                <>
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>
                     {aiRemaining}
                   </span>
-                )}
-              </button>
-            </Tooltip>
-            {!isPro && (
-              <span className="text-[10px] text-gray-400 -mt-0.5">3 free/day</span>
-            )}
-          </div>
+                  <span className="text-[10px] text-gray-400 ml-0.5">free/day</span>
+                </>
+              )}
+            </button>
+          </Tooltip>
         </div>
       </div>
 
