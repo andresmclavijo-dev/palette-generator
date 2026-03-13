@@ -35,9 +35,10 @@ interface AiPromptProps {
   onFallback: () => void
   onProGate: () => void
   onSignIn: () => void
+  onUsageChange?: () => void
 }
 
-export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onSignIn }: AiPromptProps) {
+export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onSignIn, onUsageChange }: AiPromptProps) {
   const { isPro } = usePro()
   const { isSignedIn } = useAuth()
   const [prompt, setPrompt] = useState('')
@@ -68,6 +69,13 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       return
     }
     if (!prompt.trim() || loading) return
+
+    // Increment usage BEFORE the API call so it counts regardless of success/failure
+    if (!isPro) {
+      incrementUsage()
+      setUsageCount(getAiUsageToday())
+      onUsageChange?.()
+    }
 
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
     if (!apiKey) {
@@ -107,10 +115,6 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         throw new Error('Invalid hex array')
       }
 
-      if (!isPro) {
-        incrementUsage()
-        setUsageCount(getAiUsageToday())
-      }
       onPalette(hexes.slice(0, 5))
       setPrompt('')
       onClose()
