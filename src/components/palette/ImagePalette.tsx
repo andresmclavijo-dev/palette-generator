@@ -1,49 +1,27 @@
 import { useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
-import { useAuth } from '../../hooks/useAuth'
 import ProBadge from '../ui/ProBadge'
 import Tooltip from '../ui/Tooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
 
-const LS_KEY = 'paletta_image_used'
-
 interface ImagePaletteProps {
   onPalette: (hexes: string[]) => void
   onProGate: () => void
-  onSignIn: () => void
 }
 
-export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePaletteProps) {
+export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps) {
   const { isPro } = usePro()
-  const { isSignedIn } = useAuth()
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
-
-  const freeUsed = () => {
-    try { return localStorage.getItem(LS_KEY) === '1' } catch { return false }
-  }
-
-  const markFreeUsed = () => {
-    try { localStorage.setItem(LS_KEY, '1') } catch { /* silent */ }
-  }
 
   const handleClick = () => {
     if (isPro) {
       fileRef.current?.click()
       return
     }
-    if (isSignedIn) {
-      // Signed-in free user: always upgrade prompt
-      onProGate()
-      return
-    }
-    // Anonymous: 1 free use tracked in localStorage
-    if (freeUsed()) {
-      onSignIn()
-      return
-    }
-    fileRef.current?.click()
+    // All non-Pro users (signed-in or anonymous) → Pro upgrade modal
+    onProGate()
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,7 +32,6 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
     setLoading(true)
     try {
       const colors = await extractColorsFromFile(file)
-      if (!isPro && !isSignedIn) markFreeUsed()
       onPalette(colors.slice(0, 5))
     } catch {
       setToast("Couldn't read image \u2014 try another.")

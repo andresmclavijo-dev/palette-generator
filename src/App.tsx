@@ -370,7 +370,7 @@ export default function App() {
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
-          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
+          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <div className="flex flex-col items-center">
             <Tooltip text="Generate from prompt">
