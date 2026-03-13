@@ -110,18 +110,23 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
             <div className="w-10 h-1 rounded-full bg-gray-200" />
           </div>
 
-          {/* Close */}
+          {/* Close — absolute top-right */}
           <button
             onClick={(e) => { e.stopPropagation(); onClose() }}
-            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-            style={{ color: '#6B7280' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#111')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
+            className="absolute flex items-center justify-center rounded-full shrink-0"
+            style={{
+              top: 12,
+              right: 14,
+              width: 32,
+              height: 32,
+              background: '#f0f0f0',
+              color: '#666',
+              zIndex: 10,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 16,
+            }}
+          >×</button>
 
           {/* Hex display + copy + change color */}
           <div className="flex items-center gap-2 mx-4 mt-2 mb-2">

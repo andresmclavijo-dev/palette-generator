@@ -67,7 +67,6 @@ export default function ToolsSheet({
 
   const handleVisionSelect = (mode: VisionMode) => {
     onVisionChange(mode)
-    onClose()
   }
 
   const handleAiClick = () => {
