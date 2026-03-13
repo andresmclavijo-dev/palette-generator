@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
 import ProBadge from './ProBadge'
 import { getAiRemaining, AI_MAX_FREE } from '../../components/palette/AiPrompt'
+import type { VisionMode } from '../../components/palette/VisionSimulator'
 
 const BRAND = '#1A73E8'
+
+const VISION_MODES: { value: VisionMode; label: string }[] = [
+  { value: 'normal',       label: 'Normal' },
+  { value: 'deuteranopia', label: 'Deuteranopia' },
+  { value: 'protanopia',   label: 'Protanopia' },
+  { value: 'tritanopia',   label: 'Tritanopia' },
+]
 
 interface MobileDrawerProps {
   open: boolean
@@ -20,13 +28,17 @@ interface MobileDrawerProps {
   isPro?: boolean
   isSignedIn?: boolean
   userEmail?: string
+  visionMode?: VisionMode
+  onVisionChange?: (mode: VisionMode) => void
 }
 
 export default function MobileDrawer({
   open, onClose, onSave, onShare, onExport, onSignIn, onSignOut, onProGate,
-  onImagePalette, onVisionSim, onAiPalette, onSavedPalettes, isPro, isSignedIn, userEmail,
+  onImagePalette, onAiPalette, onSavedPalettes, isPro, isSignedIn, userEmail,
+  visionMode = 'normal', onVisionChange,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
+  const [visionExpanded, setVisionExpanded] = useState(false)
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => setVisible(true))
@@ -185,7 +197,10 @@ export default function MobileDrawer({
           </button>
 
           <button
-            onClick={() => handleRow(onVisionSim)}
+            onClick={() => {
+              if (!isPro) { onProGate(); onClose(); return }
+              setVisionExpanded(o => !o)
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
@@ -193,11 +208,38 @@ export default function MobileDrawer({
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
               </svg>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex-1 flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-gray-800">Vision</span>
               {!isPro && <ProBadge />}
+              {isPro && visionMode !== 'normal' && (
+                <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
+              )}
             </div>
+            {isPro && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                style={{ transform: visionExpanded ? 'rotate(90deg)' : undefined, transition: 'transform 150ms' }}
+              >
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            )}
           </button>
+
+          {/* Vision sub-options — inline accordion */}
+          {visionExpanded && isPro && onVisionChange && (
+            <div className="pl-[3.75rem] pr-3 pb-1 space-y-0.5">
+              {VISION_MODES.map(m => (
+                <button
+                  key={m.value}
+                  onClick={() => onVisionChange(m.value)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                    visionMode === m.value ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {m.label} {visionMode === m.value && '✓'}
+                </button>
+              ))}
+            </div>
+          )}
 
           <button
             onClick={() => handleRow(onAiPalette)}

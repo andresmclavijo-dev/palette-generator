@@ -670,6 +670,8 @@ export default function App() {
         isPro={isPro}
         isSignedIn={isSignedIn}
         userEmail={user?.email ?? undefined}
+        visionMode={visionMode}
+        onVisionChange={setVisionMode}
       />
 
       {/* Sign In modal */}
