@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
-import { useAuth } from '../../hooks/useAuth'
 import ProBadge from '../ui/ProBadge'
 import { extractColorsFromFile } from '../../lib/kMeans'
 import type { VisionMode } from './VisionSimulator'
@@ -9,7 +8,6 @@ interface ToolsSheetProps {
   open: boolean
   onClose: () => void
   onProGate: () => void
-  onSignIn: () => void
   onImagePalette: (hexes: string[]) => void
   onAiOpen: () => void
   visionMode: VisionMode
@@ -22,15 +20,12 @@ const VISION_MODES: { value: VisionMode; label: string }[] = [
   { value: 'tritanopia',   label: 'Tritanopia' },
 ]
 
-const IMAGE_LS_KEY = 'paletta_image_used'
-
 export default function ToolsSheet({
-  open, onClose, onProGate, onSignIn,
+  open, onClose, onProGate,
   onImagePalette, onAiOpen,
   visionMode, onVisionChange,
 }: ToolsSheetProps) {
   const { isPro } = usePro()
-  const { isSignedIn } = useAuth()
   const [visible, setVisible] = useState(false)
   const [imageLoading, setImageLoading] = useState(false)
   const [toast, setToast] = useState('')
@@ -42,16 +37,10 @@ export default function ToolsSheet({
     else setVisible(false)
   }, [open])
 
-  const imageFreeUsed = () => {
-    try { return localStorage.getItem(IMAGE_LS_KEY) === '1' } catch { return false }
-  }
-
   const handleImageClick = () => {
     if (isPro) { fileRef.current?.click(); return }
-    if (isSignedIn) { onProGate(); onClose(); return }
-    // Anonymous: 1 free use tracked in localStorage
-    if (imageFreeUsed()) { onSignIn(); onClose(); return }
-    fileRef.current?.click()
+    // All non-Pro users → Pro upgrade modal
+    onProGate(); onClose()
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,9 +50,6 @@ export default function ToolsSheet({
     setImageLoading(true)
     try {
       const colors = await extractColorsFromFile(file)
-      if (!isPro && !isSignedIn) {
-        try { localStorage.setItem(IMAGE_LS_KEY, '1') } catch { /* silent */ }
-      }
       onImagePalette(colors.slice(0, 5))
       onClose()
     } catch {

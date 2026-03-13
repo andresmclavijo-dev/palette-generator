@@ -416,8 +416,8 @@ export default function App() {
         onPalette={handleAiPalette}
         onFallback={triggerGenerate}
         onProGate={openProModal}
-        onSignIn={() => setSignInOpen(true)}
         onUsageChange={() => setAiRemaining(getAiRemaining())}
+        colorCount={count}
       />
 
       {/* -- Palette canvas -- */}
@@ -611,7 +611,6 @@ export default function App() {
         open={toolsOpen}
         onClose={() => setToolsOpen(false)}
         onProGate={openProModal}
-        onSignIn={() => setSignInOpen(true)}
         onImagePalette={handleImagePalette}
         onAiOpen={() => { setAiOpen(true); setToolsOpen(false) }}
         visionMode={visionMode}

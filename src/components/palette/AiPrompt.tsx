@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
-import { useAuth } from '../../hooks/useAuth'
 
 const BRAND = '#1A73E8'
 export const AI_MAX_FREE = 3
@@ -34,13 +33,12 @@ interface AiPromptProps {
   onPalette: (hexes: string[]) => void
   onFallback: () => void
   onProGate: () => void
-  onSignIn: () => void
   onUsageChange?: () => void
+  colorCount: number
 }
 
-export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onSignIn, onUsageChange }: AiPromptProps) {
+export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onUsageChange, colorCount }: AiPromptProps) {
   const { isPro } = usePro()
-  const { isSignedIn } = useAuth()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
@@ -64,8 +62,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
   const handleGenerate = async () => {
     if (exhausted) {
-      if (isSignedIn) onProGate()
-      else onSignIn()
+      onProGate()
       return
     }
     if (!prompt.trim() || loading) return
@@ -98,7 +95,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 200,
-          system: 'You are a color palette generator. Given a description, return ONLY a JSON array of exactly 5 hex color strings like ["#FF5733","#33FF57","#3357FF","#F333FF","#33FFF3"]. No other text.',
+          system: `You are a professional color palette designer. The user will describe a mood, theme, or aesthetic. You MUST return exactly ${colorCount} colors that strongly match their description. If they say "dark", return dark colors. If they say "pastel", return soft light colors. If they say "neon", return vibrant saturated colors. NEVER return random or generic colors that ignore the description. Return ONLY a valid JSON array of exactly ${colorCount} hex color strings. No explanation, no markdown, no extra text. Example: ["#1a1a2e","#16213e","#0f3460","#533483","#e94560"]`,
           messages: [{ role: 'user', content: prompt.trim() }],
         }),
       })
@@ -115,7 +112,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         throw new Error('Invalid hex array')
       }
 
-      onPalette(hexes.slice(0, 5))
+      onPalette(hexes.slice(0, colorCount))
       setPrompt('')
       onClose()
     } catch {
@@ -191,7 +188,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
               {exhausted ? (
                 <button
-                  onClick={() => isSignedIn ? onProGate() : onSignIn()}
+                  onClick={onProGate}
                   className="text-blue-500 hover:underline"
                 >
                   Upgrade to Pro for unlimited
