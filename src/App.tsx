@@ -183,14 +183,17 @@ export default function App() {
     try {
       const { supabase } = await import('./lib/supabase')
       const { getColorName } = await import('./lib/colorEngine')
-      const hexes = swatches.map(s => s.hex)
-      const names = hexes.map(h => getColorName(h)).filter(Boolean)
+      const colors = swatches.map(s => s.hex).filter(Boolean)
+      if (colors.length === 0) {
+        setSaveToast('Nothing to save')
+        setTimeout(() => setSaveToast(''), 2000)
+        return
+      }
+      const names = colors.map(h => getColorName(h)).filter(Boolean)
       const name = names.slice(0, 3).join(' · ') || 'Untitled'
-      const { error } = await supabase.from('saved_palettes').insert({
-        user_id: user.id,
-        name,
-        colors: hexes,
-      })
+      const payload = { user_id: user.id, name, colors }
+      console.log('[Save] payload:', JSON.stringify(payload))
+      const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
       setSaveToast('Palette saved!')
       setTimeout(() => setSaveToast(''), 2000)
