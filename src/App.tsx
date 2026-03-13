@@ -214,10 +214,11 @@ export default function App() {
     }
   }
 
-  // Mobile: cycle through free counts
+  // Mobile: cycle through available counts (3–5 free, 3–8 Pro)
+  const mobileCounts = isPro ? [3, 4, 5, 6, 7, 8] : FREE_COUNTS
   const handleMobileCountCycle = () => {
-    const idx = FREE_COUNTS.indexOf(count)
-    const next = FREE_COUNTS[(idx + 1) % FREE_COUNTS.length]
+    const idx = mobileCounts.indexOf(count)
+    const next = mobileCounts[(idx + 1) % mobileCounts.length]
     setCount(next)
   }
 
@@ -363,7 +364,7 @@ export default function App() {
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
         onClick={e => e.stopPropagation()}
       >
-        <span className="hidden sm:inline text-[12px] font-medium text-gray-400 mr-1.5 shrink-0">Style:</span>
+        <span className="text-[11px] sm:text-[12px] font-medium text-gray-400 mr-1 sm:mr-1.5 shrink-0">Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
