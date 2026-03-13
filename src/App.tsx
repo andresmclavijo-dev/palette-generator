@@ -13,6 +13,7 @@ import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import SignInModal from './components/ui/SignInModal'
 import PaymentSuccessModal from './components/ui/PaymentSuccessModal'
+import SavedPalettesPanel from './components/ui/SavedPalettesPanel'
 import MobileDrawer from './components/ui/MobileDrawer'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
@@ -46,6 +47,7 @@ export default function App() {
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
   const [avatarOpen,   setAvatarOpen]   = useState(false)
+  const [savedOpen,    setSavedOpen]    = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const proToolsBtnRef = useRef<HTMLButtonElement>(null)
@@ -152,7 +154,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -175,11 +177,28 @@ export default function App() {
     setSwatches(hexes.map(h => makeSwatch(h)))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isPro) { openProModal(); return }
-    console.log('Save palette:', swatches.map(s => s.hex))
-    setSaveToast('Palette saved!')
-    setTimeout(() => setSaveToast(''), 2000)
+    if (!user) { setSignInOpen(true); return }
+    try {
+      const { supabase } = await import('./lib/supabase')
+      const { getColorName } = await import('./lib/colorEngine')
+      const hexes = swatches.map(s => s.hex)
+      const names = hexes.map(h => getColorName(h)).filter(Boolean)
+      const name = names.slice(0, 3).join(' · ') || 'Untitled'
+      const { error } = await supabase.from('saved_palettes').insert({
+        user_id: user.id,
+        name,
+        hexes,
+      })
+      if (error) throw error
+      setSaveToast('Palette saved!')
+      setTimeout(() => setSaveToast(''), 2000)
+    } catch (err) {
+      console.error('Save failed:', err)
+      setSaveToast('Save failed')
+      setTimeout(() => setSaveToast(''), 2000)
+    }
   }
 
   // Mobile: cycle through free counts
@@ -248,6 +267,22 @@ export default function App() {
             </button>
           </Tooltip>
 
+          {/* Saved palettes — desktop only, visible when signed in */}
+          {isSignedIn && (
+            <Tooltip text="View saved palettes">
+              <button
+                onClick={() => setSavedOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                </svg>
+                <span>Saved</span>
+              </button>
+            </Tooltip>
+          )}
+
           {/* Sign In — desktop only */}
           {!isSignedIn ? (
             <button
@@ -303,16 +338,18 @@ export default function App() {
             </button>
           </Tooltip>
 
-          {/* Go Pro CTA — desktop only */}
-          <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
-            <button
-              onClick={openProModal}
-              className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-blue-50"
-              style={{ borderColor: BRAND, color: BRAND }}
-            >
-              Go Pro →
-            </button>
-          </div>
+          {/* Go Pro CTA — desktop only, hidden for Pro users */}
+          {!isPro && (
+            <div className="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
+              <button
+                onClick={openProModal}
+                className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-blue-50"
+                style={{ borderColor: BRAND, color: BRAND }}
+              >
+                Go Pro →
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -565,6 +602,7 @@ export default function App() {
         onImagePalette={() => { if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
         onVisionSim={() => { if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
         onAiPalette={() => { if (!isPro) { openProModal(); return }; setAiOpen(true) }}
+        isPro={isPro}
       />
 
       {/* Sign In modal */}
@@ -575,6 +613,16 @@ export default function App() {
 
       {/* Payment success modal — shown when returning from Stripe without being signed in */}
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
+
+      {/* Saved palettes panel */}
+      {user && (
+        <SavedPalettesPanel
+          open={savedOpen}
+          onClose={() => setSavedOpen(false)}
+          userId={user.id}
+          onLoad={(hexes) => setSwatches(hexes.map(h => makeSwatch(h)))}
+        />
+      )}
 
       {/* Save toast */}
       {saveToast && (

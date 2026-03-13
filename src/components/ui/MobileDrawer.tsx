@@ -14,11 +14,12 @@ interface MobileDrawerProps {
   onImagePalette: () => void
   onVisionSim: () => void
   onAiPalette: () => void
+  isPro?: boolean
 }
 
 export default function MobileDrawer({
   open, onClose, onSave, onShare, onExport, onSignIn, onProGate,
-  onImagePalette, onVisionSim, onAiPalette,
+  onImagePalette, onVisionSim, onAiPalette, isPro,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
 
@@ -190,19 +191,21 @@ export default function MobileDrawer({
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="mx-5 my-2 h-px bg-gray-100" />
-
-        {/* Go Pro button */}
-        <div className="px-5 py-4">
-          <button
-            onClick={() => handleRow(onProGate)}
-            className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-            style={{ backgroundColor: BRAND }}
-          >
-            Go Pro →
-          </button>
-        </div>
+        {/* Go Pro button — hidden for Pro users */}
+        {!isPro && (
+          <>
+            <div className="mx-5 my-2 h-px bg-gray-100" />
+            <div className="px-5 py-4">
+              <button
+                onClick={() => handleRow(onProGate)}
+                className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+                style={{ backgroundColor: BRAND }}
+              >
+                Go Pro →
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
