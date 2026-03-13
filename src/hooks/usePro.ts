@@ -23,12 +23,15 @@ export function usePro() {
   const { user, loading: authLoading } = useAuth()
   const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
+  const devHandled = useRef(false)
 
   const userId = user?.id ?? null
 
   // Profile fetch — only when user ID changes, not on every render
   useEffect(() => {
     if (devProOverride) {
+      if (devHandled.current) return
+      devHandled.current = true
       setIsPro(true)
       setLoading(false)
       setFetched(true)

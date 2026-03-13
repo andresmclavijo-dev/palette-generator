@@ -243,13 +243,16 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             </button>
           )}
 
-          {/* Usage counter for non-Pro users */}
-          {!isPro && !exhausted && (
+          {/* Usage label */}
+          {isPro ? (
+            <p className="text-center text-[12px] font-medium mt-2.5" style={{ color: '#6C47FF' }}>
+              ✦ Unlimited prompts
+            </p>
+          ) : !exhausted ? (
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
               {remaining} of {AI_MAX_FREE} free prompts today
             </p>
-          )}
-          {exhausted && (
+          ) : (
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
               You've used your {AI_MAX_FREE} free prompts today
             </p>
