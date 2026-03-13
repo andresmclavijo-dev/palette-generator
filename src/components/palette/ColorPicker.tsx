@@ -119,6 +119,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
               right: 14,
               width: 32,
               height: 32,
+              marginBottom: 8,
               background: '#f0f0f0',
               color: '#666',
               zIndex: 10,
