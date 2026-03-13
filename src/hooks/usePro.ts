@@ -6,6 +6,15 @@ import { useProStore } from '../store/proStore'
 // Check once at module load so it survives re-renders
 const hadPaymentSuccess = window.location.search.includes('payment=success')
 
+// Developer override — ?dev_pro=1 forces Pro mode on non-production domains
+const devProOverride = (() => {
+  const params = new URLSearchParams(window.location.search)
+  const isLocalOrPreview =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname.includes('vercel.app')
+  return params.get('dev_pro') === '1' && isLocalOrPreview
+})()
+
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
   const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
@@ -15,6 +24,14 @@ export function usePro() {
 
   // Profile fetch — only when user ID changes, not on every render
   useEffect(() => {
+    if (devProOverride) {
+      setIsPro(true)
+      setLoading(false)
+      setFetched(true)
+      console.log('[dev] Pro mode enabled via URL param')
+      return
+    }
+
     if (authLoading) return
 
     if (!userId) {
