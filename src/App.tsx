@@ -15,6 +15,7 @@ import PaymentSuccessModal from './components/ui/PaymentSuccessModal'
 import SavedPalettesPanel from './components/ui/SavedPalettesPanel'
 import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
+import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
@@ -368,8 +369,8 @@ export default function App() {
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
-          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
-          <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
+          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
+          <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(o => !o)}
@@ -378,7 +379,6 @@ export default function App() {
               }`}
             >
               ✨ AI
-              {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>PRO</span>}
             </button>
           </Tooltip>
         </div>
@@ -403,7 +403,7 @@ export default function App() {
       {/* -- AI prompt bar (collapsible) -- */}
       {aiOpen && (
         <div className="flex-none h-11 bg-white border-b border-gray-100 flex items-center px-3 sm:px-4 z-20 shrink-0">
-          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} onProGate={openProModal} />
+          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
         </div>
       )}
 
@@ -598,6 +598,7 @@ export default function App() {
         open={toolsOpen}
         onClose={() => setToolsOpen(false)}
         onProGate={openProModal}
+        onSignIn={() => setSignInOpen(true)}
         onImagePalette={handleImagePalette}
         onAiOpen={() => { setAiOpen(true); setToolsOpen(false) }}
         visionMode={visionMode}
@@ -620,9 +621,9 @@ export default function App() {
         onSignIn={() => setSignInOpen(true)}
         onSignOut={signOut}
         onProGate={openProModal}
-        onImagePalette={() => { if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
-        onVisionSim={() => { if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
-        onAiPalette={() => { if (!isPro) { openProModal(); return }; setAiOpen(true) }}
+        onImagePalette={() => { setToolsOpen(true) }}
+        onVisionSim={() => { setToolsOpen(true) }}
+        onAiPalette={() => { setAiOpen(true) }}
         onSavedPalettes={() => setSavedOpen(true)}
         isPro={isPro}
         isSignedIn={isSignedIn}
@@ -672,6 +673,7 @@ export default function App() {
         </div>
       )}
 
+      <WelcomeModal />
       <VisionFilterDefs />
     </div>
   )

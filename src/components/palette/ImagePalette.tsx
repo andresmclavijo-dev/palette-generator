@@ -1,22 +1,48 @@
 import { useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
+import { useAuth } from '../../hooks/useAuth'
 import ProBadge from '../ui/ProBadge'
 import Tooltip from '../ui/Tooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
 
+const SESSION_KEY = 'paletta_image_used'
+
 interface ImagePaletteProps {
   onPalette: (hexes: string[]) => void
   onProGate: () => void
+  onSignIn: () => void
 }
 
-export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps) {
+export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePaletteProps) {
   const { isPro } = usePro()
+  const { isSignedIn } = useAuth()
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const sessionUsed = () => {
+    try { return sessionStorage.getItem(SESSION_KEY) === '1' } catch { return false }
+  }
+
+  const markSessionUsed = () => {
+    try { sessionStorage.setItem(SESSION_KEY, '1') } catch { /* silent */ }
+  }
+
   const handleClick = () => {
-    if (!isPro) { onProGate(); return }
+    if (isPro) {
+      fileRef.current?.click()
+      return
+    }
+    if (isSignedIn) {
+      // Signed-in free user: upgrade prompt
+      onProGate()
+      return
+    }
+    // Anonymous: allow 1 free use per session
+    if (sessionUsed()) {
+      onSignIn()
+      return
+    }
     fileRef.current?.click()
   }
 
@@ -28,14 +54,18 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
     setLoading(true)
     try {
       const colors = await extractColorsFromFile(file)
+      if (!isPro && !isSignedIn) markSessionUsed()
       onPalette(colors.slice(0, 5))
     } catch {
-      setToast("Couldn't read image — try another.")
+      setToast("Couldn't read image \u2014 try another.")
       setTimeout(() => setToast(''), 3000)
     } finally {
       setLoading(false)
     }
   }
+
+  // Show PRO badge for signed-in free users, nothing for anonymous (they get a free taste)
+  const showBadge = !isPro && isSignedIn
 
   return (
     <div className="relative shrink-0 hidden sm:block">
@@ -57,8 +87,8 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
-          <span>{loading ? 'Analyzing…' : 'Image'}</span>
-          {!isPro && <ProBadge />}
+          <span>{loading ? 'Analyzing\u2026' : 'Image'}</span>
+          {showBadge && <ProBadge />}
         </button>
       </Tooltip>
 

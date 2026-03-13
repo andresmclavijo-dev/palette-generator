@@ -1,29 +1,49 @@
 import { useState } from 'react'
-import ProBadge from '../ui/ProBadge'
+import { usePro } from '../../hooks/usePro'
+import { useAuth } from '../../hooks/useAuth'
 
 const BRAND = '#1A73E8'
-const STORAGE_KEY = 'paletta-ai-uses'
+const STORAGE_KEY = 'paletta_ai_uses'
 const MAX_FREE = 3
 
 interface AiPromptProps {
   onPalette: (hexes: string[]) => void
   onFallback: () => void
   onProGate: () => void
+  onSignIn: () => void
 }
 
-function getUsageCount(): number {
-  try { return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) } catch { return 0 }
+function todayKey() {
+  return new Date().toISOString().slice(0, 10)
 }
+
+function getUsageToday(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return 0
+    const parsed = JSON.parse(raw)
+    if (parsed.date === todayKey()) return parsed.count
+    return 0
+  } catch { return 0 }
+}
+
 function incrementUsage() {
-  try { localStorage.setItem(STORAGE_KEY, String(getUsageCount() + 1)) } catch { /* silent */ }
+  try {
+    const date = todayKey()
+    const current = getUsageToday()
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date, count: current + 1 }))
+  } catch { /* silent */ }
 }
 
-export default function AiPrompt({ onPalette, onFallback, onProGate }: AiPromptProps) {
+export default function AiPrompt({ onPalette, onFallback, onProGate, onSignIn }: AiPromptProps) {
+  const { isPro } = usePro()
+  const { isSignedIn } = useAuth()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
-  const usage = getUsageCount()
-  const exhausted = usage >= MAX_FREE
+  const [usageCount, setUsageCount] = useState(getUsageToday)
+  const remaining = Math.max(0, MAX_FREE - usageCount)
+  const exhausted = !isPro && remaining <= 0
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -31,12 +51,16 @@ export default function AiPrompt({ onPalette, onFallback, onProGate }: AiPromptP
   }
 
   const handleGenerate = async () => {
-    if (exhausted) { onProGate(); return }
+    if (exhausted) {
+      if (isSignedIn) onProGate()
+      else onSignIn()
+      return
+    }
     if (!prompt.trim() || loading) return
 
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
     if (!apiKey) {
-      showToast('AI unavailable — using random')
+      showToast('AI unavailable \u2014 using random')
       onFallback()
       return
     }
@@ -71,11 +95,14 @@ export default function AiPrompt({ onPalette, onFallback, onProGate }: AiPromptP
         throw new Error('Invalid hex array')
       }
 
-      incrementUsage()
+      if (!isPro) {
+        incrementUsage()
+        setUsageCount(getUsageToday())
+      }
       onPalette(hexes.slice(0, 5))
       setPrompt('')
     } catch {
-      showToast('AI unavailable — using random')
+      showToast('AI unavailable \u2014 using random')
       onFallback()
     } finally {
       setLoading(false)
@@ -89,41 +116,42 @@ export default function AiPrompt({ onPalette, onFallback, onProGate }: AiPromptP
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') handleGenerate(); e.stopPropagation() }}
-          placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette… e.g. Warm Mediterranean cafe'}
+          placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette\u2026 e.g. Warm Mediterranean cafe'}
           disabled={exhausted}
           className="flex-1 min-w-0 h-8 px-3 rounded-full bg-gray-50 border border-gray-200 text-[12px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-300 disabled:opacity-50"
         />
-        <div className="relative shrink-0">
-          <button
-            onClick={handleGenerate}
-            disabled={loading || (!exhausted && !prompt.trim())}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-full text-white text-[12px] font-medium transition-all disabled:opacity-40"
-            style={{ backgroundColor: BRAND }}
-          >
-            {loading ? (
-              <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-              </svg>
-            ) : (
-              <span>✨</span>
-            )}
-            <span className="hidden sm:inline">Generate</span>
-          </button>
-          <span className="absolute -top-1.5 -right-1.5">
-            <ProBadge />
-          </span>
-        </div>
+        <button
+          onClick={handleGenerate}
+          disabled={loading || (!exhausted && !prompt.trim())}
+          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-white text-[12px] font-medium transition-all disabled:opacity-40 shrink-0"
+          style={{ backgroundColor: BRAND }}
+        >
+          {loading ? (
+            <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+          ) : (
+            <span>✨</span>
+          )}
+          <span className="hidden sm:inline">Generate</span>
+        </button>
       </div>
 
-      {/* Usage indicator */}
-      {exhausted && (
-        <button
-          onClick={onProGate}
-          className="text-[10px] text-blue-500 whitespace-nowrap shrink-0 hover:underline"
-        >
-          Upgrade to Pro
-        </button>
+      {/* Usage counter for non-Pro users */}
+      {!isPro && (
+        <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+          {exhausted ? (
+            <button
+              onClick={() => isSignedIn ? onProGate() : onSignIn()}
+              className="text-blue-500 hover:underline"
+            >
+              Upgrade for unlimited
+            </button>
+          ) : (
+            `${remaining} of ${MAX_FREE} free today`
+          )}
+        </span>
       )}
 
       {/* Toast */}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePro } from '../../hooks/usePro'
+import { useAuth } from '../../hooks/useAuth'
 import ProBadge from '../ui/ProBadge'
 import Tooltip from '../ui/Tooltip'
 
@@ -13,21 +14,49 @@ const MODES: { value: VisionMode; label: string }[] = [
   { value: 'tritanopia',   label: 'Tritanopia' },
 ]
 
+const SESSION_KEY = 'paletta_vision_used'
+
 interface VisionSimulatorProps {
   mode: VisionMode
   onChange: (mode: VisionMode) => void
   onProGate: () => void
+  onSignIn: () => void
 }
 
-export default function VisionSimulator({ mode, onChange, onProGate }: VisionSimulatorProps) {
+export default function VisionSimulator({ mode, onChange, onProGate, onSignIn }: VisionSimulatorProps) {
   const { isPro } = usePro()
+  const { isSignedIn } = useAuth()
   const [dropOpen, setDropOpen] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
 
+  const sessionUsed = () => {
+    try { return sessionStorage.getItem(SESSION_KEY) === '1' } catch { return false }
+  }
+
+  const markSessionUsed = () => {
+    try { sessionStorage.setItem(SESSION_KEY, '1') } catch { /* silent */ }
+  }
+
   const handleClick = () => {
-    if (!isPro) { onProGate(); return }
+    if (isPro) {
+      openDropdown()
+      return
+    }
+    if (isSignedIn) {
+      onProGate()
+      return
+    }
+    // Anonymous: allow 1 free use per session
+    if (sessionUsed()) {
+      onSignIn()
+      return
+    }
+    openDropdown()
+  }
+
+  const openDropdown = () => {
     if (!dropOpen && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       setDropPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
@@ -36,6 +65,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
   }
 
   const handleSelect = (v: VisionMode) => {
+    if (!isPro && !isSignedIn && v !== 'normal') markSessionUsed()
     onChange(v)
     setDropOpen(false)
   }
@@ -57,6 +87,9 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
     }
   }, [dropOpen])
 
+  // Show PRO badge for signed-in free users only
+  const showBadge = !isPro && isSignedIn
+
   return (
     <div className="relative shrink-0 hidden sm:block">
       <Tooltip text="Simulate color blindness">
@@ -74,7 +107,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
             <circle cx="12" cy="12" r="3"/>
           </svg>
           <span>Vision</span>
-          {!isPro && <ProBadge />}
+          {showBadge && <ProBadge />}
         </button>
       </Tooltip>
 
@@ -96,7 +129,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
               }`}
             >
               {m.label}
-              {mode === m.value && <span className="float-right">✓</span>}
+              {mode === m.value && <span className="float-right">&check;</span>}
             </button>
           ))}
         </div>,

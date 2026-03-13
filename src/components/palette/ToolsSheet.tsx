@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
+import { useAuth } from '../../hooks/useAuth'
 import ProBadge from '../ui/ProBadge'
 import { extractColorsFromFile } from '../../lib/kMeans'
 import type { VisionMode } from './VisionSimulator'
@@ -8,6 +9,7 @@ interface ToolsSheetProps {
   open: boolean
   onClose: () => void
   onProGate: () => void
+  onSignIn: () => void
   onImagePalette: (hexes: string[]) => void
   onAiOpen: () => void
   visionMode: VisionMode
@@ -21,11 +23,12 @@ const VISION_MODES: { value: VisionMode; label: string }[] = [
 ]
 
 export default function ToolsSheet({
-  open, onClose, onProGate,
+  open, onClose, onProGate, onSignIn,
   onImagePalette, onAiOpen,
   visionMode, onVisionChange,
 }: ToolsSheetProps) {
   const { isPro } = usePro()
+  const { isSignedIn } = useAuth()
   const [visible, setVisible] = useState(false)
   const [imageLoading, setImageLoading] = useState(false)
   const [toast, setToast] = useState('')
@@ -37,8 +40,19 @@ export default function ToolsSheet({
     else setVisible(false)
   }, [open])
 
+  const imageSessionUsed = () => {
+    try { return sessionStorage.getItem('paletta_image_used') === '1' } catch { return false }
+  }
+
+  const visionSessionUsed = () => {
+    try { return sessionStorage.getItem('paletta_vision_used') === '1' } catch { return false }
+  }
+
   const handleImageClick = () => {
-    if (!isPro) { onProGate(); onClose(); return }
+    if (isPro) { fileRef.current?.click(); return }
+    if (isSignedIn) { onProGate(); onClose(); return }
+    // Anonymous: 1 free session use
+    if (imageSessionUsed()) { onSignIn(); onClose(); return }
     fileRef.current?.click()
   }
 
@@ -49,10 +63,13 @@ export default function ToolsSheet({
     setImageLoading(true)
     try {
       const colors = await extractColorsFromFile(file)
+      if (!isPro && !isSignedIn) {
+        try { sessionStorage.setItem('paletta_image_used', '1') } catch { /* silent */ }
+      }
       onImagePalette(colors.slice(0, 5))
       onClose()
     } catch {
-      setToast("Couldn't read image — try another.")
+      setToast("Couldn't read image \u2014 try another.")
       setTimeout(() => setToast(''), 3000)
     } finally {
       setImageLoading(false)
@@ -60,11 +77,17 @@ export default function ToolsSheet({
   }
 
   const handleVisionClick = () => {
-    if (!isPro) { onProGate(); onClose(); return }
+    if (isPro) { setVisionExpanded(o => !o); return }
+    if (isSignedIn) { onProGate(); onClose(); return }
+    // Anonymous: 1 free session use
+    if (visionSessionUsed()) { onSignIn(); onClose(); return }
     setVisionExpanded(o => !o)
   }
 
   const handleVisionSelect = (mode: VisionMode) => {
+    if (!isPro && !isSignedIn && mode !== 'normal') {
+      try { sessionStorage.setItem('paletta_vision_used', '1') } catch { /* silent */ }
+    }
     onVisionChange(mode)
     onClose()
   }
@@ -75,6 +98,9 @@ export default function ToolsSheet({
   }
 
   if (!open) return null
+
+  // Show PRO badge for signed-in free users only
+  const showBadge = !isPro && isSignedIn
 
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
@@ -95,7 +121,7 @@ export default function ToolsSheet({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-1 pb-3 border-b border-gray-100">
-          <span className="text-[15px] font-semibold text-gray-800">{isPro ? 'Tools' : 'Pro Tools'}</span>
+          <span className="text-[15px] font-semibold text-gray-800">Tools</span>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
@@ -126,9 +152,9 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">
-                  {imageLoading ? 'Analyzing…' : 'From Image'}
+                  {imageLoading ? 'Analyzing\u2026' : 'From Image'}
                 </span>
-                {!isPro && <ProBadge />}
+                {showBadge && <ProBadge />}
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Extract palette from any photo</p>
             </div>
@@ -151,7 +177,7 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
-                {!isPro && <ProBadge />}
+                {showBadge && <ProBadge />}
                 {visionMode !== 'normal' && (
                   <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
                 )}
@@ -166,7 +192,7 @@ export default function ToolsSheet({
           </button>
 
           {/* Vision sub-options */}
-          {visionExpanded && isPro && (
+          {visionExpanded && (
             <div className="pl-[4.5rem] pr-5 pb-2 space-y-1">
               <button
                 onClick={() => handleVisionSelect('normal')}
@@ -174,7 +200,7 @@ export default function ToolsSheet({
                   visionMode === 'normal' ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                Normal {visionMode === 'normal' && '✓'}
+                Normal {visionMode === 'normal' && '\u2713'}
               </button>
               {VISION_MODES.map(m => (
                 <button
@@ -184,7 +210,7 @@ export default function ToolsSheet({
                     visionMode === m.value ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  {m.label} {visionMode === m.value && '✓'}
+                  {m.label} {visionMode === m.value && '\u2713'}
                 </button>
               ))}
             </div>
@@ -201,9 +227,8 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
-                {!isPro && <ProBadge />}
               </div>
-              <p className="text-[12px] text-gray-500 mt-0.5">Generate palette from a text prompt</p>
+              <p className="text-[12px] text-gray-500 mt-0.5">3 free prompts per day</p>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
