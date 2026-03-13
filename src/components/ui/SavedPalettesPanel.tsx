@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 interface SavedPalette {
   id: string
   name: string
-  hexes: string[]
+  colors: string[]
   created_at: string
 }
 
@@ -24,7 +24,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
     setLoading(true)
     supabase
       .from('saved_palettes')
-      .select('id, name, hexes, created_at')
+      .select('id, name, colors, created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50)
@@ -85,7 +85,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
                 <div key={p.id} className="border border-gray-100 rounded-xl p-3 hover:border-gray-200 transition-colors">
                   {/* Color preview */}
                   <div className="flex h-8 rounded-lg overflow-hidden mb-2">
-                    {p.hexes.map((h, i) => (
+                    {p.colors.map((h, i) => (
                       <div key={i} className="flex-1" style={{ backgroundColor: h }} />
                     ))}
                   </div>
@@ -95,7 +95,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
                     <span className="text-[13px] font-medium text-gray-700 truncate mr-2">{p.name}</span>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
-                        onClick={() => handleLoad(p.hexes)}
+                        onClick={() => handleLoad(p.colors)}
                         className="px-3 h-7 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold hover:bg-blue-100 transition-colors"
                       >
                         Load

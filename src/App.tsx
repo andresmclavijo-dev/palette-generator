@@ -189,7 +189,7 @@ export default function App() {
       const { error } = await supabase.from('saved_palettes').insert({
         user_id: user.id,
         name,
-        hexes,
+        colors: hexes,
       })
       if (error) throw error
       setSaveToast('Palette saved!')
