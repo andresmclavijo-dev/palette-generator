@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import PaletteCanvas from './components/palette/PaletteCanvas'
 import type { ActivePanel } from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
@@ -29,9 +28,9 @@ export default function App() {
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
-    swatches, harmonyMode, count,
+    swatches, harmonyMode, count, historyIndex, history,
     generate, lockSwatch, editSwatch, reorderSwatches,
-    setHarmonyMode, setCount, undo, setSwatches,
+    setHarmonyMode, setCount, undo, redo, setSwatches,
   } = usePaletteStore()
 
   const [shareCopied,  setShareCopied]  = useState(false)
@@ -43,7 +42,9 @@ export default function App() {
   const [proModalOpen, setProModalOpen] = useState(false)
   const [toolsOpen,    setToolsOpen]    = useState(false)
   const [saveToast,    setSaveToast]    = useState('')
-  const [proToolsOpen, setProToolsOpen] = useState(false)
+  const [hasGenerated, setHasGenerated] = useState(false)
+  const [hintIndex, setHintIndex] = useState(0)
+  const [hintVisible, setHintVisible] = useState(true)
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
@@ -52,10 +53,7 @@ export default function App() {
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const proToolsBtnRef = useRef<HTMLButtonElement>(null)
-  const proToolsDropRef = useRef<HTMLDivElement>(null)
   const avatarRef = useRef<HTMLDivElement>(null)
-  const [proToolsPos, setProToolsPos] = useState({ top: 0, left: 0 })
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
 
@@ -73,27 +71,6 @@ export default function App() {
     setActivePanel(panel)
     if (panel) setHelpOpen(false)
   }, [])
-
-  // Close Pro Tools dropdown on outside click
-  useEffect(() => {
-    if (!proToolsOpen) return
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (
-        proToolsBtnRef.current?.contains(target) ||
-        proToolsDropRef.current?.contains(target)
-      ) return
-      setProToolsOpen(false)
-    }
-    // Delay listener attachment so the opening click doesn't immediately close
-    const raf = requestAnimationFrame(() => {
-      document.addEventListener('mousedown', handler)
-    })
-    return () => {
-      cancelAnimationFrame(raf)
-      document.removeEventListener('mousedown', handler)
-    }
-  }, [proToolsOpen])
 
   // Close avatar dropdown on outside click
   useEffect(() => {
@@ -146,8 +123,30 @@ export default function App() {
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
+  const HINTS = [
+    'Press Space to generate a new palette',
+    'Click a color to lock it in place',
+    'Double-click a hex code to edit it',
+    'Try different harmony styles above',
+    'Drag the handle to reorder colors',
+  ]
+
+  // Rotate hints every 3s until first generate
+  useEffect(() => {
+    if (hasGenerated) return
+    const interval = setInterval(() => {
+      setHintVisible(false)
+      setTimeout(() => {
+        setHintIndex(i => (i + 1) % HINTS.length)
+        setHintVisible(true)
+      }, 300)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [hasGenerated, HINTS.length])
+
   const triggerGenerate = useCallback(() => {
     if (animRef.current) clearTimeout(animRef.current)
+    setHasGenerated(true)
     generate()
   }, [generate])
 
@@ -155,12 +154,13 @@ export default function App() {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
-      if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false) }
+      if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
+      if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [triggerGenerate, undo])
+  }, [triggerGenerate, undo, redo])
 
   const handleShare = async () => {
     try {
@@ -364,28 +364,10 @@ export default function App() {
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
         onClick={e => e.stopPropagation()}
       >
+        <span className="hidden sm:inline text-[12px] font-medium text-gray-400 mr-1.5 shrink-0">Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
-        {/* Desktop-only tools */}
+        {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
-          {/* Pro Tools dropdown trigger */}
-          <Tooltip text="Pro tools">
-            <button
-              ref={proToolsBtnRef}
-              onClick={(e) => {
-                e.stopPropagation()
-                if (!proToolsOpen && proToolsBtnRef.current) {
-                  const rect = proToolsBtnRef.current.getBoundingClientRect()
-                  setProToolsPos({ top: rect.bottom + 8, left: rect.left })
-                }
-                setProToolsOpen(o => !o)
-              }}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-                proToolsOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-              }`}
-            >
-              {!isPro && <span className="text-amber-500">✦</span>} {isPro ? 'Tools' : 'Pro Tools'}
-            </button>
-          </Tooltip>
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <Tooltip text="Generate from prompt">
@@ -402,19 +384,21 @@ export default function App() {
         </div>
       </div>
 
-      {/* -- Palette auto-name (desktop only) -- */}
-      {(() => {
-        const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
-        const baseNames = names.filter(n => !/\s\d+$/.test(n))
-        const unique = [...new Set(baseNames)]
-        if (unique.length < 2) return null
-        const display = unique.slice(0, 3).join(' · ')
-        return (
-          <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] text-gray-400 font-medium tracking-wide">
-            {display}
-          </div>
-        )
-      })()}
+      {/* -- Subheader: rotating hints before first generate, then palette name -- */}
+      <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] text-gray-400 font-medium tracking-wide">
+        {hasGenerated ? (
+          (() => {
+            const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
+            const baseNames = names.filter(n => !/\s\d+$/.test(n))
+            const unique = [...new Set(baseNames)]
+            return unique.length >= 2 ? unique.slice(0, 3).join(' · ') : null
+          })()
+        ) : (
+          <span className={`transition-opacity duration-300 ${hintVisible ? 'opacity-100' : 'opacity-0'}`}>
+            {HINTS[hintIndex]}
+          </span>
+        )}
+      </div>
 
       {/* -- AI prompt bar (collapsible) -- */}
       {aiOpen && (
@@ -475,6 +459,7 @@ export default function App() {
                 <div className="space-y-1.5">
                   <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
                   <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
+                  <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
                   <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
                   <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
                   <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
@@ -486,23 +471,50 @@ export default function App() {
           </div>
         </div>
 
-        {/* Floating Generate button — bottom center (desktop only) */}
+        {/* Floating bottom bar — undo/redo + Generate (desktop only) */}
         <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
           {showHint && (
             <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
             </div>
           )}
-          <button
-            onClick={triggerGenerate}
-            className="pointer-events-auto flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
-            style={{ backgroundColor: BRAND }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-            </svg>
-            Generate
-          </button>
+          <div className="pointer-events-auto flex items-center gap-1.5">
+            {/* Undo */}
+            <Tooltip text="Undo (Cmd+Z)">
+              <button
+                onClick={undo}
+                disabled={historyIndex <= 0}
+                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+              </button>
+            </Tooltip>
+            {/* Redo */}
+            <Tooltip text="Redo (Cmd+Shift+Z)">
+              <button
+                onClick={redo}
+                disabled={historyIndex >= history.length - 1}
+                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+                </svg>
+              </button>
+            </Tooltip>
+            {/* Generate */}
+            <button
+              onClick={triggerGenerate}
+              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
+              style={{ backgroundColor: BRAND }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              Generate
+            </button>
+          </div>
         </div>
 
         {/* Floating count picker — bottom right (desktop only) */}
@@ -656,71 +668,6 @@ export default function App() {
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium whitespace-nowrap shadow-lg pointer-events-none">
           Copied!
         </div>
-      )}
-
-      {/* Pro Tools dropdown — portal to body to avoid overflow clipping */}
-      {proToolsOpen && createPortal(
-        <div
-          ref={proToolsDropRef}
-          className="bg-white rounded-xl shadow-xl border border-gray-100 p-2 min-w-[280px]"
-          style={{
-            position: 'fixed',
-            top: proToolsPos.top,
-            left: proToolsPos.left,
-            zIndex: 9999,
-          }}
-        >
-          <button
-            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-              </svg>
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[13px] font-medium text-gray-800">From Image</span>
-                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
-              </div>
-              <p className="text-[11px] text-gray-500">Extract palette from any photo</p>
-            </div>
-          </button>
-          <button
-            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[13px] font-medium text-gray-800">Vision Sim</span>
-                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
-              </div>
-              <p className="text-[11px] text-gray-500">Simulate color blindness modes</p>
-            </div>
-          </button>
-          <button
-            onClick={() => { setProToolsOpen(false); if (!isPro) { openProModal(); return }; setAiOpen(true) }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-              <span className="text-[14px]">✨</span>
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[13px] font-medium text-gray-800">AI Palette</span>
-                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
-              </div>
-              <p className="text-[11px] text-gray-500">Generate palette from a text prompt</p>
-            </div>
-          </button>
-        </div>,
-        document.body
       )}
 
       <VisionFilterDefs />

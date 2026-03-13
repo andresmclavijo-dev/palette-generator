@@ -27,6 +27,9 @@ interface PaletteState {
   setSeedColor: (hex: string) => void
   reorderSwatches: (fromIndex: number, toIndex: number) => void
   undo: () => void
+  redo: () => void
+  canUndo: () => boolean
+  canRedo: () => boolean
 }
 
 function pushHistory(history: Swatch[][], index: number, snapshot: Swatch[]) {
@@ -111,4 +114,14 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
     const prev = historyIndex - 1
     set({ swatches: history[prev], historyIndex: prev, count: history[prev].length })
   },
+
+  redo: () => {
+    const { history, historyIndex } = get()
+    if (historyIndex >= history.length - 1) return
+    const next = historyIndex + 1
+    set({ swatches: history[next], historyIndex: next, count: history[next].length })
+  },
+
+  canUndo: () => get().historyIndex > 0,
+  canRedo: () => get().historyIndex < get().history.length - 1,
 }))
