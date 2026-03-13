@@ -395,9 +395,7 @@ export default function App() {
               className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               ✨ AI
-              {isPro ? (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: '#6C47FF' }}>PRO</span>
-              ) : (
+              {!isPro && (
                 <>
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#6C47FF' }}>
                     {aiRemaining}
