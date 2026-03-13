@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { generateShades, getColorName, readableOn, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
@@ -64,9 +65,9 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
     )
   })
 
-  // Mobile: full-screen bottom sheet
+  // Mobile: full-screen bottom sheet — portaled to escape vision filter
   if (IS_COARSE || IS_MOBILE) {
-    return (
+    return createPortal(
       <div
         className="fixed inset-0 z-50"
         onClick={onClose}
@@ -115,7 +116,8 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
             {shadeRows}
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 

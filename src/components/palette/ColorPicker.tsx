@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { HexColorPicker } from 'react-colorful'
 
 const IS_MOBILE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
@@ -90,15 +91,22 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
   const displayHex = color.replace('#', '').toUpperCase()
 
-  // ── MOBILE: native <input type="color"> — zero pointer event issues on iOS ──
+  // ── MOBILE: native <input type="color"> — rendered via portal to escape vision filter ──
   if (IS_MOBILE) {
-    return (
-      <div className="fixed inset-0 z-[60]" onClick={onClose}>
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+    return createPortal(
+      <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={onClose}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 199, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} />
         <div
           ref={pickerRef}
-          className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl"
           style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 200,
+            background: '#fff',
+            borderRadius: '16px 16px 0 0',
+            boxShadow: '0 -4px 30px rgba(0,0,0,0.12)',
             paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)',
             transform: visible ? 'translateY(0)' : 'translateY(100%)',
             transition: 'transform 220ms ease-out',
@@ -106,32 +114,38 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           onClick={e => e.stopPropagation()}
         >
           {/* Drag handle */}
-          <div className="flex justify-center pt-3 pb-2">
+          <div className="flex justify-center pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-gray-200" />
           </div>
 
-          {/* Hex display + right-side actions (close + copy) */}
-          <div className="flex items-start gap-2 mx-4 mt-2 mb-2">
-            <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
-              <span className="text-[12px] text-gray-400 font-mono">#</span>
-              <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
-            </div>
-            {/* Right column: × close + copy icon */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+          <div style={{ padding: '8px 16px 24px' }}>
+            {/* Header row — title + close */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#111' }}>Customize color</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onClose() }}
-                className="flex items-center justify-center rounded-full shrink-0"
                 style={{
                   width: 32,
                   height: 32,
-                  marginBottom: 8,
+                  borderRadius: '50%',
                   background: '#f0f0f0',
-                  color: '#666',
                   border: 'none',
                   cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   fontSize: 16,
+                  color: '#666',
                 }}
               >×</button>
+            </div>
+
+            {/* Hex input row — input + copy on same line */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
+                <span className="text-[12px] text-gray-400 font-mono">#</span>
+                <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
+              </div>
               <button
                 onClick={handleCopy}
                 className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
@@ -142,22 +156,23 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
                 }
               </button>
             </div>
-          </div>
 
-          {/* Change color — native picker trigger */}
-          <div className="flex justify-center mb-3">
-            <label className="relative cursor-pointer text-[12px] font-medium text-blue-500 active:text-blue-700">
-              Change color
-              <input
-                type="color"
-                value={color}
-                onChange={e => setColor(e.target.value)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </label>
+            {/* Change color link */}
+            <div style={{ textAlign: 'center' }}>
+              <label className="relative cursor-pointer text-[12px] font-medium text-blue-500 active:text-blue-700">
+                Change color
+                <input
+                  type="color"
+                  value={color}
+                  onChange={e => setColor(e.target.value)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </label>
+            </div>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
