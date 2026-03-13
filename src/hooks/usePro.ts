@@ -19,25 +19,27 @@ const devProOverride = (() => {
   return devOverride && isDevEnvironment
 })()
 
+// Set dev override in the Zustand store immediately at module load —
+// this runs once, before any component mounts, so all usePro() consumers
+// read isPro=true from the shared store on their very first render.
+if (devProOverride) {
+  useProStore.getState().setIsPro(true)
+  useProStore.getState().setLoading(false)
+  useProStore.getState().setFetched(true)
+  console.log('[dev] Pro mode enabled via URL param')
+}
+
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
   const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
-  const devHandled = useRef(false)
 
   const userId = user?.id ?? null
 
   // Profile fetch — only when user ID changes, not on every render
   useEffect(() => {
-    if (devProOverride) {
-      if (devHandled.current) return
-      devHandled.current = true
-      setIsPro(true)
-      setLoading(false)
-      setFetched(true)
-      console.log('[dev] Pro mode enabled via URL param')
-      return
-    }
+    // Dev override already handled at module load — skip all fetching
+    if (devProOverride) return
 
     if (authLoading) return
 
