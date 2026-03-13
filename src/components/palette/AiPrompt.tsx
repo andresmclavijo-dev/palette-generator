@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
 
 const BRAND = '#1A73E8'
@@ -117,23 +118,32 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         throw new Error('Invalid hex array')
       }
 
-      // Post-processing: darken colors if prompt asked for "dark"
-      if (prompt.trim().toLowerCase().includes('dark')) {
-        hexes = hexes.map(hex => {
-          const r = parseInt(hex.slice(1, 3), 16)
-          const g = parseInt(hex.slice(3, 5), 16)
-          const b = parseInt(hex.slice(5, 7), 16)
-          const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255
-          if (lightness > 0.4) {
-            const scale = 0.3
-            const dr = Math.round(r * scale)
-            const dg = Math.round(g * scale)
-            const db = Math.round(b * scale)
-            return `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`
+      // Post-processing: enforce keyword constraints with chroma-js
+      const desc = prompt.trim().toLowerCase()
+      hexes = hexes.map(hex => {
+        try {
+          let c = chroma(hex)
+          const [h, s, l] = c.hsl()
+
+          if (desc.includes('dark')) {
+            if (l > 0.32) c = chroma.hsl(h, Math.min(s, 0.7), 0.22)
+          } else if (desc.includes('pastel')) {
+            if (l < 0.72 || s > 0.45) c = chroma.hsl(h, 0.35, 0.82)
+          } else if (desc.includes('neon')) {
+            if (s < 0.85) c = chroma.hsl(h, 0.95, 0.55)
+          } else if (desc.includes('warm')) {
+            const warmHue = (h > 60 && h < 330) ? (h > 180 ? 30 : 45) : h
+            c = chroma.hsl(warmHue, Math.max(s, 0.6), l)
+          } else if (desc.includes('cool')) {
+            const coolHue = (h < 160 || h > 280) ? 220 : h
+            c = chroma.hsl(coolHue, Math.max(s, 0.5), l)
           }
+
+          return c.hex()
+        } catch {
           return hex
-        })
-      }
+        }
+      })
 
       onPalette(hexes.slice(0, colorCount))
       setPrompt('')
