@@ -244,11 +244,11 @@ export default function App() {
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden bg-white">
+    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: '#FAFAF8' }}>
 
       {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight text-gray-900">
+        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
           Paletta
         </span>
 
@@ -368,8 +368,8 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
               <button
                 onClick={openProModal}
-                className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-blue-50"
-                style={{ borderColor: BRAND, color: BRAND }}
+                className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-purple-50"
+                style={{ borderColor: '#6C47FF', color: '#6C47FF' }}
               >
                 Go Pro →
               </button>
@@ -397,7 +397,7 @@ export default function App() {
               ✨ AI
               {!isPro && (
                 <>
-                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#6C47FF' }}>
                     {aiRemaining}
                   </span>
                   <span className="text-[10px] text-gray-400 ml-0.5">free/day</span>
@@ -615,6 +615,18 @@ export default function App() {
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
         </button>
+
+        {/* Pro CTA — visible only for non-Pro */}
+        {!isPro && (
+          <button
+            onClick={openProModal}
+            className="h-8 px-2.5 rounded-full text-white text-[11px] font-bold tracking-wide active:scale-95 transition-all shrink-0 flex items-center gap-1"
+            style={{ backgroundColor: '#6C47FF' }}
+          >
+            <span className="text-[12px] leading-none">✦</span>
+            Pro
+          </button>
+        )}
       </footer>
 
       {exportOpen && (

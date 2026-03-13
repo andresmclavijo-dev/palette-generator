@@ -113,28 +113,18 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           {/* Close */}
           <button
             onClick={(e) => { e.stopPropagation(); onClose() }}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"
+            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+            style={{ color: '#6B7280' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#111')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
 
-          {/* Color preview — tap target with hidden native input overlay */}
-          <div className="mx-4 mt-2 rounded-xl h-20 border border-gray-100 relative cursor-pointer overflow-hidden" style={{ backgroundColor: color }}>
-            <input
-              type="color"
-              value={color}
-              onChange={e => setColor(e.target.value)}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-white/70 text-xs font-medium tracking-wide uppercase" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Tap to change</span>
-            </div>
-          </div>
-
-          {/* Hex display + copy */}
-          <div className="flex items-center gap-2 mx-4 mt-3 mb-2">
+          {/* Hex display + copy + change color */}
+          <div className="flex items-center gap-2 mx-4 mt-2 mb-2">
             <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
               <span className="text-[12px] text-gray-400 font-mono">#</span>
               <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
@@ -148,6 +138,19 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
                 : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               }
             </button>
+          </div>
+
+          {/* Change color — native picker trigger */}
+          <div className="flex justify-center mb-3">
+            <label className="relative cursor-pointer text-[12px] font-medium text-blue-500 active:text-blue-700">
+              Change color
+              <input
+                type="color"
+                value={color}
+                onChange={e => setColor(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </label>
           </div>
         </div>
       </div>
