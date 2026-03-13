@@ -58,7 +58,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
             <polyline points="21 15 16 10 5 21"/>
           </svg>
           <span>{loading ? 'Analyzing…' : 'Image'}</span>
-          <ProBadge />
+          {!isPro && <ProBadge />}
         </button>
       </Tooltip>
 

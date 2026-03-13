@@ -74,7 +74,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
             <circle cx="12" cy="12" r="3"/>
           </svg>
           <span>Vision</span>
-          <ProBadge />
+          {!isPro && <ProBadge />}
         </button>
       </Tooltip>
 

@@ -239,23 +239,6 @@ export default function App() {
             </button>
           </Tooltip>
 
-          {/* Mobile: Sign In or Avatar */}
-          {!isSignedIn ? (
-            <button
-              onClick={() => setSignInOpen(true)}
-              className="sm:hidden text-[13px] text-gray-600 font-medium hover:text-gray-900 transition-colors px-1"
-            >
-              Sign In
-            </button>
-          ) : (
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold"
-            >
-              {(user?.email?.[0] ?? 'U').toUpperCase()}
-            </button>
-          )}
-
           {/* Mobile: Hamburger */}
           <button
             onClick={() => setDrawerOpen(true)}
@@ -390,7 +373,7 @@ export default function App() {
                 proToolsOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
               }`}
             >
-              <span className="text-amber-500">✦</span> Pro Tools
+              {!isPro && <span className="text-amber-500">✦</span>} {isPro ? 'Tools' : 'Pro Tools'}
             </button>
           </Tooltip>
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
@@ -403,7 +386,7 @@ export default function App() {
               }`}
             >
               ✨ AI
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>PRO</span>
+              {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>PRO</span>}
             </button>
           </Tooltip>
         </div>
@@ -611,11 +594,15 @@ export default function App() {
           } catch { /* silent */ }
         }}
         onSignIn={() => setSignInOpen(true)}
+        onSignOut={signOut}
         onProGate={openProModal}
         onImagePalette={() => { if (!isPro) { openProModal(); return }; document.querySelector<HTMLInputElement>('input[accept="image/*"]')?.click() }}
         onVisionSim={() => { if (!isPro) { openProModal(); return }; setVisionMode(visionMode === 'normal' ? 'deuteranopia' : 'normal') }}
         onAiPalette={() => { if (!isPro) { openProModal(); return }; setAiOpen(true) }}
+        onSavedPalettes={() => setSavedOpen(true)}
         isPro={isPro}
+        isSignedIn={isSignedIn}
+        userEmail={user?.email ?? undefined}
       />
 
       {/* Sign In modal */}
@@ -675,7 +662,7 @@ export default function App() {
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-medium text-gray-800">From Image</span>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
               </div>
               <p className="text-[11px] text-gray-500">Extract palette from any photo</p>
             </div>
@@ -692,7 +679,7 @@ export default function App() {
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-medium text-gray-800">Vision Sim</span>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
               </div>
               <p className="text-[11px] text-gray-500">Simulate color blindness modes</p>
             </div>
@@ -707,7 +694,7 @@ export default function App() {
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-medium text-gray-800">AI Palette</span>
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>
+                {!isPro && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold tracking-wide text-white leading-none" style={{ backgroundColor: BRAND }}>PRO</span>}
               </div>
               <p className="text-[11px] text-gray-500">Generate palette from a text prompt</p>
             </div>

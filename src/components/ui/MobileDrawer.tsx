@@ -10,16 +10,20 @@ interface MobileDrawerProps {
   onShare: () => void
   onExport: () => void
   onSignIn: () => void
+  onSignOut: () => void
   onProGate: () => void
   onImagePalette: () => void
   onVisionSim: () => void
   onAiPalette: () => void
+  onSavedPalettes: () => void
   isPro?: boolean
+  isSignedIn?: boolean
+  userEmail?: string
 }
 
 export default function MobileDrawer({
-  open, onClose, onSave, onShare, onExport, onSignIn, onProGate,
-  onImagePalette, onVisionSim, onAiPalette, isPro,
+  open, onClose, onSave, onShare, onExport, onSignIn, onSignOut, onProGate,
+  onImagePalette, onVisionSim, onAiPalette, onSavedPalettes, isPro, isSignedIn, userEmail,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
 
@@ -62,6 +66,13 @@ export default function MobileDrawer({
           </button>
         </div>
 
+        {/* Signed-in user info */}
+        {isSignedIn && userEmail && (
+          <div className="px-5 pb-2">
+            <span className="text-[12px] text-gray-400 break-all">{userEmail}</span>
+          </div>
+        )}
+
         {/* Actions section */}
         <div className="px-3 py-1">
           <button
@@ -78,6 +89,25 @@ export default function MobileDrawer({
               <span className="text-[11px] text-gray-400">Save this palette</span>
             </div>
           </button>
+
+          {/* Saved palettes — only when signed in */}
+          {isSignedIn && (
+            <button
+              onClick={() => handleRow(onSavedPalettes)}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                </svg>
+              </div>
+              <div className="text-left min-w-0">
+                <span className="text-[14px] font-medium text-gray-800 block">Saved palettes</span>
+                <span className="text-[11px] text-gray-400">View your saved palettes</span>
+              </div>
+            </button>
+          )}
 
           <button
             onClick={() => handleRow(onShare)}
@@ -113,20 +143,38 @@ export default function MobileDrawer({
             </div>
           </button>
 
-          <button
-            onClick={() => handleRow(onSignIn)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
-          >
-            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
-            <div className="text-left min-w-0">
-              <span className="text-[14px] font-medium text-gray-800 block">Sign In</span>
-              <span className="text-[11px] text-gray-400">Sync palettes across devices</span>
-            </div>
-          </button>
+          {/* Sign In or Sign Out */}
+          {!isSignedIn ? (
+            <button
+              onClick={() => handleRow(onSignIn)}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div className="text-left min-w-0">
+                <span className="text-[14px] font-medium text-gray-800 block">Sign In</span>
+                <span className="text-[11px] text-gray-400">Sync palettes across devices</span>
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => handleRow(onSignOut)}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </div>
+              <div className="text-left min-w-0">
+                <span className="text-[14px] font-medium text-gray-800 block">Sign Out</span>
+                <span className="text-[11px] text-gray-400">Log out of your account</span>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Divider */}
@@ -134,7 +182,7 @@ export default function MobileDrawer({
 
         {/* Pro Tools section */}
         <div className="px-5 pt-2 pb-1">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Pro Tools</span>
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{isPro ? 'Tools' : 'Pro Tools'}</span>
         </div>
 
         <div className="px-3 py-1">
@@ -150,7 +198,7 @@ export default function MobileDrawer({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[14px] font-medium text-gray-800">From Image</span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
               </div>
               <span className="text-[11px] text-gray-400">Extract palette from any photo</span>
             </div>
@@ -168,7 +216,7 @@ export default function MobileDrawer({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
               </div>
               <span className="text-[11px] text-gray-400">Simulate color blindness modes</span>
             </div>
@@ -184,7 +232,7 @@ export default function MobileDrawer({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
               </div>
               <span className="text-[11px] text-gray-400">Generate from a text prompt</span>
             </div>
