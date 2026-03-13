@@ -81,39 +81,56 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
     }
 
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-    if (!apiKey) {
-      showToast('AI unavailable \u2014 using random')
-      onFallback()
-      onClose()
-      return
-    }
 
     setLoading(true)
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      // Try server-side API route first (has IP rate limiting)
+      const res = await fetch('/api/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 150,
-          temperature: 0,
-          messages: [{ role: 'user', content: `You are a color palette API. Return ONLY a JSON array of hex strings, nothing else.\n\nSTRICT RULES:\n- Return exactly ${colorCount} hex colors\n- Every color MUST visually match: "${prompt.trim()}"\n- "dark" = ALL hex values must have lightness below 35%. Examples: #1a1a2e, #0d1117, #2d1b69\n- "pastel" = ALL colors soft, desaturated, light (lightness above 75%)\n- "neon" = ALL colors vibrant, fully saturated, electric\n- "warm" = reds, oranges, yellows only\n- "cool" = blues, teals, purples only\n- NEVER include colors that contradict the description\n- Output raw JSON array only — no text, no markdown, no explanation\n\nDESCRIPTION: "${prompt.trim()}"\nOUTPUT: ["#hex1","#hex2",...${colorCount} items]` }],
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt.trim(), colorCount, isPro }),
       })
 
-      if (!res.ok) throw new Error('API error')
+      // Handle rate limit — show Pro upgrade
+      if (res.status === 429) {
+        onClose()
+        onProGate()
+        return
+      }
 
-      const data = await res.json()
-      const text = data.content?.[0]?.text || ''
-      const match = text.match(/\[.*\]/)
-      if (!match) throw new Error('No JSON array in response')
+      let hexes: string[]
 
-      let hexes: string[] = JSON.parse(match[0])
+      if (res.ok) {
+        const data = await res.json()
+        hexes = data.colors
+      } else if (apiKey) {
+        // Fallback to direct API call if server route fails
+        const directRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 150,
+            temperature: 0,
+            messages: [{ role: 'user', content: `You are a color palette API. Return ONLY a JSON array of hex strings, nothing else.\n\nSTRICT RULES:\n- Return exactly ${colorCount} hex colors\n- Every color MUST visually match: "${prompt.trim()}"\n- "dark" = ALL hex values must have lightness below 35%. Examples: #1a1a2e, #0d1117, #2d1b69\n- "pastel" = ALL colors soft, desaturated, light (lightness above 75%)\n- "neon" = ALL colors vibrant, fully saturated, electric\n- "warm" = reds, oranges, yellows only\n- "cool" = blues, teals, purples only\n- NEVER include colors that contradict the description\n- Output raw JSON array only — no text, no markdown, no explanation\n\nDESCRIPTION: "${prompt.trim()}"\nOUTPUT: ["#hex1","#hex2",...${colorCount} items]` }],
+          }),
+        })
+
+        if (!directRes.ok) throw new Error('API error')
+        const directData = await directRes.json()
+        const text = directData.content?.[0]?.text || ''
+        const match = text.match(/\[.*\]/)
+        if (!match) throw new Error('No JSON array in response')
+        hexes = JSON.parse(match[0])
+      } else {
+        throw new Error('No API available')
+      }
+
       if (!Array.isArray(hexes) || hexes.length < 3 || !hexes.every((h: string) => /^#[0-9a-fA-F]{6}$/.test(h))) {
         throw new Error('Invalid hex array')
       }
@@ -126,17 +143,17 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
           const [h, s, l] = c.hsl()
 
           if (desc.includes('dark')) {
-            if (l > 0.32) c = chroma.hsl(h, Math.min(s, 0.7), 0.22)
+            if (l > 0.32) c = chroma.hsl(h, Math.min(s + 0.1, 0.75), 0.20 + Math.random() * 0.10)
           } else if (desc.includes('pastel')) {
-            if (l < 0.72 || s > 0.45) c = chroma.hsl(h, 0.35, 0.82)
+            if (l < 0.75 || s > 0.40) c = chroma.hsl(h, 0.30 + Math.random() * 0.15, 0.80 + Math.random() * 0.08)
           } else if (desc.includes('neon')) {
-            if (s < 0.85) c = chroma.hsl(h, 0.95, 0.55)
+            if (s < 0.85 || l < 0.45 || l > 0.65) c = chroma.hsl(h, 0.95, 0.52 + Math.random() * 0.08)
           } else if (desc.includes('warm')) {
-            const warmHue = (h > 60 && h < 330) ? (h > 180 ? 30 : 45) : h
-            c = chroma.hsl(warmHue, Math.max(s, 0.6), l)
-          } else if (desc.includes('cool')) {
-            const coolHue = (h < 160 || h > 280) ? 220 : h
-            c = chroma.hsl(coolHue, Math.max(s, 0.5), l)
+            const wh = (h > 65 && h < 330) ? (h > 180 ? 25 + Math.random() * 20 : 40 + Math.random() * 20) : h
+            c = chroma.hsl(wh, Math.max(s, 0.55), l)
+          } else if (desc.includes('cool') || desc.includes('cold')) {
+            const ch = (h < 155 || h > 285) ? 190 + Math.random() * 60 : h
+            c = chroma.hsl(ch, Math.max(s, 0.45), l)
           }
 
           return c.hex()

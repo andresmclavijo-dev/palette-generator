@@ -8,41 +8,40 @@ const hadPaymentSuccess = window.location.search.includes('payment=success')
 
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
-  const { isPro, loading, showPaymentModal, fetched, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
+  const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
-  const lastUserId = useRef<string | null>(null)
 
-  // Profile fetch — only when user changes, not on every render
+  const userId = user?.id ?? null
+
+  // Profile fetch — only when user ID changes, not on every render
   useEffect(() => {
     if (authLoading) return
 
-    if (!user) {
+    if (!userId) {
       setIsPro(false)
       setLoading(false)
       setFetched(false)
-      lastUserId.current = null
       return
     }
 
-    // Skip if we already fetched for this user
-    if (fetched && lastUserId.current === user.id) {
-      return
-    }
-
-    lastUserId.current = user.id
+    let cancelled = false
     setLoading(true)
     supabase
       .from('profiles')
       .select('is_pro')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single()
       .then(({ data }) => {
-        console.log('[usePro] profile fetch:', { userId: user.id, is_pro: data?.is_pro })
+        if (cancelled) return
+        console.log('[usePro] profile fetch:', { userId, is_pro: data?.is_pro })
         setIsPro(data?.is_pro === true)
         setLoading(false)
         setFetched(true)
       })
-  }, [user, authLoading, fetched, setIsPro, setLoading, setFetched])
+
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, authLoading])
 
   // Handle post-payment redirect
   useEffect(() => {
