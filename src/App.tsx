@@ -14,6 +14,7 @@ import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import SignInModal from './components/ui/SignInModal'
 import PaymentSuccessModal from './components/ui/PaymentSuccessModal'
 import SavedPalettesPanel from './components/ui/SavedPalettesPanel'
+import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import Tooltip from './components/ui/Tooltip'
 import { usePro } from './hooks/usePro'
@@ -48,6 +49,7 @@ export default function App() {
   const [drawerOpen,   setDrawerOpen]   = useState(false)
   const [avatarOpen,   setAvatarOpen]   = useState(false)
   const [savedOpen,    setSavedOpen]    = useState(false)
+  const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const proToolsBtnRef = useRef<HTMLButtonElement>(null)
@@ -154,7 +156,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement) return
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); undo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setProToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -177,20 +179,28 @@ export default function App() {
     setSwatches(hexes.map(h => makeSwatch(h)))
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!isPro) { openProModal(); return }
     if (!user) { setSignInOpen(true); return }
+    setSaveNameOpen(true)
+  }
+
+  const defaultPaletteName = (() => {
+    const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
+    return names.slice(0, 3).join(' · ') || 'Untitled'
+  })()
+
+  const handleSaveConfirm = async (name: string) => {
+    setSaveNameOpen(false)
+    if (!user) return
     try {
       const { supabase } = await import('./lib/supabase')
-      const { getColorName } = await import('./lib/colorEngine')
       const colors = swatches.map(s => s.hex).filter(Boolean)
       if (colors.length === 0) {
         setSaveToast('Nothing to save')
         setTimeout(() => setSaveToast(''), 2000)
         return
       }
-      const names = colors.map(h => getColorName(h)).filter(Boolean)
-      const name = names.slice(0, 3).join(' · ') || 'Untitled'
       const payload = { user_id: user.id, name, colors }
       console.log('[Save] payload:', JSON.stringify(payload))
       const { error } = await supabase.from('saved_palettes').insert(payload)
@@ -614,6 +624,14 @@ export default function App() {
       {/* Payment success modal — shown when returning from Stripe without being signed in */}
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
 
+      {/* Save name modal */}
+      <SaveNameModal
+        open={saveNameOpen}
+        defaultName={defaultPaletteName}
+        onConfirm={handleSaveConfirm}
+        onClose={() => setSaveNameOpen(false)}
+      />
+
       {/* Saved palettes panel */}
       {user && (
         <SavedPalettesPanel
@@ -621,6 +639,8 @@ export default function App() {
           onClose={() => setSavedOpen(false)}
           userId={user.id}
           onLoad={(hexes) => setSwatches(hexes.map(h => makeSwatch(h)))}
+          isPro={isPro}
+          onProGate={openProModal}
         />
       )}
 

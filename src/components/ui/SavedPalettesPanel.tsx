@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+const BRAND = '#1A73E8'
+const FREE_SAVE_LIMIT = 3
+
 interface SavedPalette {
   id: string
   name: string
@@ -13,9 +16,16 @@ interface SavedPalettesPanelProps {
   onClose: () => void
   userId: string
   onLoad: (hexes: string[]) => void
+  isPro?: boolean
+  onProGate?: () => void
 }
 
-export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: SavedPalettesPanelProps) {
+function formatDate(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPro, onProGate }: SavedPalettesPanelProps) {
   const [palettes, setPalettes] = useState<SavedPalette[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -46,12 +56,14 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
     setPalettes(p => p.filter(x => x.id !== id))
   }
 
-  const handleLoad = (hexes: string[]) => {
-    onLoad(hexes)
+  const handleLoad = (colors: string[]) => {
+    onLoad(colors)
     onClose()
   }
 
   if (!open) return null
+
+  const atLimit = !isPro && palettes.length >= FREE_SAVE_LIMIT
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
@@ -62,7 +74,12 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 shrink-0">
-          <span className="text-[16px] font-semibold text-gray-800">Saved Palettes</span>
+          <div>
+            <span className="text-[16px] font-semibold text-gray-800">Saved Palettes</span>
+            {!loading && palettes.length > 0 && (
+              <span className="ml-2 text-[12px] text-gray-400">{palettes.length}{!isPro ? `/${FREE_SAVE_LIMIT}` : ''}</span>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
@@ -76,9 +93,21 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
           {loading ? (
-            <div className="text-center py-8 text-sm text-gray-400">Loading...</div>
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
+              <div className="w-6 h-6 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+              <span className="text-[13px] text-gray-400">Loading palettes...</span>
+            </div>
           ) : palettes.length === 0 ? (
-            <div className="text-center py-8 text-sm text-gray-400">No saved palettes yet</div>
+            <div className="text-center py-12">
+              <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                </svg>
+              </div>
+              <p className="text-[14px] font-medium text-gray-600">No saved palettes yet</p>
+              <p className="text-[12px] text-gray-400 mt-1">Generate a palette and hit Save to keep it.</p>
+            </div>
           ) : (
             <div className="space-y-3">
               {palettes.map(p => (
@@ -90,9 +119,14 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
                     ))}
                   </div>
 
-                  {/* Name + actions */}
+                  {/* Name + meta + actions */}
                   <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-medium text-gray-700 truncate mr-2">{p.name}</span>
+                    <div className="min-w-0 mr-2">
+                      <span className="text-[13px] font-medium text-gray-700 truncate block">{p.name}</span>
+                      <span className="text-[11px] text-gray-400">
+                        {p.colors.length} colors · {formatDate(p.created_at)}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => handleLoad(p.colors)}
@@ -114,6 +148,23 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
                   </div>
                 </div>
               ))}
+
+              {/* Free user limit banner */}
+              {atLimit && onProGate && (
+                <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 text-center">
+                  <p className="text-[13px] font-medium text-gray-700">
+                    You've reached {FREE_SAVE_LIMIT} saved palettes
+                  </p>
+                  <p className="text-[11px] text-gray-500 mt-1">Upgrade to Pro for unlimited saves</p>
+                  <button
+                    onClick={() => { onClose(); onProGate() }}
+                    className="mt-3 px-4 h-8 rounded-full text-white text-[12px] font-semibold hover:opacity-90 active:scale-95 transition-all"
+                    style={{ backgroundColor: BRAND }}
+                  >
+                    Go Pro →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
