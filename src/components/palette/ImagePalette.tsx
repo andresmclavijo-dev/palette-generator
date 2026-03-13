@@ -5,7 +5,7 @@ import ProBadge from '../ui/ProBadge'
 import Tooltip from '../ui/Tooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
 
-const SESSION_KEY = 'paletta_image_used'
+const LS_KEY = 'paletta_image_used'
 
 interface ImagePaletteProps {
   onPalette: (hexes: string[]) => void
@@ -20,12 +20,12 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
   const [toast, setToast] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const sessionUsed = () => {
-    try { return sessionStorage.getItem(SESSION_KEY) === '1' } catch { return false }
+  const freeUsed = () => {
+    try { return localStorage.getItem(LS_KEY) === '1' } catch { return false }
   }
 
-  const markSessionUsed = () => {
-    try { sessionStorage.setItem(SESSION_KEY, '1') } catch { /* silent */ }
+  const markFreeUsed = () => {
+    try { localStorage.setItem(LS_KEY, '1') } catch { /* silent */ }
   }
 
   const handleClick = () => {
@@ -34,12 +34,12 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
       return
     }
     if (isSignedIn) {
-      // Signed-in free user: upgrade prompt
+      // Signed-in free user: always upgrade prompt
       onProGate()
       return
     }
-    // Anonymous: allow 1 free use per session
-    if (sessionUsed()) {
+    // Anonymous: 1 free use tracked in localStorage
+    if (freeUsed()) {
       onSignIn()
       return
     }
@@ -54,7 +54,7 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
     setLoading(true)
     try {
       const colors = await extractColorsFromFile(file)
-      if (!isPro && !isSignedIn) markSessionUsed()
+      if (!isPro && !isSignedIn) markFreeUsed()
       onPalette(colors.slice(0, 5))
     } catch {
       setToast("Couldn't read image \u2014 try another.")
@@ -64,7 +64,6 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
     }
   }
 
-  // Show PRO badge for signed-in free users, nothing for anonymous (they get a free taste)
   const showBadge = !isPro && isSignedIn
 
   return (

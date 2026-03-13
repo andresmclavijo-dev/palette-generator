@@ -156,7 +156,7 @@ export default function App() {
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -370,13 +370,11 @@ export default function App() {
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
-          <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
+          <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <Tooltip text="Generate from prompt">
             <button
-              onClick={() => setAiOpen(o => !o)}
-              className={`flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
-                aiOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-              }`}
+              onClick={() => setAiOpen(true)}
+              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               ✨ AI
             </button>
@@ -400,12 +398,15 @@ export default function App() {
         )}
       </div>
 
-      {/* -- AI prompt bar (collapsible) -- */}
-      {aiOpen && (
-        <div className="flex-none h-11 bg-white border-b border-gray-100 flex items-center px-3 sm:px-4 z-20 shrink-0">
-          <AiPrompt onPalette={handleAiPalette} onFallback={triggerGenerate} onProGate={openProModal} onSignIn={() => setSignInOpen(true)} />
-        </div>
-      )}
+      {/* AI modal dialog */}
+      <AiPrompt
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        onPalette={handleAiPalette}
+        onFallback={triggerGenerate}
+        onProGate={openProModal}
+        onSignIn={() => setSignInOpen(true)}
+      />
 
       {/* -- Palette canvas -- */}
       <main

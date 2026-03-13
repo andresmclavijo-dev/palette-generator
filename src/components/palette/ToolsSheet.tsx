@@ -22,6 +22,8 @@ const VISION_MODES: { value: VisionMode; label: string }[] = [
   { value: 'tritanopia',   label: 'Tritanopia' },
 ]
 
+const IMAGE_LS_KEY = 'paletta_image_used'
+
 export default function ToolsSheet({
   open, onClose, onProGate, onSignIn,
   onImagePalette, onAiOpen,
@@ -40,19 +42,15 @@ export default function ToolsSheet({
     else setVisible(false)
   }, [open])
 
-  const imageSessionUsed = () => {
-    try { return sessionStorage.getItem('paletta_image_used') === '1' } catch { return false }
-  }
-
-  const visionSessionUsed = () => {
-    try { return sessionStorage.getItem('paletta_vision_used') === '1' } catch { return false }
+  const imageFreeUsed = () => {
+    try { return localStorage.getItem(IMAGE_LS_KEY) === '1' } catch { return false }
   }
 
   const handleImageClick = () => {
     if (isPro) { fileRef.current?.click(); return }
     if (isSignedIn) { onProGate(); onClose(); return }
-    // Anonymous: 1 free session use
-    if (imageSessionUsed()) { onSignIn(); onClose(); return }
+    // Anonymous: 1 free use tracked in localStorage
+    if (imageFreeUsed()) { onSignIn(); onClose(); return }
     fileRef.current?.click()
   }
 
@@ -64,7 +62,7 @@ export default function ToolsSheet({
     try {
       const colors = await extractColorsFromFile(file)
       if (!isPro && !isSignedIn) {
-        try { sessionStorage.setItem('paletta_image_used', '1') } catch { /* silent */ }
+        try { localStorage.setItem(IMAGE_LS_KEY, '1') } catch { /* silent */ }
       }
       onImagePalette(colors.slice(0, 5))
       onClose()
@@ -77,17 +75,11 @@ export default function ToolsSheet({
   }
 
   const handleVisionClick = () => {
-    if (isPro) { setVisionExpanded(o => !o); return }
-    if (isSignedIn) { onProGate(); onClose(); return }
-    // Anonymous: 1 free session use
-    if (visionSessionUsed()) { onSignIn(); onClose(); return }
+    if (!isPro) { onProGate(); onClose(); return }
     setVisionExpanded(o => !o)
   }
 
   const handleVisionSelect = (mode: VisionMode) => {
-    if (!isPro && !isSignedIn && mode !== 'normal') {
-      try { sessionStorage.setItem('paletta_vision_used', '1') } catch { /* silent */ }
-    }
     onVisionChange(mode)
     onClose()
   }
@@ -98,9 +90,6 @@ export default function ToolsSheet({
   }
 
   if (!open) return null
-
-  // Show PRO badge for signed-in free users only
-  const showBadge = !isPro && isSignedIn
 
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
@@ -154,7 +143,7 @@ export default function ToolsSheet({
                 <span className="text-[14px] font-medium text-gray-800">
                   {imageLoading ? 'Analyzing\u2026' : 'From Image'}
                 </span>
-                {showBadge && <ProBadge />}
+                {!isPro && <ProBadge />}
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Extract palette from any photo</p>
             </div>
@@ -177,7 +166,7 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
-                {showBadge && <ProBadge />}
+                {!isPro && <ProBadge />}
                 {visionMode !== 'normal' && (
                   <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
                 )}
@@ -191,8 +180,8 @@ export default function ToolsSheet({
             </svg>
           </button>
 
-          {/* Vision sub-options */}
-          {visionExpanded && (
+          {/* Vision sub-options — Pro only */}
+          {visionExpanded && isPro && (
             <div className="pl-[4.5rem] pr-5 pb-2 space-y-1">
               <button
                 onClick={() => handleVisionSelect('normal')}

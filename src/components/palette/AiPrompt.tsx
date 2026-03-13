@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -7,6 +7,8 @@ const STORAGE_KEY = 'paletta_ai_uses'
 const MAX_FREE = 3
 
 interface AiPromptProps {
+  open: boolean
+  onClose: () => void
   onPalette: (hexes: string[]) => void
   onFallback: () => void
   onProGate: () => void
@@ -35,15 +37,24 @@ function incrementUsage() {
   } catch { /* silent */ }
 }
 
-export default function AiPrompt({ onPalette, onFallback, onProGate, onSignIn }: AiPromptProps) {
+export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onSignIn }: AiPromptProps) {
   const { isPro } = usePro()
   const { isSignedIn } = useAuth()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
   const [usageCount, setUsageCount] = useState(getUsageToday)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const remaining = Math.max(0, MAX_FREE - usageCount)
   const exhausted = !isPro && remaining <= 0
+
+  // Focus textarea when modal opens
+  useEffect(() => {
+    if (open) {
+      setUsageCount(getUsageToday())
+      setTimeout(() => textareaRef.current?.focus(), 100)
+    }
+  }, [open])
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -62,6 +73,7 @@ export default function AiPrompt({ onPalette, onFallback, onProGate, onSignIn }:
     if (!apiKey) {
       showToast('AI unavailable \u2014 using random')
       onFallback()
+      onClose()
       return
     }
 
@@ -101,58 +113,92 @@ export default function AiPrompt({ onPalette, onFallback, onProGate, onSignIn }:
       }
       onPalette(hexes.slice(0, 5))
       setPrompt('')
+      onClose()
     } catch {
       showToast('AI unavailable \u2014 using random')
       onFallback()
+      onClose()
     } finally {
       setLoading(false)
     }
   }
 
-  return (
-    <div className="flex items-center gap-2 w-full" onClick={e => e.stopPropagation()}>
-      <div className="flex-1 flex items-center gap-2 min-w-0">
-        <input
-          value={prompt}
-          onChange={e => setPrompt(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') handleGenerate(); e.stopPropagation() }}
-          placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette\u2026 e.g. Warm Mediterranean cafe'}
-          disabled={exhausted}
-          className="flex-1 min-w-0 h-8 px-3 rounded-full bg-gray-50 border border-gray-200 text-[12px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-300 disabled:opacity-50"
-        />
-        <button
-          onClick={handleGenerate}
-          disabled={loading || (!exhausted && !prompt.trim())}
-          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-white text-[12px] font-medium transition-all disabled:opacity-40 shrink-0"
-          style={{ backgroundColor: BRAND }}
-        >
-          {loading ? (
-            <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
-              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-            </svg>
-          ) : (
-            <span>✨</span>
-          )}
-          <span className="hidden sm:inline">Generate</span>
-        </button>
-      </div>
+  if (!open) return null
 
-      {/* Usage counter for non-Pro users */}
-      {!isPro && (
-        <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
-          {exhausted ? (
-            <button
-              onClick={() => isSignedIn ? onProGate() : onSignIn()}
-              className="text-blue-500 hover:underline"
-            >
-              Upgrade for unlimited
-            </button>
-          ) : (
-            `${remaining} of ${MAX_FREE} free today`
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+      <div
+        className="relative w-[400px] max-w-[90vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all z-10"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div className="px-6 pt-7 pb-2">
+          <h2 className="text-[18px] font-bold text-gray-900">Generate with AI</h2>
+        </div>
+
+        <div className="px-6 pb-4">
+          <textarea
+            ref={textareaRef}
+            value={prompt}
+            onChange={e => setPrompt(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleGenerate() }
+              e.stopPropagation()
+            }}
+            placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette\u2026 e.g. Warm Mediterranean cafe at sunset'}
+            disabled={exhausted}
+            rows={3}
+            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[13px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-300 resize-none disabled:opacity-50"
+          />
+        </div>
+
+        <div className="px-6 pb-5">
+          <button
+            onClick={handleGenerate}
+            disabled={loading || (!exhausted && !prompt.trim())}
+            className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2"
+            style={{ backgroundColor: BRAND }}
+          >
+            {loading ? (
+              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            ) : (
+              <>
+                <span>✨</span>
+                Generate
+              </>
+            )}
+          </button>
+
+          {/* Usage counter for non-Pro users */}
+          {!isPro && (
+            <p className="text-center text-[11px] text-gray-400 mt-2.5">
+              {exhausted ? (
+                <button
+                  onClick={() => isSignedIn ? onProGate() : onSignIn()}
+                  className="text-blue-500 hover:underline"
+                >
+                  Upgrade to Pro for unlimited
+                </button>
+              ) : (
+                <>{remaining} of {MAX_FREE} free prompts today</>
+              )}
+            </p>
           )}
-        </span>
-      )}
+        </div>
+      </div>
 
       {/* Toast */}
       {toast && (
