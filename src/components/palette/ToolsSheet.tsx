@@ -95,7 +95,7 @@ export default function ToolsSheet({
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-1 pb-3 border-b border-gray-100">
-          <span className="text-[15px] font-semibold text-gray-800">Pro Tools</span>
+          <span className="text-[15px] font-semibold text-gray-800">{isPro ? 'Tools' : 'Pro Tools'}</span>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
@@ -128,7 +128,7 @@ export default function ToolsSheet({
                 <span className="text-[14px] font-medium text-gray-800">
                   {imageLoading ? 'Analyzing…' : 'From Image'}
                 </span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Extract palette from any photo</p>
             </div>
@@ -151,7 +151,7 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">Vision Sim</span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
                 {visionMode !== 'normal' && (
                   <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
                 )}
@@ -201,7 +201,7 @@ export default function ToolsSheet({
             <div className="flex-1 text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
-                <ProBadge />
+                {!isPro && <ProBadge />}
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Generate palette from a text prompt</p>
             </div>

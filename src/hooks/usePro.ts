@@ -1,27 +1,35 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
+import { useProStore } from '../store/proStore'
 
 // Check once at module load so it survives re-renders
 const hadPaymentSuccess = window.location.search.includes('payment=success')
 
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
-  const [isPro, setIsPro] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const { isPro, loading, showPaymentModal, fetched, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
+  const lastUserId = useRef<string | null>(null)
 
-  // Normal profile fetch
+  // Profile fetch — only when user changes, not on every render
   useEffect(() => {
     if (authLoading) return
 
     if (!user) {
       setIsPro(false)
       setLoading(false)
+      setFetched(false)
+      lastUserId.current = null
       return
     }
 
+    // Skip if we already fetched for this user
+    if (fetched && lastUserId.current === user.id) {
+      return
+    }
+
+    lastUserId.current = user.id
     setLoading(true)
     supabase
       .from('profiles')
@@ -32,8 +40,9 @@ export function usePro() {
         console.log('[usePro] profile fetch:', { userId: user.id, is_pro: data?.is_pro })
         setIsPro(data?.is_pro === true)
         setLoading(false)
+        setFetched(true)
       })
-  }, [user, authLoading])
+  }, [user, authLoading, fetched, setIsPro, setLoading, setFetched])
 
   // Handle post-payment redirect
   useEffect(() => {
@@ -49,6 +58,7 @@ export function usePro() {
       console.log('[usePro] payment=success detected, forcing Pro for user', user.id)
       setIsPro(true)
       setLoading(false)
+      setFetched(true)
 
       const refresh = async () => {
         await supabase.auth.refreshSession()
@@ -71,12 +81,12 @@ export function usePro() {
       console.log('[usePro] payment=success but no user — showing sign-in modal')
       setShowPaymentModal(true)
     }
-  }, [user, authLoading])
+  }, [user, authLoading, setIsPro, setLoading, setFetched, setShowPaymentModal])
 
-  // Auto-dismiss payment modal once user signs in (usePro will re-fetch and pick up is_pro)
+  // Auto-dismiss payment modal once user signs in
   useEffect(() => {
     if (user && showPaymentModal) setShowPaymentModal(false)
-  }, [user, showPaymentModal])
+  }, [user, showPaymentModal, setShowPaymentModal])
 
   return { isPro, loading, showPaymentModal, setShowPaymentModal }
 }
