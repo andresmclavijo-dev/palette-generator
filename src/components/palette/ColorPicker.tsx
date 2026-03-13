@@ -110,40 +110,38 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
             <div className="w-10 h-1 rounded-full bg-gray-200" />
           </div>
 
-          {/* Close — absolute top-right */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose() }}
-            className="absolute flex items-center justify-center rounded-full shrink-0"
-            style={{
-              top: 12,
-              right: 14,
-              width: 32,
-              height: 32,
-              marginBottom: 8,
-              background: '#f0f0f0',
-              color: '#666',
-              zIndex: 10,
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 16,
-            }}
-          >×</button>
-
-          {/* Hex display + copy + change color */}
-          <div className="flex items-center gap-2 mx-4 mt-2 mb-2">
+          {/* Hex display + right-side actions (close + copy) */}
+          <div className="flex items-start gap-2 mx-4 mt-2 mb-2">
             <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
               <span className="text-[12px] text-gray-400 font-mono">#</span>
               <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
             </div>
-            <button
-              onClick={handleCopy}
-              className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
-            >
-              {copied
-                ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              }
-            </button>
+            {/* Right column: × close + copy icon */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); onClose() }}
+                className="flex items-center justify-center rounded-full shrink-0"
+                style={{
+                  width: 32,
+                  height: 32,
+                  marginBottom: 8,
+                  background: '#f0f0f0',
+                  color: '#666',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 16,
+                }}
+              >×</button>
+              <button
+                onClick={handleCopy}
+                className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
+              >
+                {copied
+                  ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                }
+              </button>
+            </div>
           </div>
 
           {/* Change color — native picker trigger */}

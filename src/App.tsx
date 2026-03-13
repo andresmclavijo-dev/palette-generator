@@ -438,7 +438,6 @@ export default function App() {
       {/* -- Palette canvas -- */}
       <main
         className="flex-1 overflow-hidden relative"
-        style={{ filter: visionFilter }}
       >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (
@@ -451,10 +450,10 @@ export default function App() {
           </button>
         )}
 
-        {/* Palette with mobile footer clearance */}
+        {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
           className="w-full h-full sm:[all:unset] sm:contents"
-          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))' }}
+          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', filter: visionFilter }}
         >
           <PaletteCanvas
             swatches={swatches}
