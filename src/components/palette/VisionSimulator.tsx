@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePro } from '../../hooks/usePro'
 import ProBadge from '../ui/ProBadge'
 import Tooltip from '../ui/Tooltip'
@@ -21,9 +22,16 @@ interface VisionSimulatorProps {
 export default function VisionSimulator({ mode, onChange, onProGate }: VisionSimulatorProps) {
   const { isPro } = usePro()
   const [dropOpen, setDropOpen] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const dropRef = useRef<HTMLDivElement>(null)
+  const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
 
   const handleClick = () => {
     if (!isPro) { onProGate(); return }
+    if (!dropOpen && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setDropPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
     setDropOpen(o => !o)
   }
 
@@ -32,10 +40,28 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
     setDropOpen(false)
   }
 
+  // Close on outside click
+  useEffect(() => {
+    if (!dropOpen) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (btnRef.current?.contains(target) || dropRef.current?.contains(target)) return
+      setDropOpen(false)
+    }
+    const raf = requestAnimationFrame(() => {
+      document.addEventListener('mousedown', handler)
+    })
+    return () => {
+      cancelAnimationFrame(raf)
+      document.removeEventListener('mousedown', handler)
+    }
+  }, [dropOpen])
+
   return (
     <div className="relative shrink-0 hidden sm:block">
       <Tooltip text="Simulate color blindness">
         <button
+          ref={btnRef}
           onClick={handleClick}
           className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
             mode !== 'normal'
@@ -52,9 +78,13 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
         </button>
       </Tooltip>
 
-      {/* Dropdown */}
-      {dropOpen && (
-        <div className="absolute top-full mt-1 right-0 z-50 w-44 bg-white rounded-xl shadow-xl border border-gray-200 py-1 overflow-hidden">
+      {/* Dropdown — portaled to body to escape overflow clipping */}
+      {dropOpen && createPortal(
+        <div
+          ref={dropRef}
+          className="w-44 bg-white rounded-xl shadow-xl border border-gray-200 py-1 overflow-hidden"
+          style={{ position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999 }}
+        >
           {MODES.map(m => (
             <button
               key={m.value}
@@ -69,7 +99,8 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
               {mode === m.value && <span className="float-right">✓</span>}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

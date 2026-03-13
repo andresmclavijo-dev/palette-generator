@@ -88,7 +88,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-lg mx-4 mb-0 rounded-t-2xl bg-white border border-gray-200 shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg mx-4 mb-0 rounded-t-2xl bg-white border border-gray-200 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
@@ -127,7 +127,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
         </div>
 
         {/* Code */}
-        <div className="mx-5 mt-3 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden">
+        <div className="mx-5 mt-3 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden max-h-[35vh] overflow-y-auto">
           <pre className="p-4 text-[12px] font-mono text-gray-700 leading-relaxed overflow-x-auto whitespace-pre">
             {content}
           </pre>

@@ -20,7 +20,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !userId) return
     setLoading(true)
     supabase
       .from('saved_palettes')
@@ -28,14 +28,21 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad }: Sa
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Fetch saved palettes failed:', error.message, error)
+        }
         setPalettes(data ?? [])
         setLoading(false)
       })
   }, [open, userId])
 
   const handleDelete = async (id: string) => {
-    await supabase.from('saved_palettes').delete().eq('id', id)
+    const { error } = await supabase.from('saved_palettes').delete().eq('id', id)
+    if (error) {
+      console.error('Delete palette failed:', error.message, error)
+      return
+    }
     setPalettes(p => p.filter(x => x.id !== id))
   }
 

@@ -194,10 +194,11 @@ export default function App() {
       if (error) throw error
       setSaveToast('Palette saved!')
       setTimeout(() => setSaveToast(''), 2000)
-    } catch (err) {
-      console.error('Save failed:', err)
-      setSaveToast('Save failed')
-      setTimeout(() => setSaveToast(''), 2000)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('Save failed:', msg, err)
+      setSaveToast('Save failed — check console')
+      setTimeout(() => setSaveToast(''), 3000)
     }
   }
 
@@ -235,13 +236,22 @@ export default function App() {
             </button>
           </Tooltip>
 
-          {/* Mobile: Sign In text */}
-          <button
-            onClick={() => setSignInOpen(true)}
-            className="sm:hidden text-[13px] text-gray-600 font-medium hover:text-gray-900 transition-colors px-1"
-          >
-            Sign In
-          </button>
+          {/* Mobile: Sign In or Avatar */}
+          {!isSignedIn ? (
+            <button
+              onClick={() => setSignInOpen(true)}
+              className="sm:hidden text-[13px] text-gray-600 font-medium hover:text-gray-900 transition-colors px-1"
+            >
+              Sign In
+            </button>
+          ) : (
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold"
+            >
+              {(user?.email?.[0] ?? 'U').toUpperCase()}
+            </button>
+          )}
 
           {/* Mobile: Hamburger */}
           <button
