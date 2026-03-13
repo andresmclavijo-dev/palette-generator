@@ -4,7 +4,7 @@ import type { ActivePanel } from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
 import CountPicker from './components/palette/CountPicker'
 import ExportPanel from './components/palette/ExportPanel'
-import AiPrompt from './components/palette/AiPrompt'
+import AiPrompt, { getAiRemaining } from './components/palette/AiPrompt'
 import ImagePalette from './components/palette/ImagePalette'
 import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
 import type { VisionMode } from './components/palette/VisionSimulator'
@@ -377,6 +377,11 @@ export default function App() {
               className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               ✨ AI
+              {!isPro && (
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>
+                  {getAiRemaining()}
+                </span>
+              )}
             </button>
           </Tooltip>
         </div>

@@ -64,7 +64,7 @@ export default function ImagePalette({ onPalette, onProGate, onSignIn }: ImagePa
     }
   }
 
-  const showBadge = !isPro && isSignedIn
+  const showBadge = !isPro
 
   return (
     <div className="relative shrink-0 hidden sm:block">

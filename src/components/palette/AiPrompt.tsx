@@ -3,8 +3,30 @@ import { usePro } from '../../hooks/usePro'
 import { useAuth } from '../../hooks/useAuth'
 
 const BRAND = '#1A73E8'
-const STORAGE_KEY = 'paletta_ai_uses'
-const MAX_FREE = 3
+export const AI_MAX_FREE = 3
+
+function todayKey() {
+  return `paletta_ai_uses_${new Date().toISOString().slice(0, 10)}`
+}
+
+export function getAiUsageToday(): number {
+  try {
+    const val = localStorage.getItem(todayKey())
+    return val ? parseInt(val, 10) || 0 : 0
+  } catch { return 0 }
+}
+
+function incrementUsage() {
+  try {
+    const key = todayKey()
+    const current = getAiUsageToday()
+    localStorage.setItem(key, String(current + 1))
+  } catch { /* silent */ }
+}
+
+export function getAiRemaining(): number {
+  return Math.max(0, AI_MAX_FREE - getAiUsageToday())
+}
 
 interface AiPromptProps {
   open: boolean
@@ -15,43 +37,21 @@ interface AiPromptProps {
   onSignIn: () => void
 }
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10)
-}
-
-function getUsageToday(): number {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return 0
-    const parsed = JSON.parse(raw)
-    if (parsed.date === todayKey()) return parsed.count
-    return 0
-  } catch { return 0 }
-}
-
-function incrementUsage() {
-  try {
-    const date = todayKey()
-    const current = getUsageToday()
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date, count: current + 1 }))
-  } catch { /* silent */ }
-}
-
 export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onSignIn }: AiPromptProps) {
   const { isPro } = usePro()
   const { isSignedIn } = useAuth()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
-  const [usageCount, setUsageCount] = useState(getUsageToday)
+  const [usageCount, setUsageCount] = useState(getAiUsageToday)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const remaining = Math.max(0, MAX_FREE - usageCount)
+  const remaining = Math.max(0, AI_MAX_FREE - usageCount)
   const exhausted = !isPro && remaining <= 0
 
-  // Focus textarea when modal opens
+  // Refresh usage count and focus textarea when modal opens
   useEffect(() => {
     if (open) {
-      setUsageCount(getUsageToday())
+      setUsageCount(getAiUsageToday())
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
   }, [open])
@@ -109,7 +109,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
       if (!isPro) {
         incrementUsage()
-        setUsageCount(getUsageToday())
+        setUsageCount(getAiUsageToday())
       }
       onPalette(hexes.slice(0, 5))
       setPrompt('')
@@ -193,7 +193,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
                   Upgrade to Pro for unlimited
                 </button>
               ) : (
-                <>{remaining} of {MAX_FREE} free prompts today</>
+                <>{remaining} of {AI_MAX_FREE} free prompts today</>
               )}
             </p>
           )}
