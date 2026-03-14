@@ -137,6 +137,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
                   fontSize: 16,
                   color: '#666',
                 }}
+                aria-label="Close color editor"
               >×</button>
             </div>
 
@@ -149,6 +150,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
               <button
                 onClick={handleCopy}
                 className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
+                aria-label={copied ? 'Copied' : 'Copy hex code'}
               >
                 {copied
                   ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -188,6 +190,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
       <button
         onClick={(e) => { e.stopPropagation(); onClose() }}
         className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+        aria-label="Close color picker"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -221,6 +224,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         <button
           onClick={handleCopy}
           className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
+          aria-label={copied ? 'Copied' : 'Copy hex code'}
         >
           {copied
             ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

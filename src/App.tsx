@@ -246,6 +246,9 @@ export default function App() {
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: '#FAFAF8' }}>
 
+      {/* Visually hidden h1 for screen readers */}
+      <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
+
       {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
         <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
@@ -476,6 +479,7 @@ export default function App() {
                   else { setHelpOpen(true); setActivePanel(null) }
                 }}
                 className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
+                aria-label="Keyboard shortcuts"
               >
                 ?
               </button>
@@ -492,7 +496,7 @@ export default function App() {
                   <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
                   <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
                 </div>
-                <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)}>X</button>
+                <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
               </div>
             )}
           </div>
