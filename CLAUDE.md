@@ -52,7 +52,21 @@ Always end every task with:
 git add -A && git commit -m "feat/fix: [short description]" && git push
 ```
 
-## Dev / test account
+## Accessibility — Paletta-specific rules
+Inherits all global WCAG 2.1 AA rules from ~/.claude/CLAUDE.md. Additional Paletta-specific rules:
+
+- Brand violet `#6C47FF` on white `#FAFAF8` — contrast 5.9:1 ✅ safe for all text
+- Brand violet `#6C47FF` on dark `#1a1a2e` — contrast 3.2:1 ✅ safe for large text/UI only, NOT body text
+- PRO badge (violet bg + white text) — always verify contrast when changing badge background
+- Bottom sheets / drawers: must trap focus, close on Escape, restore focus to trigger element
+- Color swatches: hex code label must always be visible — color alone is never the only identifier
+- Lock icons on swatches: must have `aria-label="Locked"` / `aria-label="Unlocked"`
+- Generate button: `aria-label="Generate new palette"` always present
+- All icon-only toolbar buttons (undo, redo, export, menu): must have `aria-label`
+- Vision simulation modes: mode name must be announced via `aria-live="polite"` when changed
+- Mobile tap targets: all swatches, buttons, and icons minimum 44×44px
+
+
 - andresmclavijo@gmail.com — main dev account, manually set is_pro=true in Supabase Table Editor
 
 ## Pro user types (all set manually in Supabase)
