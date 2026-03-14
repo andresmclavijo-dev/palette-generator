@@ -1,239 +1,67 @@
-# Paletta — Project Intelligence File
-> Read this file at the start of every session before touching any code.
+# Paletta — Claude Code context
 
----
+## Project
+- **App:** usepaletta.io
+- **Local:** /Users/andresclavijo/palette-gen
+- **GitHub:** andresmclavijo-dev/palette-generator
+- **Branch:** always work on `main` unless told otherwise (feature branches: `feat/[name]`)
+- **Deploy:** Vercel auto-deploys on push to `main`
 
-## Project Overview
+## Stack
+- React + Vite + TypeScript + Tailwind CSS
+- Zustand — global state
+- chroma-js — color manipulation and post-processing
+- react-colorful — color picker component (replaced custom canvas picker)
+- Supabase — auth + database (ref: `rumhoaslghadluqhlwzr`)
+- Stripe — payments ($5/mo or $45/yr)
+- Vercel Serverless Functions — API routes at `/api/*`
+- Anthropic API (Claude Haiku) — AI palette generation
 
-**Paletta** is a color palette generator web app.
-- **Live URL:** https://palette-generator-chi.vercel.app
-- **GitHub:** https://github.com/andresmclavijo-dev/palette-generator
-- **Local folder:** ~/Downloads/palette-gen
-- **Owner:** Andres Clavijo (non-developer, Mac)
-- **Deploy:** Push to `main` → Vercel auto-deploys
+## Key files & paths
+- API routes: `api/` (Vercel serverless)
+- Supabase client: check `src/lib/supabase.ts`
+- Pro hook: `usePro()` — reads `is_pro` from Supabase `profiles` table
+- Stripe webhook: `api/webhook.ts` — flips `is_pro=true` on payment
+- OG image: `public/og-image.png` (1200×630)
+- Sitemap: `public/sitemap.xml`
+- Robots: `public/robots.txt`
 
----
+## Supabase schema (key tables)
+- `profiles` — `id`, `is_pro` (boolean), set to true by Stripe webhook
+- `saved_palettes` — `id`, `user_id`, `colors` (jsonb), `name`
 
-## Tech Stack
+## Infrastructure gotchas
+- **Cloudflare** proxies usepaletta.io — can silently drop POST requests on www redirects. Always verify webhook delivery at the DNS layer after any webhook changes.
+- **vercel.json** SPA catch-all rewrite must explicitly exclude `/api/*` routes or they get swallowed.
+- **Supabase env vars** — double-check var names in Vercel dashboard if webhook stops working.
 
-| Layer | Technology |
-|---|---|
-| Framework | React + Vite + TypeScript |
-| Styling | Tailwind CSS (utility only, no custom config) |
-| State | Zustand |
-| Color logic | chroma-js |
-| Deploy | Vercel (auto from GitHub main) |
+## Pro tier
+- Free: 3 saved palettes, 5 colors max, export with watermark, 3 AI prompts/day
+- Pro: unlimited saves, 6/7/8 colors, no watermark, full shade scales, image extraction, vision sim, AI unlimited
+- **Test Pro on production:** load `usepaletta.io?dev_pro=1` — activates via `paletta_dev_pro` localStorage key
+- **⚠️ Always clear after Pro testing:** `localStorage.removeItem('paletta_dev_pro')` in console before switching back to free flow
 
----
+## Audit rule — run after every deploy
+Test BOTH tiers every time:
+1. Free (anonymous) — PRO badges visible, gates fire on Image/Vision/AI
+2. Pro (`?dev_pro=1`) — no PRO badges, AI shows Unlimited, all features unlocked, no ProUpgradeModal
 
-## Folder Structure
-
+## Commit convention
+Always end every task with:
 ```
-src/
-├── App.tsx                          # Root layout, header, harmony nav
-├── components/palette/
-│   ├── ColorSwatch.tsx              # Individual swatch (label, icons, action bar)
-│   ├── CountPicker.tsx              # 3–8 color count selector
-│   ├── ExportPanel.tsx              # CSS/Tailwind/Hex export bottom sheet
-│   ├── HarmonyPicker.tsx            # Harmony mode tabs
-│   ├── PaletteCanvas.tsx            # Swatch grid container
-│   ├── ShadesPanel.tsx              # Shade scale panel
-│   └── ShortcutLegend.tsx           # ? help popup
-├── lib/colorEngine.ts               # Color generation logic
-├── store/paletteStore.ts            # Zustand store
-└── main.tsx
-```
-
----
-
-## Data Model
-
-```ts
-interface Swatch {
-  id: string
-  hex: string
-  locked: boolean
-}
-
-interface PaletteState {
-  swatches: Swatch[]
-  count: number                      // 3–5 free, 6–8 Pro
-  harmonyMode: HarmonyMode           // random|analogous|monochromatic|complementary|triadic
-  seedColor: string | null
-  history: Swatch[][]                // 20-step undo stack
-  historyIndex: number
-  // Actions: generate, setSwatches, setCount, lockSwatch, editSwatch, setHarmonyMode, setSeedColor, undo
-}
+git add -A && git commit -m "feat/fix: [short description]" && git push
 ```
 
----
+## Dev / test account
+- andresmclavijo@gmail.com — main dev account, manually set is_pro=true in Supabase Table Editor
 
-## Design System
+## Pro user types (all set manually in Supabase)
+- `dev` — andresmclavijo@gmail.com, developer access
+- `beta` — friends/feedback users comped Pro manually, no Stripe payment
+- `stripe` — real paying customers via Stripe webhook
+- Note: pro_source column being added in M20 to distinguish these in the DB
 
-**Brand color:** `#1A73E8` (Google blue)
-**Font:** System default (Inter-like)
-**Border radius:** `rounded-full` for pills, `rounded-2xl` for panels
-**Shadow:** `shadow-md` for floating elements, `shadow-xl` for modals
-**Breakpoint:** `< 640px` = mobile layout
-
-### Component patterns (Google Store style)
-- **Active tab/pill:** Blue bg (`#1A73E8`), white text, `rounded-full`
-- **Inactive pill:** `bg-gray-100`, gray text, `rounded-full`
-- **Floating buttons:** White bg, `shadow-md`, `rounded-full`, min 40px
-- **Bottom sheets:** White, `rounded-t-2xl`, `shadow-xl`, drag handle bar
-- **Action bar:** White pill, `shadow-md`, icons 24px, dividers between actions
-- **Touch targets:** Minimum 44×44px everywhere
-
-### Icon conventions
-- Size: 20–24px
-- Stroke-width: 1.5
-- Color: Inherit from context, white with drop-shadow on colored backgrounds
-- Lock icon: Always white fill + `drop-shadow(0 1px 3px rgba(0,0,0,0.5))` — never inherits swatch color
-- Drag handle + labels: Auto light/dark via `chroma.luminance() > 0.4` — light bg → dark icons, dark bg → light icons
-
----
-
-## Layout Architecture (current as of M8)
-
-```
-[Header 56px — Paletta logo ············ Share  Export    ]
-[Harmony tab bar 48px — Random·Analogous·Mono·Comp·Triadic]
-[                  PALETTE CANVAS (flex-1)                ]
-[? floating BL]   [↻ Generate floating BC]  [3·4·5 floating BR]
-```
-
-- No footer
-- Harmony bar is sticky below header, white bg, `border-b border-gray-200`
-- Switching harmony tab calls `generate()` immediately
-- Floating elements sit over the canvas with `position: fixed` or `absolute`
-
-### Mobile (< 640px)
-- Swatches stack vertically as horizontal inline rows (Coolors-style: grip+name | hex | shades/copy/info/lock)
-- Harmony tab bar scrolls horizontally (`overflow-x-auto`, hidden scrollbar)
-- Persistent footer (56px + safe area): ? help, ↺ undo, Generate pill (centered), count picker (3·4·5·6✦ compact)
-- Floating controls hidden on mobile (replaced by footer)
-- Info popover shows color name, hex, RGB, HSL
-
----
-
-## Freemium Model
-
-| Tier | Colors | Status |
-|---|---|---|
-| Free | 3, 4, 5 | Live |
-| Pro | 6, 7, 8 | UI teased (✦ badge), not yet gated with payment |
-
-**Pricing target:** $4/month or $36/year (below Coolors at $3–6/month)
-**Competitor:** Coolors.co — we are positioned as cleaner, more modern alternative
-
----
-
-## Milestone History
-
-### ✅ M1–M3 — Core
-Generate, lock, undo, harmony modes, hex editing, shades panel, color names, URL sharing
-
-### ✅ M4 — Polish + Export
-Toolbar click-through fix, label contrast, font sizes, count selector with Pro teaser, export panel (CSS/Tailwind/Hex)
-
-### ✅ M5 — Visual redesign
-White header, Paletta logo, floating Generate button, harmony labels spelled out, Google Store pill style throughout, spacebar hint tooltip, ? help popup
-
-### ✅ M6 — Mobile layout
-Vertical stacked swatches on mobile, drag handle, floating action bar (Copy/Shades/Edit), touch targets
-
-### ✅ M7 — Mobile interactions
-Action bar centered in swatch, slide-up animation, auto-generate on harmony switch, lock icon contrast fix, stronger lock feedback
-
-### ✅ M8 — Layout overhaul
-Harmony tabs moved to top nav, footer removed, floating controls (?, Generate, count), color picker on hex double-click, bigger labels (12px name, 16px hex bold), mobile scroll harmony bar
-
----
-
-## Roadmap
-
-### ✅ M9 — Interaction polish
-Action bar anchored inside swatch, last swatch label fix, mobile safe area padding, drag handle contrast, harmony tab hover states, lock visual feedback (filled icon + overlay), onboarding "tap to lock" tooltip
-
-### ✅ M10 — Icon contrast & mobile fixes
-- [x] Remove mystery chevron (fixed double overflow-x-auto on harmony bar)
-- [x] Action bar position (bar above labels with 12px gap, flex-col layout)
-- [x] Lock icon always white with drop-shadow(0 1px 3px rgba(0,0,0,0.5))
-- [x] Auto light/dark icon logic (chroma luminance > 0.4 threshold for drag handle, labels)
-- [x] Mobile safe area (floating-bottom with env(safe-area-inset-bottom))
-- [x] Count picker visibility (32px items, 13px font, clear active state)
-
-### ✅ M11 — Crash fix, mobile layout overhaul, persistent footer
-- [x] Fix ColorPicker crash (mounted ref to skip initial onChange, try/catch guards, error boundary)
-- [x] Fix missing hex codes on mobile (complete layout rewrite — no more overflow clipping)
-- [x] Coolors-style mobile layout (horizontal inline row: grip+name | hex | shades/copy/info/lock)
-- [x] Persistent mobile footer (56px + safe area: ?, undo, Generate, share, count picker)
-- [x] Info button popover (shows color name, hex, RGB, HSL values)
-
-### ✅ M12 — Crash fixes, shades bottom sheet, WCAG badges, Pro modal
-WCAG contrast badges added, Pro upgrade modal added, Coolors-style mobile layout stable, shades bottom sheet working, color picker crash partially fixed
-- [x] ColorPicker hardened (✕ close button, error boundary, try/catch guards, Escape + outside click)
-- [x] Shades panel as mobile bottom sheet (fixed inset-0, white bg, z-50, drag handle, color name title, animate from bottom)
-- [x] Mobile footer fixed to bottom (position: fixed, padding-bottom: max(safe-area, 16px), z-40)
-- [x] WCAG contrast badge on each swatch (contrast ratio + AA/AAA pass/fail badge)
-- [x] Pro upgrade modal (replaces tooltip — feature list, pricing, "Join waitlist" mailto, "Maybe later")
-
-### ✅ M13 — Picker crash fix, footer cleanup, shade scale fix, name truncation
-- [x] ColorPicker complete rewrite — safeHsv/safeHsvToHex helpers, all canvas/ref ops guarded, hex input sanitized, NaN-safe throughout
-- [x] Remove duplicate Share button from mobile footer
-- [x] Simplified mobile footer: ? help, ↺ undo, Generate (blue pill, flex-1 centered), count picker (3·4·5·6✦ compact)
-- [x] Shade scale stops at 900 (was 1000) — matches Tailwind/Material standard
-- [x] Color name truncation fixed — proper min-w-0 + truncate, hex reduced to 14px on mobile for room
-
-### M14 — Growth + conversion
-- [ ] First-visit tagline — "Generate beautiful color palettes instantly" shown once
-- [ ] Palette history — last 10 generated palettes, swipeable
-- [ ] Save palette — requires account (auth needed, big feature, plan carefully)
-
-### M15 — Pro features (paid tier)
-- [ ] 6–8 colors unlocked for Pro users
-- [ ] AI palette from text prompt ("sunset over ocean")
-- [ ] Image → palette extraction (upload photo)
-- [ ] Full shade scales 100–900 (Tailwind-style)
-- [ ] PNG / SVG export
-- [ ] Contrast checker (WCAG AA/AAA) — enhanced version
-- [ ] Color blindness preview (deuteranopia, protanopia, tritanopia)
-- [ ] Team sharing / collections
-
----
-
-## Known Issues (unresolved)
-
-- Drag to reorder not yet implemented
-- Pro features (6–8 colors) not gated with real payment — just Pro modal with waitlist
-- No account/auth system yet
-- Color picker canvas crash on desktop — persistent issue across M11–M13, fully rewritten in M13 with safeHsv helpers and NaN guards. If crash recurs, needs complete rewrite with different canvas approach
-- Shades panel icon (looks like a table) — unintuitive, needs redesign
-
----
-
-## Deploy Commands
-
-```bash
-cd ~/Downloads/palette-gen
-git add .
-git commit -m "Milestone X: description"
-git push origin main
-```
-
-## File Placement Reference
-
-| File | Location |
-|---|---|
-| App.tsx | src/ |
-| paletteStore.ts | src/store/ |
-| colorEngine.ts | src/lib/ |
-| All components | src/components/palette/ |
-
-## Before Every Session
-
-1. Read this file
-2. Read all files in `src/` and `src/components/palette/`
-3. Check current milestone in roadmap above
-4. Run `npm run build` before starting to confirm clean baseline
-5. Run `npm run build` again after changes to confirm zero TypeScript errors
+## Anthropic API
+- Model: claude-haiku (20x cheaper than Sonnet)
+- Spend limit: $10/mo, auto-recharge at $5 → tops up to $15
+- Key stored in Vercel env vars as `ANTHROPIC_API_KEY`
