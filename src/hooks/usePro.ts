@@ -7,26 +7,20 @@ import { useProStore } from '../store/proStore'
 const hadPaymentSuccess = window.location.search.includes('payment=success')
 
 // Developer override — ?dev_pro=1 or localStorage paletta_dev_pro=1
+// Only works when Vite's DEV flag is true (npm run dev). Completely ignored in production builds.
 const devProOverride = (() => {
+  if (!import.meta.env.DEV) return false
   const params = new URLSearchParams(window.location.search)
-  const devOverride =
-    params.get('dev_pro') === '1' ||
+  return params.get('dev_pro') === '1' ||
     localStorage.getItem('paletta_dev_pro') === '1'
-  const isDevEnvironment =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname.includes('vercel.app') ||
-    window.location.hostname.includes('usepaletta.io')
-  return devOverride && isDevEnvironment
 })()
 
-// Set dev override in the Zustand store immediately at module load —
-// this runs once, before any component mounts, so all usePro() consumers
-// read isPro=true from the shared store on their very first render.
+// Set dev override in the Zustand store immediately at module load
 if (devProOverride) {
   useProStore.getState().setIsPro(true)
   useProStore.getState().setLoading(false)
   useProStore.getState().setFetched(true)
-  console.log('[dev] Pro mode enabled via URL param')
+  console.warn('\u26a0\ufe0f Dev Pro mode active \u2014 never works in production.')
 }
 
 export function usePro() {
