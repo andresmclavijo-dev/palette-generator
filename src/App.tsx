@@ -270,7 +270,7 @@ export default function App() {
             Paletta
           </span>
           <div className="hidden md:block mx-2.5" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0', alignSelf: 'center' }} />
-          <span className="hidden md:block text-[12px] whitespace-nowrap" style={{ color: '#999', lineHeight: 1 }}>
+          <span className="hidden md:block text-[14px] whitespace-nowrap" style={{ color: '#666666', lineHeight: 1 }}>
             Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
           </span>
         </div>
@@ -291,7 +291,8 @@ export default function App() {
           <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
             <button
               onClick={handleShare}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              style={{ color: '#444444' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -306,7 +307,8 @@ export default function App() {
           <Tooltip text="Save palette">
             <button
               onClick={handleSave}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              style={{ color: '#444444' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -380,7 +382,8 @@ export default function App() {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
+              style={{ color: '#444444' }}
             >
               Sign In
             </button>
@@ -406,7 +409,7 @@ export default function App() {
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[12px] font-medium text-gray-400 mr-1 sm:mr-1.5 shrink-0">Style:</span>
+        <span className="text-[11px] sm:text-[12px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
@@ -415,7 +418,8 @@ export default function App() {
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
+              style={{ color: '#555555' }}
             >
               ✨ AI
               {!isPro && (
@@ -423,7 +427,7 @@ export default function App() {
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
-                  <span className="text-[10px] text-gray-400 ml-0.5">free/day</span>
+                  <span className="text-[10px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
                 </>
               )}
             </button>
@@ -432,7 +436,7 @@ export default function App() {
       </div>
 
       {/* -- Subheader: rotating hints before first generate, then palette name -- */}
-      <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] text-gray-400 font-medium tracking-wide">
+      <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] font-medium tracking-wide" style={{ color: '#666666' }}>
         {hasGenerated ? (
           (() => {
             const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)

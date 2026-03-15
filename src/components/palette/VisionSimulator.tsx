@@ -69,7 +69,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all ${
             mode !== 'normal'
               ? 'bg-blue-50 text-blue-600'
-              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+              : 'hover:bg-gray-100 hover:text-gray-700 text-[#555555]'
           }`}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

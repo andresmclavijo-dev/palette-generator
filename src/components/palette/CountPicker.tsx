@@ -21,7 +21,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
       className="flex items-center gap-1"
       onClick={e => e.stopPropagation()}
     >
-      {!compact && <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>}
+      {!compact && <span className="text-[11px] text-[#555555] mr-0.5 select-none hidden sm:block">Colors</span>}
 
       {counts.map(n => {
         const isProCount = n > FREE_MAX
