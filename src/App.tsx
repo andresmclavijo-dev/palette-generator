@@ -22,6 +22,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
+import LandingHero from './components/LandingHero'
 import { BRAND_BLUE as BRAND, BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 const HINTS = [
@@ -247,6 +248,9 @@ export default function App() {
 
       {/* Visually hidden h1 for screen readers */}
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
+
+      {/* Landing hero — first-time visitors only */}
+      <LandingHero onGenerate={triggerGenerate} onProGate={openProModal} />
 
       {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
