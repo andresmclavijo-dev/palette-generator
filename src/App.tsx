@@ -337,7 +337,7 @@ export default function App() {
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-white text-[16px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 min-h-[42px] rounded-full text-white text-[16px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
               style={{ backgroundColor: BRAND }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -394,7 +394,7 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
               <button
                 onClick={openProModal}
-                className="px-3 h-8 rounded-full border text-[16px] font-medium transition-all hover:bg-purple-50"
+                className="px-3 h-8 min-h-[42px] rounded-full border text-[16px] font-medium transition-all hover:bg-purple-50"
                 style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
               >
                 Go Pro →
