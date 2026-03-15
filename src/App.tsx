@@ -407,7 +407,7 @@ export default function App() {
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
         className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
-        style={{ minHeight: '60px' }}
+        style={{ minHeight: '40px' }}
         onClick={e => e.stopPropagation()}
       >
         <span className="text-[11px] sm:text-[14px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
@@ -419,7 +419,7 @@ export default function App() {
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-1 h-8 px-3 rounded-full text-[14px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center gap-1 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
               style={{ color: '#555555' }}
             >
               ✨ AI
