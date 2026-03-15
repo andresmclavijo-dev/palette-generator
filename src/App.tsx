@@ -455,7 +455,7 @@ export default function App() {
 
         {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
-          className="w-full h-full sm:[all:unset] sm:contents"
+          className="w-full h-full sm:pb-0"
           style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', filter: visionFilter }}
         >
           <PaletteCanvas
