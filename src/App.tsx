@@ -17,6 +17,7 @@ import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
+import AppFooter from './components/AppFooter'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
@@ -581,6 +582,9 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* App footer — legal links + attribution */}
+      <AppFooter />
 
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
