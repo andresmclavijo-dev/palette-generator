@@ -516,6 +516,7 @@ export default function App() {
                 onClick={undo}
                 disabled={historyIndex <= 0}
                 className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
+                aria-label="Undo"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -528,6 +529,7 @@ export default function App() {
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
                 className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
+                aria-label="Redo"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
