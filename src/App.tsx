@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PaletteCanvas from './components/palette/PaletteCanvas'
 import type { ActivePanel } from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
@@ -22,6 +22,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
+import chroma from 'chroma-js'
 import { BRAND_BLUE as BRAND, BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 const HINTS = [
@@ -242,6 +243,17 @@ export default function App() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
+  const headerBg = useMemo(() => {
+    const hex = swatches[0]?.hex
+    if (!hex) return BRAND_WARM
+    try {
+      const [r, g, b] = chroma(hex).rgb()
+      return `linear-gradient(rgba(${r},${g},${b},0.07), rgba(${r},${g},${b},0.07)), rgb(250,250,248)`
+    } catch {
+      return BRAND_WARM
+    }
+  }, [swatches])
+
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: BRAND_WARM }}>
 
@@ -249,12 +261,16 @@ export default function App() {
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
 
       {/* -- Header Row 1: Navbar -- */}
-      <header className="flex-none h-16 sm:h-[70px] bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <div className="flex flex-col justify-center">
+      <header
+        className="flex-none h-16 sm:h-14 border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0"
+        style={{ background: headerBg, transition: 'background 600ms ease' }}
+      >
+        <div className="flex items-baseline">
           <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
             Paletta
           </span>
-          <span className="hidden md:block text-[11px] leading-[1.3]" style={{ color: '#999' }}>
+          <div className="hidden md:block mx-2.5" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0', alignSelf: 'center' }} />
+          <span className="hidden md:block text-[12px] whitespace-nowrap" style={{ color: '#999', lineHeight: 1 }}>
             Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
           </span>
         </div>
