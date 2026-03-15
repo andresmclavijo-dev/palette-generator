@@ -164,7 +164,7 @@ export default function ColorSwatch({
       <PickerErrorBoundary fallback={
         <div className="w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center text-sm text-gray-500">
           Color picker unavailable
-          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-brand-blue text-xs font-medium">Close</button>
         </div>
       }>
         <ColorPicker
@@ -182,7 +182,7 @@ export default function ColorSwatch({
       <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => onPanelChange(null)}>
         <div className="w-full bg-white rounded-t-2xl p-6 text-center text-sm text-gray-500" onClick={e => e.stopPropagation()}>
           Color picker unavailable
-          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-[#1A73E8] text-xs font-medium">Close</button>
+          <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-brand-blue text-xs font-medium">Close</button>
         </div>
       </div>
     }>

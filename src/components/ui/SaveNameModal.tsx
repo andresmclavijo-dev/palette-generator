@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND } from '../../lib/tokens'
 
 interface SaveNameModalProps {
   open: boolean

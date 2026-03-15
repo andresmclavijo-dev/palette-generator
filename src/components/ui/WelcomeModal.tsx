@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { BRAND_VIOLET as ACCENT } from '../../lib/tokens'
+
 const LS_KEY = 'paletta_welcomed'
-const ACCENT = '#6C47FF'
 
 export default function WelcomeModal() {
   const [open, setOpen] = useState(false)

@@ -22,8 +22,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
-
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND, BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 const HINTS = [
   'Press Space to generate a new palette',
@@ -244,14 +243,14 @@ export default function App() {
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: '#FAFAF8' }}>
+    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: BRAND_WARM }}>
 
       {/* Visually hidden h1 for screen readers */}
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
 
       {/* -- Header Row 1: Navbar -- */}
       <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: '#1a1a2e' }}>
+        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
           Paletta
         </span>
 
@@ -372,7 +371,7 @@ export default function App() {
               <button
                 onClick={openProModal}
                 className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-purple-50"
-                style={{ borderColor: '#6C47FF', color: '#6C47FF' }}
+                style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
               >
                 Go Pro →
               </button>
@@ -400,7 +399,7 @@ export default function App() {
               ✨ AI
               {!isPro && (
                 <>
-                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#6C47FF' }}>
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
                   <span className="text-[10px] text-gray-400 ml-0.5">free/day</span>
@@ -626,7 +625,7 @@ export default function App() {
           <button
             onClick={openProModal}
             className="h-8 px-2.5 rounded-full text-white text-[11px] font-bold tracking-wide active:scale-95 transition-all shrink-0 flex items-center gap-1"
-            style={{ backgroundColor: '#6C47FF' }}
+            style={{ backgroundColor: BRAND_VIOLET }}
           >
             <span className="text-[12px] leading-none">✦</span>
             Pro

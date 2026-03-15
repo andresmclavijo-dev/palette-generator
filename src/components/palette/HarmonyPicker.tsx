@@ -49,7 +49,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
               px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap
               transition-all duration-150 cursor-pointer select-none shrink-0 snap-start
               ${mode === m.value
-                ? 'bg-[#1A73E8] text-white'
+                ? 'bg-brand-blue text-white'
                 : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124]'
               }
             `}

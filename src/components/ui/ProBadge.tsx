@@ -1,4 +1,4 @@
-const ACCENT = '#6C47FF'
+import { BRAND_VIOLET as ACCENT } from '../../lib/tokens'
 
 export default function ProBadge() {
   return (

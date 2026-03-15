@@ -3,7 +3,7 @@ import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS }
 import { usePro } from '../../hooks/usePro'
 
 type Tab = 'css' | 'tailwind' | 'hex'
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND } from '../../lib/tokens'
 
 interface ExportPanelProps {
   hexes: string[]

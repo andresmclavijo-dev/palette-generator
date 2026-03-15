@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import ProBadge from './ProBadge'
 import { getAiRemaining, AI_MAX_FREE } from '../../components/palette/AiPrompt'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
-
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND } from '../../lib/tokens'
 
 const VISION_MODES: { value: VisionMode; label: string }[] = [
   { value: 'normal',       label: 'Normal' },
@@ -255,7 +254,7 @@ export default function MobileDrawer({
                 <span className="text-[10px] text-gray-400">Unlimited</span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
-                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: '#1A73E8' }}>
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND }}>
                     {getAiRemaining()}
                   </span>
                   /{AI_MAX_FREE} free/day

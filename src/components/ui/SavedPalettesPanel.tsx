@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND } from '../../lib/tokens'
 const FREE_SAVE_LIMIT = 3
 
 interface SavedPalette {

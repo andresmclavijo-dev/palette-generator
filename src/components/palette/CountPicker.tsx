@@ -40,7 +40,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
               transition-all duration-150 select-none
               flex items-center justify-center
               ${active
-                ? 'bg-[#1A73E8] text-white shadow-sm'
+                ? 'bg-brand-blue text-white shadow-sm'
                 : locked
                   ? 'text-[#BDBDBD] cursor-default'
                   : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124] cursor-pointer'

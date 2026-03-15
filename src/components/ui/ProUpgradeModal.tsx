@@ -3,8 +3,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { getCheckoutUrl } from '../../lib/stripe'
 import { usePaletteStore } from '../../store/paletteStore'
-
-const ACCENT = '#6C47FF'
+import { BRAND_VIOLET as ACCENT } from '../../lib/tokens'
 
 const PRO_FEATURES: { Icon: LucideIcon; bg: string; color: string; text: string }[] = [
   { Icon: Sparkles,   bg: 'bg-purple-50',  color: 'text-purple-500', text: 'AI palette from text prompt' },

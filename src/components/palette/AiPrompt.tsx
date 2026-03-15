@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
-
-const BRAND = '#1A73E8'
+import { BRAND_BLUE as BRAND, BRAND_VIOLET } from '../../lib/tokens'
 export const AI_MAX_FREE = 3
 
 function todayKey() {
@@ -246,7 +245,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
           {/* Usage label */}
           {isPro ? (
-            <p className="text-center text-[12px] font-medium mt-2.5" style={{ color: '#6C47FF' }}>
+            <p className="text-center text-[12px] font-medium mt-2.5" style={{ color: BRAND_VIOLET }}>
               ✦ Unlimited prompts
             </p>
           ) : !exhausted ? (
