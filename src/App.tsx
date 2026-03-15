@@ -22,7 +22,6 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
-import LandingHero from './components/LandingHero'
 import { BRAND_BLUE as BRAND, BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 const HINTS = [
@@ -249,14 +248,16 @@ export default function App() {
       {/* Visually hidden h1 for screen readers */}
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
 
-      {/* Landing hero — first-time visitors only */}
-      <LandingHero onGenerate={triggerGenerate} onProGate={openProModal} />
-
       {/* -- Header Row 1: Navbar -- */}
-      <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
-          Paletta
-        </span>
+      <header className="flex-none h-16 sm:h-[70px] bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
+        <div className="flex flex-col justify-center">
+          <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
+            Paletta
+          </span>
+          <span className="hidden md:block text-[11px] leading-[1.3]" style={{ color: '#999' }}>
+            Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
+          </span>
+        </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Mobile: Hamburger */}
@@ -549,6 +550,8 @@ export default function App() {
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
               Generate
+              <kbd aria-hidden="true" className="hidden md:inline ml-1 px-[5px] py-[1px] rounded-[3px] font-mono text-[10px]" style={{ background: 'rgba(255,255,255,0.2)' }}>space</kbd>
+              <span className="sr-only">press space to generate</span>
             </button>
           </div>
         </div>
