@@ -337,8 +337,8 @@ export default function App() {
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full text-[14px] font-medium transition-all duration-150 hover:opacity-80 active:scale-95"
-              style={{ border: '1.5px solid rgba(108,71,255,0.27)', color: BRAND_VIOLET }}
+              className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
+              style={{ color: '#444444' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -348,9 +348,6 @@ export default function App() {
               Export
             </button>
           </Tooltip>
-
-          {/* Desktop: Divider before auth */}
-          <div className="hidden sm:block w-px h-5 bg-gray-200" />
 
           {/* Desktop: Auth — email dropdown or Sign In */}
           {isSignedIn ? (
@@ -391,7 +388,7 @@ export default function App() {
 
           {/* Desktop: Go Pro CTA — hidden for Pro users */}
           {!isPro && (
-            <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
+            <div className="hidden sm:flex items-center gap-2 ml-1">
               <button
                 onClick={openProModal}
                 className="px-4 h-10 rounded-full text-[14px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
@@ -407,7 +404,7 @@ export default function App() {
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
         className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
-        style={{ minHeight: '40px' }}
+        style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
         <span className="text-[11px] sm:text-[14px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
