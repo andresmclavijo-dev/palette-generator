@@ -66,7 +66,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
         <button
           ref={btnRef}
           onClick={handleClick}
-          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[16px] font-medium transition-all ${
+          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[14px] font-medium transition-all ${
             mode !== 'normal'
               ? 'bg-blue-50 text-blue-600'
               : 'hover:bg-gray-100 hover:text-gray-700 text-[#555555]'

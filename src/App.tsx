@@ -243,12 +243,12 @@ export default function App() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
-  const headerBg = useMemo(() => {
+  const summaryBg = useMemo(() => {
     const hex = swatches[0]?.hex
     if (!hex) return BRAND_WARM
     try {
       const [r, g, b] = chroma(hex).rgb()
-      return `linear-gradient(rgba(${r},${g},${b},0.07), rgba(${r},${g},${b},0.07)), rgb(250,250,248)`
+      return `linear-gradient(rgba(${r},${g},${b},0.10), rgba(${r},${g},${b},0.10)), rgb(250,250,248)`
     } catch {
       return BRAND_WARM
     }
@@ -262,8 +262,8 @@ export default function App() {
 
       {/* -- Header Row 1: Navbar -- */}
       <header
-        className="flex-none h-16 sm:h-14 border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0"
-        style={{ background: headerBg, transition: 'background 600ms ease', minHeight: '42px' }}
+        className="flex-none border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0"
+        style={{ backgroundColor: BRAND_WARM, minHeight: '60px' }}
       >
         <div className="flex items-baseline">
           <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
@@ -291,7 +291,7 @@ export default function App() {
           <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
             <button
               onClick={handleShare}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -307,7 +307,7 @@ export default function App() {
           <Tooltip text="Save palette">
             <button
               onClick={handleSave}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -322,7 +322,7 @@ export default function App() {
             <Tooltip text="View saved palettes">
               <button
                 onClick={() => setSavedOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
+                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -337,7 +337,7 @@ export default function App() {
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 min-h-[42px] rounded-full text-white text-[16px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-10 rounded-full text-white text-[15px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
               style={{ backgroundColor: BRAND }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -382,7 +382,7 @@ export default function App() {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[16px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[14px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
               style={{ color: '#444444' }}
             >
               Sign In
@@ -394,7 +394,7 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
               <button
                 onClick={openProModal}
-                className="px-3 h-8 min-h-[42px] rounded-full border text-[16px] font-medium transition-all hover:bg-purple-50"
+                className="px-3 h-10 rounded-full border text-[15px] font-medium transition-all hover:bg-purple-50"
                 style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
               >
                 Go Pro →
@@ -406,10 +406,11 @@ export default function App() {
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
-        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[16px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
+        <span className="text-[11px] sm:text-[14px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
@@ -418,7 +419,7 @@ export default function App() {
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-1 h-8 px-3 rounded-full text-[16px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center gap-1 h-8 px-3 rounded-full text-[14px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
               style={{ color: '#555555' }}
             >
               ✨ AI
@@ -436,7 +437,7 @@ export default function App() {
       </div>
 
       {/* -- Subheader: rotating hints before first generate, then palette name -- */}
-      <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] font-medium tracking-wide" style={{ color: '#666666' }}>
+      <div className="flex-none hidden sm:flex items-center justify-center h-7 text-[11px] font-medium tracking-wide" style={{ color: '#666666', background: summaryBg, transition: 'background 600ms ease' }}>
         {hasGenerated ? (
           (() => {
             const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
@@ -587,7 +588,7 @@ export default function App() {
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
         className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
-        style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        style={{ minHeight: '60px', height: `calc(60px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button

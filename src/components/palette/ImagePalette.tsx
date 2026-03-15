@@ -56,7 +56,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
         <button
           onClick={handleClick}
           disabled={loading}
-          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[16px] font-medium hover:bg-gray-100 hover:text-gray-700 transition-all disabled:opacity-50"
+          className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[14px] font-medium hover:bg-gray-100 hover:text-gray-700 transition-all disabled:opacity-50"
           style={{ color: '#555555' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
