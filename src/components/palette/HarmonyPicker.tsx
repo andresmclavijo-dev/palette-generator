@@ -46,7 +46,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
             key={m.value}
             onClick={() => onChange(m.value)}
             className={`
-              px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap
+              px-3 py-1.5 rounded-full text-[16px] font-medium whitespace-nowrap
               transition-all duration-150 cursor-pointer select-none shrink-0 snap-start
               ${mode === m.value
                 ? 'bg-brand-blue text-white'

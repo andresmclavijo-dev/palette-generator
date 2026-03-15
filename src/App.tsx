@@ -263,7 +263,7 @@ export default function App() {
       {/* -- Header Row 1: Navbar -- */}
       <header
         className="flex-none h-16 sm:h-14 border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0"
-        style={{ background: headerBg, transition: 'background 600ms ease' }}
+        style={{ background: headerBg, transition: 'background 600ms ease', minHeight: '42px' }}
       >
         <div className="flex items-baseline">
           <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
@@ -291,10 +291,10 @@ export default function App() {
           <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
             <button
               onClick={handleShare}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
@@ -307,10 +307,10 @@ export default function App() {
           <Tooltip text="Save palette">
             <button
               onClick={handleSave}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
               <span>Save</span>
@@ -322,9 +322,9 @@ export default function App() {
             <Tooltip text="View saved palettes">
               <button
                 onClick={() => setSavedOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
+                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[16px] font-medium transition-all duration-150"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
@@ -337,10 +337,10 @@ export default function App() {
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-white text-[16px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
               style={{ backgroundColor: BRAND }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
@@ -382,7 +382,7 @@ export default function App() {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[16px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
               style={{ color: '#444444' }}
             >
               Sign In
@@ -394,7 +394,7 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
               <button
                 onClick={openProModal}
-                className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-purple-50"
+                className="px-3 h-8 rounded-full border text-[16px] font-medium transition-all hover:bg-purple-50"
                 style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
               >
                 Go Pro →
@@ -409,7 +409,7 @@ export default function App() {
         className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[12px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
+        <span className="text-[11px] sm:text-[16px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
@@ -418,7 +418,7 @@ export default function App() {
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center gap-1 h-8 px-3 rounded-full text-[16px] font-medium transition-all hover:bg-gray-100 hover:text-gray-700"
               style={{ color: '#555555' }}
             >
               ✨ AI
@@ -427,7 +427,7 @@ export default function App() {
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
-                  <span className="text-[10px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
+                  <span className="text-[14px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
                 </>
               )}
             </button>
