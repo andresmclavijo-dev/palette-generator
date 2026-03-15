@@ -291,7 +291,7 @@ export default function App() {
           <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
             <button
               onClick={handleShare}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -307,7 +307,7 @@ export default function App() {
           <Tooltip text="Save palette">
             <button
               onClick={handleSave}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               style={{ color: '#444444' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -322,7 +322,7 @@ export default function App() {
             <Tooltip text="View saved palettes">
               <button
                 onClick={() => setSavedOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
+                className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[14px] font-medium transition-all duration-150"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -337,8 +337,8 @@ export default function App() {
           <Tooltip text="Export palette">
             <button
               onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-10 rounded-full text-white text-[15px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: BRAND }}
+              className="hidden sm:flex items-center gap-2 px-4 h-10 rounded-full text-[14px] font-medium transition-all duration-150 hover:opacity-80 active:scale-95"
+              style={{ border: '1.5px solid rgba(108,71,255,0.27)', color: BRAND_VIOLET }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -357,7 +357,7 @@ export default function App() {
             <div ref={avatarRef} className="relative hidden sm:block">
               <button
                 onClick={() => setAvatarOpen(o => !o)}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+                className="flex items-center gap-2 h-10 px-4 rounded-full text-[14px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
               >
                 {user?.email?.split('@')[0] ?? 'Account'}
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -382,7 +382,7 @@ export default function App() {
           ) : (
             <button
               onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[14px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
+              className="hidden sm:flex items-center gap-2 h-10 px-4 rounded-full text-[14px] font-medium hover:text-gray-900 hover:bg-gray-100 transition-all"
               style={{ color: '#444444' }}
             >
               Sign In
@@ -394,8 +394,8 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
               <button
                 onClick={openProModal}
-                className="px-3 h-10 rounded-full border text-[15px] font-medium transition-all hover:bg-purple-50"
-                style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
+                className="px-4 h-10 rounded-full text-[14px] font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                style={{ backgroundColor: BRAND_VIOLET }}
               >
                 Go Pro →
               </button>
@@ -564,7 +564,7 @@ export default function App() {
             {/* Generate */}
             <button
               onClick={triggerGenerate}
-              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
+              className="flex items-center gap-2 px-4 h-10 rounded-full text-white text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
               style={{ backgroundColor: BRAND }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -595,6 +595,7 @@ export default function App() {
           onClick={undo}
           disabled={historyIndex <= 0}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Undo"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -607,6 +608,7 @@ export default function App() {
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Redo"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -617,7 +619,7 @@ export default function App() {
         {/* Generate — pill, centered */}
         <button
           onClick={triggerGenerate}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
+          className="flex items-center gap-2 px-4 h-10 rounded-full text-white text-[14px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
           style={{ backgroundColor: BRAND }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -629,7 +631,7 @@ export default function App() {
         {/* Colors — cycle pill */}
         <button
           onClick={handleMobileCountCycle}
-          className="h-9 px-3 rounded-full bg-gray-100 text-[13px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
+          className="h-10 px-4 rounded-full bg-gray-100 text-[14px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
           aria-label={`${count} colors, tap to change`}
         >
           {count}
@@ -639,6 +641,7 @@ export default function App() {
         <button
           onClick={() => setExportOpen(o => !o)}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Export"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -652,7 +655,7 @@ export default function App() {
         {!isPro && (
           <button
             onClick={openProModal}
-            className="h-8 px-2.5 rounded-full text-white text-[11px] font-bold tracking-wide active:scale-95 transition-all shrink-0 flex items-center gap-1"
+            className="h-10 px-4 rounded-full text-white text-[14px] font-bold tracking-wide active:scale-95 transition-all shrink-0 flex items-center gap-1"
             style={{ backgroundColor: BRAND_VIOLET }}
           >
             <span className="text-[12px] leading-none">✦</span>
