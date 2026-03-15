@@ -37,7 +37,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
     <div className="relative flex-1 min-w-0">
       <div
         ref={scrollRef}
-        className="flex items-center gap-0.5 overflow-x-auto scrollbar-none snap-x snap-mandatory"
+        className="flex items-center gap-1 overflow-x-auto scrollbar-none snap-x snap-mandatory"
         style={{ WebkitOverflowScrolling: 'touch' }}
         onClick={e => e.stopPropagation()}
       >
