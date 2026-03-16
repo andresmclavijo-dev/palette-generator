@@ -66,18 +66,18 @@ export default function AppHeader({
       style={{ height: 60, background: '#FFFFFF', borderBottom: '0.5px solid #efefef' }}
     >
       {/* Left: Logo + tagline */}
-      <div className="flex items-baseline">
+      <div className="flex items-center shrink-0">
         <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
           Paletta
         </span>
-        <div className="hidden md:block mx-2" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0', alignSelf: 'center' }} />
-        <span className="hidden md:block text-[14px] whitespace-nowrap" style={{ color: '#666666', lineHeight: 1 }}>
+        <div className="hidden md:flex items-center mx-2" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0' }} />
+        <span className="hidden md:inline text-[14px] whitespace-nowrap" style={{ color: '#666666' }}>
           Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
         </span>
       </div>
 
       {/* Right: Nav actions */}
-      <nav className="flex items-center gap-4" aria-label="Main">
+      <nav className="flex items-center gap-4 shrink-0" aria-label="Main">
         {/* Mobile: Hamburger */}
         <button
           onClick={onDrawerOpen}
@@ -94,7 +94,7 @@ export default function AppHeader({
         <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
           <button
             onClick={onShare}
-            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
+            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
             style={{ color: '#1a1a2e' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -110,7 +110,7 @@ export default function AppHeader({
         <Tooltip text="Save palette">
           <button
             onClick={onSave}
-            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
+            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
             style={{ color: '#1a1a2e' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -125,7 +125,7 @@ export default function AppHeader({
           <Tooltip text="View saved palettes">
             <button
               onClick={onSavedPalettes}
-              className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
+              className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
               style={{ color: '#1a1a2e' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -141,7 +141,7 @@ export default function AppHeader({
         <Tooltip text="Export palette">
           <button
             onClick={onExport}
-            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
+            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
             style={{ color: '#1a1a2e' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -158,7 +158,7 @@ export default function AppHeader({
           <div ref={avatarRef} className="relative hidden sm:block">
             <button
               onClick={() => setAvatarOpen(o => !o)}
-              className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all"
+              className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0"
               style={{ color: '#1a1a2e' }}
             >
               {userEmail?.split('@')[0] ?? 'Account'}
@@ -184,7 +184,7 @@ export default function AppHeader({
         ) : (
           <button
             onClick={onSignIn}
-            className="hidden sm:flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all"
+            className="hidden sm:flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0"
             style={{ color: '#1a1a2e' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -198,7 +198,7 @@ export default function AppHeader({
         {!isPro && (
           <button
             onClick={onProGate}
-            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full text-[14px] font-medium text-white transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
+            className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full text-[14px] font-medium text-white transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 shrink-0"
           >
             Go Pro
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
