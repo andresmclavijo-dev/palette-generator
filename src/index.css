@@ -6,7 +6,14 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /* Root font-size stays at 16px so Tailwind rem units resolve correctly */
+}
+
+body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
