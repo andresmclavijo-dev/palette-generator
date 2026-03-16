@@ -17,6 +17,7 @@ import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
+import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
@@ -24,7 +25,7 @@ import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
 import chroma from 'chroma-js'
-import { BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
+import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 const HINTS = [
   'Press Space to generate a new palette',
@@ -58,13 +59,11 @@ export default function App() {
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
-  const [avatarOpen,   setAvatarOpen]   = useState(false)
   const [savedOpen,    setSavedOpen]    = useState(false)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const avatarRef = useRef<HTMLDivElement>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
@@ -83,22 +82,6 @@ export default function App() {
     setActivePanel(panel)
     if (panel) setHelpOpen(false)
   }, [])
-
-  // Close avatar dropdown on outside click
-  useEffect(() => {
-    if (!avatarOpen) return
-    const handler = (e: MouseEvent) => {
-      if (avatarRef.current?.contains(e.target as Node)) return
-      setAvatarOpen(false)
-    }
-    const raf = requestAnimationFrame(() => {
-      document.addEventListener('mousedown', handler)
-    })
-    return () => {
-      cancelAnimationFrame(raf)
-      document.removeEventListener('mousedown', handler)
-    }
-  }, [avatarOpen])
 
   useEffect(() => {
     const isMobile = window.innerWidth < 640
@@ -160,7 +143,7 @@ export default function App() {
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -262,146 +245,20 @@ export default function App() {
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
 
       {/* -- Header Row 1: Navbar -- */}
-      <header
-        className="flex-none border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0"
-        style={{ backgroundColor: BRAND_WARM, minHeight: '60px' }}
-      >
-        <div className="flex items-baseline">
-          <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
-            Paletta
-          </span>
-          <div className="hidden md:block mx-2.5" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0', alignSelf: 'center' }} />
-          <span className="hidden md:block text-[14px] whitespace-nowrap" style={{ color: '#666666', lineHeight: 1 }}>
-            Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Mobile: Hamburger */}
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="sm:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-all"
-            aria-label="Menu"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-
-          {/* Desktop: Share */}
-          <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
-            <button
-              onClick={handleShare}
-              className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
-              style={{ color: '#444444' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              <span>{shareCopied ? 'Copied!' : 'Share'}</span>
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Save */}
-          <Tooltip text="Save palette">
-            <button
-              onClick={handleSave}
-              className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
-              style={{ color: '#444444' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              <span>Save</span>
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Saved palettes — visible when signed in */}
-          {isSignedIn && (
-            <Tooltip text="View saved palettes">
-              <button
-                onClick={() => setSavedOpen(true)}
-                className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
-                style={{ color: '#444444' }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                  <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-                </svg>
-                <span>My Palettes</span>
-              </button>
-            </Tooltip>
-          )}
-
-          {/* Desktop: Export */}
-          <Tooltip text="Export palette">
-            <button
-              onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full hover:text-gray-900 hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150"
-              style={{ color: '#444444' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Export
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Auth — email dropdown or Sign In */}
-          {isSignedIn ? (
-            <div ref={avatarRef} className="relative hidden sm:block">
-              <button
-                onClick={() => setAvatarOpen(o => !o)}
-                className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium hover:text-gray-900 hover:bg-surface-secondary transition-all"
-                style={{ color: '#444444' }}
-              >
-                {user?.email?.split('@')[0] ?? 'Account'}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-              {avatarOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                  <div className="px-4 py-1.5">
-                    <span className="text-[11px] text-gray-400 break-all">{user?.email}</span>
-                  </div>
-                  <div className="mx-2 my-1 h-px bg-gray-100" />
-                  <button
-                    onClick={() => { setAvatarOpen(false); signOut() }}
-                    className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium hover:text-gray-900 hover:bg-surface-secondary transition-all"
-              style={{ color: '#444444' }}
-            >
-              Sign In
-            </button>
-          )}
-
-          {/* Desktop: Go Pro CTA — hidden for Pro users */}
-          {!isPro && (
-            <div className="hidden sm:flex items-center gap-2 ml-1">
-              <button
-                onClick={openProModal}
-                className="px-4 h-10 rounded-full text-[14px] font-medium text-white transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
-              >
-                Go Pro →
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
+      <AppHeader
+        isPro={isPro}
+        isSignedIn={isSignedIn}
+        userEmail={user?.email ?? undefined}
+        shareCopied={shareCopied}
+        onShare={handleShare}
+        onSave={handleSave}
+        onSavedPalettes={() => setSavedOpen(true)}
+        onExport={() => setExportOpen(o => !o)}
+        onSignIn={() => setSignInOpen(true)}
+        onSignOut={signOut}
+        onProGate={openProModal}
+        onDrawerOpen={() => setDrawerOpen(true)}
+      />
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
