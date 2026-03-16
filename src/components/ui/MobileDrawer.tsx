@@ -271,8 +271,7 @@ export default function MobileDrawer({
             <div className="px-5 py-4">
               <button
                 onClick={() => handleRow(onProGate)}
-                className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-                style={{ backgroundColor: BRAND }}
+                className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
               >
                 Go Pro →
               </button>

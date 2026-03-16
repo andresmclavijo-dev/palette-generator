@@ -66,13 +66,13 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
         <button
           ref={btnRef}
           onClick={handleClick}
-          className={`flex items-center gap-1.5 h-10 px-4 rounded-full text-[14px] font-medium transition-all ${
+          className={`flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all ${
             mode !== 'normal'
               ? 'bg-blue-50 text-blue-600'
-              : 'hover:bg-gray-100 hover:text-gray-700 text-[#555555]'
+              : 'hover:bg-surface-secondary hover:text-gray-700 text-[#444444]'
           }`}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
           </svg>
