@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Sparkles, Image, Eye, Heart, Layers, Download, LayoutGrid } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
@@ -22,32 +22,13 @@ const PRO_FEATURES: { Icon: LucideIcon; bg: string; color: string; text: string 
 interface ProUpgradeModalProps {
   open: boolean
   onClose: () => void
-  onSignIn?: () => void
 }
 
-export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeModalProps) {
-  const { user } = useAuth()
+export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps) {
+  const { user, signInWithGoogle } = useAuth()
   const swatches = usePaletteStore(s => s.swatches)
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
-  const pendingRedirect = useRef(false)
-
-  // After OAuth redirect: if user just signed in and there's a pending plan, auto-checkout
-  useEffect(() => {
-    if (!user || pendingRedirect.current) return
-    const pending = localStorage.getItem(PENDING_PLAN_KEY) as 'monthly' | 'yearly' | null
-    if (!pending) return
-    pendingRedirect.current = true
-    localStorage.removeItem(PENDING_PLAN_KEY)
-    setLoading(true)
-    createCheckoutSession(pending, user.id, user.email ?? undefined)
-      .then(url => { window.location.href = url })
-      .catch(err => {
-        const msg = err instanceof Error ? err.message : 'Checkout failed'
-        showToast(msg)
-        setLoading(false)
-      })
-  }, [user])
 
   if (!open) return null
 
@@ -57,9 +38,10 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
 
   const handleSubscribe = async () => {
     if (!user) {
-      // Save selected plan, then trigger Google sign-in (OAuth redirect)
+      // Save selected plan, close modal, trigger Google OAuth redirect
       localStorage.setItem(PENDING_PLAN_KEY, plan)
-      onSignIn?.()
+      onClose()
+      signInWithGoogle()
       return
     }
 

@@ -28,7 +28,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
-import { createPortalSession } from './lib/stripe'
+import { createCheckoutSession, createPortalSession } from './lib/stripe'
 import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 
@@ -64,6 +64,23 @@ export default function App() {
   useEffect(() => {
     if (isPro) setProModalOpen(false)
   }, [isPro])
+
+  // After OAuth redirect: if there's a pending checkout plan, auto-redirect to Stripe
+  const pendingCheckoutHandled = useRef(false)
+  useEffect(() => {
+    if (!user || pendingCheckoutHandled.current) return
+    const pending = localStorage.getItem('paletta_pending_checkout_plan') as 'monthly' | 'yearly' | null
+    if (!pending) return
+    pendingCheckoutHandled.current = true
+    localStorage.removeItem('paletta_pending_checkout_plan')
+    showToast('Redirecting to checkout…')
+    createCheckoutSession(pending, user.id, user.email ?? undefined)
+      .then(url => { window.location.href = url })
+      .catch(err => {
+        const msg = err instanceof Error ? err.message : 'Checkout failed'
+        showToast(msg)
+      })
+  }, [user])
 
   const handlePanelChange = useCallback((panel: ActivePanel) => {
     setActivePanel(panel)
@@ -592,7 +609,7 @@ export default function App() {
       <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
 
       {/* Unified Pro upgrade modal */}
-      <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} onSignIn={() => setSignInOpen(true)} />
+      <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
 
       {/* Payment success modal — shown when returning from Stripe without being signed in */}
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
