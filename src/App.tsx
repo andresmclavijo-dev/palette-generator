@@ -386,12 +386,29 @@ export default function App() {
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Generate
-            <span
-              aria-hidden="true"
-              className="hidden md:inline-flex items-center justify-center shrink-0 text-[10px] font-semibold text-white leading-none"
-              style={{ width: 30, height: 14, padding: '0 8px', background: '#9b82ff', borderRadius: 4 }}
-            >
-              space
+            <span aria-hidden="true" className="hidden md:block">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  width: 30,
+                  height: 14,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  background: '#9b82ff',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#ffffff',
+                  lineHeight: 1,
+                }}
+              >
+                space
+              </span>
             </span>
             <span className="sr-only">press space to generate</span>
           </button>
