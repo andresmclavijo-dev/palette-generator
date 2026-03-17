@@ -127,6 +127,8 @@ export default function AppHeader({
               onClick={onSavedPalettes}
               className="hidden sm:flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
               style={{ color: '#1a1a2e' }}
+              aria-label="My Palettes"
+              aria-haspopup="true"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -160,6 +162,9 @@ export default function AppHeader({
               onClick={() => setAvatarOpen(o => !o)}
               className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0"
               style={{ color: '#1a1a2e' }}
+              aria-label="Account menu"
+              aria-haspopup="true"
+              aria-expanded={avatarOpen}
             >
               {userEmail?.split('@')[0] ?? 'Account'}
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
