@@ -36,7 +36,7 @@ export default function NotFound() {
           Color not found
         </p>
         <p style={{ fontSize: 14, color: '#737373', margin: '0 0 32px' }}>
-          This palette doesn't exist. Let's get you back to creating.
+          This page doesn't exist. Let's get you back to creating.
         </p>
 
         <Link
@@ -54,10 +54,7 @@ export default function NotFound() {
             textDecoration: 'none',
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-          </svg>
-          Back to Paletta
+          Generate a palette &rarr;
         </Link>
       </div>
     </div>

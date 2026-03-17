@@ -400,7 +400,7 @@ export default function ColorSwatch({
             onClick={e => e.stopPropagation()}
           >
             <Tooltip text="Copy hex">
-              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Copy hex code">
+              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Copy hex">
                 {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
               </button>
             </Tooltip>
@@ -436,7 +436,7 @@ export default function ColorSwatch({
               style={{ color: labelColor }}
               onClick={handleCopy}
               onDoubleClick={handleHexDoubleClick}
-              aria-label="Click to copy, double-click to edit"
+              aria-label="Copy · Double-click to edit"
             >
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>

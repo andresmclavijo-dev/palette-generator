@@ -144,7 +144,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
               }`}
             style={!copied ? { backgroundColor: BRAND } : undefined}
           >
-            {copied ? '✓ Copied to clipboard' : 'Copy'}
+            {copied ? 'Copied \u2713' : 'Copy'}
           </button>
         </div>
 

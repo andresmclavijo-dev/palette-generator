@@ -185,7 +185,7 @@ export default function App() {
       console.log('[Save] payload:', JSON.stringify(payload))
       const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
-      setSaveToast('Palette saved!')
+      setSaveToast('Palette saved \u2713')
       setTimeout(() => setSaveToast(''), 2000)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -274,7 +274,7 @@ export default function App() {
         style={{ height: 32, background: '#FAFAF8', borderTop: '1px solid #e8e8e8', borderBottom: '1px solid #e8e8e8' }}
       >
         <span className="text-[11px] font-medium" style={{ color: '#555555' }}>
-          Drag the handle to reorder colors
+          Drag to reorder
         </span>
       </div>
 
@@ -423,7 +423,7 @@ export default function App() {
                 space
               </span>
             </span>
-            <span className="sr-only">press space to generate</span>
+            <span className="sr-only">Press space to generate</span>
           </button>
 
           {/* Redo */}

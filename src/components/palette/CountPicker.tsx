@@ -21,7 +21,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
       style={{ border: '1px solid #e8e8e8' }}
       onClick={e => e.stopPropagation()}
     >
-      {!compact && <span className="text-[12px] font-normal mr-0.5 select-none hidden sm:block" style={{ color: '#1a1a2e' }}>Colors:</span>}
+      {/* Label removed — context is obvious from the number buttons */}
 
       {counts.map(n => {
         const isProCount = n > FREE_MAX

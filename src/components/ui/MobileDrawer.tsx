@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProBadge from './ProBadge'
-import { getAiRemaining, AI_MAX_FREE } from '../../components/palette/AiPrompt'
+import { getAiRemaining } from '../../components/palette/AiPrompt'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
-import { BRAND_BLUE as BRAND } from '../../lib/tokens'
 
 const VISION_MODES: { value: VisionMode; label: string }[] = [
   { value: 'normal',       label: 'Normal' },
@@ -98,7 +97,7 @@ export default function MobileDrawer({
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-gray-800">Save palette</span>
+            <span className="text-[14px] font-medium text-gray-800">Save</span>
           </button>
 
           {/* Saved palettes — only when signed in */}
@@ -128,7 +127,7 @@ export default function MobileDrawer({
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-gray-800">Share palette</span>
+            <span className="text-[14px] font-medium text-gray-800">Share</span>
           </button>
 
           <button
@@ -142,7 +141,7 @@ export default function MobileDrawer({
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-gray-800">Export palette</span>
+            <span className="text-[14px] font-medium text-gray-800">Export</span>
           </button>
 
           {/* Sign In or Sign Out */}
@@ -254,11 +253,8 @@ export default function MobileDrawer({
               {isPro ? (
                 <span className="text-[10px] text-gray-400">Unlimited</span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
-                  <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND }}>
-                    {getAiRemaining()}
-                  </span>
-                  /{AI_MAX_FREE} free/day
+                <span className="text-[10px] text-gray-400">
+                  {getAiRemaining()} left today
                 </span>
               )}
             </div>

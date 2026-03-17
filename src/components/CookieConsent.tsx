@@ -50,7 +50,7 @@ export default function CookieConsent() {
         }}
       >
         <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5, flex: '1 1 400px' }}>
-          We use cookies to improve your experience. Read our{' '}
+          We use cookies for essential features and analytics. Read our{' '}
           <Link
             to="/cookie-policy"
             style={{ color: '#9b82ff', textDecoration: 'underline' }}

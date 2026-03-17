@@ -43,17 +43,18 @@ export default function WelcomeModal() {
           ) : (
             <>
               <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
+                <span>Press</span>
                 <kbd className="px-1.5 py-0.5 rounded bg-gray-200 font-mono text-[10px]">Space</kbd>
                 <span>to generate</span>
               </div>
               <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
-                <span>Click a color to lock it</span>
+                <span>Click a color to lock it in place</span>
               </div>
             </>
           )}
           <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
             <span>✨</span>
-            <span>AI palette included</span>
+            <span>3 free AI palettes/day</span>
           </div>
         </div>
 

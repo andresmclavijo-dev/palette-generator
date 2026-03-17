@@ -72,7 +72,7 @@ export default function AppHeader({
         </span>
         <div className="hidden md:flex items-center mx-2" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0' }} />
         <span className="hidden md:inline text-[14px] whitespace-nowrap" style={{ color: '#666666' }}>
-          Beautiful palettes, instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, shades & vision.
+          Generate palettes instantly. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> unlocks AI, shades & vision.
         </span>
       </div>
 
