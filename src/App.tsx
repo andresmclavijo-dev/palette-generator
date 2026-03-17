@@ -19,6 +19,7 @@ import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
+import CookieConsent from './components/CookieConsent'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
@@ -615,6 +616,7 @@ export default function App() {
 
       <WelcomeModal />
       <VisionFilterDefs />
+      <CookieConsent />
     </div>
   )
 }
