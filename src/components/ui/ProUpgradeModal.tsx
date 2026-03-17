@@ -27,8 +27,13 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
   const { user } = useAuth()
   const swatches = usePaletteStore(s => s.swatches)
   const [loading, setLoading] = useState(false)
+  const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
 
   if (!open) return null
+
+  const isMonthly = plan === 'monthly'
+  const displayPrice = isMonthly ? '$5/mo' : '$3.75/mo'
+  const billedLabel = isMonthly ? null : 'Billed as $45/yr'
 
   const handleCheckout = async (plan: 'monthly' | 'yearly') => {
     if (!user) {
@@ -97,10 +102,45 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
           {/* Divider */}
           <div className="border-t border-gray-100 my-4" />
 
+          {/* Pricing toggle */}
+          <div className="flex items-center justify-center mb-4">
+            <div className="inline-flex rounded-full bg-gray-100 p-0.5">
+              <button
+                onClick={() => setPlan('monthly')}
+                className="relative px-4 h-8 rounded-full text-[13px] font-medium transition-all"
+                style={isMonthly ? { background: ACCENT, color: '#fff' } : { color: '#666' }}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setPlan('yearly')}
+                className="relative flex items-center gap-1.5 px-4 h-8 rounded-full text-[13px] font-medium transition-all"
+                style={!isMonthly ? { background: ACCENT, color: '#fff' } : { color: '#666' }}
+              >
+                Yearly
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={!isMonthly
+                    ? { background: 'rgba(255,255,255,0.25)', color: '#fff' }
+                    : { background: '#dcfce7', color: '#16a34a' }}
+                >
+                  Save 25%
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Price display */}
+          <div className="text-center mb-4">
+            <span className="text-3xl font-extrabold text-gray-900">{displayPrice}</span>
+            {billedLabel && (
+              <p className="text-[12px] text-gray-400 mt-0.5">{billedLabel}</p>
+            )}
+          </div>
+
           {/* CTAs */}
           {!user ? (
             <div className="space-y-2">
-              <p className="text-sm text-gray-500 text-center mb-2">Sign in to subscribe</p>
               <button
                 onClick={() => onSignIn?.()}
                 className="flex items-center justify-center gap-2 w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
@@ -117,20 +157,11 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
           ) : (
             <div className="space-y-2">
               <button
-                onClick={() => handleCheckout('monthly')}
+                onClick={() => handleCheckout(plan)}
                 disabled={loading}
                 className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 disabled:opacity-50"
               >
-                {loading ? 'Redirecting…' : 'Subscribe Monthly — $5/mo'}
-              </button>
-              <button
-                onClick={() => handleCheckout('yearly')}
-                disabled={loading}
-                className="flex items-center justify-center w-full h-10 rounded-full text-[14px] font-medium transition-all hover:bg-purple-50 active:scale-95 border disabled:opacity-50"
-                style={{ borderColor: ACCENT, color: ACCENT }}
-              >
-                {loading ? 'Redirecting…' : 'Subscribe Yearly — $45/yr'}
-                {!loading && <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 25%</span>}
+                {loading ? 'Redirecting…' : `Subscribe — ${isMonthly ? '$5/mo' : '$45/yr'}`}
               </button>
               <button
                 onClick={onClose}
