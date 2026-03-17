@@ -17,20 +17,15 @@ import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
+import AppHeader from './components/AppHeader'
+import AppFooter from './components/AppFooter'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
-import { BRAND_BLUE as BRAND, BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from './lib/tokens'
+import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
-const HINTS = [
-  'Press Space to generate a new palette',
-  'Click a color to lock it in place',
-  'Double-click a hex code to edit it',
-  'Try different harmony styles above',
-  'Drag the handle to reorder colors',
-]
 
 export default function App() {
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
@@ -50,19 +45,15 @@ export default function App() {
   const [proModalOpen, setProModalOpen] = useState(false)
   const [toolsOpen,    setToolsOpen]    = useState(false)
   const [saveToast,    setSaveToast]    = useState('')
-  const [hasGenerated, setHasGenerated] = useState(false)
-  const [hintIndex, setHintIndex] = useState(0)
-  const [hintVisible, setHintVisible] = useState(true)
+
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
-  const [avatarOpen,   setAvatarOpen]   = useState(false)
   const [savedOpen,    setSavedOpen]    = useState(false)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const avatarRef = useRef<HTMLDivElement>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
   const openProModal = useCallback(() => setProModalOpen(true), [])
@@ -81,22 +72,6 @@ export default function App() {
     setActivePanel(panel)
     if (panel) setHelpOpen(false)
   }, [])
-
-  // Close avatar dropdown on outside click
-  useEffect(() => {
-    if (!avatarOpen) return
-    const handler = (e: MouseEvent) => {
-      if (avatarRef.current?.contains(e.target as Node)) return
-      setAvatarOpen(false)
-    }
-    const raf = requestAnimationFrame(() => {
-      document.addEventListener('mousedown', handler)
-    })
-    return () => {
-      cancelAnimationFrame(raf)
-      document.removeEventListener('mousedown', handler)
-    }
-  }, [avatarOpen])
 
   useEffect(() => {
     const isMobile = window.innerWidth < 640
@@ -133,22 +108,8 @@ export default function App() {
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
-  // Rotate hints every 3s until first generate
-  useEffect(() => {
-    if (hasGenerated) return
-    const interval = setInterval(() => {
-      setHintVisible(false)
-      setTimeout(() => {
-        setHintIndex(i => (i + 1) % HINTS.length)
-        setHintVisible(true)
-      }, 300)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [hasGenerated])
-
   const triggerGenerate = useCallback(() => {
     if (animRef.current) clearTimeout(animRef.current)
-    setHasGenerated(true)
     generate()
   }, [generate])
 
@@ -158,7 +119,7 @@ export default function App() {
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setAvatarOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -243,149 +204,34 @@ export default function App() {
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: BRAND_WARM }}>
+    <div className="w-screen flex flex-col overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
 
       {/* Visually hidden h1 for screen readers */}
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
 
       {/* -- Header Row 1: Navbar -- */}
-      <header className="flex-none h-16 sm:h-14 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-40 shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
-          Paletta
-        </span>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Mobile: Hamburger */}
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="sm:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-all"
-            aria-label="Menu"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-
-          {/* Desktop: Share */}
-          <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
-            <button
-              onClick={handleShare}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              <span>{shareCopied ? 'Copied!' : 'Share'}</span>
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Save */}
-          <Tooltip text="Save palette">
-            <button
-              onClick={handleSave}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              <span>Save</span>
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Saved palettes — visible when signed in */}
-          {isSignedIn && (
-            <Tooltip text="View saved palettes">
-              <button
-                onClick={() => setSavedOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-[13px] font-medium transition-all duration-150"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                  <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-                </svg>
-                <span>My Palettes</span>
-              </button>
-            </Tooltip>
-          )}
-
-          {/* Desktop: Export */}
-          <Tooltip text="Export palette">
-            <button
-              onClick={() => setExportOpen(o => !o)}
-              className="hidden sm:flex items-center gap-1.5 px-4 h-9 rounded-full text-white text-[13px] font-medium transition-all duration-150 hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: BRAND }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Export
-            </button>
-          </Tooltip>
-
-          {/* Desktop: Divider before auth */}
-          <div className="hidden sm:block w-px h-5 bg-gray-200" />
-
-          {/* Desktop: Auth — email dropdown or Sign In */}
-          {isSignedIn ? (
-            <div ref={avatarRef} className="relative hidden sm:block">
-              <button
-                onClick={() => setAvatarOpen(o => !o)}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
-              >
-                {user?.email?.split('@')[0] ?? 'Account'}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-              {avatarOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                  <div className="px-4 py-1.5">
-                    <span className="text-[11px] text-gray-400 break-all">{user?.email}</span>
-                  </div>
-                  <div className="mx-2 my-1 h-px bg-gray-100" />
-                  <button
-                    onClick={() => { setAvatarOpen(false); signOut() }}
-                    className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={() => setSignInOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-full text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
-            >
-              Sign In
-            </button>
-          )}
-
-          {/* Desktop: Go Pro CTA — hidden for Pro users */}
-          {!isPro && (
-            <div className="hidden sm:flex items-center gap-2 ml-1 pl-2 border-l border-gray-200">
-              <button
-                onClick={openProModal}
-                className="px-3 h-8 rounded-full border text-[13px] font-medium transition-all hover:bg-purple-50"
-                style={{ borderColor: BRAND_VIOLET, color: BRAND_VIOLET }}
-              >
-                Go Pro →
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
+      <AppHeader
+        isPro={isPro}
+        isSignedIn={isSignedIn}
+        userEmail={user?.email ?? undefined}
+        shareCopied={shareCopied}
+        onShare={handleShare}
+        onSave={handleSave}
+        onSavedPalettes={() => setSavedOpen(true)}
+        onExport={() => setExportOpen(o => !o)}
+        onSignIn={() => setSignInOpen(true)}
+        onSignOut={signOut}
+        onProGate={openProModal}
+        onDrawerOpen={() => setDrawerOpen(true)}
+      />
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
-        className="flex-none h-12 bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[12px] font-medium text-gray-400 mr-1 sm:mr-1.5 shrink-0">Style:</span>
+        <span className="text-[11px] sm:text-[14px] font-bold mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
@@ -394,7 +240,8 @@ export default function App() {
           <Tooltip text="Generate from prompt">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-1 h-8 px-3 rounded-full text-[12px] font-medium transition-all text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
+              style={{ color: '#444444' }}
             >
               ✨ AI
               {!isPro && (
@@ -402,7 +249,7 @@ export default function App() {
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
-                  <span className="text-[10px] text-gray-400 ml-0.5">free/day</span>
+                  <span className="text-[14px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
                 </>
               )}
             </button>
@@ -410,20 +257,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* -- Subheader: rotating hints before first generate, then palette name -- */}
-      <div className="flex-none hidden sm:flex items-center justify-center h-7 bg-white text-[11px] text-gray-400 font-medium tracking-wide">
-        {hasGenerated ? (
-          (() => {
-            const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
-            const baseNames = names.filter(n => !/\s\d+$/.test(n))
-            const unique = [...new Set(baseNames)]
-            return unique.length >= 2 ? unique.slice(0, 3).join(' · ') : null
-          })()
-        ) : (
-          <span className={`transition-opacity duration-300 ${hintVisible ? 'opacity-100' : 'opacity-0'}`}>
-            {HINTS[hintIndex]}
-          </span>
-        )}
+      {/* -- Instruction banner -- */}
+      <div
+        className="flex-none hidden sm:flex items-center justify-center w-full"
+        style={{ height: 32, background: '#FAFAF8', borderTop: '1px solid #e8e8e8', borderBottom: '1px solid #e8e8e8' }}
+      >
+        <span className="text-[11px] font-medium" style={{ color: '#555555' }}>
+          Drag the handle to reorder colors
+        </span>
       </div>
 
       {/* AI modal dialog */}
@@ -439,7 +280,7 @@ export default function App() {
 
       {/* -- Palette canvas -- */}
       <main
-        className="flex-1 overflow-hidden relative"
+        className="flex-1 min-h-0 overflow-hidden relative"
       >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (
@@ -454,8 +295,8 @@ export default function App() {
 
         {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
-          className="w-full h-full sm:pb-0"
-          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', filter: visionFilter }}
+          className="w-full h-full pb-[calc(88px+env(safe-area-inset-bottom,0px))] sm:pb-0"
+          style={{ filter: visionFilter }}
         >
           <PaletteCanvas
             swatches={swatches}
@@ -468,105 +309,146 @@ export default function App() {
           />
         </div>
 
-        {/* Floating help button — bottom left (desktop only) */}
-        <div className="absolute floating-bottom left-4 z-20 hidden sm:block">
-          <div className="relative">
-            <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
-              <button
-                onClick={() => {
-                  if (helpOpen) { setHelpOpen(false) }
-                  else { setHelpOpen(true); setActivePanel(null) }
-                }}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
-                aria-label="Keyboard shortcuts"
-              >
-                ?
-              </button>
-            </Tooltip>
-            {helpOpen && (
-              <div className="absolute bottom-12 left-0 z-[100] min-w-[300px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
-                <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
-                  <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
-                  <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
-                  <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
-                  <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
-                  <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
-                  <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
-                </div>
-                <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Floating bottom bar — undo/redo + Generate (desktop only) */}
-        <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
-          {showHint && (
-            <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
+        {/* Floating hint — desktop only, shown briefly on first load */}
+        {showHint && (
+          <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:block pointer-events-none">
+            <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
             </div>
-          )}
-          <div className="pointer-events-auto flex items-center gap-1.5">
-            {/* Undo */}
-            <Tooltip text="Undo (Cmd+Z)">
-              <button
-                onClick={undo}
-                disabled={historyIndex <= 0}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
-                aria-label="Undo"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                </svg>
-              </button>
-            </Tooltip>
-            {/* Redo */}
-            <Tooltip text="Redo (Cmd+Shift+Z)">
-              <button
-                onClick={redo}
-                disabled={historyIndex >= history.length - 1}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
-                aria-label="Redo"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
-                </svg>
-              </button>
-            </Tooltip>
-            {/* Generate */}
-            <button
-              onClick={triggerGenerate}
-              className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-white text-[13px] sm:text-[14px] font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
-              style={{ backgroundColor: BRAND }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-              Generate
-            </button>
           </div>
+        )}
+      </main>
+
+      {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
+      <div
+        className="flex-none hidden sm:flex items-center justify-between relative"
+        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
+      >
+        {/* Left: Help / keyboard shortcuts */}
+        <div className="relative z-10">
+          <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
+            <button
+              onClick={() => {
+                if (helpOpen) { setHelpOpen(false) }
+                else { setHelpOpen(true); setActivePanel(null) }
+              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              aria-label="Keyboard shortcuts"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </button>
+          </Tooltip>
+          {helpOpen && (
+            <div className="absolute bottom-12 left-0 z-[100] min-w-[300px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
+              <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
+                <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
+                <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
+                <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
+                <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
+                <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
+                <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
+              </div>
+              <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
+            </div>
+          )}
         </div>
 
-        {/* Floating count picker — bottom right (desktop only) */}
-        <div className="absolute floating-bottom right-4 z-20 hidden sm:block">
-          <div className="bg-white shadow-md rounded-full px-2 py-1">
-            <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
-          </div>
+        {/* Center: Undo + Generate + Redo — absolutely centered */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+          {/* Undo */}
+          <Tooltip text="Undo (Cmd+Z)">
+            <button
+              onClick={undo}
+              disabled={historyIndex <= 0}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              aria-label="Undo"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>
+              </svg>
+            </button>
+          </Tooltip>
+
+          {/* Generate */}
+          <button
+            onClick={triggerGenerate}
+            className="flex items-center gap-3 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
+            style={{ padding: '0 16px', gap: 12 }}
+            aria-label="Generate new palette"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Generate
+            <span aria-hidden="true" className="hidden md:block">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  width: 30,
+                  height: 14,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  background: '#9b82ff',
+                  borderRadius: 4,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#ffffff',
+                  lineHeight: 1,
+                }}
+              >
+                space
+              </span>
+            </span>
+            <span className="sr-only">press space to generate</span>
+          </button>
+
+          {/* Redo */}
+          <Tooltip text="Redo (Cmd+Shift+Z)">
+            <button
+              onClick={redo}
+              disabled={historyIndex >= history.length - 1}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              aria-label="Redo"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>
+              </svg>
+            </button>
+          </Tooltip>
         </div>
-      </main>
+
+        {/* Right: Colors pill */}
+        <div className="relative z-10">
+          <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
+        </div>
+      </div>
+
+      {/* App footer — legal links + attribution */}
+      <AppFooter />
 
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
         className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
-        style={{ height: `calc(56px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        style={{ minHeight: '64px', height: `calc(64px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Undo"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -579,6 +461,7 @@ export default function App() {
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Redo"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -589,10 +472,9 @@ export default function App() {
         {/* Generate — pill, centered */}
         <button
           onClick={triggerGenerate}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold tracking-wide shadow-md active:scale-95 transition-all"
-          style={{ backgroundColor: BRAND }}
+          className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium shadow-md active:scale-95 transition-all bg-brand-violet hover:bg-brand-violet-hover"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
           </svg>
           Generate
@@ -601,7 +483,7 @@ export default function App() {
         {/* Colors — cycle pill */}
         <button
           onClick={handleMobileCountCycle}
-          className="h-9 px-3 rounded-full bg-gray-100 text-[13px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
+          className="h-10 px-4 rounded-full bg-gray-100 text-[14px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
           aria-label={`${count} colors, tap to change`}
         >
           {count}
@@ -611,6 +493,7 @@ export default function App() {
         <button
           onClick={() => setExportOpen(o => !o)}
           className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
+          style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Export"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -624,8 +507,7 @@ export default function App() {
         {!isPro && (
           <button
             onClick={openProModal}
-            className="h-8 px-2.5 rounded-full text-white text-[11px] font-bold tracking-wide active:scale-95 transition-all shrink-0 flex items-center gap-1"
-            style={{ backgroundColor: BRAND_VIOLET }}
+            className="h-10 px-4 rounded-full text-white text-[14px] font-medium active:scale-95 transition-all shrink-0 flex items-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
           >
             <span className="text-[12px] leading-none">✦</span>
             Pro

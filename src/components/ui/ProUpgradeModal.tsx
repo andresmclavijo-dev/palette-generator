@@ -88,14 +88,13 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
           <div className="space-y-2">
             <button
               onClick={handleMonthly}
-              className="flex items-center justify-center w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
-              style={{ backgroundColor: ACCENT }}
+              className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
             >
               Subscribe Monthly — $5/mo
             </button>
             <button
               onClick={handleYearly}
-              className="flex items-center justify-center w-full h-11 rounded-full text-[14px] font-semibold transition-all hover:bg-purple-50 active:scale-95 border"
+              className="flex items-center justify-center w-full h-10 rounded-full text-[14px] font-medium transition-all hover:bg-purple-50 active:scale-95 border"
               style={{ borderColor: ACCENT, color: ACCENT }}
             >
               Subscribe Yearly — $45/yr
@@ -103,7 +102,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
             </button>
             <button
               onClick={onClose}
-              className="w-full h-11 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"
+              className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
             >
               Not now
             </button>

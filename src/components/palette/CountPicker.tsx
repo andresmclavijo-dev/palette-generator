@@ -1,4 +1,3 @@
-import ProBadge from '../ui/ProBadge'
 import { usePro } from '../../hooks/usePro'
 
 const FREE_MAX   = 5
@@ -18,10 +17,11 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
 
   return (
     <div
-      className="flex items-center gap-1"
+      className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
+      style={{ border: '1px solid #e8e8e8' }}
       onClick={e => e.stopPropagation()}
     >
-      {!compact && <span className="text-[11px] text-[#9AA0A6] mr-0.5 select-none hidden sm:block">Colors</span>}
+      {!compact && <span className="text-[12px] font-normal mr-0.5 select-none hidden sm:block" style={{ color: '#1a1a2e' }}>Colors:</span>}
 
       {counts.map(n => {
         const isProCount = n > FREE_MAX
@@ -36,24 +36,21 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
               else onChange(n)
             }}
             className={`
-              relative w-8 h-8 rounded-full text-[13px] font-semibold
-              transition-all duration-150 select-none
               flex items-center justify-center
+              w-6 h-6 rounded-full
+              text-[11px] font-medium select-none
+              transition-all duration-150 cursor-pointer
               ${active
-                ? 'bg-brand-blue text-white shadow-sm'
-                : locked
-                  ? 'text-[#BDBDBD] cursor-default'
-                  : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124] cursor-pointer'
+                ? 'bg-brand-violet text-brand-warm'
+                : 'bg-white hover:bg-surface-secondary'
               }
             `}
+            style={{
+              color: active ? '#FAFAF8' : locked ? '#bbbbbb' : '#1a1a2e',
+            }}
             aria-label={locked ? `${n} colors — Pro` : `${n} colors`}
           >
             {n}
-            {locked && (
-              <span className="absolute -top-1.5 -right-1.5">
-                <ProBadge />
-              </span>
-            )}
           </button>
         )
       })}

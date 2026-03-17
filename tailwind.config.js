@@ -8,12 +8,17 @@ export default {
     extend: {
       colors: {
         'brand-violet': '#6C47FF',
+        'brand-violet-hover': '#5431df',
+        'brand-violet-light': '#9b82ff',
         'brand-blue': '#1A73E8',
         'brand-dark': '#1a1a2e',
         'brand-warm': '#FAFAF8',
+        'surface-secondary': '#f5f5f3',
         'success': '#3B6D11',
         'warning': '#854F0B',
         'error': '#791F1F',
+        'text-faint': '#bbbbbb',
+        'border-default': '#e8e8e8',
         'pro-badge-bg': '#EEEDFE',
         'pro-badge-text': '#3C3489',
       },
@@ -35,7 +40,7 @@ export default {
       borderRadius: {
         'sm': '4px',
         'md': '8px',
-        'lg': '10px',
+        'lg': '12px',
       },
       zIndex: {
         'swatch-hover': '10',
@@ -44,6 +49,19 @@ export default {
         'vision-overlay': '40',
         'modal': '50',
         'toast': '60',
+      },
+      spacing: {
+        'button-padding-x': '16px',
+        'icon-text-gap': '12px',
+        'tab-gap': '4px',
+        'nav-gap': '16px',
+      },
+      height: {
+        'header-row': '60px',
+        'bottom-bar': '64px',
+        'footer-bar': '36px',
+        'button': '40px',
+        'summary-row': '32px',
       },
       boxShadow: {
         'swatch-pill': '0 2px 8px rgba(0,0,0,0.12)',

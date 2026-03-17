@@ -37,7 +37,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
     <div className="relative flex-1 min-w-0">
       <div
         ref={scrollRef}
-        className="flex items-center gap-0.5 overflow-x-auto scrollbar-none snap-x snap-mandatory"
+        className="flex items-center gap-1 overflow-x-auto scrollbar-none snap-x snap-mandatory"
         style={{ WebkitOverflowScrolling: 'touch' }}
         onClick={e => e.stopPropagation()}
       >
@@ -45,14 +45,11 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           <button
             key={m.value}
             onClick={() => onChange(m.value)}
-            className={`
-              px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap
-              transition-all duration-150 cursor-pointer select-none shrink-0 snap-start
-              ${mode === m.value
-                ? 'bg-brand-blue text-white'
-                : 'text-[#5F6368] hover:bg-[#F1F3F4] hover:text-[#202124]'
-              }
-            `}
+            className="px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 snap-start"
+            style={{
+              background: mode === m.value ? '#6C47FF' : '#f5f5f3',
+              color: mode === m.value ? '#FFFFFF' : '#2C2C2A',
+            }}
           >
             {m.label}
           </button>

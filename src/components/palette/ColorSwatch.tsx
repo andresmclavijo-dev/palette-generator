@@ -400,25 +400,25 @@ export default function ColorSwatch({
           >
             <Tooltip text="Copy hex">
               <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Copy hex code">
-                {copied ? <CheckIcon /> : <CopyIcon />}
+                {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="View shades" disabled={shadesOpen}>
               <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="View shades">
-                <ShadesIcon />
+                <ShadesIcon size={16} />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="Color info" disabled={infoOpen}>
               <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Color info">
-                <InfoIcon />
+                <InfoIcon size={16} />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="Edit color" disabled={pickerOpen}>
               <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Edit color">
-                <EditIcon />
+                <EditIcon size={16} />
               </button>
             </Tooltip>
           </div>
@@ -516,9 +516,9 @@ function ShadesIcon({ size = 24 }: { size?: number }) {
   )
 }
 
-function EditIcon() {
+function EditIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
     </svg>

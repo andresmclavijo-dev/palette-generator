@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
-import { BRAND_BLUE as BRAND, BRAND_VIOLET } from '../../lib/tokens'
+import { BRAND_VIOLET } from '../../lib/tokens'
 export const AI_MAX_FREE = 3
 
 function todayKey() {
@@ -217,8 +217,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
           {exhausted ? (
             <button
               onClick={handleUpgradeOrGenerate}
-              className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
-              style={{ backgroundColor: BRAND }}
+              className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 flex items-center justify-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
             >
               Upgrade for unlimited ✨
             </button>
@@ -226,8 +225,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             <button
               onClick={handleUpgradeOrGenerate}
               disabled={loading || !prompt.trim()}
-              className="w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 flex items-center justify-center gap-2"
-              style={{ backgroundColor: BRAND }}
+              className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 disabled:opacity-40 flex items-center justify-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
             >
               {loading ? (
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
