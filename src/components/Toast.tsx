@@ -30,11 +30,11 @@ export default function Toast() {
     setVisible(true)
     setFading(false)
 
-    const fadeTimer = setTimeout(() => setFading(true), 1700)
+    const fadeTimer = setTimeout(() => setFading(true), 900)
     const hideTimer = setTimeout(() => {
       setVisible(false)
       setFading(false)
-    }, 2000)
+    }, 1200)
 
     return () => {
       clearTimeout(fadeTimer)
@@ -57,7 +57,7 @@ export default function Toast() {
       aria-live="polite"
     >
       <div
-        className="px-4 py-2 rounded-lg text-[14px] font-medium whitespace-nowrap shadow-lg"
+        className="px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap shadow-lg"
         style={
           isWarning
             ? { backgroundColor: '#FEF3C7', color: '#92400E' }

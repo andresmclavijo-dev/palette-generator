@@ -214,7 +214,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
               onClick={handleUpgradeOrGenerate}
               className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 flex items-center justify-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
             >
-              Upgrade for unlimited ✨
+              Unlock unlimited AI ✨
             </button>
           ) : (
             <button
@@ -243,11 +243,11 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             </p>
           ) : !exhausted ? (
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
-              {remaining} of {AI_MAX_FREE} free prompts today
+              {remaining} AI generation{remaining !== 1 ? 's' : ''} left today
             </p>
           ) : (
             <p className="text-center text-[11px] text-gray-400 mt-2.5">
-              You've used your {AI_MAX_FREE} free prompts today
+              No AI generations left today
             </p>
           )}
         </div>

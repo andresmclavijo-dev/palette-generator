@@ -54,7 +54,7 @@ export default function WelcomeModal() {
           )}
           <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 text-[12px] font-medium text-gray-600 whitespace-nowrap">
             <span>✨</span>
-            <span>3 free AI palettes/day</span>
+            <span>3 AI generations left today</span>
           </div>
         </div>
 

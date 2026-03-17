@@ -157,7 +157,7 @@ export default function ToolsSheet({
                   <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
                 )}
               </div>
-              <p className="text-[12px] text-gray-500 mt-0.5">Simulate color blindness modes</p>
+              <p className="text-[12px] text-gray-500 mt-0.5">Check color blindness accessibility</p>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               style={{ transform: visionExpanded ? 'rotate(90deg)' : undefined, transition: 'transform 150ms' }}

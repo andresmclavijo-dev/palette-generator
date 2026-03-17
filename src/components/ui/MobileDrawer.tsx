@@ -209,7 +209,7 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex-1 flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Vision</span>
+              <span className="text-[14px] font-medium text-gray-800">Accessibility</span>
               {!isPro && <ProBadge />}
               {isPro && visionMode !== 'normal' && (
                 <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
@@ -254,7 +254,7 @@ export default function MobileDrawer({
                 <span className="text-[10px] text-gray-400">Unlimited</span>
               ) : (
                 <span className="text-[10px] text-gray-400">
-                  {getAiRemaining()} left today
+                  {getAiRemaining()} generation{getAiRemaining() !== 1 ? 's' : ''} left
                 </span>
               )}
             </div>
