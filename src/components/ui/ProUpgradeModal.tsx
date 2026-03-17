@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Sparkles, Image, Eye, Heart, Layers, Download, LayoutGrid } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
@@ -6,6 +6,8 @@ import { createCheckoutSession } from '../../lib/stripe'
 import { usePaletteStore } from '../../store/paletteStore'
 import { showToast } from '../../utils/toast'
 import { BRAND_VIOLET as ACCENT } from '../../lib/tokens'
+
+const PENDING_PLAN_KEY = 'paletta_pending_checkout_plan'
 
 const PRO_FEATURES: { Icon: LucideIcon; bg: string; color: string; text: string }[] = [
   { Icon: Sparkles,   bg: 'bg-purple-50',  color: 'text-purple-500', text: 'AI palette from text prompt' },
@@ -28,6 +30,24 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
   const swatches = usePaletteStore(s => s.swatches)
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
+  const pendingRedirect = useRef(false)
+
+  // After OAuth redirect: if user just signed in and there's a pending plan, auto-checkout
+  useEffect(() => {
+    if (!user || pendingRedirect.current) return
+    const pending = localStorage.getItem(PENDING_PLAN_KEY) as 'monthly' | 'yearly' | null
+    if (!pending) return
+    pendingRedirect.current = true
+    localStorage.removeItem(PENDING_PLAN_KEY)
+    setLoading(true)
+    createCheckoutSession(pending, user.id, user.email ?? undefined)
+      .then(url => { window.location.href = url })
+      .catch(err => {
+        const msg = err instanceof Error ? err.message : 'Checkout failed'
+        showToast(msg)
+        setLoading(false)
+      })
+  }, [user])
 
   if (!open) return null
 
@@ -35,9 +55,10 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
   const displayPrice = isMonthly ? '$5/mo' : '$3.75/mo'
   const billedLabel = isMonthly ? null : 'Billed as $45/yr'
 
-  const handleCheckout = async (plan: 'monthly' | 'yearly') => {
+  const handleSubscribe = async () => {
     if (!user) {
-      // Not signed in — prompt sign in first
+      // Save selected plan, then trigger Google sign-in (OAuth redirect)
+      localStorage.setItem(PENDING_PLAN_KEY, plan)
       onSignIn?.()
       return
     }
@@ -139,38 +160,21 @@ export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeM
           </div>
 
           {/* CTAs */}
-          {!user ? (
-            <div className="space-y-2">
-              <button
-                onClick={() => onSignIn?.()}
-                className="flex items-center justify-center gap-2 w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
-              >
-                Sign in with Google
-              </button>
-              <button
-                onClick={onClose}
-                className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
-              >
-                Not now
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <button
-                onClick={() => handleCheckout(plan)}
-                disabled={loading}
-                className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 disabled:opacity-50"
-              >
-                {loading ? 'Redirecting…' : `Subscribe — ${isMonthly ? '$5/mo' : '$45/yr'}`}
-              </button>
-              <button
-                onClick={onClose}
-                className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
-              >
-                Not now
-              </button>
-            </div>
-          )}
+          <div className="space-y-2">
+            <button
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 disabled:opacity-50"
+            >
+              {loading ? 'Redirecting…' : `Subscribe — ${isMonthly ? '$5/mo' : '$45/yr'}`}
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
+            >
+              Not now
+            </button>
+          </div>
         </div>
 
         {/* Right column: live palette preview (desktop only) */}
