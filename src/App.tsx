@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PaletteCanvas from './components/palette/PaletteCanvas'
 import type { ActivePanel } from './components/palette/PaletteCanvas'
 import HarmonyPicker from './components/palette/HarmonyPicker'
@@ -24,16 +24,8 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
-import chroma from 'chroma-js'
 import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
-const HINTS = [
-  'Press Space to generate a new palette',
-  'Click a color to lock it in place',
-  'Double-click a hex code to edit it',
-  'Try different harmony styles above',
-  'Drag the handle to reorder colors',
-]
 
 export default function App() {
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
@@ -53,9 +45,7 @@ export default function App() {
   const [proModalOpen, setProModalOpen] = useState(false)
   const [toolsOpen,    setToolsOpen]    = useState(false)
   const [saveToast,    setSaveToast]    = useState('')
-  const [hasGenerated, setHasGenerated] = useState(false)
-  const [hintIndex, setHintIndex] = useState(0)
-  const [hintVisible, setHintVisible] = useState(true)
+
   const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
@@ -118,22 +108,8 @@ export default function App() {
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
-  // Rotate hints every 3s until first generate
-  useEffect(() => {
-    if (hasGenerated) return
-    const interval = setInterval(() => {
-      setHintVisible(false)
-      setTimeout(() => {
-        setHintIndex(i => (i + 1) % HINTS.length)
-        setHintVisible(true)
-      }, 300)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [hasGenerated])
-
   const triggerGenerate = useCallback(() => {
     if (animRef.current) clearTimeout(animRef.current)
-    setHasGenerated(true)
     generate()
   }, [generate])
 
@@ -227,17 +203,6 @@ export default function App() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
-  const summaryBg = useMemo(() => {
-    const hex = swatches[0]?.hex
-    if (!hex) return BRAND_WARM
-    try {
-      const [r, g, b] = chroma(hex).rgb()
-      return `linear-gradient(rgba(${r},${g},${b},0.10), rgba(${r},${g},${b},0.10)), rgb(250,250,248)`
-    } catch {
-      return BRAND_WARM
-    }
-  }, [swatches])
-
   return (
     <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: BRAND_WARM }}>
 
@@ -266,7 +231,7 @@ export default function App() {
         style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[14px] font-medium mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
+        <span className="text-[11px] sm:text-[14px] font-bold mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
@@ -292,20 +257,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* -- Subheader: rotating hints before first generate, then palette name -- */}
-      <div className="flex-none hidden sm:flex items-center justify-center h-7 text-[11px] font-medium tracking-wide" style={{ color: '#666666', background: summaryBg, transition: 'background 600ms ease' }}>
-        {hasGenerated ? (
-          (() => {
-            const names = swatches.map(s => getColorName(s.hex)).filter(Boolean)
-            const baseNames = names.filter(n => !/\s\d+$/.test(n))
-            const unique = [...new Set(baseNames)]
-            return unique.length >= 2 ? unique.slice(0, 3).join(' · ') : null
-          })()
-        ) : (
-          <span className={`transition-opacity duration-300 ${hintVisible ? 'opacity-100' : 'opacity-0'}`}>
-            {HINTS[hintIndex]}
-          </span>
-        )}
+      {/* -- Instruction banner -- */}
+      <div
+        className="flex-none hidden sm:flex items-center justify-center w-full"
+        style={{ height: 32, background: '#FAFAF8', borderTop: '1px solid #e8e8e8', borderBottom: '1px solid #e8e8e8' }}
+      >
+        <span className="text-[11px] font-medium" style={{ color: '#555555' }}>
+          Drag the handle to reorder colors
+        </span>
       </div>
 
       {/* AI modal dialog */}
@@ -404,7 +363,7 @@ export default function App() {
             onClick={undo}
             disabled={historyIndex <= 0}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-            style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+            style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
             aria-label="Undo"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -413,15 +372,30 @@ export default function App() {
           </button>
         </Tooltip>
 
-        {/* Center: Redo + Generate + Export */}
+        {/* Center: Undo + Redo + Generate + Export */}
         <div className="flex items-center gap-4">
+          {/* Undo */}
+          <Tooltip text="Undo (Cmd+Z)">
+            <button
+              onClick={undo}
+              disabled={historyIndex <= 0}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
+              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
+              aria-label="Undo"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+              </svg>
+            </button>
+          </Tooltip>
+
           {/* Redo */}
           <Tooltip text="Redo (Cmd+Shift+Z)">
             <button
               onClick={redo}
               disabled={historyIndex >= history.length - 1}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
               aria-label="Redo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -448,7 +422,7 @@ export default function App() {
             <button
               onClick={() => setExportOpen(o => !o)}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
               aria-label="Export"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

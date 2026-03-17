@@ -12,21 +12,21 @@ export default function AppFooter() {
       <nav className="flex items-center gap-3" aria-label="Legal">
         <a
           href="/privacy"
-          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline"
           style={{ color: '#666666' }}
         >
           Privacy Policy
         </a>
         <a
           href="/terms"
-          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline"
           style={{ color: '#666666' }}
         >
           Terms of Service
         </a>
         <a
           href="mailto:hello@usepaletta.io"
-          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline"
           style={{ color: '#666666' }}
         >
           Contact
@@ -38,7 +38,7 @@ export default function AppFooter() {
         href="https://andresclavijo.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden sm:block text-[8px] font-normal no-underline transition-colors hover:underline"
+        className="hidden sm:block text-[10px] font-normal no-underline transition-colors hover:underline"
         style={{ color: '#666666' }}
       >
         Made by Andres Clavijo
