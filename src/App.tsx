@@ -206,8 +206,16 @@ export default function App() {
   return (
     <div className="w-screen flex flex-col overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
 
+      {/* Skip link for keyboard navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#6C47FF] focus:rounded-lg focus:border focus:border-[#6C47FF] focus:font-medium"
+      >
+        Skip to main content
+      </a>
+
       {/* Visually hidden h1 for screen readers */}
-      <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
+      <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Free Color Palette Generator</h1>
 
       {/* -- Header Row 1: Navbar -- */}
       <AppHeader
@@ -242,15 +250,16 @@ export default function App() {
               onClick={() => setAiOpen(true)}
               className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
               style={{ color: '#444444' }}
+              aria-label="AI palette generation"
             >
-              ✨ AI
+              <span aria-hidden="true">✨</span> AI
               {!isPro && (
-                <>
+                <span aria-hidden="true" className="contents">
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
                   <span className="text-[14px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
-                </>
+                </span>
               )}
             </button>
           </Tooltip>
@@ -280,6 +289,7 @@ export default function App() {
 
       {/* -- Palette canvas -- */}
       <main
+        id="main-content"
         className="flex-1 min-h-0 overflow-hidden relative"
       >
         {/* Vision mode badge */}
