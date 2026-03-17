@@ -280,7 +280,7 @@ export default function App() {
 
       {/* -- Palette canvas -- */}
       <main
-        className="flex-1 overflow-hidden relative"
+        className="flex-1 min-h-0 overflow-hidden relative"
       >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (
@@ -321,11 +321,11 @@ export default function App() {
 
       {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
       <div
-        className="flex-none hidden sm:flex items-center justify-between"
+        className="flex-none hidden sm:flex items-center justify-between relative"
         style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
       >
         {/* Left: Help / keyboard shortcuts */}
-        <div className="relative">
+        <div className="relative z-10">
           <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
             <button
               onClick={() => {
@@ -358,8 +358,8 @@ export default function App() {
           )}
         </div>
 
-        {/* Center: Undo + Generate + Redo */}
-        <div className="flex items-center gap-4">
+        {/* Center: Undo + Generate + Redo — absolutely centered */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
           {/* Undo */}
           <Tooltip text="Undo (Cmd+Z)">
             <button
@@ -386,7 +386,7 @@ export default function App() {
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Generate
-            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14, borderRadius: 4 }}>space</span>
+            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center text-[10px] font-semibold text-white leading-none py-0 bg-brand-violet-light" style={{ width: 30, height: 14, borderRadius: 4, paddingLeft: 8, paddingRight: 8 }}>space</span>
             <span className="sr-only">press space to generate</span>
           </button>
 
@@ -407,7 +407,9 @@ export default function App() {
         </div>
 
         {/* Right: Colors pill */}
-        <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
+        <div className="relative z-10">
+          <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
+        </div>
       </div>
 
       {/* App footer — legal links + attribution */}

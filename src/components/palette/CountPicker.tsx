@@ -39,6 +39,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
               flex items-center justify-center
               text-[11px] font-medium select-none
               transition-all duration-150
+              ${!active ? 'hover:bg-surface-secondary' : ''}
             `}
             style={{
               width: 24,
@@ -46,7 +47,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
               borderRadius: 12,
               background: active ? '#6C47FF' : '#FFFFFF',
               color: active ? '#FAFAF8' : locked ? '#bbbbbb' : '#1a1a2e',
-              cursor: locked ? 'default' : 'pointer',
+              cursor: 'pointer',
             }}
             aria-label={locked ? `${n} colors — Pro` : `${n} colors`}
           >
