@@ -6,9 +6,10 @@ interface TooltipProps {
   text: string
   children: ReactNode
   disabled?: boolean
+  position?: 'top' | 'bottom'
 }
 
-export default function Tooltip({ text, children, disabled }: TooltipProps) {
+export default function Tooltip({ text, children, disabled, position = 'top' }: TooltipProps) {
   const [visible, setVisible] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -17,11 +18,18 @@ export default function Tooltip({ text, children, disabled }: TooltipProps) {
   const updatePos = useCallback(() => {
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
-    setPos({
-      top: rect.top - 8,
-      left: rect.left + rect.width / 2,
-    })
-  }, [])
+    if (position === 'bottom') {
+      setPos({
+        top: rect.bottom + 8,
+        left: rect.left + rect.width / 2,
+      })
+    } else {
+      setPos({
+        top: rect.top - 8,
+        left: rect.left + rect.width / 2,
+      })
+    }
+  }, [position])
 
   const show = useCallback(() => {
     if (disabled) return
@@ -47,6 +55,10 @@ export default function Tooltip({ text, children, disabled }: TooltipProps) {
     if (disabled) hide()
   }, [disabled, hide])
 
+  const transform = position === 'bottom'
+    ? 'translate(-50%, 0)'
+    : 'translate(-50%, -100%)'
+
   return (
     <>
       <div
@@ -65,7 +77,7 @@ export default function Tooltip({ text, children, disabled }: TooltipProps) {
           style={{
             top: pos.top,
             left: pos.left,
-            transform: 'translate(-50%, -100%)',
+            transform,
             zIndex: 9999,
           }}
         >

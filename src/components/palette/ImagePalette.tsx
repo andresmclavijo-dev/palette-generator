@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import ProBadge from '../ui/ProBadge'
-import Tooltip from '../ui/Tooltip'
+import ToolTooltip from '../ui/ToolTooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
 
 interface ImagePaletteProps {
@@ -52,7 +52,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
         className="hidden"
         onChange={handleFile}
       />
-      <Tooltip text="Extract colors from an uploaded image">
+      <ToolTooltip description="Extract a color palette from any image" showProBadge={showBadge}>
         <button
           onClick={handleClick}
           disabled={loading}
@@ -68,7 +68,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
           <span>{loading ? 'Analyzing\u2026' : 'Image'}</span>
           {showBadge && <span aria-hidden="true"><ProBadge /></span>}
         </button>
-      </Tooltip>
+      </ToolTooltip>
 
       {toast && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">

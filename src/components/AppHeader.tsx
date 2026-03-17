@@ -93,7 +93,7 @@ export default function AppHeader({
         {/* Desktop nav items — hidden on mobile to avoid Tooltip wrappers taking layout space */}
         <div className="hidden sm:flex items-center gap-4">
           {/* Desktop: Share */}
-          <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'}>
+          <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'} position="bottom">
             <button
               onClick={onShare}
               className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
@@ -109,7 +109,7 @@ export default function AppHeader({
           </Tooltip>
 
           {/* Desktop: Save */}
-          <Tooltip text="Save palette">
+          <Tooltip text="Save palette" position="bottom">
             <button
               onClick={onSave}
               className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
@@ -124,7 +124,7 @@ export default function AppHeader({
 
           {/* Desktop: Saved palettes — visible when signed in */}
           {isSignedIn && (
-            <Tooltip text="View saved palettes">
+            <Tooltip text="View saved palettes" position="bottom">
               <button
                 onClick={onSavedPalettes}
                 className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
@@ -142,7 +142,7 @@ export default function AppHeader({
           )}
 
           {/* Desktop: Export */}
-          <Tooltip text="Export palette">
+          <Tooltip text="Export palette" position="bottom">
             <button
               onClick={onExport}
               className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"

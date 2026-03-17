@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePro } from '../../hooks/usePro'
 import ProBadge from '../ui/ProBadge'
-import Tooltip from '../ui/Tooltip'
+import ToolTooltip from '../ui/ToolTooltip'
 
 export type VisionMode = 'normal' | 'deuteranopia' | 'protanopia' | 'tritanopia'
 
@@ -62,7 +62,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
 
   return (
     <div className="relative shrink-0 hidden sm:block">
-      <Tooltip text="Simulate color vision deficiencies">
+      <ToolTooltip description="Check WCAG contrast & simulate color blindness" showProBadge={!isPro} disabled={dropOpen}>
         <button
           ref={btnRef}
           onClick={handleClick}
@@ -79,8 +79,15 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           </svg>
           <span>Accessibility</span>
           {!isPro && <span aria-hidden="true"><ProBadge /></span>}
+          <svg
+            width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            className="transition-transform duration-150"
+            style={{ transform: dropOpen ? 'rotate(180deg)' : undefined }}
+          >
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
         </button>
-      </Tooltip>
+      </ToolTooltip>
 
       {/* Dropdown — portaled to body to escape overflow clipping */}
       {dropOpen && createPortal(

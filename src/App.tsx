@@ -17,6 +17,7 @@ import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
 import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
+import ToolTooltip from './components/ui/ToolTooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import CookieConsent from './components/CookieConsent'
@@ -248,7 +249,7 @@ export default function App() {
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
-          <Tooltip text="Generate a palette from a text prompt">
+          <ToolTooltip description="Generate a palette from a text description" showProBadge={!isPro}>
             <button
               onClick={() => setAiOpen(true)}
               className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
@@ -265,7 +266,7 @@ export default function App() {
                 </span>
               )}
             </button>
-          </Tooltip>
+          </ToolTooltip>
         </div>
       </div>
 
