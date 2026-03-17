@@ -308,7 +308,7 @@ export default function ColorSwatch({
       {/* WCAG contrast badge */}
       {!shadesOpen && !pickerOpen && (
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/20 text-white`}>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}>
             {contrast.ratio}:1 {contrast.pass ? (
               <span className="text-green-300">{contrast.level} ✓</span>
             ) : (
@@ -441,7 +441,7 @@ export default function ColorSwatch({
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>
             {/* WCAG contrast badge */}
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/20 text-white mt-1`}>
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white mt-1`}>
               {contrast.ratio}:1 {contrast.pass ? (
                 <span className="text-green-300">{contrast.level} ✓</span>
               ) : (

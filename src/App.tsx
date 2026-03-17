@@ -20,7 +20,7 @@ import Tooltip from './components/ui/Tooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import CookieConsent from './components/CookieConsent'
-import Toast from './components/Toast'
+import { Toast } from './components/Toast'
 import { useToastStore } from './stores/toastStore'
 import { usePro } from './hooks/usePro'
 
@@ -402,7 +402,6 @@ export default function App() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  width: 30,
                   height: 14,
                   paddingLeft: 8,
                   paddingRight: 8,

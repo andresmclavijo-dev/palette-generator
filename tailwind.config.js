@@ -63,6 +63,15 @@ export default {
         'button': '40px',
         'summary-row': '32px',
       },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateX(-50%) translateY(-8px)' },
+          '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.2s ease',
+      },
       boxShadow: {
         'swatch-pill': '0 2px 8px rgba(0,0,0,0.12)',
         'sheet': '0 -4px 24px rgba(0,0,0,0.08)',
