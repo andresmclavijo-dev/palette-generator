@@ -4,11 +4,16 @@ import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } fr
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 import Tooltip from '../ui/Tooltip'
-import ToolTooltip from '../ui/ToolTooltip'
 import type { ActivePanel } from './PaletteCanvas'
 import { showToast } from '../../utils/toast'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+
+function contrastTip(level: 'AAA' | 'AA' | 'Fail'): string {
+  if (level === 'AAA') return 'Passes WCAG AAA — exceeds 7:1 minimum for all text sizes'
+  if (level === 'AA') return 'Passes WCAG AA — meets 4.5:1 minimum. Increase to 7:1 for AAA.'
+  return 'Fails WCAG AA. Increase contrast to at least 4.5:1.'
+}
 
 /* ── Error boundary for ColorPicker ── */
 interface EBProps { children: ReactNode; fallback: ReactNode }
@@ -309,7 +314,7 @@ export default function ColorSwatch({
       {/* WCAG contrast badge */}
       {!shadesOpen && !pickerOpen && (
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10">
-          <ToolTooltip description="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1.">
+          <Tooltip text={contrastTip(contrast.level)}>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}>
               {contrast.ratio}:1 {contrast.pass ? (
                 <span className="text-green-300">{contrast.level} ✓</span>
@@ -317,7 +322,7 @@ export default function ColorSwatch({
                 <span className="text-red-300">✗</span>
               )}
             </span>
-          </ToolTooltip>
+          </Tooltip>
         </div>
       )}
 
@@ -444,7 +449,7 @@ export default function ColorSwatch({
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>
             {/* WCAG contrast badge */}
-            <ToolTooltip description="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1.">
+            <Tooltip text={contrastTip(contrast.level)}>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white mt-1`}>
                 {contrast.ratio}:1 {contrast.pass ? (
                   <span className="text-green-300">{contrast.level} ✓</span>
@@ -452,7 +457,7 @@ export default function ColorSwatch({
                   <span className="text-red-300">✗</span>
                 )}
               </span>
-            </ToolTooltip>
+            </Tooltip>
           </div>
         </div>
       )}

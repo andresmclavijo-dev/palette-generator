@@ -1,5 +1,5 @@
 import { usePro } from '../../hooks/usePro'
-import ToolTooltip from '../ui/ToolTooltip'
+import Tooltip from '../ui/Tooltip'
 
 const FREE_MAX   = 5
 const ALL_COUNTS = [3, 4, 5, 6, 7, 8]
@@ -17,7 +17,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
   const counts = compact ? COMPACT_COUNTS : ALL_COUNTS
 
   return (
-    <ToolTooltip description="Number of colors in palette">
+    <Tooltip text="Number of colors in palette">
       <div
         className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
         style={{ border: '1px solid #e8e8e8' }}
@@ -55,6 +55,6 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
           )
         })}
       </div>
-    </ToolTooltip>
+    </Tooltip>
   )
 }
