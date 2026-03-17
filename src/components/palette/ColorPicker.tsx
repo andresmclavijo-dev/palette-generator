@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HexColorPicker } from 'react-colorful'
+import { showToast } from '../../utils/toast'
 
 const IS_MOBILE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
@@ -92,6 +93,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     try {
       await copyToClipboard(color)
       setCopied(true)
+      showToast('Copied!')
       setTimeout(() => setCopied(false), 1200)
     } catch { /* silent */ }
   }

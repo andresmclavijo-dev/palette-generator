@@ -20,11 +20,9 @@ import Tooltip from './components/ui/Tooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import CookieConsent from './components/CookieConsent'
-import { Toast } from './components/Toast'
-import { useToastStore } from './stores/toastStore'
+import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
 
-const toast = (msg: string) => useToastStore.getState().show(msg)
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
@@ -64,10 +62,6 @@ export default function App() {
   useEffect(() => {
     if (isPro) setProModalOpen(false)
   }, [isPro])
-
-  const showCopyToast = useCallback(() => {
-    toast('Copied!')
-  }, [])
 
   const handlePanelChange = useCallback((panel: ActivePanel) => {
     setActivePanel(panel)
@@ -130,7 +124,7 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(window.location.href)
       setShareCopied(true)
-      toast('Link copied!')
+      showToast('Link copied!')
       setTimeout(() => setShareCopied(false), 2000)
     } catch { /* silent */ }
   }
@@ -176,7 +170,7 @@ export default function App() {
       const { supabase } = await import('./lib/supabase')
       const colors = swatches.map(s => s.hex).filter(Boolean)
       if (colors.length === 0) {
-        toast('Nothing to save')
+        showToast('Nothing to save')
         return
       }
       // Check for duplicate palette (same colors in same order)
@@ -188,17 +182,17 @@ export default function App() {
         (p: { colors: string[] }) => JSON.stringify(p.colors) === JSON.stringify(colors)
       )
       if (isDuplicate) {
-        toast('Palette already saved')
+        showToast('Palette already saved')
         return
       }
       const payload = { user_id: user.id, name, colors }
       const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
-      toast('Palette saved \u2713')
+      showToast('Palette saved \u2713')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('Save failed:', msg, err)
-      toast('Save failed — check console')
+      showToast('Save failed — check console')
     }
   }
 
@@ -293,7 +287,7 @@ export default function App() {
         onFallback={triggerGenerate}
         onProGate={openProModal}
         onUsageChange={() => setAiRemaining(getAiRemaining())}
-        onError={(msg) => toast(msg)}
+        onError={(msg) => showToast(msg)}
         colorCount={count}
       />
 
@@ -323,7 +317,6 @@ export default function App() {
             onLock={lockSwatch}
             onEdit={editSwatch}
             onReorder={reorderSwatches}
-            onCopyToast={showCopyToast}
             activePanel={activePanel}
             onPanelChange={handlePanelChange}
           />
@@ -561,7 +554,7 @@ export default function App() {
         onShare={async () => {
           try {
             await navigator.clipboard.writeText(window.location.href)
-            toast('Link copied!')
+            showToast('Link copied!')
           } catch { /* silent */ }
         }}
         onSignIn={() => setSignInOpen(true)}
@@ -607,7 +600,6 @@ export default function App() {
         />
       )}
 
-      <Toast />
       <WelcomeModal />
       <VisionFilterDefs />
       <CookieConsent />

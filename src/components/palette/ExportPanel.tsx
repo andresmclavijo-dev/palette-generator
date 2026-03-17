@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 import { usePro } from '../../hooks/usePro'
-import { useToastStore } from '../../stores/toastStore'
+import { showToast } from '../../utils/toast'
 
 type Tab = 'css' | 'tailwind' | 'hex'
 import { BRAND_BLUE as BRAND } from '../../lib/tokens'
@@ -75,7 +75,7 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
     try {
       await navigator.clipboard.writeText(content)
       setCopied(true)
-      useToastStore.getState().show('Downloaded \u2713')
+      showToast('Downloaded \u2713')
       setTimeout(() => setCopied(false), 1800)
     } catch { /* silent */ }
   }

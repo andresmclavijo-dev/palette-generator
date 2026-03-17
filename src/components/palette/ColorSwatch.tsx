@@ -5,6 +5,7 @@ import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 import Tooltip from '../ui/Tooltip'
 import type { ActivePanel } from './PaletteCanvas'
+import { showToast } from '../../utils/toast'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
@@ -27,13 +28,12 @@ interface ColorSwatchProps {
   onLock: () => void
   onEdit: (hex: string) => void
   onDragStart: () => void
-  onCopyToast?: () => void
   activePanel: ActivePanel
   onPanelChange: (panel: ActivePanel) => void
 }
 
 export default function ColorSwatch({
-  hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart, onCopyToast,
+  hex, locked, index, isDragging, dedupedName, onLock, onEdit, onDragStart,
   activePanel, onPanelChange,
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
@@ -97,7 +97,7 @@ export default function ColorSwatch({
     try {
       await navigator.clipboard.writeText(hex)
       setCopied(true)
-      onCopyToast?.()
+      showToast('Copied!')
       setTimeout(() => setCopied(false), 1400)
     } catch { /* silent */ }
   }

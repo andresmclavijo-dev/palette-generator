@@ -10,12 +10,11 @@ interface PaletteCanvasProps {
   onLock: (id: string) => void
   onEdit: (id: string, hex: string) => void
   onReorder: (fromIndex: number, toIndex: number) => void
-  onCopyToast?: () => void
   activePanel: ActivePanel
   onPanelChange: (panel: ActivePanel) => void
 }
 
-export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, onCopyToast, activePanel, onPanelChange }: PaletteCanvasProps) {
+export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, activePanel, onPanelChange }: PaletteCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
@@ -101,7 +100,6 @@ export default function PaletteCanvas({ swatches, onLock, onEdit, onReorder, onC
             onLock={() => onLock(swatch.id)}
             onEdit={(hex) => onEdit(swatch.id, hex)}
             onDragStart={() => handleDragStart(swatchIdx)}
-            onCopyToast={onCopyToast}
             activePanel={activePanel}
             onPanelChange={onPanelChange}
           />

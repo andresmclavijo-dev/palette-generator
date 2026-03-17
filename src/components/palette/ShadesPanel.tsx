@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { generateShades, getColorName, readableOn, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
+import { showToast } from '../../utils/toast'
 
 const IS_COARSE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640
@@ -35,6 +36,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
     try {
       await navigator.clipboard.writeText(shade)
       setCopiedIndex(i)
+      showToast('Copied!')
       setTimeout(() => setCopiedIndex(null), 1200)
     } catch { /* silent */ }
   }
