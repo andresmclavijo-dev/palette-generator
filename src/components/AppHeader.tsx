@@ -67,7 +67,7 @@ export default function AppHeader({
     >
       {/* Left: Logo + tagline */}
       <div className="flex items-center shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight" style={{ color: BRAND_DARK }}>
+        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight leading-none" style={{ color: BRAND_DARK }}>
           Paletta
         </span>
         <div className="hidden md:flex items-center mx-2" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0' }} />
