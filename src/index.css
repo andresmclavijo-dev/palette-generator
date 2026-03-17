@@ -78,6 +78,12 @@ body, #root {
   margin-top: 10px;
 }
 
+/* Toast notification fade-in */
+@keyframes toastFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* Safe area — floating controls above home indicator */
 .floating-bottom {
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));

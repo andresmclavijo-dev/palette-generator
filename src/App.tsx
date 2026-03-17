@@ -20,8 +20,11 @@ import Tooltip from './components/ui/Tooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import CookieConsent from './components/CookieConsent'
-import Toast, { toast } from './components/Toast'
+import Toast from './components/Toast'
+import { useToastStore } from './stores/toastStore'
 import { usePro } from './hooks/usePro'
+
+const toast = (msg: string) => useToastStore.getState().show(msg)
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
@@ -279,7 +282,7 @@ export default function App() {
         onFallback={triggerGenerate}
         onProGate={openProModal}
         onUsageChange={() => setAiRemaining(getAiRemaining())}
-        onError={(msg) => toast(msg, 'warning')}
+        onError={(msg) => toast(msg)}
         colorCount={count}
       />
 

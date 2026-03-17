@@ -1,71 +1,29 @@
-import { useEffect, useState } from 'react'
-import { create } from 'zustand'
-
-interface ToastState {
-  message: string
-  variant: 'default' | 'warning'
-  key: number
-  show: (message: string, variant?: 'default' | 'warning') => void
-}
-
-export const useToast = create<ToastState>((set) => ({
-  message: '',
-  variant: 'default',
-  key: 0,
-  show: (message, variant = 'default') =>
-    set((s) => ({ message, variant, key: s.key + 1 })),
-}))
-
-export function toast(message: string, variant?: 'default' | 'warning') {
-  useToast.getState().show(message, variant)
-}
+import { useToastStore } from '../stores/toastStore'
 
 export default function Toast() {
-  const { message, variant, key } = useToast()
-  const [visible, setVisible] = useState(false)
-  const [fading, setFading] = useState(false)
-
-  useEffect(() => {
-    if (!message) return
-    setVisible(true)
-    setFading(false)
-
-    const fadeTimer = setTimeout(() => setFading(true), 900)
-    const hideTimer = setTimeout(() => {
-      setVisible(false)
-      setFading(false)
-    }, 1200)
-
-    return () => {
-      clearTimeout(fadeTimer)
-      clearTimeout(hideTimer)
-    }
-  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!visible) return null
-
-  const isWarning = variant === 'warning'
-
+  const message = useToastStore((s) => s.message)
+  if (!message) return null
   return (
     <div
-      className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] pointer-events-none"
-      style={{
-        opacity: fading ? 0 : 1,
-        transition: 'opacity 300ms ease-out',
-      }}
       role="status"
       aria-live="polite"
+      style={{
+        position: 'fixed',
+        top: 24,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: '#1a1a2e',
+        color: '#fff',
+        padding: '8px 16px',
+        borderRadius: 8,
+        fontSize: 13,
+        fontWeight: 500,
+        zIndex: 9999,
+        pointerEvents: 'none',
+        animation: 'toastFadeIn 0.2s ease',
+      }}
     >
-      <div
-        className="px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap shadow-lg"
-        style={
-          isWarning
-            ? { backgroundColor: '#FEF3C7', color: '#92400E' }
-            : { backgroundColor: '#1a1a2e', color: '#ffffff' }
-        }
-      >
-        {message}
-      </div>
+      {message}
     </div>
   )
 }
