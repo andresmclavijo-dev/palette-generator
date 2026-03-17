@@ -20,6 +20,7 @@ import Tooltip from './components/ui/Tooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import CookieConsent from './components/CookieConsent'
+import Toast, { toast } from './components/Toast'
 import { usePro } from './hooks/usePro'
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
@@ -45,16 +46,12 @@ export default function App() {
   const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
   const [proModalOpen, setProModalOpen] = useState(false)
   const [toolsOpen,    setToolsOpen]    = useState(false)
-  const [saveToast,    setSaveToast]    = useState('')
-
-  const [copyToast,    setCopyToast]    = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
   const [savedOpen,    setSavedOpen]    = useState(false)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
-  const [aiError,     setAiError]      = useState('')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
@@ -66,8 +63,7 @@ export default function App() {
   }, [isPro])
 
   const showCopyToast = useCallback(() => {
-    setCopyToast(true)
-    setTimeout(() => setCopyToast(false), 1500)
+    toast('Copied!')
   }, [])
 
   const handlePanelChange = useCallback((panel: ActivePanel) => {
@@ -131,8 +127,8 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(window.location.href)
       setShareCopied(true)
-      setSaveToast('Link copied!')
-      setTimeout(() => { setShareCopied(false); setSaveToast('') }, 2000)
+      toast('Link copied!')
+      setTimeout(() => setShareCopied(false), 2000)
     } catch { /* silent */ }
   }
 
@@ -177,21 +173,18 @@ export default function App() {
       const { supabase } = await import('./lib/supabase')
       const colors = swatches.map(s => s.hex).filter(Boolean)
       if (colors.length === 0) {
-        setSaveToast('Nothing to save')
-        setTimeout(() => setSaveToast(''), 2000)
+        toast('Nothing to save')
         return
       }
       const payload = { user_id: user.id, name, colors }
       console.log('[Save] payload:', JSON.stringify(payload))
       const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
-      setSaveToast('Palette saved \u2713')
-      setTimeout(() => setSaveToast(''), 2000)
+      toast('Palette saved \u2713')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('Save failed:', msg, err)
-      setSaveToast('Save failed — check console')
-      setTimeout(() => setSaveToast(''), 3000)
+      toast('Save failed — check console')
     }
   }
 
@@ -286,7 +279,7 @@ export default function App() {
         onFallback={triggerGenerate}
         onProGate={openProModal}
         onUsageChange={() => setAiRemaining(getAiRemaining())}
-        onError={(msg) => { setAiError(msg); setTimeout(() => setAiError(''), 4000) }}
+        onError={(msg) => toast(msg, 'warning')}
         colorCount={count}
       />
 
@@ -555,8 +548,7 @@ export default function App() {
         onShare={async () => {
           try {
             await navigator.clipboard.writeText(window.location.href)
-            setSaveToast('Link copied!')
-            setTimeout(() => setSaveToast(''), 2000)
+            toast('Link copied!')
           } catch { /* silent */ }
         }}
         onSignIn={() => setSignInOpen(true)}
@@ -602,29 +594,7 @@ export default function App() {
         />
       )}
 
-      {/* Save toast */}
-      {saveToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium whitespace-nowrap shadow-lg pointer-events-none">
-          {saveToast}
-        </div>
-      )}
-
-      {/* Copy toast */}
-      {copyToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium whitespace-nowrap shadow-lg pointer-events-none">
-          Copied!
-        </div>
-      )}
-
-      {/* AI error toast */}
-      {aiError && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2.5 rounded-xl shadow-lg pointer-events-none"
-          style={{ backgroundColor: '#FEF3C7', color: '#92400E', fontSize: 13, fontWeight: 500 }}
-        >
-          {aiError}
-        </div>
-      )}
-
+      <Toast />
       <WelcomeModal />
       <VisionFilterDefs />
       <CookieConsent />
