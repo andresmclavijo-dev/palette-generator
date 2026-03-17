@@ -71,13 +71,14 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
               ? 'bg-blue-50 text-blue-600'
               : 'hover:bg-surface-secondary hover:text-gray-700 text-[#444444]'
           }`}
+          aria-label="Color blindness simulation (Pro)"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
           </svg>
           <span>Vision</span>
-          {!isPro && <ProBadge />}
+          {!isPro && <span aria-hidden="true"><ProBadge /></span>}
         </button>
       </Tooltip>
 

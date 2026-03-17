@@ -58,14 +58,15 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
           disabled={loading}
           className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium hover:bg-surface-secondary hover:text-gray-700 transition-all disabled:opacity-50"
           style={{ color: '#444444' }}
+          aria-label="Image color extraction (Pro)"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
           <span>{loading ? 'Analyzing\u2026' : 'Image'}</span>
-          {showBadge && <ProBadge />}
+          {showBadge && <span aria-hidden="true"><ProBadge /></span>}
         </button>
       </Tooltip>
 
