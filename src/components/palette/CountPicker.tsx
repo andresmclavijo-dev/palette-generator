@@ -37,17 +37,16 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
             }}
             className={`
               flex items-center justify-center
+              w-6 h-6 rounded-full
               text-[11px] font-medium select-none
-              transition-all duration-150
-              ${!active ? 'hover:bg-surface-secondary' : ''}
+              transition-all duration-150 cursor-pointer
+              ${active
+                ? 'bg-brand-violet text-brand-warm'
+                : 'bg-white hover:bg-surface-secondary'
+              }
             `}
             style={{
-              width: 24,
-              height: 24,
-              borderRadius: 12,
-              background: active ? '#6C47FF' : '#FFFFFF',
               color: active ? '#FAFAF8' : locked ? '#bbbbbb' : '#1a1a2e',
-              cursor: 'pointer',
             }}
             aria-label={locked ? `${n} colors — Pro` : `${n} colors`}
           >

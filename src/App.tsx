@@ -204,7 +204,7 @@ export default function App() {
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden" style={{ backgroundColor: BRAND_WARM }}>
+    <div className="w-screen flex flex-col overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
 
       {/* Visually hidden h1 for screen readers */}
       <h1 className="absolute w-px h-px overflow-hidden" style={{ clip: 'rect(0,0,0,0)' }}>Paletta — Color Palette Generator</h1>
@@ -332,8 +332,8 @@ export default function App() {
                 if (helpOpen) { setHelpOpen(false) }
                 else { setHelpOpen(true); setActivePanel(null) }
               }}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
               aria-label="Keyboard shortcuts"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -365,8 +365,8 @@ export default function App() {
             <button
               onClick={undo}
               disabled={historyIndex <= 0}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
               aria-label="Undo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -386,7 +386,7 @@ export default function App() {
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Generate
-            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center text-[10px] font-semibold text-white leading-none py-0 bg-brand-violet-light" style={{ width: 30, height: 14, borderRadius: 4, paddingLeft: 8, paddingRight: 8 }}>space</span>
+            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center w-[30px] h-[14px] px-[8px] py-0 rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light">space</span>
             <span className="sr-only">press space to generate</span>
           </button>
 
@@ -395,8 +395,8 @@ export default function App() {
             <button
               onClick={redo}
               disabled={historyIndex >= history.length - 1}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
               aria-label="Redo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
