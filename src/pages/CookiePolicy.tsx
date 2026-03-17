@@ -58,6 +58,8 @@ word-break: break-word !important;
 export default function CookiePolicy() {
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.title = 'Cookie Policy — Paletta'
+    return () => { document.title = 'Paletta — Free Color Palette Generator' }
   }, [])
 
   return (

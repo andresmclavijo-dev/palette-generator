@@ -35,6 +35,7 @@ function fallbackCopy(text: string): Promise<void> {
 
 export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps) {
   const [color, setColor] = useState(hex.startsWith('#') ? hex : '#' + hex)
+  const [hexDraft, setHexDraft] = useState(hex.replace('#', '').toUpperCase())
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -49,8 +50,14 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     if (normalized.toLowerCase() !== color.toLowerCase()) {
       skipFirst.current = true // don't notify parent of their own change
       setColor(normalized)
+      setHexDraft(normalized.replace('#', '').toUpperCase())
     }
   }, [hex]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep draft in sync when color changes from the picker (not from typing)
+  useEffect(() => {
+    setHexDraft(color.replace('#', '').toUpperCase())
+  }, [color])
 
   // Animate in on mobile
   useEffect(() => {
@@ -88,8 +95,6 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
       setTimeout(() => setCopied(false), 1200)
     } catch { /* silent */ }
   }
-
-  const displayHex = color.replace('#', '').toUpperCase()
 
   // ── MOBILE: native <input type="color"> — rendered via portal to escape vision filter ──
   if (IS_MOBILE) {
@@ -145,7 +150,30 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
                 <span className="text-[12px] text-gray-400 font-mono">#</span>
-                <span className="flex-1 text-[14px] font-mono uppercase text-gray-800">{displayHex}</span>
+                <input
+                  value={hexDraft}
+                  onChange={e => {
+                    const cleaned = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
+                    setHexDraft(cleaned.toUpperCase())
+                    if (cleaned.length === 6) setColor('#' + cleaned)
+                  }}
+                  onBlur={() => {
+                    if (hexDraft.length === 6) setColor('#' + hexDraft)
+                    else setHexDraft(color.replace('#', '').toUpperCase())
+                  }}
+                  onKeyDown={e => {
+                    e.stopPropagation()
+                    if (e.key === 'Enter') {
+                      if (hexDraft.length === 6) setColor('#' + hexDraft)
+                      else setHexDraft(color.replace('#', '').toUpperCase())
+                      ;(e.target as HTMLInputElement).blur()
+                    }
+                  }}
+                  onClick={e => e.stopPropagation()}
+                  maxLength={6}
+                  className="flex-1 min-w-0 bg-transparent text-[14px] font-mono uppercase text-gray-800 outline-none"
+                  aria-label="Hex color value"
+                />
               </div>
               <button
                 onClick={handleCopy}
@@ -210,15 +238,28 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         <div className="flex-1 flex items-center gap-1 px-3 h-9 rounded-lg bg-gray-50 border border-gray-200">
           <span className="text-[12px] text-gray-400 font-mono">#</span>
           <input
-            value={displayHex}
+            value={hexDraft}
             onChange={e => {
               const cleaned = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6)
+              setHexDraft(cleaned.toUpperCase())
               if (cleaned.length === 6) setColor('#' + cleaned)
             }}
-            onKeyDown={e => e.stopPropagation()}
+            onBlur={() => {
+              if (hexDraft.length === 6) setColor('#' + hexDraft)
+              else setHexDraft(color.replace('#', '').toUpperCase())
+            }}
+            onKeyDown={e => {
+              e.stopPropagation()
+              if (e.key === 'Enter') {
+                if (hexDraft.length === 6) setColor('#' + hexDraft)
+                else setHexDraft(color.replace('#', '').toUpperCase())
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
             onClick={e => e.stopPropagation()}
             maxLength={6}
             className="flex-1 min-w-0 bg-transparent text-[13px] font-mono uppercase outline-none"
+            aria-label="Hex color value"
           />
         </div>
         <button

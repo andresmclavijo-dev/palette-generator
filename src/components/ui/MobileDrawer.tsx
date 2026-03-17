@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import ProBadge from './ProBadge'
 import { getAiRemaining, AI_MAX_FREE } from '../../components/palette/AiPrompt'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
@@ -278,6 +279,44 @@ export default function MobileDrawer({
             </div>
           </>
         )}
+
+        {/* Divider */}
+        <div className="mx-5 my-2 h-px bg-gray-100" />
+
+        {/* Legal section */}
+        <div className="px-5 pt-2 pb-1">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Legal</span>
+        </div>
+        <div className="px-5 pb-5 flex flex-col gap-2">
+          <Link
+            to="/privacy-policy"
+            onClick={onClose}
+            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/cookie-policy"
+            onClick={onClose}
+            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+          >
+            Cookie Policy
+          </Link>
+          <Link
+            to="/terms-of-service"
+            onClick={onClose}
+            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+          >
+            Terms of Service
+          </Link>
+          <a
+            href="mailto:hello@usepaletta.io"
+            onClick={onClose}
+            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+          >
+            Contact
+          </a>
+        </div>
       </div>
     </div>
   )

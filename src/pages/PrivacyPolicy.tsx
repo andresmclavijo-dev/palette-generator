@@ -59,6 +59,8 @@ word-break: break-word !important;
 export default function PrivacyPolicy() {
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.title = 'Privacy Policy — Paletta'
+    return () => { document.title = 'Paletta — Free Color Palette Generator' }
   }, [])
 
   return (

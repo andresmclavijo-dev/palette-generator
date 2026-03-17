@@ -538,6 +538,8 @@ const CONTENT = `<style>
 export default function TermsOfService() {
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.title = 'Terms of Service — Paletta'
+    return () => { document.title = 'Paletta — Free Color Palette Generator' }
   }, [])
 
   return (
