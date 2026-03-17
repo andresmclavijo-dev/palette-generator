@@ -34,14 +34,14 @@ interface AiPromptProps {
   onFallback: () => void
   onProGate: () => void
   onUsageChange?: () => void
+  onError?: (message: string) => void
   colorCount: number
 }
 
-export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onUsageChange, colorCount }: AiPromptProps) {
+export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onUsageChange, onError, colorCount }: AiPromptProps) {
   const { isPro } = usePro()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
-  const [toast, setToast] = useState('')
   const [usageCount, setUsageCount] = useState(getAiUsageToday)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const remaining = Math.max(0, AI_MAX_FREE - usageCount)
@@ -54,11 +54,6 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       setTimeout(() => textareaRef.current?.focus(), 100)
     }
   }, [open])
-
-  const showToast = (msg: string) => {
-    setToast(msg)
-    setTimeout(() => setToast(''), 3000)
-  }
 
   const handleUpgradeOrGenerate = () => {
     if (exhausted) {
@@ -165,9 +160,9 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       setPrompt('')
       onClose()
     } catch {
-      showToast('AI unavailable \u2014 using random')
       onFallback()
       onClose()
+      onError?.('AI is currently over capacity. Try again in a moment!')
     } finally {
       setLoading(false)
     }
@@ -258,12 +253,6 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         </div>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
-          {toast}
-        </div>
-      )}
     </div>
   )
 }

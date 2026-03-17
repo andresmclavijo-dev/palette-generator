@@ -54,6 +54,7 @@ export default function App() {
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
+  const [aiError,     setAiError]      = useState('')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
@@ -285,6 +286,7 @@ export default function App() {
         onFallback={triggerGenerate}
         onProGate={openProModal}
         onUsageChange={() => setAiRemaining(getAiRemaining())}
+        onError={(msg) => { setAiError(msg); setTimeout(() => setAiError(''), 4000) }}
         colorCount={count}
       />
 
@@ -611,6 +613,15 @@ export default function App() {
       {copyToast && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium whitespace-nowrap shadow-lg pointer-events-none">
           Copied!
+        </div>
+      )}
+
+      {/* AI error toast */}
+      {aiError && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2.5 rounded-xl shadow-lg pointer-events-none"
+          style={{ backgroundColor: '#FEF3C7', color: '#92400E', fontSize: 13, fontWeight: 500 }}
+        >
+          {aiError}
         </div>
       )}
 

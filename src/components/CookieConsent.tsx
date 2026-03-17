@@ -65,11 +65,11 @@ export default function CookieConsent() {
             style={{
               padding: '10px 20px',
               fontSize: 14,
-              fontWeight: 500,
+              fontWeight: 600,
               borderRadius: 9999,
-              border: '1px solid rgba(255,255,255,0.3)',
-              backgroundColor: 'transparent',
-              color: '#ffffff',
+              border: 'none',
+              backgroundColor: '#ffffff',
+              color: '#1a1a2e',
               cursor: 'pointer',
               minHeight: 44,
             }}
