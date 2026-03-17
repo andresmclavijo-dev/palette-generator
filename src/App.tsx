@@ -295,8 +295,8 @@ export default function App() {
 
         {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
-          className="w-full h-full sm:pb-0"
-          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))', filter: visionFilter }}
+          className="w-full h-full pb-[calc(88px+env(safe-area-inset-bottom,0px))] sm:pb-0"
+          style={{ filter: visionFilter }}
         >
           <PaletteCanvas
             swatches={swatches}
@@ -386,7 +386,13 @@ export default function App() {
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             Generate
-            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center w-[30px] h-[14px] px-[8px] py-0 rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light">space</span>
+            <span
+              aria-hidden="true"
+              className="hidden md:inline-flex items-center justify-center shrink-0 text-[10px] font-semibold text-white leading-none"
+              style={{ width: 30, height: 14, padding: '0 8px', background: '#9b82ff', borderRadius: 4 }}
+            >
+              space
+            </span>
             <span className="sr-only">press space to generate</span>
           </button>
 
