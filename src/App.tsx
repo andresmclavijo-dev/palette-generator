@@ -235,7 +235,7 @@ export default function App() {
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
-        className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-hidden"
         style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
