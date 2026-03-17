@@ -226,6 +226,7 @@ export default function App() {
         onShare={handleShare}
         onSave={handleSave}
         onSavedPalettes={() => setSavedOpen(true)}
+        savedOpen={savedOpen}
         onExport={() => setExportOpen(o => !o)}
         onSignIn={() => setSignInOpen(true)}
         onSignOut={signOut}

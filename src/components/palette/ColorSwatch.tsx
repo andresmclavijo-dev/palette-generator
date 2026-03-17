@@ -263,6 +263,7 @@ export default function ColorSwatch({
           className="text-[14px] font-mono font-bold tracking-wider uppercase truncate"
           style={{ color: labelColor }}
           onClick={(e) => { e.stopPropagation(); onPanelChange({ type: 'picker', swatchIndex: index }) }}
+          aria-label={`Edit color ${hex.toUpperCase()}`}
         >
           {copied ? 'Copied' : hex.toUpperCase()}
         </button>
@@ -342,7 +343,7 @@ export default function ColorSwatch({
       }}
       onClick={handleDesktopClick}
       role="button"
-      aria-label={locked ? `Unlock ${hex}` : `Lock ${hex}`}
+      aria-label={`${colorName || hex.toUpperCase()} — click to ${locked ? 'unlock' : 'lock'}`}
     >
       {/* Hover sheen */}
       <div
