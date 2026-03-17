@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { HarmonyMode } from '../../lib/colorEngine'
 
-const MODES: { value: HarmonyMode; label: string }[] = [
-  { value: 'random',        label: 'Random'        },
-  { value: 'analogous',     label: 'Analogous'     },
-  { value: 'monochromatic', label: 'Monochromatic' },
-  { value: 'complementary', label: 'Complementary' },
-  { value: 'triadic',       label: 'Triadic'       },
+const MODES: { value: HarmonyMode; label: string; tip: string }[] = [
+  { value: 'random',        label: 'Random',        tip: 'Generate random color combinations' },
+  { value: 'analogous',     label: 'Analogous',     tip: 'Colors next to each other on the color wheel' },
+  { value: 'monochromatic', label: 'Monochromatic', tip: 'Shades and tints of a single color' },
+  { value: 'complementary', label: 'Complementary', tip: 'Colors opposite on the color wheel' },
+  { value: 'triadic',       label: 'Triadic',       tip: 'Three colors equally spaced on the color wheel' },
 ]
 
 interface HarmonyPickerProps {
@@ -45,6 +45,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           <button
             key={m.value}
             onClick={() => onChange(m.value)}
+            title={m.tip}
             className="px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 snap-start"
             style={{
               background: mode === m.value ? '#6C47FF' : '#f5f5f3',

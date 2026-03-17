@@ -20,6 +20,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
       className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
       style={{ border: '1px solid #e8e8e8' }}
       onClick={e => e.stopPropagation()}
+      title="Number of colors in palette"
     >
       {/* Label removed — context is obvious from the number buttons */}
 

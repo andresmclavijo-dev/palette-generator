@@ -62,7 +62,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
 
   return (
     <div className="relative shrink-0 hidden sm:block">
-      <ToolTooltip description="Check WCAG contrast & simulate color blindness" showProBadge={!isPro} disabled={dropOpen}>
+      <ToolTooltip description="Simulate color blindness" showProBadge={!isPro} disabled={dropOpen}>
         <button
           ref={btnRef}
           onClick={handleClick}

@@ -13,22 +13,33 @@ export default function Tooltip({ text, children, disabled, position = 'top' }: 
   const [visible, setVisible] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const updatePos = useCallback(() => {
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
-    if (position === 'bottom') {
-      setPos({
-        top: rect.bottom + 8,
-        left: rect.left + rect.width / 2,
-      })
-    } else {
-      setPos({
-        top: rect.top - 8,
-        left: rect.left + rect.width / 2,
-      })
+    const newPos = {
+      top: position === 'bottom' ? rect.bottom + 8 : rect.top - 8,
+      left: rect.left + rect.width / 2,
     }
+    setPos(newPos)
+
+    // Clamp after render so tooltip stays in viewport
+    requestAnimationFrame(() => {
+      if (!tooltipRef.current) return
+      const tip = tooltipRef.current.getBoundingClientRect()
+      const pad = 8
+      let clampedLeft = newPos.left
+      if (tip.left < pad) {
+        clampedLeft = newPos.left + (pad - tip.left)
+      } else if (tip.right > window.innerWidth - pad) {
+        clampedLeft = newPos.left - (tip.right - window.innerWidth + pad)
+      }
+      if (clampedLeft !== newPos.left) {
+        setPos(prev => ({ ...prev, left: clampedLeft }))
+      }
+    })
   }, [position])
 
   const show = useCallback(() => {
@@ -73,6 +84,7 @@ export default function Tooltip({ text, children, disabled, position = 'top' }: 
       </div>
       {visible && createPortal(
         <div
+          ref={tooltipRef}
           className="fixed pointer-events-none"
           style={{
             top: pos.top,
