@@ -45,15 +45,11 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           <button
             key={m.value}
             onClick={() => onChange(m.value)}
-            className={`
-              px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap
-              transition-all duration-150 cursor-pointer select-none shrink-0 snap-start
-              ${mode === m.value
-                ? 'bg-brand-violet text-white'
-                : 'bg-surface-secondary hover:bg-[#ebebea]'
-              }
-            `}
-            style={mode !== m.value ? { color: '#2C2C2A' } : undefined}
+            className="px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 snap-start"
+            style={{
+              background: mode === m.value ? '#6C47FF' : '#f5f5f3',
+              color: mode === m.value ? '#FFFFFF' : '#2C2C2A',
+            }}
           >
             {m.label}
           </button>
