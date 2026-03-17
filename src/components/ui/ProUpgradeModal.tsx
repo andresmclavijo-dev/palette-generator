@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Sparkles, Image, Eye, Heart, Layers, Download, LayoutGrid } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { getCheckoutUrl } from '../../lib/stripe'
+import { createCheckoutSession } from '../../lib/stripe'
 import { usePaletteStore } from '../../store/paletteStore'
+import { showToast } from '../../utils/toast'
 import { BRAND_VIOLET as ACCENT } from '../../lib/tokens'
 
 const PRO_FEATURES: { Icon: LucideIcon; bg: string; color: string; text: string }[] = [
@@ -21,18 +23,29 @@ interface ProUpgradeModalProps {
   onSignIn?: () => void
 }
 
-export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps) {
+export default function ProUpgradeModal({ open, onClose, onSignIn }: ProUpgradeModalProps) {
   const { user } = useAuth()
   const swatches = usePaletteStore(s => s.swatches)
+  const [loading, setLoading] = useState(false)
 
   if (!open) return null
 
-  const handleMonthly = () => {
-    window.open(getCheckoutUrl('monthly', user?.id), '_blank')
-  }
+  const handleCheckout = async (plan: 'monthly' | 'yearly') => {
+    if (!user) {
+      // Not signed in — prompt sign in first
+      onSignIn?.()
+      return
+    }
 
-  const handleYearly = () => {
-    window.open(getCheckoutUrl('yearly', user?.id), '_blank')
+    setLoading(true)
+    try {
+      const url = await createCheckoutSession(plan, user.id, user.email ?? undefined)
+      window.location.href = url
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Checkout failed'
+      showToast(msg)
+      setLoading(false)
+    }
   }
 
   const previewColors = swatches.slice(0, 5).map(s => s.hex)
@@ -85,28 +98,48 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
           <div className="border-t border-gray-100 my-4" />
 
           {/* CTAs */}
-          <div className="space-y-2">
-            <button
-              onClick={handleMonthly}
-              className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
-            >
-              Subscribe Monthly — $5/mo
-            </button>
-            <button
-              onClick={handleYearly}
-              className="flex items-center justify-center w-full h-10 rounded-full text-[14px] font-medium transition-all hover:bg-purple-50 active:scale-95 border"
-              style={{ borderColor: ACCENT, color: ACCENT }}
-            >
-              Subscribe Yearly — $45/yr
-              <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 25%</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
-            >
-              Not now
-            </button>
-          </div>
+          {!user ? (
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500 text-center mb-2">Sign in to subscribe</p>
+              <button
+                onClick={() => onSignIn?.()}
+                className="flex items-center justify-center gap-2 w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95"
+              >
+                Sign in with Google
+              </button>
+              <button
+                onClick={onClose}
+                className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
+              >
+                Not now
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <button
+                onClick={() => handleCheckout('monthly')}
+                disabled={loading}
+                className="flex items-center justify-center w-full h-10 rounded-full text-white text-[14px] font-medium transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 disabled:opacity-50"
+              >
+                {loading ? 'Redirecting…' : 'Subscribe Monthly — $5/mo'}
+              </button>
+              <button
+                onClick={() => handleCheckout('yearly')}
+                disabled={loading}
+                className="flex items-center justify-center w-full h-10 rounded-full text-[14px] font-medium transition-all hover:bg-purple-50 active:scale-95 border disabled:opacity-50"
+                style={{ borderColor: ACCENT, color: ACCENT }}
+              >
+                {loading ? 'Redirecting…' : 'Subscribe Yearly — $45/yr'}
+                {!loading && <span className="ml-1.5 text-[11px] font-bold text-green-600">Save 25%</span>}
+              </button>
+              <button
+                onClick={onClose}
+                className="w-full h-10 rounded-full text-[14px] font-medium text-gray-500 hover:text-gray-700 hover:bg-surface-secondary transition-all"
+              >
+                Not now
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right column: live palette preview (desktop only) */}

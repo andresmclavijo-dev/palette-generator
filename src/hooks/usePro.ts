@@ -2,9 +2,14 @@ import { useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
 import { useProStore } from '../store/proStore'
+import { showToast } from '../utils/toast'
 
 // Check once at module load so it survives re-renders
-const hadPaymentSuccess = window.location.search.includes('payment=success')
+const searchParams = new URLSearchParams(window.location.search)
+const hadPaymentSuccess = searchParams.has('payment') && searchParams.get('payment') === 'success'
+const hadCheckoutSuccess = searchParams.has('checkout') && searchParams.get('checkout') === 'success'
+const hadCheckoutCancelled = searchParams.has('checkout') && searchParams.get('checkout') === 'cancelled'
+const hadAnySuccess = hadPaymentSuccess || hadCheckoutSuccess
 
 // Developer override — ?dev_pro=1 or localStorage paletta_dev_pro=1
 // Only works when Vite's DEV flag is true (npm run dev). Completely ignored in production builds.
@@ -27,6 +32,7 @@ export function usePro() {
   const { user, loading: authLoading } = useAuth()
   const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
+  const cancelHandled = useRef(false)
 
   const userId = user?.id ?? null
 
@@ -63,9 +69,17 @@ export function usePro() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, authLoading])
 
-  // Handle post-payment redirect
+  // Handle checkout cancelled
   useEffect(() => {
-    if (!hadPaymentSuccess || paymentHandled.current) return
+    if (!hadCheckoutCancelled || cancelHandled.current) return
+    cancelHandled.current = true
+    window.history.replaceState(null, '', window.location.pathname)
+    showToast('Checkout cancelled')
+  }, [])
+
+  // Handle post-payment redirect (both legacy payment=success and new checkout=success)
+  useEffect(() => {
+    if (!hadAnySuccess || paymentHandled.current) return
     if (authLoading) return
     paymentHandled.current = true
 
@@ -74,10 +88,11 @@ export function usePro() {
 
     if (user) {
       // Signed in: force Pro immediately, then verify
-      console.log('[usePro] payment=success detected, forcing Pro for user', user.id)
+      console.log('[usePro] checkout success detected, forcing Pro for user', user.id)
       setIsPro(true)
       setLoading(false)
       setFetched(true)
+      showToast('Welcome to Pro!')
 
       const refresh = async () => {
         await supabase.auth.refreshSession()
@@ -97,7 +112,7 @@ export function usePro() {
       refresh()
     } else {
       // Not signed in: show the payment success modal
-      console.log('[usePro] payment=success but no user — showing sign-in modal')
+      console.log('[usePro] checkout success but no user — showing sign-in modal')
       setShowPaymentModal(true)
     }
   }, [user, authLoading, setIsPro, setLoading, setFetched, setShowPaymentModal])

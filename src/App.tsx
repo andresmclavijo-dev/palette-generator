@@ -28,6 +28,7 @@ import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
+import { createPortalSession } from './lib/stripe'
 import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
 const FREE_COUNTS = [3, 4, 5]
 
@@ -205,6 +206,19 @@ export default function App() {
     setCount(next)
   }
 
+  const handleManageSubscription = async () => {
+    if (!user?.email) {
+      showToast('Contact support to manage your subscription')
+      return
+    }
+    try {
+      const url = await createPortalSession(user.email)
+      window.location.href = url
+    } catch {
+      showToast('Contact support to manage your subscription')
+    }
+  }
+
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
@@ -235,6 +249,7 @@ export default function App() {
         onSignOut={signOut}
         onProGate={openProModal}
         onDrawerOpen={() => setDrawerOpen(true)}
+        onManageSubscription={handleManageSubscription}
       />
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
@@ -565,6 +580,7 @@ export default function App() {
         onVisionSim={() => { if (isPro) { setToolsOpen(true) } else { openProModal() } }}
         onAiPalette={() => { setAiOpen(true) }}
         onSavedPalettes={() => setSavedOpen(true)}
+        onManageSubscription={handleManageSubscription}
         isPro={isPro}
         isSignedIn={isSignedIn}
         userEmail={user?.email ?? undefined}

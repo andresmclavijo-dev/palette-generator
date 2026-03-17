@@ -24,6 +24,7 @@ interface MobileDrawerProps {
   onVisionSim: () => void
   onAiPalette: () => void
   onSavedPalettes: () => void
+  onManageSubscription?: () => void
   isPro?: boolean
   isSignedIn?: boolean
   userEmail?: string
@@ -33,7 +34,8 @@ interface MobileDrawerProps {
 
 export default function MobileDrawer({
   open, onClose, onSave, onShare, onExport, onSignIn, onSignOut, onProGate,
-  onImagePalette, onAiPalette, onSavedPalettes, isPro, isSignedIn, userEmail,
+  onImagePalette, onAiPalette, onSavedPalettes, onManageSubscription,
+  isPro, isSignedIn, userEmail,
   visionMode = 'normal', onVisionChange,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
@@ -261,8 +263,8 @@ export default function MobileDrawer({
           </button>
         </div>
 
-        {/* Go Pro button — hidden for Pro users */}
-        {!isPro && (
+        {/* Go Pro or Manage Subscription */}
+        {!isPro ? (
           <>
             <div className="mx-5 my-2 h-px bg-gray-100" />
             <div className="px-5 py-4">
@@ -274,7 +276,25 @@ export default function MobileDrawer({
               </button>
             </div>
           </>
-        )}
+        ) : isSignedIn && onManageSubscription ? (
+          <>
+            <div className="mx-5 my-2 h-px bg-gray-100" />
+            <div className="px-3 py-1">
+              <button
+                onClick={() => handleRow(onManageSubscription)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <span className="text-[14px] font-medium text-gray-800">Manage Subscription</span>
+              </button>
+            </div>
+          </>
+        ) : null}
 
         {/* Divider */}
         <div className="mx-5 my-2 h-px bg-gray-100" />

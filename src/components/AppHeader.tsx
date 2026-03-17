@@ -15,6 +15,7 @@ interface AppHeaderProps {
   onSignOut: () => void
   onProGate: () => void
   onDrawerOpen: () => void
+  onManageSubscription?: () => void
 }
 
 export default function AppHeader({
@@ -30,6 +31,7 @@ export default function AppHeader({
   onSignOut,
   onProGate,
   onDrawerOpen,
+  onManageSubscription,
 }: AppHeaderProps) {
   const [avatarOpen, setAvatarOpen] = useState(false)
   const avatarRef = useRef<HTMLDivElement>(null)
@@ -179,6 +181,14 @@ export default function AppHeader({
                     <span className="text-[11px] text-gray-400 break-all">{userEmail}</span>
                   </div>
                   <div className="mx-2 my-1 h-px bg-gray-100" />
+                  {isPro && onManageSubscription && (
+                    <button
+                      onClick={() => { setAvatarOpen(false); onManageSubscription() }}
+                      className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                    >
+                      Manage Subscription
+                    </button>
+                  )}
                   <button
                     onClick={() => { setAvatarOpen(false); onSignOut() }}
                     className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
