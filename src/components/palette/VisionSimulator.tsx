@@ -62,7 +62,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
 
   return (
     <div className="relative shrink-0 hidden sm:block">
-      <Tooltip text="Check accessibility">
+      <Tooltip text="Simulate color vision deficiencies">
         <button
           ref={btnRef}
           onClick={handleClick}

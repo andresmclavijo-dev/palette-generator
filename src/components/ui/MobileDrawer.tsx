@@ -182,21 +182,6 @@ export default function MobileDrawer({
 
         <div className="px-3 py-1">
           <button
-            onClick={() => handleRow(onImagePalette)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
-          >
-            <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-              </svg>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Image</span>
-              {!isPro && <ProBadge />}
-            </div>
-          </button>
-
-          <button
             onClick={() => {
               if (!isPro) { onProGate(); onClose(); return }
               setVisionExpanded(o => !o)
@@ -242,6 +227,21 @@ export default function MobileDrawer({
           )}
 
           <button
+            onClick={() => handleRow(onImagePalette)}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[14px] font-medium text-gray-800">Image</span>
+              {!isPro && <ProBadge />}
+            </div>
+          </button>
+
+          <button
             onClick={() => handleRow(onAiPalette)}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
           >
@@ -249,7 +249,7 @@ export default function MobileDrawer({
               <span className="text-[16px]">✨</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">AI</span>
+              <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
               {isPro ? (
                 <span className="text-[10px] text-gray-400">Unlimited</span>
               ) : (

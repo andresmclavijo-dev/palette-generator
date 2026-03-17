@@ -52,7 +52,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
         className="hidden"
         onChange={handleFile}
       />
-      <Tooltip text="Extract from image">
+      <Tooltip text="Extract colors from an uploaded image">
         <button
           onClick={handleClick}
           disabled={loading}

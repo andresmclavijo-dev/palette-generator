@@ -179,8 +179,19 @@ export default function App() {
         toast('Nothing to save')
         return
       }
+      // Check for duplicate palette (same colors in same order)
+      const { data: existing } = await supabase
+        .from('saved_palettes')
+        .select('id, colors')
+        .eq('user_id', user.id)
+      const isDuplicate = existing?.some(
+        (p: { colors: string[] }) => JSON.stringify(p.colors) === JSON.stringify(colors)
+      )
+      if (isDuplicate) {
+        toast('Palette already saved')
+        return
+      }
       const payload = { user_id: user.id, name, colors }
-      console.log('[Save] payload:', JSON.stringify(payload))
       const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
       toast('Palette saved \u2713')
@@ -241,16 +252,16 @@ export default function App() {
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
-          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
-          <Tooltip text="Generate from prompt">
+          <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
+          <Tooltip text="Generate a palette from a text prompt">
             <button
               onClick={() => setAiOpen(true)}
               className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
               style={{ color: '#444444' }}
-              aria-label="AI palette generation"
+              aria-label="AI palette generation from text prompt"
             >
-              <span aria-hidden="true">✨</span> AI
+              <span aria-hidden="true">✨</span> AI Palette
               {!isPro && (
                 <span aria-hidden="true" className="contents">
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
