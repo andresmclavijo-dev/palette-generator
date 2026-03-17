@@ -4,6 +4,7 @@ import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } fr
 import ShadesPanel from './ShadesPanel'
 import ColorPicker from './ColorPicker'
 import Tooltip from '../ui/Tooltip'
+import ToolTooltip from '../ui/ToolTooltip'
 import type { ActivePanel } from './PaletteCanvas'
 import { showToast } from '../../utils/toast'
 
@@ -308,16 +309,15 @@ export default function ColorSwatch({
       {/* WCAG contrast badge */}
       {!shadesOpen && !pickerOpen && (
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10">
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}
-            title="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1."
-          >
-            {contrast.ratio}:1 {contrast.pass ? (
-              <span className="text-green-300">{contrast.level} ✓</span>
-            ) : (
-              <span className="text-red-300">✗</span>
-            )}
-          </span>
+          <ToolTooltip description="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1.">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}>
+              {contrast.ratio}:1 {contrast.pass ? (
+                <span className="text-green-300">{contrast.level} ✓</span>
+              ) : (
+                <span className="text-red-300">✗</span>
+              )}
+            </span>
+          </ToolTooltip>
         </div>
       )}
 
@@ -444,16 +444,15 @@ export default function ColorSwatch({
               {copied ? 'Copied' : hex.toUpperCase()}
             </button>
             {/* WCAG contrast badge */}
-            <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white mt-1`}
-              title="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1."
-            >
-              {contrast.ratio}:1 {contrast.pass ? (
-                <span className="text-green-300">{contrast.level} ✓</span>
-              ) : (
-                <span className="text-red-300">✗</span>
-              )}
-            </span>
+            <ToolTooltip description="WCAG contrast ratio against white. AA requires 4.5:1, AAA requires 7:1.">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white mt-1`}>
+                {contrast.ratio}:1 {contrast.pass ? (
+                  <span className="text-green-300">{contrast.level} ✓</span>
+                ) : (
+                  <span className="text-red-300">✗</span>
+                )}
+              </span>
+            </ToolTooltip>
           </div>
         </div>
       )}

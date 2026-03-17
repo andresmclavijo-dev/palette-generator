@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { HarmonyMode } from '../../lib/colorEngine'
+import ToolTooltip from '../ui/ToolTooltip'
 
 const MODES: { value: HarmonyMode; label: string; tip: string }[] = [
   { value: 'random',        label: 'Random',        tip: 'Generate random color combinations' },
@@ -42,18 +43,18 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
         onClick={e => e.stopPropagation()}
       >
         {MODES.map(m => (
-          <button
-            key={m.value}
-            onClick={() => onChange(m.value)}
-            title={m.tip}
-            className="px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 snap-start"
-            style={{
-              background: mode === m.value ? '#6C47FF' : '#f5f5f3',
-              color: mode === m.value ? '#FFFFFF' : '#2C2C2A',
-            }}
-          >
-            {m.label}
-          </button>
+          <ToolTooltip key={m.value} description={m.tip}>
+            <button
+              onClick={() => onChange(m.value)}
+              className="px-3 h-10 rounded-full text-[14px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 snap-start"
+              style={{
+                background: mode === m.value ? '#6C47FF' : '#f5f5f3',
+                color: mode === m.value ? '#FFFFFF' : '#2C2C2A',
+              }}
+            >
+              {m.label}
+            </button>
+          </ToolTooltip>
         ))}
       </div>
       {/* Right fade gradient — scroll hint */}

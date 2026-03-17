@@ -13,15 +13,33 @@ export default function ToolTooltip({ description, showProBadge, children, disab
   const [visible, setVisible] = useState(false)
   const [pos, setPos] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
   const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const updatePos = useCallback(() => {
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
-    setPos({
+    const newPos = {
       top: rect.bottom + 8,
       left: rect.left + rect.width / 2,
+    }
+    setPos(newPos)
+
+    // Clamp horizontally so popover stays in viewport
+    requestAnimationFrame(() => {
+      if (!popoverRef.current) return
+      const tip = popoverRef.current.getBoundingClientRect()
+      const pad = 8
+      let clampedLeft = newPos.left
+      if (tip.left < pad) {
+        clampedLeft = newPos.left + (pad - tip.left)
+      } else if (tip.right > window.innerWidth - pad) {
+        clampedLeft = newPos.left - (tip.right - window.innerWidth + pad)
+      }
+      if (clampedLeft !== newPos.left) {
+        setPos(prev => ({ ...prev, left: clampedLeft }))
+      }
     })
   }, [])
 
@@ -59,7 +77,7 @@ export default function ToolTooltip({ description, showProBadge, children, disab
     <>
       <div
         ref={triggerRef}
-        className="inline-flex"
+        className="inline-flex shrink-0"
         onMouseEnter={show}
         onMouseLeave={hide}
       >
@@ -67,6 +85,7 @@ export default function ToolTooltip({ description, showProBadge, children, disab
       </div>
       {visible && createPortal(
         <div
+          ref={popoverRef}
           className="fixed pointer-events-none hidden sm:block"
           style={{
             top: pos.top,
