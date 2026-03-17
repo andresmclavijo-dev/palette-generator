@@ -309,39 +309,6 @@ export default function App() {
           />
         </div>
 
-        {/* Floating help button — bottom left (desktop only) */}
-        <div className="absolute floating-bottom left-4 z-20 hidden sm:block">
-          <div className="relative">
-            <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
-              <button
-                onClick={() => {
-                  if (helpOpen) { setHelpOpen(false) }
-                  else { setHelpOpen(true); setActivePanel(null) }
-                }}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all text-[15px] font-semibold"
-                aria-label="Keyboard shortcuts"
-              >
-                ?
-              </button>
-            </Tooltip>
-            {helpOpen && (
-              <div className="absolute bottom-12 left-0 z-[100] min-w-[300px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
-                <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
-                  <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
-                  <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
-                  <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
-                  <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
-                  <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
-                  <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
-                </div>
-                <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Floating hint — desktop only, shown briefly on first load */}
         {showHint && (
           <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:block pointer-events-none">
@@ -352,27 +319,46 @@ export default function App() {
         )}
       </main>
 
-      {/* -- Desktop bottom bar (Figma Footer) -- */}
+      {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
       <div
-        className="flex-none hidden sm:flex items-center justify-between px-5"
-        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef' }}
+        className="flex-none hidden sm:flex items-center justify-between"
+        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
       >
-        {/* Left: Undo */}
-        <Tooltip text="Undo (Cmd+Z)">
-          <button
-            onClick={undo}
-            disabled={historyIndex <= 0}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-            style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
-            aria-label="Undo"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-            </svg>
-          </button>
-        </Tooltip>
+        {/* Left: Help / keyboard shortcuts */}
+        <div className="relative">
+          <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
+            <button
+              onClick={() => {
+                if (helpOpen) { setHelpOpen(false) }
+                else { setHelpOpen(true); setActivePanel(null) }
+              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
+              aria-label="Keyboard shortcuts"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </button>
+          </Tooltip>
+          {helpOpen && (
+            <div className="absolute bottom-12 left-0 z-[100] min-w-[300px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
+              <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
+                <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
+                <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
+                <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
+                <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
+                <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
+                <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
+              </div>
+              <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
+            </div>
+          )}
+        </div>
 
-        {/* Center: Undo + Redo + Generate + Export */}
+        {/* Center: Undo + Generate + Redo */}
         <div className="flex items-center gap-4">
           {/* Undo */}
           <Tooltip text="Undo (Cmd+Z)">
@@ -384,10 +370,25 @@ export default function App() {
               aria-label="Undo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                <path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>
               </svg>
             </button>
           </Tooltip>
+
+          {/* Generate */}
+          <button
+            onClick={triggerGenerate}
+            className="flex items-center gap-3 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
+            style={{ padding: '0 16px', gap: 12 }}
+            aria-label="Generate new palette"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Generate
+            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14, borderRadius: 4 }}>space</span>
+            <span className="sr-only">press space to generate</span>
+          </button>
 
           {/* Redo */}
           <Tooltip text="Redo (Cmd+Shift+Z)">
@@ -399,36 +400,7 @@ export default function App() {
               aria-label="Redo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
-              </svg>
-            </button>
-          </Tooltip>
-
-          {/* Generate */}
-          <button
-            onClick={triggerGenerate}
-            className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-            </svg>
-            Generate
-            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14 }}>space</span>
-            <span className="sr-only">press space to generate</span>
-          </button>
-
-          {/* Export */}
-          <Tooltip text="Export palette">
-            <button
-              onClick={() => setExportOpen(o => !o)}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              style={{ border: '1px solid #e8e8e8', background: 'transparent', color: '#1a1a2e' }}
-              aria-label="Export"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
+                <path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>
               </svg>
             </button>
           </Tooltip>
