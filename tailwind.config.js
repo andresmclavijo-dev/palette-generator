@@ -9,6 +9,7 @@ export default {
       colors: {
         'brand-violet': '#6C47FF',
         'brand-violet-hover': '#5431df',
+        'brand-violet-light': '#9b82ff',
         'brand-blue': '#1A73E8',
         'brand-dark': '#1a1a2e',
         'brand-warm': '#FAFAF8',
@@ -37,7 +38,7 @@ export default {
       borderRadius: {
         'sm': '4px',
         'md': '8px',
-        'lg': '10px',
+        'lg': '12px',
       },
       zIndex: {
         'swatch-hover': '10',
@@ -55,7 +56,7 @@ export default {
       },
       height: {
         'header-row': '60px',
-        'bottom-bar': '60px',
+        'bottom-bar': '64px',
         'footer-bar': '36px',
         'button': '40px',
         'summary-row': '32px',

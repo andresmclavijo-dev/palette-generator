@@ -9,31 +9,25 @@ export default function AppFooter() {
       }}
     >
       {/* Legal links */}
-      <nav className="flex items-center gap-4" aria-label="Legal">
+      <nav className="flex items-center gap-3" aria-label="Legal">
         <a
           href="/privacy"
-          className="text-[11px] no-underline transition-colors hover:underline"
-          style={{ color: '#767676' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#555')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#767676')}
+          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          style={{ color: '#666666' }}
         >
           Privacy Policy
         </a>
         <a
           href="/terms"
-          className="text-[11px] no-underline transition-colors hover:underline"
-          style={{ color: '#767676' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#555')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#767676')}
+          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          style={{ color: '#666666' }}
         >
           Terms of Service
         </a>
         <a
           href="mailto:hello@usepaletta.io"
-          className="text-[11px] no-underline transition-colors hover:underline"
-          style={{ color: '#767676' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#555')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#767676')}
+          className="text-[8px] font-normal no-underline transition-colors hover:underline"
+          style={{ color: '#666666' }}
         >
           Contact
         </a>
@@ -44,10 +38,8 @@ export default function AppFooter() {
         href="https://andresclavijo.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden sm:block text-[11px] font-light no-underline transition-colors hover:underline"
-        style={{ color: '#767676' }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#555')}
-        onMouseLeave={e => (e.currentTarget.style.color = '#767676')}
+        className="hidden sm:block text-[8px] font-normal no-underline transition-colors hover:underline"
+        style={{ color: '#666666' }}
       >
         Made by Andres Clavijo
       </a>

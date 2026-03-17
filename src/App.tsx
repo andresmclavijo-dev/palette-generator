@@ -426,7 +426,7 @@ export default function App() {
                 <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
               </svg>
               Generate
-              <kbd aria-hidden="true" className="hidden md:inline ml-1 px-[5px] py-[1px] rounded-[3px] font-mono text-[10px]" style={{ background: 'rgba(255,255,255,0.2)' }}>space</kbd>
+              <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14 }}>space</span>
               <span className="sr-only">press space to generate</span>
             </button>
           </div>
@@ -446,7 +446,7 @@ export default function App() {
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
         className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
-        style={{ minHeight: '60px', height: `calc(60px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        style={{ minHeight: '64px', height: `calc(64px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button
