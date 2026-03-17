@@ -383,62 +383,86 @@ export default function App() {
           </div>
         </div>
 
-        {/* Floating bottom bar — undo/redo + Generate (desktop only) */}
-        <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:flex flex-col items-center gap-2 pointer-events-none">
-          {showHint && (
-            <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap pointer-events-none">
+        {/* Floating hint — desktop only, shown briefly on first load */}
+        {showHint && (
+          <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:block pointer-events-none">
+            <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap">
               Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
             </div>
-          )}
-          <div className="pointer-events-auto flex items-center gap-1.5">
-            {/* Undo */}
-            <Tooltip text="Undo (Cmd+Z)">
-              <button
-                onClick={undo}
-                disabled={historyIndex <= 0}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
-                aria-label="Undo"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                </svg>
-              </button>
-            </Tooltip>
-            {/* Redo */}
-            <Tooltip text="Redo (Cmd+Shift+Z)">
-              <button
-                onClick={redo}
-                disabled={historyIndex >= history.length - 1}
-                className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-default disabled:hover:shadow-md disabled:hover:text-gray-500"
-                aria-label="Redo"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
-                </svg>
-              </button>
-            </Tooltip>
-            {/* Generate */}
-            <button
-              onClick={triggerGenerate}
-              className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-              Generate
-              <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14 }}>space</span>
-              <span className="sr-only">press space to generate</span>
-            </button>
           </div>
+        )}
+      </main>
+
+      {/* -- Desktop bottom bar (Figma Footer) -- */}
+      <div
+        className="flex-none hidden sm:flex items-center justify-between px-5"
+        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef' }}
+      >
+        {/* Left: Undo */}
+        <Tooltip text="Undo (Cmd+Z)">
+          <button
+            onClick={undo}
+            disabled={historyIndex <= 0}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
+            style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+            aria-label="Undo"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </svg>
+          </button>
+        </Tooltip>
+
+        {/* Center: Redo + Generate + Export */}
+        <div className="flex items-center gap-4">
+          {/* Redo */}
+          <Tooltip text="Redo (Cmd+Shift+Z)">
+            <button
+              onClick={redo}
+              disabled={historyIndex >= history.length - 1}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              aria-label="Redo"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+              </svg>
+            </button>
+          </Tooltip>
+
+          {/* Generate */}
+          <button
+            onClick={triggerGenerate}
+            className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Generate
+            <span aria-hidden="true" className="hidden md:inline-flex items-center justify-center rounded-sm text-[10px] font-semibold text-white leading-none bg-brand-violet-light" style={{ width: 30, height: 14 }}>space</span>
+            <span className="sr-only">press space to generate</span>
+          </button>
+
+          {/* Export */}
+          <Tooltip text="Export palette">
+            <button
+              onClick={() => setExportOpen(o => !o)}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              aria-label="Export"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+          </Tooltip>
         </div>
 
-        {/* Floating count picker — bottom right (desktop only) */}
-        <div className="absolute floating-bottom right-4 z-20 hidden sm:block">
-          <div className="bg-white shadow-md rounded-full px-2 py-1">
-            <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
-          </div>
-        </div>
-      </main>
+        {/* Right: Colors pill */}
+        <CountPicker count={count} onChange={setCount} onProGate={openProModal} />
+      </div>
 
       {/* App footer — legal links + attribution */}
       <AppFooter />

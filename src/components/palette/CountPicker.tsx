@@ -17,7 +17,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
 
   return (
     <div
-      className="flex items-center gap-1.5 rounded-full bg-white px-3"
+      className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
       style={{ border: '1px solid #e8e8e8' }}
       onClick={e => e.stopPropagation()}
     >

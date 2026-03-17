@@ -17,6 +17,8 @@ export default {
         'success': '#3B6D11',
         'warning': '#854F0B',
         'error': '#791F1F',
+        'text-faint': '#bbbbbb',
+        'border-default': '#e8e8e8',
         'pro-badge-bg': '#EEEDFE',
         'pro-badge-text': '#3C3489',
       },
