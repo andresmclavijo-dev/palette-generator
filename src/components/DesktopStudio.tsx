@@ -411,16 +411,29 @@ export default function DesktopStudio() {
               />
             </div>
 
-            {/* Collapse toggle */}
-            <button
-              onClick={toggleDock}
-              className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all hover:bg-gray-100"
-              style={{ color: '#666', justifyContent: dockExpanded ? 'flex-start' : 'center' }}
-              aria-label={dockExpanded ? 'Collapse dock' : 'Expand dock'}
-            >
-              {dockExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-              {dockExpanded && <span>Collapse</span>}
-            </button>
+            {/* Collapse / Expand toggle */}
+            {dockExpanded ? (
+              <button
+                onClick={toggleDock}
+                className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all hover:bg-gray-100"
+                style={{ color: '#666' }}
+                aria-label="Collapse dock"
+              >
+                <ChevronLeft size={16} />
+                <span>Collapse</span>
+              </button>
+            ) : (
+              <DarkTooltip label="Expand" position="right">
+                <button
+                  onClick={toggleDock}
+                  className="mx-auto flex items-center justify-center rounded-xl transition-all hover:bg-gray-100"
+                  style={{ width: 30, height: 30, color: '#666' }}
+                  aria-label="Expand dock"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </DarkTooltip>
+            )}
           </nav>
         </aside>
 
@@ -504,31 +517,37 @@ export default function DesktopStudio() {
             {/* Right: Actions */}
             <div className="flex items-center gap-1 shrink-0">
               {/* Save */}
-              <button
-                onClick={handleSave}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                aria-label="Save palette"
-              >
-                <Heart size={16} style={{ color: BRAND_DARK }} />
-              </button>
+              <DarkTooltip label="Save palette" position="bottom">
+                <button
+                  onClick={handleSave}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
+                  aria-label="Save palette"
+                >
+                  <Heart size={16} style={{ color: BRAND_DARK }} />
+                </button>
+              </DarkTooltip>
 
               {/* Share */}
-              <button
-                onClick={handleShare}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                aria-label="Share palette link"
-              >
-                {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
-              </button>
+              <DarkTooltip label="Share" position="bottom">
+                <button
+                  onClick={handleShare}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
+                  aria-label="Share palette link"
+                >
+                  {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
+                </button>
+              </DarkTooltip>
 
               {/* Export */}
-              <button
-                onClick={() => setExportOpen(o => !o)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                aria-label="Export palette"
-              >
-                <Download size={16} style={{ color: BRAND_DARK }} />
-              </button>
+              <DarkTooltip label="Export" position="bottom">
+                <button
+                  onClick={() => setExportOpen(o => !o)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
+                  aria-label="Export palette"
+                >
+                  <Download size={16} style={{ color: BRAND_DARK }} />
+                </button>
+              </DarkTooltip>
 
               {/* Divider */}
               <div className="w-px h-5 mx-1" style={{ backgroundColor: '#e5e7eb' }} />
@@ -913,23 +932,7 @@ function DockItem({
 
       {/* Collapsed tooltip */}
       {showTooltip && !expanded && (
-        <div
-          className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-white whitespace-nowrap z-50"
-          style={{ backgroundColor: BRAND_DARK, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
-          role="tooltip"
-        >
-          {/* Arrow */}
-          <div
-            className="absolute right-full top-1/2 -translate-y-1/2"
-            style={{
-              width: 0, height: 0,
-              borderTop: '5px solid transparent',
-              borderBottom: '5px solid transparent',
-              borderRight: `5px solid ${BRAND_DARK}`,
-            }}
-          />
-          {label}
-        </div>
+        <DarkTooltipBubble label={label} position="right" />
       )}
     </div>
   )
@@ -1413,6 +1416,65 @@ function FloatingPanel({
         </button>
       </div>
       {children}
+    </div>
+  )
+}
+
+// ─── Dark Tooltip ────────────────────────────────────────────
+const TOOLTIP_BG = '#1F2937'
+
+/** Positioned tooltip bubble — used standalone (DockItem) or via DarkTooltip wrapper */
+function DarkTooltipBubble({ label, position }: { label: string; position: 'right' | 'bottom' }) {
+  const isRight = position === 'right'
+  return (
+    <div
+      className={`absolute z-50 whitespace-nowrap pointer-events-none ${
+        isRight
+          ? 'left-full top-1/2 -translate-y-1/2 ml-2'
+          : 'top-full left-1/2 -translate-x-1/2 mt-2'
+      }`}
+      role="tooltip"
+    >
+      <div
+        className="relative text-[11px] font-medium text-white"
+        style={{ backgroundColor: TOOLTIP_BG, padding: '4px 9px', borderRadius: 6 }}
+      >
+        {label}
+        {/* Arrow */}
+        <div
+          className="absolute"
+          style={{
+            width: 6,
+            height: 6,
+            backgroundColor: TOOLTIP_BG,
+            transform: 'rotate(45deg)',
+            ...(isRight
+              ? { left: -3, top: '50%', marginTop: -3 }
+              : { top: -3, left: '50%', marginLeft: -3 }),
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/** Wrapper that shows a dark tooltip on hover */
+function DarkTooltip({
+  label, position, children,
+}: {
+  label: string
+  position: 'right' | 'bottom'
+  children: React.ReactNode
+}) {
+  const [show, setShow] = useState(false)
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      {show && <DarkTooltipBubble label={label} position={position} />}
     </div>
   )
 }
