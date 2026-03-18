@@ -1,11 +1,11 @@
 export default function SEOContent() {
   return (
     <section
-      className="hidden sm:block w-full"
+      className="w-full py-12 px-6"
       style={{ backgroundColor: '#FAFAF8' }}
       aria-label="About Paletta"
     >
-      <div className="mx-auto" style={{ maxWidth: 720, padding: '48px 24px' }}>
+      <div className="mx-auto" style={{ maxWidth: 720 }}>
         <h2
           className="text-xl font-semibold"
           style={{ color: '#1a1a2e' }}
