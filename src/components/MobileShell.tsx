@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Sparkles, Eye, LayoutDashboard, Heart, User,
-  Lock, Unlock, Copy, Check, RefreshCw,
+  Lock, Unlock, Copy, Check, RefreshCw, Info,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
 import { useAuth } from '../hooks/useAuth'
-import { readableOn, getColorName, getContrastBadge, makeSwatch } from '../lib/colorEngine'
+import { readableOn, getColorName, getColorInfo, getContrastBadge, makeSwatch } from '../lib/colorEngine'
 import type { HarmonyMode } from '../lib/colorEngine'
 import type { VisionMode } from './palette/VisionSimulator'
 import { VisionFilterDefs } from './palette/VisionSimulator'
@@ -423,12 +423,17 @@ function GenerateView({
   onGenerate, onLock, onSave,
 }: GenerateViewProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [infoId, setInfoId] = useState<string | null>(null)
 
   const copyHex = (id: string, hex: string) => {
     navigator.clipboard.writeText(hex).catch(() => {})
     setCopiedId(id)
     showToast('Copied!')
     setTimeout(() => setCopiedId(null), 1500)
+  }
+
+  const toggleInfo = (id: string) => {
+    setInfoId(prev => prev === id ? null : id)
   }
 
   return (
@@ -439,6 +444,7 @@ function GenerateView({
           const textColor = readableOn(s.hex)
           const badge = getContrastBadge(s.hex)
           const isCopied = copiedId === s.id
+          const showInfo = infoId === s.id
           return (
             <div
               key={s.id}
@@ -469,7 +475,7 @@ function GenerateView({
                 </span>
               )}
 
-              {/* Right: action buttons */}
+              {/* Right: action buttons — [copy] [info] [lock] */}
               <div className="flex items-center gap-2 shrink-0 ml-2">
                 <button
                   onClick={() => copyHex(s.id, s.hex)}
@@ -483,12 +489,13 @@ function GenerateView({
                   }
                 </button>
                 <button
-                  onClick={() => onSave()}
+                  onClick={() => toggleInfo(s.id)}
                   className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
-                  aria-label="Save palette"
+                  style={{ width: 34, height: 34, backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
+                  aria-label="Color info"
+                  aria-expanded={showInfo}
                 >
-                  <Heart size={15} style={{ color: textColor }} />
+                  <Info size={15} style={{ color: textColor }} />
                 </button>
                 <button
                   onClick={() => onLock(s.id)}
@@ -503,6 +510,9 @@ function GenerateView({
                 </button>
               </div>
 
+              {/* Color info popover */}
+              {showInfo && <ColorInfoPopover hex={s.hex} />}
+
               {/* Lock overlay */}
               {s.locked && (
                 <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
@@ -511,6 +521,21 @@ function GenerateView({
           )
         })}
       </div>
+
+      {/* Dismiss info popover on tap outside */}
+      {infoId && (
+        <div className="fixed inset-0 z-30" onClick={() => setInfoId(null)} />
+      )}
+
+      {/* Save palette FAB — bottom left */}
+      <button
+        onClick={onSave}
+        className="fixed left-4 w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+        aria-label="Save palette"
+      >
+        <Heart size={20} color="#ffffff" />
+      </button>
 
       {/* Mini Generate FAB — always visible */}
       <button
@@ -521,6 +546,42 @@ function GenerateView({
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
       </button>
+    </div>
+  )
+}
+
+// ─── Color Info Popover ────────────────────────────────────
+function ColorInfoPopover({ hex }: { hex: string }) {
+  const name = getColorName(hex)
+  const { rgb, hsl } = getColorInfo(hex)
+
+  return (
+    <div
+      className="absolute right-4 z-40 bg-white rounded-2xl overflow-hidden"
+      style={{ top: '50%', transform: 'translateY(-50%)', boxShadow: '0 8px 32px rgba(0,0,0,0.16)', minWidth: 200 }}
+      onClick={e => e.stopPropagation()}
+      role="dialog"
+      aria-label={`Color details for ${hex}`}
+    >
+      {/* Color preview strip */}
+      <div style={{ height: 8, backgroundColor: hex }} />
+      <div style={{ padding: '12px 16px' }}>
+        <p className="text-[16px] font-bold m-0" style={{ color: '#1a1a2e' }}>{name}</p>
+        <div className="mt-2 space-y-1">
+          <div className="flex justify-between">
+            <span className="text-[12px] font-medium" style={{ color: '#9CA3AF' }}>HEX</span>
+            <span className="text-[14px] font-mono font-medium" style={{ color: '#1a1a2e' }}>{hex.toUpperCase()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[12px] font-medium" style={{ color: '#9CA3AF' }}>RGB</span>
+            <span className="text-[14px] font-mono font-medium" style={{ color: '#1a1a2e' }}>{rgb}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[12px] font-medium" style={{ color: '#9CA3AF' }}>HSL</span>
+            <span className="text-[14px] font-mono font-medium" style={{ color: '#1a1a2e' }}>{hsl}</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
