@@ -106,9 +106,9 @@ body {
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
-/* Mobile palette viewport: clear footer + cookie bar */
+/* Mobile palette viewport: clear fixed footer */
 .palette-viewport {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + var(--cookie-bar-h, 0px));
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 640px) {
   .palette-viewport { padding-bottom: 0; }

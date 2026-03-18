@@ -1,7 +1,7 @@
 export default function SEOContent() {
   return (
     <section
-      className="w-full py-12 px-6"
+      className="w-full py-12 px-6 pb-32 sm:pb-12"
       style={{ backgroundColor: '#FAFAF8' }}
       aria-label="About Paletta"
     >
@@ -71,6 +71,30 @@ export default function SEOContent() {
           your design system stays consistent from canvas to code. A
           dedicated Figma plugin is coming soon to make the handoff even
           faster.
+        </p>
+
+        <hr
+          className="border-gray-200 my-8"
+          style={{ borderTopWidth: 1 }}
+          aria-hidden="true"
+        />
+
+        <h2
+          className="text-xl font-semibold"
+          style={{ color: '#1a1a2e' }}
+        >
+          Design for everyone
+        </h2>
+        <p
+          className="text-sm mt-3"
+          style={{ color: '#4B5563', lineHeight: 1.7 }}
+        >
+          Paletta checks every palette against WCAG 2.1 contrast ratios
+          automatically. See at a glance which color pairs pass AA and AAA
+          standards, then preview your palette through five color-vision
+          simulations — including protanopia, deuteranopia, and tritanopia.
+          Accessibility isn't a Pro add-on; it's built into every palette
+          you create.
         </p>
       </div>
     </section>

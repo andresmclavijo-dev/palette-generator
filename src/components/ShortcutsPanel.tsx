@@ -73,9 +73,9 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
             className="flex items-center justify-between py-1.5"
             style={i < shortcuts.length - 1 ? { borderBottom: '1px solid #f3f4f6' } : undefined}
           >
-            <span className="text-sm" style={{ color: '#4B5563' }}>{s.label}</span>
+            <span className="text-sm font-normal" style={{ color: '#6B7280' }}>{s.label}</span>
             <kbd
-              className="inline-block px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-md font-mono text-xs text-center"
+              className="inline-block px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-md font-mono text-xs text-center font-semibold"
               style={{ minWidth: 32 }}
             >
               {s.key}
