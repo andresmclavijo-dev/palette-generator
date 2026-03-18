@@ -29,6 +29,7 @@ import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
 import { useIsMobile } from './hooks/useIsMobile'
 import MobileShell from './components/MobileShell'
+import DesktopStudio from './components/DesktopStudio'
 
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
@@ -264,8 +265,11 @@ export default function App() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
-  // Mobile: render dedicated shell (desktop layout untouched)
+  // Mobile: render dedicated shell
   if (isMobile) return <MobileShell />
+
+  // Desktop: render new studio layout
+  return <DesktopStudio />
 
   return (
     <>
@@ -646,7 +650,7 @@ export default function App() {
         <SavedPalettesPanel
           open={savedOpen}
           onClose={() => setSavedOpen(false)}
-          userId={user.id}
+          userId={user!.id}
           onLoad={(hexes) => setSwatches(hexes.map(h => makeSwatch(h)))}
           isPro={isPro}
           onProGate={openProModal}
