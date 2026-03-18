@@ -22,6 +22,7 @@ import Tooltip from './components/ui/Tooltip'
 import ToolTooltip from './components/ui/ToolTooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
+import EmptyStateOverlay from './components/EmptyStateOverlay'
 import CookieConsent from './components/CookieConsent'
 import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
@@ -59,6 +60,8 @@ export default function App() {
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
+  const [emptyDismissed, setEmptyDismissed] = useState(false)
+  const [emptyDismissMethod, setEmptyDismissMethod] = useState<'spacebar' | 'button' | 'ai'>('button')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
@@ -140,6 +143,7 @@ export default function App() {
   const triggerGenerate = useCallback((method: 'spacebar' | 'button' | 'ai' = 'button') => {
     if (animRef.current) clearTimeout(animRef.current)
     generate()
+    if (!emptyDismissed) { setEmptyDismissMethod(method); setEmptyDismissed(true) }
     analytics.track('palette_generated', { method, style: harmonyMode, color_count: count })
     // First generate — fire once per user
     if (!localStorage.getItem('paletta_first_generate_at')) {
@@ -172,6 +176,7 @@ export default function App() {
 
   const handleAiPalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
+    if (!emptyDismissed) { setEmptyDismissMethod('ai'); setEmptyDismissed(true) }
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
 
@@ -364,6 +369,8 @@ export default function App() {
             <span className="text-gray-400 ml-1">✕</span>
           </button>
         )}
+
+        <EmptyStateOverlay dismissed={emptyDismissed} method={emptyDismissMethod} />
 
         {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
