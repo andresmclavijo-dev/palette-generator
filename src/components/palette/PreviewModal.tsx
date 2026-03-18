@@ -159,9 +159,9 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
           })}
         </div>
 
-        {/* Mockup area */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-4">
-          <div className="relative">
+        {/* Mockup area — scrolls both axes so mockups render at natural size */}
+        <div className="flex-1 min-h-0 overflow-auto px-5 pb-4">
+          <div className="relative" style={{ minWidth: 900 }}>
             {/* Mockup content — blurred when locked */}
             <div
               className="transition-all duration-200"

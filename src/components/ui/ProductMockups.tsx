@@ -203,7 +203,7 @@ const CHART_BARS = [
 export function DashboardMockup({ colors }: { colors: string[] }) {
   const c = colors
   return (
-    <div style={{ ...FONT, borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E5E7EB', display: 'flex', background: '#F0F0F0', height: 520 }}>
+    <div style={{ ...FONT, borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E5E7EB', display: 'flex', background: '#F0F0F0' }}>
       {/* ======== SIDEBAR ======== */}
       <div style={{ width: 80, background: c[0], padding: '10px 6px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         {/* Logo */}
