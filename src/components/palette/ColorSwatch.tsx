@@ -44,7 +44,6 @@ export default function ColorSwatch({
 }: ColorSwatchProps) {
   const [copied,     setCopied]     = useState(false)
   const [showActions, setShowActions] = useState(false)
-  const [showHint,   setShowHint]   = useState(false)
 
   const shadesOpen = activePanel?.type === 'shades' && activePanel.swatchIndex === index
   const pickerOpen = activePanel?.type === 'picker' && activePanel.swatchIndex === index
@@ -60,19 +59,6 @@ export default function ColorSwatch({
   const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
   const lockShadow = 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))'
   const contrast = getContrastBadge(hex)
-
-  // Onboarding tooltip — mobile only, first swatch, first visit
-  useEffect(() => {
-    if (!IS_COARSE || index !== 0) return
-    const seen = localStorage.getItem('paletta-tap-hint')
-    if (seen) return
-    const timer = setTimeout(() => setShowHint(true), 1200)
-    const dismiss = setTimeout(() => {
-      setShowHint(false)
-      localStorage.setItem('paletta-tap-hint', '1')
-    }, 4500)
-    return () => { clearTimeout(timer); clearTimeout(dismiss) }
-  }, [index])
 
   // Dismiss action bar on outside tap (mobile)
   useEffect(() => {
@@ -111,10 +97,6 @@ export default function ColorSwatch({
   const handleDesktopClick = () => {
     if (activePanel) { onPanelChange(null); return }
     onLock()
-    if (showHint) {
-      setShowHint(false)
-      localStorage.setItem('paletta-tap-hint', '1')
-    }
   }
 
   const handleDragPointerDown = (e: React.PointerEvent) => {
@@ -247,7 +229,7 @@ export default function ColorSwatch({
       {infoPopover}
 
       {/* Left: drag handle + color name */}
-      <div className="flex items-center gap-1 pl-1 z-10 min-w-0 shrink-0" style={{ maxWidth: '40%' }}>
+      <div className="swatch-info flex items-center gap-1 pl-1 z-10 min-w-0 shrink-0" style={{ maxWidth: '40%' }}>
         <div
           className="w-9 h-9 flex items-center justify-center cursor-grab active:cursor-grabbing shrink-0"
           style={{ color: iconColor, touchAction: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}
@@ -264,7 +246,7 @@ export default function ColorSwatch({
       </div>
 
       {/* Center: hex value — tap opens picker on mobile */}
-      <div className="flex-1 flex justify-center z-10 min-w-0">
+      <div className="swatch-info flex-1 flex justify-center z-10 min-w-0">
         <button
           className="text-[14px] font-mono font-bold tracking-wider uppercase truncate"
           style={{ color: labelColor }}
@@ -276,7 +258,7 @@ export default function ColorSwatch({
       </div>
 
       {/* Right: 4 icon buttons */}
-      <div className="flex items-center gap-0 pr-1 z-10 shrink-0">
+      <div className="swatch-info flex items-center gap-0 pr-1 z-10 shrink-0">
         <button
           onClick={handleOpenShades}
           className="w-11 h-11 flex items-center justify-center"
@@ -313,7 +295,7 @@ export default function ColorSwatch({
 
       {/* WCAG contrast badge */}
       {!shadesOpen && !pickerOpen && (
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10">
+        <div className="swatch-info absolute bottom-1 left-1/2 -translate-x-1/2 z-10">
           <Tooltip text={contrastTip(contrast.level)}>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}>
               {contrast.ratio}:1 {contrast.pass ? (
@@ -326,14 +308,6 @@ export default function ColorSwatch({
         </div>
       )}
 
-      {/* Onboarding hint */}
-      {showHint && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none onboarding-tooltip">
-          <div className="px-4 py-2 rounded-xl bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
-            Tap lock to keep a color
-          </div>
-        </div>
-      )}
     </div>
   )
 

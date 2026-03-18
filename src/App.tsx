@@ -58,7 +58,7 @@ export default function App() {
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [activePanel,  setActivePanel]  = useState<ActivePanel>(null)
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
-  const [emptyDismissed, setEmptyDismissed] = useState(false)
+  const [emptyDismissed, setEmptyDismissed] = useState(() => !!localStorage.getItem('paletta_has_generated'))
   const [emptyDismissMethod, setEmptyDismissMethod] = useState<'spacebar' | 'button' | 'ai'>('button')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
@@ -348,6 +348,7 @@ export default function App() {
       <main
         id="main-content"
         className="flex-1 min-h-0 overflow-hidden relative"
+        data-overlay-active={!emptyDismissed ? 'true' : 'false'}
       >
         {/* Vision mode badge */}
         {visionMode !== 'normal' && (

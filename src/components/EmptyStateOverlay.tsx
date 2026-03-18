@@ -37,19 +37,16 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
       }}
     >
       <div
-        className="flex flex-col items-center text-center px-5 py-4 md:px-10 md:py-6"
+        className="flex flex-col items-center text-center px-5 py-4 md:px-10 md:py-6 max-w-[85vw] md:max-w-none"
         style={{
-          background: 'rgba(255, 255, 255, 0.85)',
+          background: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           borderRadius: 16,
         }}
       >
         {/* Desktop */}
-        <p
-          className="hidden md:block text-2xl font-semibold"
-          style={{ color: '#1a1a2e' }}
-        >
+        <p className="hidden md:block text-2xl font-semibold" style={{ color: '#1a1a2e' }}>
           Your next masterpiece starts with the{' '}
           <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-base align-baseline">
             Spacebar
@@ -60,10 +57,7 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
         </p>
 
         {/* Mobile */}
-        <p
-          className="md:hidden text-lg font-semibold"
-          style={{ color: '#1a1a2e' }}
-        >
+        <p className="md:hidden text-lg font-semibold" style={{ color: '#1a1a2e' }}>
           Your next masterpiece starts now
         </p>
         <p className="md:hidden text-xs mt-1.5" style={{ color: '#6B7280' }}>
