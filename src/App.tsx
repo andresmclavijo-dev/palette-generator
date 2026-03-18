@@ -22,6 +22,7 @@ import ToolTooltip from './components/ui/ToolTooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import EmptyStateOverlay from './components/EmptyStateOverlay'
+import ShortcutsPanel from './components/ShortcutsPanel'
 import SEOContent from './components/SEOContent'
 import CookieConsent from './components/CookieConsent'
 import { showToast } from './utils/toast'
@@ -63,6 +64,7 @@ export default function App() {
   const [emptyDismissMethod, setEmptyDismissMethod] = useState<'spacebar' | 'button' | 'ai'>('button')
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
+  const helpBtnRef = useRef<HTMLButtonElement>(null)
 
   const openProModal = useCallback((feature?: string, source?: string) => {
     if (feature) analytics.track('pro_gate_hit', { feature, source: source ?? 'toolbar' })
@@ -391,6 +393,7 @@ export default function App() {
         <div className="relative z-10">
           <Tooltip text="Keyboard shortcuts" disabled={helpOpen}>
             <button
+              ref={helpBtnRef}
               onClick={() => {
                 if (helpOpen) { setHelpOpen(false) }
                 else { setHelpOpen(true); setActivePanel(null) }
@@ -404,21 +407,7 @@ export default function App() {
               </svg>
             </button>
           </Tooltip>
-          {helpOpen && (
-            <div className="absolute bottom-12 left-0 z-[100] min-w-[300px] rounded-xl bg-white border border-gray-200 shadow-xl p-4 text-[12px] text-gray-600 leading-relaxed">
-              <div className="font-semibold text-gray-800 mb-2">Shortcuts</div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span>Generate</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Space</kbd></div>
-                <div className="flex justify-between"><span>Undo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Z</kbd></div>
-                <div className="flex justify-between"><span>Redo</span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 font-mono text-[11px]">Cmd+Shift+Z</kbd></div>
-                <div className="flex justify-between"><span>Lock color</span><span className="text-gray-400">Click swatch</span></div>
-                <div className="flex justify-between"><span>Copy hex</span><span className="text-gray-400">Click hex</span></div>
-                <div className="flex justify-between"><span>Edit color</span><span className="text-gray-400">Double-click hex</span></div>
-                <div className="flex justify-between"><span>Reorder</span><span className="text-gray-400">Drag handle</span></div>
-              </div>
-              <button className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 text-[13px]" onClick={() => setHelpOpen(false)} aria-label="Close shortcuts">X</button>
-            </div>
-          )}
+          <ShortcutsPanel open={helpOpen} onClose={() => setHelpOpen(false)} triggerRef={helpBtnRef} />
         </div>
 
         {/* Center: Undo + Generate + Redo — absolutely centered */}
