@@ -279,6 +279,7 @@ export default function MobileShell() {
             onSignIn={() => setSignInOpen(true)}
             onProGate={() => openProModal('save_limit', 'mobile_library')}
             onLoad={(hexes) => { setSwatches(hexes.map(h => makeSwatch(h))); switchTab('generate') }}
+            onGenerate={triggerGenerate}
           />
         )}
         {activeTab === 'profile' && (
@@ -294,6 +295,7 @@ export default function MobileShell() {
               try { window.location.href = await createPortalSession(user.email) }
               catch { showToast('Contact support') }
             }}
+            onGenerate={triggerGenerate}
           />
         )}
       </div>
@@ -429,51 +431,44 @@ function GenerateView({
 
   return (
     <div className="relative h-full flex flex-col" style={{ filter: visionFilter }}>
-      {/* Swatches — full bleed, no floating toolbar */}
+      {/* Swatches — full bleed, centered layout */}
       <div className="flex-1 flex flex-col min-h-0">
         {swatches.map((s) => {
           const textColor = readableOn(s.hex)
           const badge = getContrastBadge(s.hex)
           const isCopied = copiedId === s.id
           return (
-            <div
+            <button
               key={s.id}
-              className="flex-1 flex items-center px-4 relative"
+              onClick={() => copyHex(s.id, s.hex)}
+              className="flex-1 relative flex flex-col items-center justify-center"
               style={{ backgroundColor: s.hex, minHeight: 48, transition: 'background-color 300ms ease' }}
+              aria-label={`${s.hex}, tap to copy`}
             >
-              {/* Tap area: copies hex */}
-              <button
-                onClick={() => copyHex(s.id, s.hex)}
-                className="flex-1 flex items-center min-h-[44px]"
-                aria-label={`Copy ${s.hex}`}
-              >
-                <span
-                  className="text-[14px] font-semibold font-mono tracking-wide"
-                  style={{ color: textColor }}
-                >
-                  {isCopied ? 'Copied!' : s.hex}
-                </span>
-              </button>
-
-              {/* WCAG badge — solid dark bg for consistent readability */}
+              {/* WCAG badge — top area */}
               {badge.pass && (
                 <span
-                  className="absolute bottom-1.5 left-4 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    color: '#ffffff',
-                  }}
+                  className="text-[12px] font-bold px-2.5 py-1 rounded-lg mb-1"
+                  style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#ffffff' }}
                 >
                   {badge.level} {badge.ratio.toFixed(1)}:1
                 </span>
               )}
 
-              {/* Right: actions — 38px visible, 44px tap target */}
-              <div className="flex items-center gap-1">
+              {/* Hex code — centered */}
+              <span
+                className="text-[16px] font-bold font-mono tracking-wide"
+                style={{ color: textColor }}
+              >
+                {isCopied ? 'Copied!' : s.hex}
+              </span>
+
+              {/* Action buttons — centered row below hex */}
+              <div className="flex items-center gap-2 mt-1.5" onClick={e => e.stopPropagation()}>
                 <button
                   onClick={(e) => { e.stopPropagation(); copyHex(s.id, s.hex) }}
                   className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', minWidth: 44, minHeight: 44 }}
+                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', minWidth: 44, minHeight: 44 }}
                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                 >
                   {isCopied
@@ -484,7 +479,7 @@ function GenerateView({
                 <button
                   onClick={(e) => { e.stopPropagation(); onLock(s.id) }}
                   className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', minWidth: 44, minHeight: 44 }}
+                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', minWidth: 44, minHeight: 44 }}
                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {s.locked
@@ -498,16 +493,16 @@ function GenerateView({
               {s.locked && (
                 <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
               )}
-            </div>
+            </button>
           )
         })}
       </div>
 
-      {/* Save heart — bottom right corner */}
+      {/* Save heart — bottom left, clear of tab bar */}
       <button
         onClick={onSave}
-        className="absolute bottom-4 right-4 w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+        className="absolute left-4 w-11 h-11 rounded-xl flex items-center justify-center"
+        style={{ bottom: 16, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
         aria-label="Save palette"
       >
         <Heart size={20} color="#ffffff" />
@@ -589,8 +584,8 @@ function SimulateView({ swatches, visionMode, onVisionChange, onGenerate, isPro,
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="absolute bottom-24 right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
-        style={{ backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -668,8 +663,8 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="fixed bottom-24 right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-        style={{ backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -688,6 +683,7 @@ interface LibraryViewProps {
   onSignIn: () => void
   onProGate: () => void
   onLoad: (hexes: string[]) => void
+  onGenerate: () => void
 }
 
 interface SavedPalette {
@@ -697,7 +693,7 @@ interface SavedPalette {
   created_at: string
 }
 
-function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: LibraryViewProps) {
+function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onGenerate }: LibraryViewProps) {
   const [palettes, setPalettes] = useState<SavedPalette[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -720,23 +716,23 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
     showToast('Deleted')
   }
 
-  // Signed out — punchy CTA centered between header and tab bar
+  // Signed out — conversion-focused
   if (!isSignedIn) {
     return (
-      <div className="h-full flex flex-col items-center justify-center px-8 text-center">
+      <div className="h-full relative flex flex-col items-center justify-center px-8 text-center">
         <div
-          className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
-          style={{ backgroundColor: BRAND_VIOLET }}
+          className="rounded-full flex items-center justify-center mb-5"
+          style={{ width: 56, height: 56, backgroundColor: BRAND_VIOLET }}
         >
           <Heart size={28} color="#ffffff" />
         </div>
-        <h2 className="text-[20px] font-bold" style={{ color: '#1a1a2e' }}>Save palettes you love</h2>
-        <p className="text-[14px] mt-2 mb-6" style={{ color: '#6B7280' }}>
-          Sign in to save your creations and sync across devices
+        <h2 className="text-[20px] font-bold" style={{ color: '#1a1a2e' }}>Your collection starts here</h2>
+        <p className="text-[14px] mt-2 mb-6 max-w-[280px]" style={{ color: '#6B7280' }}>
+          Save your favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
         <button
           onClick={onSignIn}
-          className="w-full max-w-[300px] flex items-center justify-center gap-2.5 rounded-2xl text-white text-[14px] font-bold active:scale-95 transition-all"
+          className="w-full flex items-center justify-center gap-2.5 rounded-2xl text-white text-[16px] font-bold active:scale-95 transition-all"
           style={{ height: 52, backgroundColor: BRAND_VIOLET }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -747,7 +743,17 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
           </svg>
           Continue with Google
         </button>
-        <p className="text-[12px] mt-4" style={{ color: '#D1D5DB' }}>3 free saves · unlimited with Pro</p>
+        <p className="text-[11px] mt-3" style={{ color: '#D1D5DB' }}>No credit card required</p>
+
+        {/* Mini Generate FAB */}
+        <button
+          onClick={onGenerate}
+          className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+          style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+          aria-label="Generate new palette"
+        >
+          <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
+        </button>
       </div>
     )
   }
@@ -763,21 +769,39 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
 
   const slotsText = isPro ? 'Unlimited saves' : `${palettes.length} of 3 free slots used`
 
-  // Signed in, empty — centered
+  // Signed in, empty — with visual slot placeholders
   if (palettes.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center px-8 text-center">
-        <div
-          className="w-14 h-14 rounded-full flex items-center justify-center mb-5"
-          style={{ backgroundColor: BRAND_VIOLET }}
-        >
-          <Heart size={28} color="#ffffff" />
-        </div>
+      <div className="h-full relative flex flex-col items-center justify-center px-8 text-center">
         <h2 className="text-[20px] font-bold" style={{ color: '#1a1a2e' }}>No saved palettes yet</h2>
-        <p className="text-[14px] mt-2" style={{ color: '#6B7280' }}>
-          Tap the heart on the Generate tab to save your favorites
+        <p className="text-[14px] mt-2 mb-6" style={{ color: '#6B7280' }}>
+          Tap the heart on any palette to save it here
         </p>
+        {/* Visual slot placeholders */}
+        <div className="w-full max-w-[280px] space-y-2.5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-xl flex items-center justify-center"
+              style={{ height: 64, border: '2px dashed #E5E7EB' }}
+            >
+              <span className="text-[12px]" style={{ color: '#D1D5DB' }}>
+                {isPro ? 'Empty slot' : `Slot ${i + 1} of 3`}
+              </span>
+            </div>
+          ))}
+        </div>
         <p className="text-[12px] mt-5" style={{ color: '#D1D5DB' }}>{slotsText}</p>
+
+        {/* Mini Generate FAB */}
+        <button
+          onClick={onGenerate}
+          className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+          style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+          aria-label="Generate new palette"
+        >
+          <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
+        </button>
       </div>
     )
   }
@@ -799,7 +823,7 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
 
   // Signed in, has palettes
   return (
-    <div className="h-full overflow-y-auto px-3.5 pb-4">
+    <div className="h-full relative overflow-y-auto px-3.5 pb-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[16px] font-bold" style={{ color: '#1a1a2e' }}>My Palettes</h2>
         <span className="text-[11px]" style={{ color: '#9CA3AF' }}>{slotsText}</span>
@@ -857,6 +881,16 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
           </button>
         )}
       </div>
+
+      {/* Mini Generate FAB */}
+      <button
+        onClick={onGenerate}
+        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        aria-label="Generate new palette"
+      >
+        <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
+      </button>
     </div>
   )
 }
@@ -872,68 +906,83 @@ interface ProfileViewProps {
   onSignOut: () => void
   onProGate: () => void
   onManageSubscription: () => void
+  onGenerate: () => void
 }
 
-function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription }: ProfileViewProps) {
+function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription, onGenerate }: ProfileViewProps) {
   const [accountOpen, setAccountOpen] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
 
-  // Signed out
+  // Signed out — premium welcome page
   if (!isSignedIn) {
     return (
-      <div className="h-full overflow-y-auto px-5 pb-8">
+      <div className="h-full relative overflow-y-auto px-5 pb-8">
         <div className="pt-4 mb-6">
-          <h2 className="text-[22px] font-bold" style={{ color: '#1a1a2e' }}>Welcome to Paletta</h2>
-          <p className="text-[14px] mt-1" style={{ color: '#6B7280' }}>Sign in to unlock saving, AI, and more</p>
+          <h2 className="text-[24px] font-bold" style={{ color: '#1a1a2e' }}>Welcome to Paletta</h2>
+          <p className="text-[14px] mt-1" style={{ color: '#6B7280' }}>The color palette generator built for accessibility</p>
         </div>
 
         <button
           onClick={onSignIn}
-          className="w-full h-12 rounded-2xl bg-white border border-gray-200 text-[14px] font-semibold flex items-center justify-center gap-2 active:bg-gray-50 transition-all mb-8"
-          style={{ color: '#1a1a2e' }}
+          className="w-full flex items-center justify-center gap-2.5 rounded-2xl text-white text-[16px] font-bold active:scale-95 transition-all mb-6"
+          style={{ height: 52, backgroundColor: BRAND_VIOLET }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#8fa8ff"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#7ee6a1"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fdd663"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#f28b82"/>
           </svg>
           Continue with Google
         </button>
 
-        {/* Feature highlights — 44px icons, 56px rows */}
-        <div className="space-y-0">
+        {/* Pro features card */}
+        <div className="border border-gray-200 rounded-2xl overflow-hidden mb-6">
           {[
-            { icon: Heart, title: 'Save palettes', desc: '3 free · unlimited with Pro' },
-            { icon: Sparkles, title: 'AI generations', desc: '3/day free · unlimited with Pro' },
-            { icon: Eye, title: 'Accessibility suite', desc: '2 free simulations · 5 with Pro' },
-          ].map(f => {
+            { icon: Sparkles, title: 'Unlimited AI palettes' },
+            { icon: Eye, title: 'All 5 vision simulations' },
+            { icon: Heart, title: 'Unlimited saves + export' },
+          ].map((f, i) => {
             const Icon = f.icon
             return (
-              <div key={f.title} className="flex items-center gap-4" style={{ minHeight: 56 }}>
-                <div className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-                  <Icon size={20} style={{ color: '#9CA3AF' }} />
+              <div
+                key={f.title}
+                className="flex items-center justify-between px-4"
+                style={{ minHeight: 52, borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} style={{ color: BRAND_VIOLET }} />
+                  <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>{f.title}</span>
                 </div>
-                <div>
-                  <span className="text-[15px] font-semibold block" style={{ color: '#1a1a2e' }}>{f.title}</span>
-                  <span className="text-[13px]" style={{ color: '#6B7280' }}>{f.desc}</span>
-                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(108,71,255,0.1)', color: BRAND_VIOLET }}>
+                  PRO
+                </span>
               </div>
             )
           })}
         </div>
 
-        {/* Legal section — with divider and label */}
-        <div className="mt-10">
+        {/* Legal section */}
+        <div className="mt-4">
           <div className="border-t border-gray-200 pt-4 mb-2">
             <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: '#D1D5DB' }}>Legal</span>
           </div>
           <div className="flex flex-col">
-            <Link to="/privacy-policy" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors" style={{ color: '#1a1a2e', minHeight: 48 }}>Privacy Policy</Link>
-            <Link to="/terms-of-service" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors border-t border-gray-100" style={{ color: '#1a1a2e', minHeight: 48 }}>Terms of Service</Link>
-            <a href="mailto:hello@usepaletta.io" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors border-t border-gray-100" style={{ color: '#1a1a2e', minHeight: 48 }}>Contact</a>
+            <Link to="/privacy-policy" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors" style={{ color: '#1a1a2e', minHeight: 52 }}>Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors border-t border-gray-100" style={{ color: '#1a1a2e', minHeight: 52 }}>Terms of Service</Link>
+            <a href="mailto:hello@usepaletta.io" className="text-[14px] font-medium no-underline flex items-center active:bg-gray-50 transition-colors border-t border-gray-100" style={{ color: '#1a1a2e', minHeight: 52 }}>Contact</a>
           </div>
         </div>
+
+        {/* Mini Generate FAB */}
+        <button
+          onClick={onGenerate}
+          className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+          style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+          aria-label="Generate new palette"
+        >
+          <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
+        </button>
       </div>
     )
   }
@@ -943,7 +992,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
   const initial = name.charAt(0).toUpperCase()
 
   return (
-    <div className="h-full overflow-y-auto px-5 pb-8">
+    <div className="h-full relative overflow-y-auto px-5 pb-8">
       {/* Avatar + info — 64px avatar */}
       <div className="flex items-center gap-4 pt-4 mb-5">
         <div
@@ -954,14 +1003,14 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-[17px] font-bold truncate" style={{ color: '#1a1a2e' }}>{name}</span>
+            <span className="text-[18px] font-bold truncate" style={{ color: '#1a1a2e' }}>{name}</span>
             {isPro && (
-              <span className="shrink-0 text-[10px] font-bold text-white px-2 py-0.5 rounded-full" style={{ backgroundColor: BRAND_VIOLET }}>
+              <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1 rounded-full" style={{ backgroundColor: BRAND_VIOLET }}>
                 PRO
               </span>
             )}
           </div>
-          {user?.email && <span className="text-[12px] block truncate mt-0.5" style={{ color: '#9CA3AF' }}>{user.email}</span>}
+          {user?.email && <span className="text-[13px] block truncate mt-0.5" style={{ color: '#9CA3AF' }}>{user.email}</span>}
           {!isPro && <span className="text-[12px] block mt-0.5" style={{ color: '#D1D5DB' }}>Free plan</span>}
         </div>
       </div>
@@ -973,10 +1022,8 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           className="w-full h-12 rounded-2xl text-white text-[14px] font-semibold active:scale-95 transition-all mb-5 flex items-center justify-between px-5"
           style={{ backgroundColor: BRAND_VIOLET }}
         >
-          <span>Upgrade to Pro — $5/mo</span>
-          <div className="flex items-center gap-1.5 opacity-80">
-            <Sparkles size={14} /><Eye size={14} /><span className="text-[13px]">∞</span>
-          </div>
+          <span>Upgrade to Pro</span>
+          <span className="text-[13px] opacity-80">$5/mo</span>
         </button>
       )}
 
@@ -987,7 +1034,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           className="w-full flex items-center justify-between px-4 active:bg-gray-50 transition-colors"
           style={{ minHeight: 52 }}
         >
-          <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>Account</span>
+          <span className="text-[15px] font-semibold" style={{ color: '#1a1a2e' }}>Account</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
             style={{ transform: accountOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}
           >
@@ -1024,7 +1071,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           className="w-full flex items-center justify-between px-4 active:bg-gray-50 transition-colors"
           style={{ minHeight: 52 }}
         >
-          <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>Legal</span>
+          <span className="text-[15px] font-semibold" style={{ color: '#1a1a2e' }}>Legal</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
             style={{ transform: legalOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}
           >
@@ -1048,10 +1095,20 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           className="flex items-center justify-between px-4 no-underline active:bg-gray-50 transition-colors"
           style={{ minHeight: 52 }}
         >
-          <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>Support</span>
+          <span className="text-[15px] font-semibold" style={{ color: '#1a1a2e' }}>Support</span>
           <span className="text-[12px]" style={{ color: '#9CA3AF' }}>hello@usepaletta.io</span>
         </a>
       </div>
+
+      {/* Mini Generate FAB */}
+      <button
+        onClick={onGenerate}
+        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        aria-label="Generate new palette"
+      >
+        <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
+      </button>
     </div>
   )
 }
