@@ -89,20 +89,20 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center"
+      className="fixed inset-0 z-[60] flex items-stretch md:items-center md:justify-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Preview your palette in UI mockups"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       {/* Modal */}
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-[100vw] h-[100dvh] md:w-[80vw] md:max-w-[1000px] md:h-auto md:max-h-[90vh] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
+        className="relative w-full h-full md:h-[min(92vh,720px)] md:w-[92vw] md:max-w-[1060px] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
