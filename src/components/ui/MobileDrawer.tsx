@@ -21,6 +21,7 @@ interface MobileDrawerProps {
   onSignOut: () => void
   onProGate: () => void
   onImagePalette: () => void
+  onPreview: () => void
   onVisionSim: () => void
   onAiPalette: () => void
   onSavedPalettes: () => void
@@ -34,7 +35,7 @@ interface MobileDrawerProps {
 
 export default function MobileDrawer({
   open, onClose, onSave, onShare, onExport, onSignIn, onSignOut, onProGate,
-  onImagePalette, onAiPalette, onSavedPalettes, onManageSubscription,
+  onImagePalette, onPreview, onAiPalette, onSavedPalettes, onManageSubscription,
   isPro, isSignedIn, userEmail,
   visionMode = 'normal', onVisionChange,
 }: MobileDrawerProps) {
@@ -239,6 +240,23 @@ export default function MobileDrawer({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-gray-800">Image</span>
+              {!isPro && <ProBadge />}
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleRow(onPreview)}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[14px] font-medium text-gray-800">Preview</span>
               {!isPro && <ProBadge />}
             </div>
           </button>

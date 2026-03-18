@@ -152,7 +152,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
       {/* Modal container */}
       <div
         ref={modalRef}
-        className="relative w-full h-full md:h-auto md:w-[92vw] md:max-w-[1060px] md:max-h-[92vh] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+        className="relative w-full h-full md:h-[min(92vh,720px)] md:w-[92vw] md:max-w-[1060px] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
         onClick={e => e.stopPropagation()}
       >
         {/* ============ LEFT PANEL ============ */}

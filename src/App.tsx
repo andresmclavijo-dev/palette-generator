@@ -599,6 +599,7 @@ export default function App() {
         onSignOut={signOut}
         onProGate={openProModal}
         onImagePalette={handleMobileImageClick}
+        onPreview={() => setPreviewOpen(true)}
         onVisionSim={() => { if (isPro) { setToolsOpen(true) } else { openProModal() } }}
         onAiPalette={() => { setAiOpen(true) }}
         onSavedPalettes={() => setSavedOpen(true)}
