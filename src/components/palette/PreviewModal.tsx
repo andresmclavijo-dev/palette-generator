@@ -10,56 +10,6 @@ import {
 
 const PRIMARY = '#6C47FF'
 
-const NATURAL_WIDTHS: Record<MockupTab, number> = {
-  'Landing Page': 1100,
-  'Dashboard': 1200,
-  'Mobile App': 900,
-}
-
-/** Renders children at `naturalWidth` then CSS-scales to fit the container. */
-function ScaledMockup({ naturalWidth, children }: { naturalWidth: number; children: React.ReactNode }) {
-  const outerRef = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-  const [innerH, setInnerH] = useState(0)
-
-  useEffect(() => {
-    const outer = outerRef.current
-    const inner = innerRef.current
-    if (!outer || !inner) return
-
-    const measure = () => {
-      const availW = outer.clientWidth
-      const s = Math.min(availW / naturalWidth, 1)
-      setScale(s)
-      setInnerH(inner.scrollHeight)
-    }
-
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(outer)
-    return () => ro.disconnect()
-  }, [naturalWidth, children])
-
-  return (
-    <div
-      ref={outerRef}
-      style={{ width: '100%', overflow: 'hidden', height: innerH * scale || 'auto' }}
-    >
-      <div
-        ref={innerRef}
-        style={{
-          width: naturalWidth,
-          transformOrigin: 'top left',
-          transform: `scale(${scale})`,
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  )
-}
-
 interface PreviewModalProps {
   open: boolean
   onClose: () => void
@@ -220,11 +170,9 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
                 ...(isLocked ? { filter: 'blur(3px) grayscale(30%)' } : {}),
               }}
             >
-              <ScaledMockup naturalWidth={NATURAL_WIDTHS[activeTab]}>
-                {activeTab === 'Landing Page' && <LandingMockup colors={colors} />}
-                {activeTab === 'Dashboard' && <DashboardMockup colors={colors} />}
-                {activeTab === 'Mobile App' && <MobileAppMockup colors={colors} />}
-              </ScaledMockup>
+              {activeTab === 'Landing Page' && <LandingMockup colors={colors} />}
+              {activeTab === 'Dashboard' && <DashboardMockup colors={colors} />}
+              {activeTab === 'Mobile App' && <MobileAppMockup colors={colors} />}
             </div>
 
             {/* Soft paywall overlay */}
