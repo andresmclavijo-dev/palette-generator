@@ -45,12 +45,39 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
   const [activeTab, setActiveTab] = useState<MockupTab>('Landing Page')
   const [fade, setFade] = useState(true)
+  const [showFade, setShowFade] = useState(true)
   const timerRef = useRef<ReturnType<typeof setInterval>>()
   const modalRef = useRef<HTMLDivElement>(null)
+  const featureListRef = useRef<HTMLDivElement>(null)
 
   const colors = swatches.length >= 3
     ? swatches.slice(0, 5).map(s => s.hex)
     : FALLBACK_COLORS
+
+  // Check if feature list is scrolled to bottom
+  const checkScrollEnd = useCallback(() => {
+    const el = featureListRef.current
+    if (!el) return
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 4
+    setShowFade(!atBottom)
+  }, [])
+
+  // One-time scroll bounce + initial fade check on mount
+  useEffect(() => {
+    if (!open) return
+    const el = featureListRef.current
+    if (!el) return
+
+    // Check if scrollable at all
+    requestAnimationFrame(() => {
+      checkScrollEnd()
+      // Only bounce if there's overflow
+      if (el.scrollHeight <= el.clientHeight) return
+      el.scrollTo({ top: 20, behavior: 'smooth' })
+      setTimeout(() => el.scrollTo({ top: 0, behavior: 'smooth' }), 400)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   // Auto-rotate tabs
   useEffect(() => {
@@ -164,24 +191,31 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
 
             {/* Feature list — scrollable with bottom fade hint */}
             <div className="relative flex-1 min-h-0 mb-4">
-              <div className="h-full overflow-y-auto -mx-1 px-1 pb-1">
-              {PRO_FEATURES.map(({ Icon, bg, color, text }, i) => (
-                <div
-                  key={text}
-                  className="flex items-center gap-3 py-2.5"
-                  style={i < PRO_FEATURES.length - 1 ? { borderBottom: '1px solid #F3F4F6' } : undefined}
-                >
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
-                    <Icon size={16} className={color} />
-                  </div>
-                  <span className="text-[14px] font-medium" style={{ color: '#374151' }}>{text}</span>
-                </div>
-              ))}
-              </div>
-              {/* Fade hint at bottom of scroll area */}
               <div
-                className="absolute inset-x-0 bottom-0 h-6 pointer-events-none"
-                style={{ background: 'linear-gradient(transparent, #FAFAF8)' }}
+                ref={featureListRef}
+                className="h-full overflow-y-auto -mx-1 px-1 pb-1"
+                onScroll={checkScrollEnd}
+              >
+                {PRO_FEATURES.map(({ Icon, bg, color, text }, i) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-3 py-2.5"
+                    style={i < PRO_FEATURES.length - 1 ? { borderBottom: '1px solid #F3F4F6' } : undefined}
+                  >
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
+                      <Icon size={16} className={color} />
+                    </div>
+                    <span className="text-[14px] font-medium" style={{ color: '#374151' }}>{text}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Fade gradient — hidden when scrolled to bottom */}
+              <div
+                className="absolute inset-x-0 bottom-0 h-10 pointer-events-none transition-opacity duration-200"
+                style={{
+                  background: 'linear-gradient(transparent, #FAFAF8)',
+                  opacity: showFade ? 1 : 0,
+                }}
               />
             </div>
 
