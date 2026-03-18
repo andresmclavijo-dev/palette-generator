@@ -114,6 +114,29 @@ body {
   .palette-viewport { padding-bottom: 0; }
 }
 
+/* Mobile tab bar — first-visit pulse on Generate icon */
+@keyframes tabPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.tab-pulse {
+  animation: tabPulse 1s ease-in-out 3;
+}
+
+/* First-visit tooltip — fade out after 3s */
+@keyframes hintFade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.tab-hint-fade {
+  animation: hintFade 3s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-pulse { animation: none; }
+  .tab-hint-fade { animation: none; opacity: 0; }
+}
+
 /* Mobile: hide swatch labels while empty-state overlay is active */
 @media (max-width: 768px) {
   [data-overlay-active="true"] .swatch-info {

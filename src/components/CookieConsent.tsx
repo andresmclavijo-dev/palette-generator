@@ -51,17 +51,19 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
         ref={barRef}
         role="dialog"
         aria-label="Cookie consent"
-        className="flex-none w-full z-[9999]"
+        className="flex-none w-full"
         style={{
-          backgroundColor: '#1a1a2e',
-          color: '#ffffff',
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
           padding: '10px 16px',
         }}
       >
         <div className="flex items-center justify-between gap-3">
-          <span style={{ fontSize: 12 }}>
+          <span style={{ fontSize: 12, color: '#1a1a2e' }}>
             We use{' '}
-            <Link to="/cookie-policy" style={{ color: '#9b82ff', textDecoration: 'underline' }}>cookies</Link>.
+            <Link to="/cookie-policy" style={{ color: '#6C47FF', textDecoration: 'underline' }}>cookies</Link>.
           </span>
           <div className="flex items-center gap-2 shrink-0">
             <button
@@ -71,9 +73,9 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
                 fontSize: 12,
                 fontWeight: 600,
                 borderRadius: 9999,
-                border: 'none',
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                color: '#ffffff',
+                border: '1px solid #E5E7EB',
+                backgroundColor: '#ffffff',
+                color: '#1a1a2e',
                 cursor: 'pointer',
                 minHeight: 32,
               }}
