@@ -17,7 +17,6 @@ import PaymentSuccessModal from './components/ui/PaymentSuccessModal'
 import SavedPalettesPanel from './components/ui/SavedPalettesPanel'
 import SaveNameModal from './components/ui/SaveNameModal'
 import MobileDrawer from './components/ui/MobileDrawer'
-import WelcomeModal from './components/ui/WelcomeModal'
 import Tooltip from './components/ui/Tooltip'
 import ToolTooltip from './components/ui/ToolTooltip'
 import AppHeader from './components/AppHeader'
@@ -673,7 +672,6 @@ export default function App() {
         />
       )}
 
-      <WelcomeModal />
       <VisionFilterDefs />
       <CookieConsent />
     </div>

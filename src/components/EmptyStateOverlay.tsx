@@ -13,12 +13,10 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
   const [visible, setVisible] = useState(true)
   const [mounted, setMounted] = useState(true)
 
-  // Track show
   useEffect(() => {
     if (!hasGenerated) analytics.track('empty_state_shown')
   }, [hasGenerated])
 
-  // Dismiss on first generate
   useEffect(() => {
     if (!dismissed) return
     localStorage.setItem(LS_KEY, 'true')
@@ -32,26 +30,50 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
 
   return (
     <div
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none"
+      className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
       style={{
-        backdropFilter: visible ? 'blur(6px)' : 'none',
-        WebkitBackdropFilter: visible ? 'blur(6px)' : 'none',
         opacity: visible ? 1 : 0,
         transition: 'opacity 300ms ease-out',
       }}
     >
-      <p
-        className="text-xl sm:text-2xl font-semibold text-center px-6"
-        style={{ color: '#1a1a2e' }}
+      <div
+        className="flex flex-col items-center text-center px-6 py-5 sm:px-10 sm:py-6"
+        style={{
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: 16,
+        }}
       >
-        Your next masterpiece starts with the{' '}
-        <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-base align-baseline">
-          Spacebar
-        </kbd>
-      </p>
-      <p className="text-sm text-gray-500 mt-2 text-center px-6">
-        Generate · Lock · Export — all from your keyboard
-      </p>
+        {/* Desktop */}
+        <p
+          className="hidden md:block text-2xl font-semibold"
+          style={{ color: '#1a1a2e' }}
+        >
+          Your next masterpiece starts with the{' '}
+          <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-base align-baseline">
+            Spacebar
+          </kbd>
+        </p>
+        <p className="hidden md:block text-sm mt-2" style={{ color: '#6B7280' }}>
+          Generate · Lock · Export — all from your keyboard
+        </p>
+
+        {/* Mobile */}
+        <p
+          className="md:hidden text-xl font-semibold"
+          style={{ color: '#1a1a2e' }}
+        >
+          Your next masterpiece starts now
+        </p>
+        <p className="md:hidden text-sm mt-2" style={{ color: '#6B7280' }}>
+          Tap{' '}
+          <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-sm align-baseline">
+            Generate
+          </kbd>
+          {' '}to begin
+        </p>
+      </div>
     </div>
   )
 }
