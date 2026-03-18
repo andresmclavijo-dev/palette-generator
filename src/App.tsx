@@ -22,6 +22,7 @@ import ToolTooltip from './components/ui/ToolTooltip'
 import AppHeader from './components/AppHeader'
 import AppFooter from './components/AppFooter'
 import EmptyStateOverlay from './components/EmptyStateOverlay'
+import SEOContent from './components/SEOContent'
 import CookieConsent from './components/CookieConsent'
 import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
@@ -259,6 +260,7 @@ export default function App() {
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
   return (
+    <>
     <div className="w-screen flex flex-col overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
 
       {/* Skip link for keyboard navigation */}
@@ -659,5 +661,7 @@ export default function App() {
       <VisionFilterDefs />
       <CookieConsent />
     </div>
+    <SEOContent />
+    </>
   )
 }
