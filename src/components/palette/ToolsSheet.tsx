@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import { extractColorsFromFile } from '../../lib/kMeans'
 import type { VisionMode } from './VisionSimulator'
+import { analytics } from '../../lib/posthog'
 
 interface ToolsSheetProps {
   open: boolean
@@ -40,7 +41,7 @@ export default function ToolsSheet({
 
   const handleImageClick = () => {
     if (isPro) { fileRef.current?.click(); return }
-    // All non-Pro users → Pro upgrade modal
+    analytics.track('pro_gate_hit', { feature: 'image_extraction', source: 'toolbar' })
     onProGate(); onClose()
   }
 
@@ -62,7 +63,10 @@ export default function ToolsSheet({
   }
 
   const handleVisionClick = () => {
-    if (!isPro) { onProGate(); onClose(); return }
+    if (!isPro) {
+      analytics.track('pro_gate_hit', { feature: 'vision_sim', source: 'toolbar' })
+      onProGate(); onClose(); return
+    }
     setVisionExpanded(o => !o)
   }
 

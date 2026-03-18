@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from './useAuth'
 import { useProStore } from '../store/proStore'
 import { showToast } from '../utils/toast'
+import { analytics } from '../lib/posthog'
 
 // Check once at module load so it survives re-renders
 const searchParams = new URLSearchParams(window.location.search)
@@ -75,6 +76,7 @@ export function usePro() {
     cancelHandled.current = true
     window.history.replaceState(null, '', window.location.pathname)
     showToast('Checkout cancelled')
+    analytics.track('checkout_cancelled')
   }, [])
 
   // Handle post-payment redirect (both legacy payment=success and new checkout=success)
@@ -93,6 +95,7 @@ export function usePro() {
       setLoading(false)
       setFetched(true)
       showToast('Welcome to Pro!')
+      analytics.track('checkout_completed')
 
       const refresh = async () => {
         await supabase.auth.refreshSession()

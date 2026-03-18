@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { createCheckoutSession } from '../../lib/stripe'
 import { showToast } from '../../utils/toast'
+import { analytics } from '../../lib/posthog'
 
 const PENDING_PLAN_KEY = 'paletta_pending_checkout'
 const PRIMARY = '#6C47FF'
@@ -32,6 +33,11 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
   const modalRef = useRef<HTMLDivElement>(null)
   const featureListRef = useRef<HTMLDivElement>(null)
 
+  const handleDismiss = useCallback(() => {
+    analytics.track('pro_modal_dismissed')
+    onClose()
+  }, [onClose])
+
   // Check if feature list is scrolled to bottom
   const checkScrollEnd = useCallback(() => {
     const el = featureListRef.current
@@ -59,11 +65,11 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleDismiss()
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [open, onClose])
+  }, [open, handleDismiss])
 
   // Focus trap
   useEffect(() => {
@@ -78,6 +84,8 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
   const isMonthly = plan === 'monthly'
 
   const handleSubscribe = async () => {
+    const price = plan === 'monthly' ? 5 : 45
+    analytics.track('pro_modal_subscribe_clicked', { plan, price })
     if (!user) {
       localStorage.setItem(PENDING_PLAN_KEY, plan)
       onClose()
@@ -102,7 +110,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
   return (
     <div
       className="fixed inset-0 z-[60] flex items-stretch md:items-center md:justify-center"
-      onClick={onClose}
+      onClick={handleDismiss}
       role="dialog"
       aria-modal="true"
       aria-labelledby="pro-modal-title"
@@ -119,7 +127,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
       >
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleDismiss}
           className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-black/5 hover:bg-black/10 transition-colors"
           aria-label="Close upgrade modal"
         >
@@ -199,14 +207,14 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
               <div className="flex items-center justify-between mb-3">
                 <div className="inline-flex rounded-full p-0.5" style={{ background: '#F3F4F6' }}>
                   <button
-                    onClick={() => setPlan('monthly')}
+                    onClick={() => { setPlan('monthly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'monthly' }) }}
                     className="px-4 py-1.5 rounded-full text-[13px] font-medium transition-all"
                     style={isMonthly ? { background: PRIMARY, color: '#fff' } : { color: '#6B7280' }}
                   >
                     Monthly
                   </button>
                   <button
-                    onClick={() => setPlan('yearly')}
+                    onClick={() => { setPlan('yearly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'yearly' }) }}
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-medium transition-all"
                     style={!isMonthly ? { background: PRIMARY, color: '#fff' } : { color: '#6B7280' }}
                   >
@@ -261,7 +269,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
               <div className="flex items-center justify-between mt-3">
                 <span className="text-[12px]" style={{ color: '#D1D5DB' }}>Launch pricing · Stripe</span>
                 <button
-                  onClick={onClose}
+                  onClick={handleDismiss}
                   className="text-[13px] font-medium transition-colors hover:text-gray-700"
                   style={{ color: '#9CA3AF' }}
                 >

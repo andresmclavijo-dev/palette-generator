@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { showToast } from '../utils/toast'
+import { analytics } from '../lib/posthog'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -22,6 +23,14 @@ export function useAuth() {
         setSession(s)
         setUser(s?.user ?? null)
         setLoading(false)
+
+        // PostHog identity
+        if (event === 'SIGNED_IN' && s?.user) {
+          analytics.identify(s.user.id, { email: s.user.email })
+        }
+        if (event === 'SIGNED_OUT') {
+          analytics.reset()
+        }
 
         // Session expired while user was active — attempt silent refresh
         if (event === 'TOKEN_REFRESHED' && !s) {

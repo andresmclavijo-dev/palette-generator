@@ -1,5 +1,6 @@
 import { usePro } from '../../hooks/usePro'
 import Tooltip from '../ui/Tooltip'
+import { analytics } from '../../lib/posthog'
 
 const FREE_MAX   = 5
 const ALL_COUNTS = [3, 4, 5, 6, 7, 8]
@@ -32,8 +33,10 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
             <button
               key={n}
               onClick={() => {
-                if (locked) onProGate()
-                else onChange(n)
+                if (locked) {
+                  analytics.track('pro_gate_hit', { feature: `${n}_colors`, source: 'color_count' })
+                  onProGate()
+                } else onChange(n)
               }}
               className={`
                 flex items-center justify-center

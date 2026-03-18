@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
 import ToolTooltip from '../ui/ToolTooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
+import { analytics } from '../../lib/posthog'
 
 interface ImagePaletteProps {
   onPalette: (hexes: string[]) => void
@@ -20,6 +21,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
       return
     }
     // All non-Pro users (signed-in or anonymous) → Pro upgrade modal
+    analytics.track('pro_gate_hit', { feature: 'image_extraction', source: 'toolbar' })
     onProGate()
   }
 

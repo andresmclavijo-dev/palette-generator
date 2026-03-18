@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
 import { BRAND_VIOLET } from '../../lib/tokens'
+import { analytics } from '../../lib/posthog'
 export const AI_MAX_FREE = 3
 
 function todayKey() {
@@ -57,6 +58,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
   const handleUpgradeOrGenerate = () => {
     if (exhausted) {
+      analytics.track('pro_gate_hit', { feature: 'ai_palette', source: 'toolbar' })
       onClose()
       onProGate()
       return
@@ -87,6 +89,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
       // Handle rate limit — show Pro upgrade
       if (res.status === 429) {
+        analytics.track('pro_gate_hit', { feature: 'ai_palette', source: 'toolbar' })
         onClose()
         onProGate()
         return

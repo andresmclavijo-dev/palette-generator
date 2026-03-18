@@ -32,6 +32,7 @@ import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/co
 import { extractColorsFromFile } from './lib/kMeans'
 import { createCheckoutSession, createPortalSession } from './lib/stripe'
 import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
+import { analytics } from './lib/posthog'
 const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
@@ -61,7 +62,11 @@ export default function App() {
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
 
-  const openProModal = useCallback(() => setProModalOpen(true), [])
+  const openProModal = useCallback((feature?: string, source?: string) => {
+    if (feature) analytics.track('pro_gate_hit', { feature, source: source ?? 'toolbar' })
+    analytics.track('pro_modal_opened')
+    setProModalOpen(true)
+  }, [])
 
   // Auto-close Pro modal when user becomes Pro
   useEffect(() => {
@@ -98,6 +103,14 @@ export default function App() {
     }
   }, [])
 
+  // Session start + pageview
+  useEffect(() => {
+    if (!sessionStorage.getItem('paletta_session_start')) {
+      sessionStorage.setItem('paletta_session_start', String(Date.now()))
+    }
+    analytics.track('$pageview')
+  }, [])
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const p = params.get('p')
@@ -124,15 +137,22 @@ export default function App() {
     window.history.replaceState(null, '', url.toString())
   }, [swatches])
 
-  const triggerGenerate = useCallback(() => {
+  const triggerGenerate = useCallback((method: 'spacebar' | 'button' | 'ai' = 'button') => {
     if (animRef.current) clearTimeout(animRef.current)
     generate()
-  }, [generate])
+    analytics.track('palette_generated', { method, style: harmonyMode, color_count: count })
+    // First generate — fire once per user
+    if (!localStorage.getItem('paletta_first_generate_at')) {
+      localStorage.setItem('paletta_first_generate_at', String(Date.now()))
+      const sessionStart = Number(sessionStorage.getItem('paletta_session_start') || Date.now())
+      analytics.track('first_generate', { time_to_first_generate_ms: Date.now() - sessionStart })
+    }
+  }, [generate, harmonyMode, count])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
-      if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
+      if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate('spacebar') }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
       if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setPreviewOpen(false); setSignInOpen(false); setDrawerOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
@@ -152,6 +172,7 @@ export default function App() {
 
   const handleAiPalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
+    analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
 
   const handleImagePalette = (hexes: string[]) => {
@@ -160,7 +181,7 @@ export default function App() {
 
   const handleMobileImageClick = () => {
     if (isPro) { mobileFileRef.current?.click() }
-    else { openProModal() }
+    else { openProModal('image_extraction', 'toolbar') }
   }
 
   const handleMobileFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,7 +195,7 @@ export default function App() {
   }
 
   const handleSave = () => {
-    if (!isPro) { openProModal(); return }
+    if (!isPro) { openProModal('save_limit', 'toolbar'); return }
     if (!user) { setSignInOpen(true); return }
     setSaveNameOpen(true)
   }
@@ -210,6 +231,8 @@ export default function App() {
       const { error } = await supabase.from('saved_palettes').insert(payload)
       if (error) throw error
       showToast('Palette saved \u2713')
+      const savedCount = existing?.length ?? 0
+      analytics.track('palette_saved', { palette_count: savedCount + 1, is_pro: isPro })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('Save failed:', msg, err)
@@ -425,7 +448,7 @@ export default function App() {
 
           {/* Generate */}
           <button
-            onClick={triggerGenerate}
+            onClick={() => triggerGenerate('button')}
             className="flex items-center gap-3 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
             style={{ padding: '0 16px', gap: 12 }}
             aria-label="Generate new palette"
@@ -518,7 +541,7 @@ export default function App() {
 
         {/* Generate — pill, centered */}
         <button
-          onClick={triggerGenerate}
+          onClick={() => triggerGenerate('button')}
           className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium shadow-md active:scale-95 transition-all bg-brand-violet hover:bg-brand-violet-hover"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -553,7 +576,7 @@ export default function App() {
         {/* Pro CTA — visible only for non-Pro */}
         {!isPro && (
           <button
-            onClick={openProModal}
+            onClick={() => openProModal()}
             className="h-10 px-4 rounded-full text-white text-[14px] font-medium active:scale-95 transition-all shrink-0 flex items-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
           >
             <span className="text-[12px] leading-none">✦</span>
@@ -598,7 +621,7 @@ export default function App() {
         onProGate={openProModal}
         onImagePalette={handleMobileImageClick}
         onPreview={() => setPreviewOpen(true)}
-        onVisionSim={() => { if (isPro) { setToolsOpen(true) } else { openProModal() } }}
+        onVisionSim={() => { if (isPro) { setToolsOpen(true) } else { openProModal('vision_sim', 'toolbar') } }}
         onAiPalette={() => { setAiOpen(true) }}
         onSavedPalettes={() => setSavedOpen(true)}
         onManageSubscription={handleManageSubscription}

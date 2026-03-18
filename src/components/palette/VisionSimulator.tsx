@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePro } from '../../hooks/usePro'
 import ToolTooltip from '../ui/ToolTooltip'
+import { analytics } from '../../lib/posthog'
 
 export type VisionMode = 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia'
 
@@ -39,6 +40,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
   const handleSelect = (m: typeof MODES[number]) => {
     if (!m.free && !isPro) {
       setDropOpen(false)
+      analytics.track('pro_gate_hit', { feature: 'vision_sim', source: 'accessibility_panel' })
       onProGate()
       return
     }

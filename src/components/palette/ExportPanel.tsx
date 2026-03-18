@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
+import { analytics } from '../../lib/posthog'
 
 type Tab = 'css' | 'tailwind' | 'hex'
 import { BRAND_BLUE as BRAND } from '../../lib/tokens'
@@ -77,6 +78,13 @@ export default function ExportPanel({ hexes, onClose }: ExportPanelProps) {
       setCopied(true)
       showToast('Downloaded \u2713')
       setTimeout(() => setCopied(false), 1800)
+      analytics.track('palette_exported', { format: tab, color_count: hexes.length, is_pro: isPro })
+      // First export — fire once per user
+      if (!localStorage.getItem('paletta_first_export_at')) {
+        localStorage.setItem('paletta_first_export_at', String(Date.now()))
+        const sessionStart = Number(sessionStorage.getItem('paletta_session_start') || Date.now())
+        analytics.track('first_export', { time_to_first_export_ms: Date.now() - sessionStart, format: tab })
+      }
     } catch { /* silent */ }
   }
 
