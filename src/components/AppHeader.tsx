@@ -94,68 +94,63 @@ export default function AppHeader({
 
         {/* Desktop nav items — hidden on mobile to avoid Tooltip wrappers taking layout space */}
         <div className="hidden sm:flex items-center gap-4">
-          {/* Desktop: Share */}
-          <Tooltip text={shareCopied ? 'Copied!' : 'Copy shareable link'} position="bottom">
+          {/* Desktop: Share — icon-only */}
+          <Tooltip text={shareCopied ? 'Copied!' : 'Share'} position="bottom">
             <button
               onClick={onShare}
-              className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
-              style={{ color: '#1a1a2e' }}
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              aria-label={shareCopied ? 'Copied!' : 'Share'}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
               </svg>
-              <span>{shareCopied ? 'Copied!' : 'Share'}</span>
             </button>
           </Tooltip>
 
-          {/* Desktop: Save */}
-          <Tooltip text="Save palette" position="bottom">
+          {/* Desktop: Save — icon-only, filled red heart */}
+          <Tooltip text="Save" position="bottom">
             <button
               onClick={onSave}
-              className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
-              style={{ color: '#1a1a2e' }}
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              aria-label="Save palette"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#EF4444" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
-              <span>Save</span>
             </button>
           </Tooltip>
 
           {/* Desktop: Saved palettes — visible when signed in */}
           {isSignedIn && (
-            <Tooltip text="View saved palettes" position="bottom">
+            <Tooltip text="My Palettes" position="bottom">
               <button
                 onClick={onSavedPalettes}
-                className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
-                style={{ color: '#1a1a2e' }}
+                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
                 aria-label="My Palettes"
                 aria-haspopup="true"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
-                <span>My Palettes</span>
               </button>
             </Tooltip>
           )}
 
-          {/* Desktop: Export */}
-          <Tooltip text="Export palette" position="bottom">
+          {/* Desktop: Export — icon-only */}
+          <Tooltip text="Export" position="bottom">
             <button
               onClick={onExport}
-              className="flex items-center gap-3 px-4 h-10 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all duration-150 shrink-0"
-              style={{ color: '#1a1a2e' }}
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              aria-label="Export palette"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Export
             </button>
           </Tooltip>
 

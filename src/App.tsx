@@ -278,14 +278,13 @@ export default function App() {
         style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
-        <span className="text-[11px] sm:text-[14px] font-bold mr-1 sm:mr-1.5 shrink-0" style={{ color: '#555555' }}>Style:</span>
         <HarmonyPicker mode={harmonyMode} onChange={setHarmonyMode} />
         {/* Desktop-only tools — inline, no dropdown wrapper */}
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
           <PreviewPanel onProGate={openProModal} />
-          <ToolTooltip description="Generate a palette from a text description" showProBadge={!isPro}>
+          <ToolTooltip description="Generate a palette from a text description">
             <button
               onClick={() => setAiOpen(true)}
               className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
@@ -609,6 +608,8 @@ export default function App() {
         userEmail={user?.email ?? undefined}
         visionMode={visionMode}
         onVisionChange={setVisionMode}
+        harmonyMode={harmonyMode}
+        onHarmonyChange={setHarmonyMode}
       />
 
       {/* Sign In modal */}

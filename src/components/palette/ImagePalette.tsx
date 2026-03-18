@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { usePro } from '../../hooks/usePro'
-import ProBadge from '../ui/ProBadge'
 import ToolTooltip from '../ui/ToolTooltip'
 import { extractColorsFromFile } from '../../lib/kMeans'
 
@@ -41,8 +40,6 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
     }
   }
 
-  const showBadge = !isPro
-
   return (
     <div className="relative shrink-0 hidden sm:block">
       <input
@@ -52,7 +49,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
         className="hidden"
         onChange={handleFile}
       />
-      <ToolTooltip description="Extract a color palette from any image" showProBadge={showBadge}>
+      <ToolTooltip description="Extract a color palette from any image">
         <button
           onClick={handleClick}
           disabled={loading}
@@ -66,7 +63,6 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
             <polyline points="21 15 16 10 5 21"/>
           </svg>
           <span>{loading ? 'Analyzing\u2026' : 'Image'}</span>
-          {showBadge && <span aria-hidden="true"><ProBadge /></span>}
         </button>
       </ToolTooltip>
 

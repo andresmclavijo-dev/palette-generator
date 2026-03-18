@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import ProBadge from './ProBadge'
 import { getAiRemaining } from '../../components/palette/AiPrompt'
+import { HarmonyPickerList } from '../../components/palette/HarmonyPicker'
+import type { HarmonyMode } from '../../lib/colorEngine'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
 
 const VISION_MODES: { value: VisionMode; label: string }[] = [
@@ -31,6 +32,8 @@ interface MobileDrawerProps {
   userEmail?: string
   visionMode?: VisionMode
   onVisionChange?: (mode: VisionMode) => void
+  harmonyMode?: HarmonyMode
+  onHarmonyChange?: (mode: HarmonyMode) => void
 }
 
 export default function MobileDrawer({
@@ -38,6 +41,7 @@ export default function MobileDrawer({
   onImagePalette, onPreview, onAiPalette, onSavedPalettes, onManageSubscription,
   isPro, isSignedIn, userEmail,
   visionMode = 'normal', onVisionChange,
+  harmonyMode = 'random', onHarmonyChange,
 }: MobileDrawerProps) {
   const [visible, setVisible] = useState(false)
   const [visionExpanded, setVisionExpanded] = useState(false)
@@ -178,6 +182,19 @@ export default function MobileDrawer({
         {/* Divider */}
         <div className="mx-5 my-2 h-px bg-gray-100" />
 
+        {/* Harmony section */}
+        <div className="px-5 pt-2 pb-1">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Harmony</span>
+        </div>
+        <div className="px-3 py-1">
+          {onHarmonyChange && (
+            <HarmonyPickerList mode={harmonyMode} onChange={(m) => { onHarmonyChange(m); onClose() }} />
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="mx-5 my-2 h-px bg-gray-100" />
+
         {/* Pro Tools section */}
         <div className="px-5 pt-2 pb-1">
           <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tools</span>
@@ -198,8 +215,7 @@ export default function MobileDrawer({
             </div>
             <div className="flex-1 flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-gray-800">Accessibility</span>
-              {!isPro && <ProBadge />}
-              {isPro && visionMode !== 'normal' && (
+              {visionMode !== 'normal' && (
                 <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
               )}
             </div>
@@ -240,7 +256,6 @@ export default function MobileDrawer({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-gray-800">Image</span>
-              {!isPro && <ProBadge />}
             </div>
           </button>
 
@@ -257,7 +272,6 @@ export default function MobileDrawer({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-gray-800">Preview</span>
-              {!isPro && <ProBadge />}
             </div>
           </button>
 
