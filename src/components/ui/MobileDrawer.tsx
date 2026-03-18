@@ -224,12 +224,13 @@ export default function MobileDrawer({
             </svg>
           </button>
 
-          {/* Vision sub-options — inline accordion */}
+          {/* Vision sub-options — inline accordion, styled to match HarmonyPickerList */}
           {visionExpanded && onVisionChange && (
-            <div className="pl-[3.75rem] pr-3 pb-1 space-y-0.5">
-              {VISION_MODES.map(m => {
+            <div className="pl-[3.75rem] pr-3 pb-1">
+              {VISION_MODES.map((m, i) => {
                 const isFree = m.value === 'normal' || m.value === 'protanopia'
                 const needsPro = !isFree && !isPro
+                const isActive = visionMode === m.value
                 return (
                   <button
                     key={m.value}
@@ -238,29 +239,42 @@ export default function MobileDrawer({
                       onVisionChange(m.value)
                       onClose()
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      visionMode === m.value ? 'bg-blue-50' : 'hover:bg-gray-50'
-                    }`}
+                    className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100"
+                    style={{
+                      padding: '12px 16px',
+                      background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
+                      borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+                    }}
                   >
                     <div className="flex items-center justify-between">
-                      <span className={`text-[13px] font-medium ${visionMode === m.value ? 'text-blue-600' : 'text-gray-800'}`}>
-                        {m.label} {visionMode === m.value && '✓'}
+                      <span
+                        className="text-[14px] font-bold"
+                        style={{ color: isActive ? '#6C47FF' : '#1a1a2e' }}
+                      >
+                        {m.label}
                       </span>
-                      {needsPro && (
-                        <span
-                          className="text-[10px] font-bold shrink-0"
-                          style={{
-                            background: 'rgba(108,71,255,0.1)',
-                            color: '#6C47FF',
-                            padding: '2px 8px',
-                            borderRadius: 99,
-                          }}
-                        >
-                          PRO
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {needsPro && (
+                          <span
+                            className="text-[10px] font-bold"
+                            style={{
+                              background: 'rgba(108,71,255,0.1)',
+                              color: '#6C47FF',
+                              padding: '2px 8px',
+                              borderRadius: 99,
+                            }}
+                          >
+                            PRO
+                          </span>
+                        )}
+                        {isActive && (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5 m-0">{m.desc}</p>
+                    <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: '#6B7280' }}>{m.desc}</p>
                   </button>
                 )
               })}
