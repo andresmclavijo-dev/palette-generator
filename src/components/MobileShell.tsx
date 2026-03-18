@@ -250,6 +250,7 @@ export default function MobileShell() {
           <GenerateView
             swatches={swatches}
             visionFilter={visionFilter}
+            onGenerate={triggerGenerate}
             onLock={lockSwatch}
             onSave={handleSave}
           />
@@ -412,13 +413,14 @@ export default function MobileShell() {
 interface GenerateViewProps {
   swatches: { id: string; hex: string; locked: boolean }[]
   visionFilter?: string
+  onGenerate: () => void
   onLock: (id: string) => void
   onSave: () => void
 }
 
 function GenerateView({
   swatches, visionFilter,
-  onLock, onSave,
+  onGenerate, onLock, onSave,
 }: GenerateViewProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -431,60 +433,72 @@ function GenerateView({
 
   return (
     <div className="relative h-full flex flex-col" style={{ filter: visionFilter }}>
-      {/* Swatches — full bleed, centered layout */}
+      {/* Swatches — full bleed, horizontal layout */}
       <div className="flex-1 flex flex-col min-h-0">
         {swatches.map((s) => {
           const textColor = readableOn(s.hex)
           const badge = getContrastBadge(s.hex)
           const isCopied = copiedId === s.id
           return (
-            <button
+            <div
               key={s.id}
-              onClick={() => copyHex(s.id, s.hex)}
-              className="flex-1 relative flex flex-col items-center justify-center"
-              style={{ backgroundColor: s.hex, minHeight: 48, transition: 'background-color 300ms ease' }}
-              aria-label={`${s.hex}, tap to copy`}
+              className="flex-1 relative flex items-center justify-between"
+              style={{ backgroundColor: s.hex, minHeight: 48, padding: '0 16px', transition: 'background-color 300ms ease' }}
             >
-              {/* WCAG badge — top area */}
+              {/* Left: hex code */}
+              <button
+                onClick={() => copyHex(s.id, s.hex)}
+                className="flex items-center min-h-[44px]"
+                aria-label={`Copy ${s.hex}`}
+              >
+                <span
+                  className="text-[14px] font-bold font-mono tracking-wide"
+                  style={{ color: textColor }}
+                >
+                  {isCopied ? 'Copied!' : s.hex.toUpperCase()}
+                </span>
+              </button>
+
+              {/* Center-right: badge */}
               {badge.pass && (
                 <span
-                  className="text-[12px] font-bold px-2.5 py-1 rounded-lg mb-1"
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0"
                   style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#ffffff' }}
                 >
                   {badge.level} {badge.ratio.toFixed(1)}:1
                 </span>
               )}
 
-              {/* Hex code — centered */}
-              <span
-                className="text-[16px] font-bold font-mono tracking-wide"
-                style={{ color: textColor }}
-              >
-                {isCopied ? 'Copied!' : s.hex}
-              </span>
-
-              {/* Action buttons — centered row below hex */}
-              <div className="flex items-center gap-2 mt-1.5" onClick={e => e.stopPropagation()}>
+              {/* Right: action buttons */}
+              <div className="flex items-center gap-2 shrink-0 ml-2">
                 <button
-                  onClick={(e) => { e.stopPropagation(); copyHex(s.id, s.hex) }}
+                  onClick={() => copyHex(s.id, s.hex)}
                   className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', minWidth: 44, minHeight: 44 }}
+                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                 >
                   {isCopied
-                    ? <Check size={16} style={{ color: textColor }} />
-                    : <Copy size={16} style={{ color: textColor }} />
+                    ? <Check size={15} style={{ color: textColor }} />
+                    : <Copy size={15} style={{ color: textColor }} />
                   }
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); onLock(s.id) }}
+                  onClick={() => onSave()}
                   className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 38, height: 38, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', minWidth: 44, minHeight: 44 }}
+                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
+                  aria-label="Save palette"
+                >
+                  <Heart size={15} style={{ color: textColor }} />
+                </button>
+                <button
+                  onClick={() => onLock(s.id)}
+                  className="rounded-lg flex items-center justify-center transition-all"
+                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {s.locked
-                    ? <Lock size={16} style={{ color: textColor }} />
-                    : <Unlock size={16} style={{ color: textColor }} />
+                    ? <Lock size={15} style={{ color: textColor }} />
+                    : <Unlock size={15} style={{ color: textColor }} />
                   }
                 </button>
               </div>
@@ -493,19 +507,19 @@ function GenerateView({
               {s.locked && (
                 <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
               )}
-            </button>
+            </div>
           )
         })}
       </div>
 
-      {/* Save heart — bottom left, clear of tab bar */}
+      {/* Mini Generate FAB — always visible */}
       <button
-        onClick={onSave}
-        className="absolute left-4 w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ bottom: 16, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
-        aria-label="Save palette"
+        onClick={onGenerate}
+        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
+        aria-label="Generate new palette"
       >
-        <Heart size={20} color="#ffffff" />
+        <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
       </button>
     </div>
   )
