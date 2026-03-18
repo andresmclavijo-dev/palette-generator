@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
-      return_url: 'https://usepaletta.io',
+      return_url: 'https://www.usepaletta.io',
     })
 
     return res.status(200).json({ url: session.url })

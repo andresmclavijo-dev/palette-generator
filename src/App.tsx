@@ -72,16 +72,15 @@ export default function App() {
   const pendingCheckoutHandled = useRef(false)
   useEffect(() => {
     if (!user || pendingCheckoutHandled.current) return
-    const pending = localStorage.getItem('paletta_pending_checkout_plan') as 'monthly' | 'yearly' | null
+    const pending = localStorage.getItem('paletta_pending_checkout') as 'monthly' | 'yearly' | null
     if (!pending) return
     pendingCheckoutHandled.current = true
-    localStorage.removeItem('paletta_pending_checkout_plan')
+    localStorage.removeItem('paletta_pending_checkout')
     showToast('Redirecting to checkout…')
     createCheckoutSession(pending, user.id, user.email ?? undefined)
       .then(url => { window.location.href = url })
-      .catch(err => {
-        const msg = err instanceof Error ? err.message : 'Checkout failed'
-        showToast(msg)
+      .catch(() => {
+        showToast('Something went wrong — please try again')
       })
   }, [user])
 

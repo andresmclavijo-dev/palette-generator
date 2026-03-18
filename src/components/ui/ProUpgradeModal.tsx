@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { createCheckoutSession } from '../../lib/stripe'
 import { showToast } from '../../utils/toast'
 
-const PENDING_PLAN_KEY = 'paletta_pending_checkout_plan'
+const PENDING_PLAN_KEY = 'paletta_pending_checkout'
 const PRIMARY = '#6C47FF'
 const PRIMARY_END = '#8B6FFF'
 
@@ -77,12 +77,15 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
 
   const isMonthly = plan === 'monthly'
 
-  // Preserved exactly from previous implementation
   const handleSubscribe = async () => {
     if (!user) {
       localStorage.setItem(PENDING_PLAN_KEY, plan)
       onClose()
-      signInWithGoogle()
+      const { error } = await signInWithGoogle()
+      if (error) {
+        localStorage.removeItem(PENDING_PLAN_KEY)
+        showToast('Sign-in failed — please try again')
+      }
       return
     }
 
@@ -90,9 +93,8 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
     try {
       const url = await createCheckoutSession(plan, user.id, user.email ?? undefined)
       window.location.href = url
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Checkout failed'
-      showToast(msg)
+    } catch {
+      showToast('Something went wrong — please try again')
       setLoading(false)
     }
   }

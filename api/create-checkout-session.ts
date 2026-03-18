@@ -38,8 +38,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: userId ? { supabase_user_id: userId } : undefined,
       client_reference_id: userId || undefined,
-      success_url: 'https://usepaletta.io/?checkout=success',
-      cancel_url: 'https://usepaletta.io/?checkout=cancelled',
+      success_url: 'https://www.usepaletta.io/?checkout=success',
+      cancel_url: 'https://www.usepaletta.io/?checkout=cancelled',
       allow_promotion_codes: true,
     })
 
