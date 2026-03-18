@@ -167,245 +167,282 @@ export function LandingMockup({ colors }: { colors: string[] }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Dashboard — Booking/Admin Panel                                   */
+/*  Dashboard — NexaVerse Admin Panel                                 */
 /* ------------------------------------------------------------------ */
 
-const CALENDAR_DAYS = [
-  [null, null, null, null, 1, 2, 3],
-  [4, 5, 6, 7, 8, 9, 10],
-  [11, 12, 13, 14, 15, 16, 17],
-  [18, 19, 20, 21, 22, 23, 24],
-  [25, 26, 27, 28, 29, 30, 31],
+const DASH_NAV = [
+  { icon: '◉', label: 'Overview', active: true },
+  { icon: '⇄', label: 'Transactions', active: false },
+  { icon: '♟', label: 'Customers', active: false },
+  { icon: '▤', label: 'Reports', active: false },
+  { icon: '⚙', label: 'Settings', active: false },
+  { icon: '⟨⟩', label: 'Developer', active: false },
+]
+
+const DASH_TX = [
+  { init: 'SE', name: 'S. Evergreen', type: 'Subscription', amount: '+$120.00', ci: 0 },
+  { init: 'RS', name: 'R. Sterling', type: 'Refund', amount: '-$45.00', ci: 1 },
+  { init: 'JB', name: 'J. Blackburn', type: 'Payment', amount: '+$89.50', ci: 2 },
+  { init: 'YW', name: 'Y. Williams', type: 'Subscription', amount: '+$120.00', ci: 3 },
+  { init: 'LF', name: 'L. Frost', type: 'Payment', amount: '+$250.00', ci: 0 },
+  { init: 'MS', name: 'M. Sinard', type: 'Refund', amount: '-$32.00', ci: 1 },
+]
+
+const DASH_TICKETS = [
+  { email: 'jessica.smith12@example.com', issue: 'Login Issue', status: 'Open', dot: '#EF4444' },
+  { email: 'daniel.reed46@random.com', issue: 'Billing Inquiry', status: 'Pending', dot: '#F59E0B' },
+  { email: 'emily.wilson78@fullchannel.net', issue: 'Product Malfunction', status: 'Closed', dot: '#22C55E' },
+  { email: 'andrew.johnson23@proxyhillers.org', issue: 'Feature Request', status: 'Open', dot: '#EF4444' },
+]
+
+const CHART_BARS = [
+  { m: 'Jan', h: 0.45 }, { m: 'Feb', h: 0.65 }, { m: 'Mar', h: 0.55 },
+  { m: 'Apr', h: 0.80 }, { m: 'May', h: 0.70 }, { m: 'Jun', h: 0.90 }, { m: 'Jul', h: 0.60 },
 ]
 
 export function DashboardMockup({ colors }: { colors: string[] }) {
   const c = colors
   return (
-    <BrowserChrome>
-      <div style={{ ...FONT, background: '#F8F9FB' }}>
-        {/* Top nav */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', background: '#fff', borderBottom: '1px solid #F3F4F6' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* Half-circle logo */}
-            <div style={{ position: 'relative', width: 14, height: 14 }}>
-              <div style={{ position: 'absolute', width: 14, height: 14, borderRadius: '50%', background: c[0], clipPath: 'inset(0 50% 0 0)' }} />
-              <div style={{ position: 'absolute', width: 14, height: 14, borderRadius: '50%', background: c[0], opacity: 0.5 }} />
-            </div>
-            <span style={{ fontSize: 7, fontWeight: 600, color: c[0], borderBottom: `1.5px solid ${c[0]}`, paddingBottom: 2 }}>Overview</span>
-            <span style={{ fontSize: 7, color: '#9CA3AF' }}>Reports</span>
+    <div style={{ ...FONT, borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E5E7EB', display: 'flex', background: '#F0F0F0', height: 520 }}>
+      {/* ======== SIDEBAR ======== */}
+      <div style={{ width: 80, background: c[0], padding: '10px 6px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 14, padding: '0 4px' }}>
+          <div style={{ width: 14, height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 7, fontWeight: 800, color: '#fff' }}>N</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Search */}
-            <div style={{ width: 65, height: 16, borderRadius: 6, border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', paddingLeft: 5 }}>
-              <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-              <span style={{ fontSize: 5.5, color: '#D1D5DB', marginLeft: 3 }}>Search</span>
+          <span style={{ fontSize: 6.5, fontWeight: 700, color: '#fff' }}>NexaVerse</span>
+        </div>
+        {/* Nav items */}
+        {DASH_NAV.map(n => (
+          <div key={n.label} style={{
+            display: 'flex', alignItems: 'center', gap: 4, padding: '4px 5px', borderRadius: 4, marginBottom: 1,
+            background: n.active ? 'rgba(255,255,255,0.15)' : 'transparent',
+            borderLeft: n.active ? '2px solid #fff' : '2px solid transparent',
+          }}>
+            <span style={{ fontSize: 6, width: 10, textAlign: 'center', color: '#fff', opacity: n.active ? 1 : 0.5 }}>{n.icon}</span>
+            <span style={{ fontSize: 5.5, color: '#fff', opacity: n.active ? 1 : 0.55, fontWeight: n.active ? 600 : 400 }}>{n.label}</span>
+          </div>
+        ))}
+        <div style={{ flex: 1 }} />
+        {/* Log out */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 5px' }}>
+          <span style={{ fontSize: 6, color: '#fff', opacity: 0.5 }}>←</span>
+          <span style={{ fontSize: 5.5, color: '#fff', opacity: 0.5 }}>Log out</span>
+        </div>
+      </div>
+
+      {/* ======== MAIN CONTENT ======== */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {/* Top bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: '#fff', borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>
+          <span style={{ fontSize: 9, fontWeight: 800, color: '#111827' }}>Dashboard</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ height: 14, borderRadius: 99, background: `${c[0]}10`, display: 'flex', alignItems: 'center', padding: '0 8px', gap: 3 }}>
+              <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke={c[0]} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <span style={{ fontSize: 4.5, color: '#9CA3AF' }}>Search transactions, customers...</span>
             </div>
-            {/* Mail */}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-            {/* Bell + dot */}
-            <div style={{ position: 'relative' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-              <div style={{ position: 'absolute', top: -1, right: -1, width: 5, height: 5, borderRadius: '50%', background: '#EF4444', border: '1px solid #fff' }} />
-            </div>
-            {/* User */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: 16, height: 16, borderRadius: '50%', background: c[1] || c[0], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 7, fontWeight: 700, color: '#fff' }}>T</span>
-              </div>
-              <div>
-                <div style={{ fontSize: 6, fontWeight: 600, color: '#111827', lineHeight: 1 }}>Thomas Gepsan</div>
-                <div style={{ fontSize: 4.5, color: '#9CA3AF', lineHeight: 1, marginTop: 1 }}>Super Admin</div>
-              </div>
+            <div style={{ width: 16, height: 16, borderRadius: '50%', background: c[0], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 6, fontWeight: 700, color: '#fff' }}>NV</span>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', minHeight: 300 }}>
-          {/* ---- Left main area ---- */}
-          <div style={{ flex: 1, padding: '10px 12px' }}>
-            {/* Title + Manage */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: '#111827' }}>Main Dashboard</span>
-              <span style={{ fontSize: 6, color: '#6B7280', background: '#F3F4F6', padding: '3px 10px', borderRadius: 5, fontWeight: 500 }}>Manage ▾</span>
-            </div>
+        {/* Scrollable body */}
+        <div style={{ flex: 1, overflow: 'hidden', padding: '8px 10px' }}>
+          {/* ---- Stat cards ---- */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 8 }}>
+            {[
+              { label: 'Current MRR', value: '$12.4k', ci: 0 },
+              { label: 'Current Customers', value: '16,601', ci: 1 },
+              { label: 'Active Customers', value: '33%', ci: 2 },
+              { label: 'Churn Rate', value: '2%', ci: 3 },
+            ].map(s => (
+              <div key={s.label} style={{ borderRadius: 10, padding: '7px 8px', background: c[s.ci % c.length], color: '#fff' }}>
+                <div style={{ fontSize: 4.5, opacity: 0.85, marginBottom: 2 }}>{s.label}</div>
+                <div style={{ fontSize: 11, fontWeight: 800 }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 10, borderBottom: '1px solid #F3F4F6', paddingBottom: 5 }}>
-              {['Booking', 'Amenities', 'Customization', 'Locality'].map((t, i) => (
-                <span key={t} style={{ fontSize: 6.5, fontWeight: i === 0 ? 600 : 400, color: i === 0 ? c[0] : '#9CA3AF', borderBottom: i === 0 ? `2px solid ${c[0]}` : 'none', paddingBottom: 3 }}>{t}</span>
-              ))}
-            </div>
-
-            {/* Stats row */}
-            <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-              {/* Earnings */}
-              <div style={card({ flex: 1, padding: 8 })}>
-                <div style={{ fontSize: 5.5, color: '#9CA3AF', marginBottom: 3 }}>Today&apos;s Earning</div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>$2890</div>
-                <svg width="100%" height="18" viewBox="0 0 100 20" preserveAspectRatio="none" style={{ marginTop: 4 }} aria-hidden="true">
-                  <path d="M0,18 Q10,14 20,12 T40,8 T60,10 T80,4 T100,6" fill="none" stroke={c[0]} strokeWidth="1.5" />
-                  <path d="M0,18 Q10,14 20,12 T40,8 T60,10 T80,4 T100,6 V20 H0Z" fill={`${c[0]}18`} />
-                </svg>
-              </div>
-              {/* Demographics */}
-              <div style={card({ width: 55, padding: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: `${c[2] || c[0]}12` })}>
-                <div style={{ fontSize: 5.5, color: '#9CA3AF', marginBottom: 2 }}>Demographics</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: c[2] || c[0] }}>20</div>
-              </div>
-              {/* Bookings + Balance */}
-              <div style={card({ flex: 1, padding: 8 })}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontSize: 5.5, color: '#9CA3AF' }}>Today&apos;s Bookings</div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#111827' }}>24</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 5.5, color: '#9CA3AF' }}>Total Balance</div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#111827' }}>$2M</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Promo + Design Meetings row */}
-            <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-              {/* Promo card */}
-              <div style={{ flex: 1, borderRadius: 10, padding: '10px 12px', background: `linear-gradient(135deg, ${c[0]}, ${c[1] || c[0]})`, color: '#fff' }}>
-                <div style={{ fontSize: 8, fontWeight: 800, marginBottom: 2 }}>20% OFF</div>
-                <div style={{ fontSize: 5.5, opacity: 0.85, marginBottom: 5 }}>on your first booking</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ fontSize: 5.5, background: 'rgba(255,255,255,0.25)', padding: '2px 8px', borderRadius: 4, fontWeight: 700, letterSpacing: '0.06em' }}>NEWBIE20</span>
-                  <span style={{ fontSize: 4.5, opacity: 0.7, fontWeight: 500 }}>COPY CODE</span>
-                </div>
-              </div>
-              {/* Design Meetings */}
-              <div style={card({ flex: 1, padding: 8 })}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 6.5, fontWeight: 700, color: '#111827' }}>Design Meetings</span>
-                  <span style={{ fontSize: 5, color: '#fff', background: c[2] || c[0], padding: '2px 6px', borderRadius: 99, fontWeight: 600 }}>11 Min Left</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                  {['A', 'B', 'C'].map((l, i) => (
-                    <div key={l} style={{ width: 16, height: 16, borderRadius: '50%', background: c[i % c.length], border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -5 : 0, position: 'relative', zIndex: 3 - i }}>
-                      <span style={{ fontSize: 5.5, fontWeight: 700, color: '#fff' }}>{l}</span>
-                    </div>
+          {/* ---- Charts row: Trend | Sales donut | Transactions ---- */}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.2fr', gap: 5, marginBottom: 8 }}>
+            {/* Trend chart */}
+            <div style={card({ padding: '7px 8px' })}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 6, fontWeight: 700, color: '#111827' }}>Trend</span>
+                <div style={{ display: 'flex', gap: 2 }}>
+                  {['WEEKLY', 'MONTHLY', 'YEARLY'].map((p, pi) => (
+                    <span key={p} style={{
+                      fontSize: 3.5, fontWeight: 600, padding: '1.5px 4px', borderRadius: 99,
+                      background: pi === 1 ? c[0] : '#F3F4F6',
+                      color: pi === 1 ? '#fff' : '#9CA3AF',
+                    }}>{p}</span>
                   ))}
                 </div>
-                <span style={{ fontSize: 5.5, color: '#fff', background: c[0], padding: '3px 10px', borderRadius: 5, fontWeight: 600 }}>Join</span>
               </div>
-            </div>
-
-            {/* Active Bookings */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-                <span style={{ fontSize: 7.5, fontWeight: 700, color: '#111827' }}>Active Bookings</span>
-                <span style={{ fontSize: 5.5, color: c[0], fontWeight: 600, cursor: 'pointer' }}>Check All &gt;</span>
-              </div>
-              {[
-                { title: 'Award Ceremony', time: '12:30 — 15:45', tags: ['Team', 'Meeting'], avatars: ['D', 'E'] },
-                { title: 'Design Discussion', time: '16:30 — 20:00', tags: ['Design', 'Service'], avatars: ['F', 'G'] },
-              ].map((b, bi) => (
-                <div key={b.title} style={{ ...card({ padding: '6px 8px', marginBottom: 4 }), display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontSize: 6.5, fontWeight: 600, color: '#111827' }}>{b.title}</div>
-                    <div style={{ fontSize: 5.5, color: '#9CA3AF', marginTop: 1 }}>{b.time}</div>
-                    <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
-                      {b.tags.map((tag, ti) => (
-                        <span key={tag} style={{ fontSize: 5, padding: '1px 6px', borderRadius: 99, background: `${c[(bi + ti) % c.length]}18`, color: c[(bi + ti) % c.length], fontWeight: 500 }}>{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {b.avatars.map((l, i) => (
-                      <div key={l} style={{ width: 14, height: 14, borderRadius: '50%', background: c[(bi + i + 2) % c.length], border: '1.5px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: i > 0 ? -4 : 0, position: 'relative', zIndex: 2 - i }}>
-                        <span style={{ fontSize: 5, fontWeight: 700, color: '#fff' }}>{l}</span>
+              {/* Y-axis + bars */}
+              <div style={{ display: 'flex', gap: 3, height: 58 }}>
+                {/* Y labels */}
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 16, flexShrink: 0 }}>
+                  {['$15k', '$10k', '$5k', '$0'].map(l => (
+                    <span key={l} style={{ fontSize: 3.5, color: '#D1D5DB', textAlign: 'right' }}>{l}</span>
+                  ))}
+                </div>
+                {/* Bars area */}
+                <div style={{ flex: 1, position: 'relative' }}>
+                  {/* Dashed grid lines */}
+                  {[0, 1, 2, 3].map(i => (
+                    <div key={`gl-${i}`} style={{ position: 'absolute', left: 0, right: 0, top: `${(i / 3) * 100}%`, borderTop: '1px dashed #F3F4F6' }} />
+                  ))}
+                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%', gap: 3, position: 'relative', zIndex: 1 }}>
+                    {CHART_BARS.map((b) => (
+                      <div key={b.m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{
+                          width: '100%', maxWidth: 14, borderRadius: '3px 3px 0 0',
+                          height: `${b.h * 100}%`,
+                          background: `linear-gradient(180deg, ${c[0]}, ${c[1] || c[0]})`,
+                        }} />
                       </div>
                     ))}
                   </div>
                 </div>
+              </div>
+              {/* Month labels */}
+              <div style={{ display: 'flex', gap: 3, marginLeft: 19, marginTop: 2 }}>
+                {CHART_BARS.map(b => (
+                  <div key={b.m} style={{ flex: 1, textAlign: 'center', fontSize: 3.5, color: '#9CA3AF' }}>{b.m}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sales donut */}
+            <div style={card({ padding: '7px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' })}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
+                <span style={{ fontSize: 6, fontWeight: 700, color: '#111827' }}>Sales</span>
+                <div style={{ display: 'flex', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: '50%', background: c[0] }} />
+                    <span style={{ fontSize: 3.5, color: '#9CA3AF' }}>Online</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: '50%', background: c[1] || c[0] }} />
+                    <span style={{ fontSize: 3.5, color: '#9CA3AF' }}>Offline</span>
+                  </div>
+                </div>
+              </div>
+              {/* SVG donut */}
+              <svg width="52" height="52" viewBox="0 0 52 52" style={{ margin: '2px 0' }} aria-hidden="true">
+                <circle cx="26" cy="26" r="20" fill="none" stroke={c[1] || c[0]} strokeWidth="7" />
+                <circle cx="26" cy="26" r="20" fill="none" stroke={c[0]} strokeWidth="7"
+                  strokeDasharray={`${0.65 * 125.6} ${0.35 * 125.6}`}
+                  strokeDashoffset="31.4" strokeLinecap="round"
+                />
+                <text x="26" y="24" textAnchor="middle" style={{ fontSize: 9, fontWeight: 800, fill: '#111827' }}>342</text>
+                <text x="26" y="31" textAnchor="middle" style={{ fontSize: 4.5, fill: '#9CA3AF' }}>Total</text>
+              </svg>
+            </div>
+
+            {/* Transactions list */}
+            <div style={card({ padding: '7px 8px' })}>
+              <span style={{ fontSize: 6, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 4 }}>Transactions</span>
+              {DASH_TX.map((tx, i) => (
+                <div key={tx.name} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2.5px 0', borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}>
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: `${c[tx.ci % c.length]}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ fontSize: 4, fontWeight: 700, color: c[tx.ci % c.length] }}>{tx.init}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 4.5, fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.name}</div>
+                    <div style={{ fontSize: 3.5, color: '#9CA3AF' }}>{tx.type}</div>
+                  </div>
+                  <span style={{ fontSize: 4.5, fontWeight: 600, color: tx.amount.startsWith('+') ? '#22C55E' : '#EF4444', flexShrink: 0 }}>{tx.amount}</span>
+                </div>
               ))}
+              <div style={{ marginTop: 4, textAlign: 'center' }}>
+                <span style={{ fontSize: 4, color: c[0], fontWeight: 600 }}>View all transactions →</span>
+              </div>
             </div>
           </div>
 
-          {/* ---- Right sidebar ---- */}
-          <div style={{ width: 120, padding: '10px 10px 10px 0', flexShrink: 0 }}>
-            {/* Calendar */}
-            <div style={card({ padding: 7, marginBottom: 7 })}>
+          {/* ---- Bottom row: Support Tickets | Customer Demographic ---- */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 5 }}>
+            {/* Support Tickets */}
+            <div style={card({ padding: '7px 8px' })}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-                <div>
-                  <div style={{ fontSize: 7.5, fontWeight: 700, color: '#111827' }}>Jan, 21</div>
-                  <div style={{ fontSize: 5, color: '#9CA3AF' }}>Tuesday</div>
+                <span style={{ fontSize: 6, fontWeight: 700, color: '#111827' }}>Support Tickets</span>
+                <div style={{ display: 'flex', gap: 2 }}>
+                  {[
+                    { label: 'All', active: true },
+                    { label: 'Open', active: false },
+                    { label: 'Pending', active: false },
+                    { label: 'Closed', active: false },
+                  ].map(f => (
+                    <span key={f.label} style={{
+                      fontSize: 3.5, fontWeight: 600, padding: '1.5px 5px', borderRadius: 99,
+                      background: f.active ? c[0] : '#F3F4F6',
+                      color: f.active ? '#fff' : '#9CA3AF',
+                    }}>{f.label}</span>
+                  ))}
                 </div>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <span style={{ fontSize: 7, color: '#9CA3AF', cursor: 'pointer' }}>‹</span>
-                  <span style={{ fontSize: 7, color: '#9CA3AF', cursor: 'pointer' }}>›</span>
+              </div>
+              {DASH_TICKETS.map((t, i) => (
+                <div key={t.email} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 0', borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}>
+                  <div style={{ width: 4, height: 4, borderRadius: '50%', background: t.dot, flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 4, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.email}</div>
+                  </div>
+                  <span style={{ fontSize: 3.5, color: '#9CA3AF', flexShrink: 0 }}>{t.issue}</span>
+                  <span style={{
+                    fontSize: 3.5, fontWeight: 600, padding: '1px 4px', borderRadius: 99, flexShrink: 0,
+                    background: t.status === 'Open' ? '#FEE2E2' : t.status === 'Pending' ? '#FEF3C7' : '#DCFCE7',
+                    color: t.status === 'Open' ? '#DC2626' : t.status === 'Pending' ? '#D97706' : '#16A34A',
+                  }}>{t.status}</span>
                 </div>
-              </div>
-              {/* Day headers */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 3 }}>
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-                  <div key={`hdr-${i}`} style={{ fontSize: 4.5, color: '#9CA3AF', textAlign: 'center', fontWeight: 600 }}>{d}</div>
-                ))}
-              </div>
-              {/* Day grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
-                {CALENDAR_DAYS.flat().map((d, i) => {
-                  const isToday = d === 21
-                  const hasDot = d === 15 || d === 22 || d === 28
-                  return (
-                    <div key={`day-${i}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: 12 }}>
-                      {d != null && (
-                        <>
-                          <div style={{
-                            fontSize: 5, fontWeight: isToday ? 700 : 400,
-                            color: isToday ? '#fff' : '#374151',
-                            background: isToday ? c[0] : 'transparent',
-                            width: 11, height: 11, borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            {d}
-                          </div>
-                          {hasDot && <div style={{ width: 2.5, height: 2.5, borderRadius: '50%', background: c[2] || c[0], marginTop: -1 }} />}
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              ))}
             </div>
 
-            {/* Schedule */}
-            <div style={card({ padding: 7 })}>
-              <div style={{ fontSize: 6.5, fontWeight: 700, color: '#111827', marginBottom: 6 }}>Schedule</div>
-              {/* Time slots with events */}
-              <div style={{ position: 'relative' }}>
-                {['08:00', '09:00', '10:00', '11:00', '12:00'].map(t => (
-                  <div key={t} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 3 }}>
-                    <span style={{ fontSize: 4.5, color: '#D1D5DB', width: 20, flexShrink: 0 }}>{t}</span>
-                    <div style={{ flex: 1, borderTop: '1px solid #F3F4F6', marginTop: 4 }} />
+            {/* Customer Demographic */}
+            <div style={card({ padding: '7px 8px' })}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                <span style={{ fontSize: 6, fontWeight: 700, color: '#111827' }}>Customer Demographic</span>
+                <span style={{ fontSize: 3.5, fontWeight: 700, color: '#22C55E', background: '#DCFCE7', padding: '1px 4px', borderRadius: 99 }}>ACTIVE</span>
+              </div>
+              {/* World map (simplified SVG) */}
+              <svg viewBox="0 0 200 100" style={{ width: '100%', height: 52 }} aria-hidden="true">
+                {/* Simplified continents */}
+                <ellipse cx="55" cy="42" rx="28" ry="20" fill={`${c[0]}12`} />
+                <ellipse cx="105" cy="38" rx="22" ry="22" fill={`${c[0]}10`} />
+                <ellipse cx="150" cy="45" rx="25" ry="18" fill={`${c[0]}10`} />
+                <ellipse cx="45" cy="70" rx="18" ry="10" fill={`${c[0]}08`} />
+                <ellipse cx="160" cy="72" rx="14" ry="8" fill={`${c[0]}08`} />
+                {/* Data points */}
+                <circle cx="45" cy="38" r="3" fill={c[0]} opacity="0.8" />
+                <circle cx="65" cy="50" r="2.5" fill={c[1] || c[0]} opacity="0.7" />
+                <circle cx="100" cy="35" r="3.5" fill={c[2] || c[0]} opacity="0.8" />
+                <circle cx="115" cy="48" r="2" fill={c[3] || c[0]} opacity="0.7" />
+                <circle cx="145" cy="40" r="3" fill={c[0]} opacity="0.6" />
+                <circle cx="155" cy="55" r="2" fill={c[1] || c[0]} opacity="0.5" />
+                <circle cx="35" cy="68" r="2" fill={c[2] || c[0]} opacity="0.6" />
+              </svg>
+              {/* Legend */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                {[
+                  { region: 'Americas', pct: '34%', ci: 0 },
+                  { region: 'Europe', pct: '28%', ci: 1 },
+                  { region: 'Asia', pct: '25%', ci: 2 },
+                  { region: 'Other', pct: '13%', ci: 3 },
+                ].map(r => (
+                  <div key={r.region} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: '50%', background: c[r.ci % c.length] }} />
+                    <span style={{ fontSize: 3.5, color: '#6B7280' }}>{r.region} {r.pct}</span>
                   </div>
                 ))}
-                {/* Event blocks — positioned over time slots */}
-                <div style={{ position: 'absolute', top: 8, left: 22, right: 0 }}>
-                  <div style={{ background: `${c[0]}dd`, borderRadius: 4, padding: '3px 5px', marginBottom: 3 }}>
-                    <div style={{ fontSize: 5, fontWeight: 600, color: '#fff' }}>Award Show Discussion</div>
-                    <div style={{ fontSize: 4, color: 'rgba(255,255,255,0.8)' }}>09:00 — 10:00 AM</div>
-                  </div>
-                  <div style={{ background: `${c[3] || '#F59E0B'}cc`, borderRadius: 4, padding: '3px 5px', marginBottom: 3, marginTop: 4 }}>
-                    <div style={{ fontSize: 5, fontWeight: 600, color: '#fff' }}>New Branding work Ave</div>
-                    <div style={{ fontSize: 4, color: 'rgba(255,255,255,0.8)' }}>11:00 — 12:30 PM</div>
-                  </div>
-                  <div style={{ background: `${c[1] || c[0]}cc`, borderRadius: 4, padding: '3px 5px' }}>
-                    <div style={{ fontSize: 5, fontWeight: 600, color: '#fff' }}>Development Discussion</div>
-                    <div style={{ fontSize: 4, color: 'rgba(255,255,255,0.8)' }}>12:00 PM — 03:30 PM</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </BrowserChrome>
+    </div>
   )
 }
 
