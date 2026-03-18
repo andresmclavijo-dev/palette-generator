@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
-  X, Share2, Download, Grid3X3,
+  X, Share2, Download, Grid3X3, RefreshCw, SlidersHorizontal,
+  Undo2, Redo2, Plus,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
@@ -16,7 +17,7 @@ import SignInModal from './ui/SignInModal'
 import PaymentSuccessModal from './ui/PaymentSuccessModal'
 import SavedPalettesPanel from './ui/SavedPalettesPanel'
 import SaveNameModal from './ui/SaveNameModal'
-import PreviewModal from './palette/PreviewModal'
+// PreviewModal no longer used — preview is inline via PreviewMode component
 import CookieConsent from './CookieConsent'
 import {
   readableOn, getColorName, getColorInfo, getContrastBadge,
@@ -76,7 +77,7 @@ export default function DesktopStudio() {
   const [signInOpen, setSignInOpen] = useState(false)
   const [savedOpen, setSavedOpen] = useState(false)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
-  const [previewOpen, setPreviewOpen] = useState(false)
+  // previewOpen removed — preview is now activeTool === 'preview'
   const [shareCopied, setShareCopied] = useState(false)
   const [aiRemaining, setAiRemaining] = useState(getAiRemaining)
   const [shadesOpen, setShadesOpen] = useState<string | null>(null)
@@ -188,7 +189,7 @@ export default function DesktopStudio() {
       if (e.key === 'Escape') {
         setExportOpen(false); setAiOpen(false); setProModalOpen(false)
         setSignInOpen(false); setSavedOpen(false); setSaveNameOpen(false)
-        setPreviewOpen(false); setHarmonyOpen(false)
+        setHarmonyOpen(false)
         setActiveTool(null); setShadesOpen(null); setInfoOpen(null)
         setEditingId(null)
       }
@@ -324,7 +325,7 @@ export default function DesktopStudio() {
       return
     }
     if (tool === 'preview') {
-      setPreviewOpen(true)
+      setActiveTool(activeTool === 'preview' ? null : 'preview')
       return
     }
     setActiveTool(activeTool === tool ? null : tool)
@@ -354,7 +355,7 @@ export default function DesktopStudio() {
           style={{ width: dockW, transition: 'width 200ms ease', padding: '66px 7px 10px 7px' }}
         >
           <nav
-            className="flex-1 flex flex-col rounded-2xl overflow-hidden"
+            className="flex-1 flex flex-col rounded-2xl"
             style={{
               backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(20px)',
@@ -583,155 +584,169 @@ export default function DesktopStudio() {
             </div>
           </header>
 
-          {/* ─── Color Canvas ─── */}
-          <main
-            id="main-canvas"
-            className="absolute inset-0 overflow-hidden"
-            style={{ filter: visionFilter }}
-          >
-            <div className="flex h-full">
-              {swatches.map(s => {
-                const textColor = readableOn(s.hex)
-                const contrast = getContrastBadge(s.hex)
-                const isCopied = copiedId === s.id
-                const isEditing = editingId === s.id
-                const showShades = shadesOpen === s.id
-                const showInfo = infoOpen === s.id
+          {/* ─── Color Canvas OR Preview Mode ─── */}
+          {activeTool === 'preview' ? (
+            <PreviewMode
+              swatches={swatches}
+              isPro={isPro}
+              onClose={() => setActiveTool(null)}
+              onGenerate={() => triggerGenerate('button')}
+              onExport={() => setExportOpen(true)}
+              onUndo={undo}
+              onRedo={redo}
+              onProGate={openProModal}
+              onLock={lockSwatch}
+            />
+          ) : (
+            <main
+              id="main-canvas"
+              className="absolute inset-0 overflow-hidden"
+              style={{ filter: visionFilter }}
+            >
+              <div className="flex h-full">
+                {swatches.map(s => {
+                  const textColor = readableOn(s.hex)
+                  const contrast = getContrastBadge(s.hex)
+                  const isCopied = copiedId === s.id
+                  const isEditing = editingId === s.id
+                  const showShades = shadesOpen === s.id
+                  const showInfo = infoOpen === s.id
 
-                return (
-                  <div
-                    key={s.id}
-                    className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
-                    style={{
-                      backgroundColor: s.hex,
-                      flexGrow: showShades ? 2 : 1,
-                      transition: 'flex-grow 250ms ease',
-                    }}
-                  >
-                    {/* Per-swatch vertical cluster */}
-                    <div className="flex flex-col items-center gap-3">
-                      {/* WCAG badge */}
-                      <div
-                        className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-white"
-                        style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-                      >
-                        {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
+                  return (
+                    <div
+                      key={s.id}
+                      className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
+                      style={{
+                        backgroundColor: s.hex,
+                        flexGrow: showShades ? 2 : 1,
+                        transition: 'flex-grow 250ms ease',
+                      }}
+                    >
+                      {/* Per-swatch vertical cluster */}
+                      <div className="flex flex-col items-center gap-3">
+                        {/* WCAG badge */}
+                        <div
+                          className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-white"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+                        >
+                          {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
+                        </div>
+
+                        {/* Hex code — click to edit */}
+                        {isEditing ? (
+                          <input
+                            autoFocus
+                            value={editValue}
+                            onChange={e => setEditValue(e.target.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7))}
+                            onBlur={() => confirmEdit(s.id)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') confirmEdit(s.id)
+                              if (e.key === 'Escape') setEditingId(null)
+                            }}
+                            className="bg-transparent border-b-2 text-center font-mono text-[16px] font-bold outline-none w-24"
+                            style={{ color: textColor, borderColor: textColor }}
+                            aria-label="Edit hex code"
+                          />
+                        ) : (
+                          <button
+                            onClick={() => startEdit(s.id, s.hex)}
+                            className="font-mono text-[16px] font-bold tracking-wide cursor-text transition-all hover:opacity-80"
+                            style={{ color: textColor }}
+                            aria-label={`Edit color ${s.hex}`}
+                          >
+                            {s.hex.toUpperCase()}
+                          </button>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex flex-col items-center gap-1.5">
+                          {/* Copy */}
+                          <button
+                            onClick={() => copyHex(s.id, s.hex)}
+                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(8px)',
+                              color: textColor,
+                            }}
+                            aria-label={isCopied ? 'Copied' : 'Copy hex code'}
+                          >
+                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                          </button>
+
+                          {/* Info */}
+                          <button
+                            onClick={() => setInfoOpen(showInfo ? null : s.id)}
+                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(8px)',
+                              color: textColor,
+                            }}
+                            aria-label="Color info"
+                          >
+                            <Info size={14} />
+                          </button>
+
+                          {/* Shades */}
+                          <button
+                            onClick={() => {
+                              const next = showShades ? null : s.id
+                              setShadesOpen(next)
+                              if (next) analytics.track('shade_panel_opened')
+                            }}
+                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: showShades ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(8px)',
+                              color: textColor,
+                            }}
+                            aria-label={showShades ? 'Close shades' : 'Show shades'}
+                          >
+                            <Grid3X3 size={14} />
+                          </button>
+
+                          {/* Lock */}
+                          <button
+                            onClick={() => lockSwatch(s.id)}
+                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            style={{
+                              backgroundColor: s.locked ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(8px)',
+                              color: textColor,
+                            }}
+                            aria-label={s.locked ? 'Unlock color' : 'Lock color'}
+                          >
+                            {s.locked ? <Lock size={14} /> : <Unlock size={14} />}
+                          </button>
+                        </div>
+
+                        {/* Locked badge */}
+                        {s.locked && (
+                          <span
+                            className="text-[10px] font-bold tracking-widest uppercase opacity-60"
+                            style={{ color: textColor }}
+                          >
+                            LOCKED
+                          </span>
+                        )}
                       </div>
 
-                      {/* Hex code — click to edit */}
-                      {isEditing ? (
-                        <input
-                          autoFocus
-                          value={editValue}
-                          onChange={e => setEditValue(e.target.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7))}
-                          onBlur={() => confirmEdit(s.id)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') confirmEdit(s.id)
-                            if (e.key === 'Escape') setEditingId(null)
-                          }}
-                          className="bg-transparent border-b-2 text-center font-mono text-[16px] font-bold outline-none w-24"
-                          style={{ color: textColor, borderColor: textColor }}
-                          aria-label="Edit hex code"
-                        />
-                      ) : (
-                        <button
-                          onClick={() => startEdit(s.id, s.hex)}
-                          className="font-mono text-[16px] font-bold tracking-wide cursor-text transition-all hover:opacity-80"
-                          style={{ color: textColor }}
-                          aria-label={`Edit color ${s.hex}`}
-                        >
-                          {s.hex.toUpperCase()}
-                        </button>
+                      {/* Info popover */}
+                      {showInfo && (
+                        <ColorInfoPopover hex={s.hex} onClose={() => setInfoOpen(null)} />
                       )}
 
-                      {/* Action buttons */}
-                      <div className="flex flex-col items-center gap-1.5">
-                        {/* Copy */}
-                        <button
-                          onClick={() => copyHex(s.id, s.hex)}
-                          className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(8px)',
-                            color: textColor,
-                          }}
-                          aria-label={isCopied ? 'Copied' : 'Copy hex code'}
-                        >
-                          {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                        </button>
-
-                        {/* Info */}
-                        <button
-                          onClick={() => setInfoOpen(showInfo ? null : s.id)}
-                          className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(8px)',
-                            color: textColor,
-                          }}
-                          aria-label="Color info"
-                        >
-                          <Info size={14} />
-                        </button>
-
-                        {/* Shades */}
-                        <button
-                          onClick={() => {
-                            const next = showShades ? null : s.id
-                            setShadesOpen(next)
-                            if (next) analytics.track('shade_panel_opened')
-                          }}
-                          className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: showShades ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(8px)',
-                            color: textColor,
-                          }}
-                          aria-label={showShades ? 'Close shades' : 'Show shades'}
-                        >
-                          <Grid3X3 size={14} />
-                        </button>
-
-                        {/* Lock */}
-                        <button
-                          onClick={() => lockSwatch(s.id)}
-                          className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                          style={{
-                            backgroundColor: s.locked ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(8px)',
-                            color: textColor,
-                          }}
-                          aria-label={s.locked ? 'Unlock color' : 'Lock color'}
-                        >
-                          {s.locked ? <Lock size={14} /> : <Unlock size={14} />}
-                        </button>
-                      </div>
-
-                      {/* Locked badge */}
-                      {s.locked && (
-                        <span
-                          className="text-[10px] font-bold tracking-widest uppercase opacity-60"
-                          style={{ color: textColor }}
-                        >
-                          LOCKED
-                        </span>
+                      {/* Shades panel — slides from right edge of swatch */}
+                      {showShades && (
+                        <ShadesColumn hex={s.hex} onClose={() => setShadesOpen(null)} />
                       )}
                     </div>
-
-                    {/* Info popover */}
-                    {showInfo && (
-                      <ColorInfoPopover hex={s.hex} onClose={() => setInfoOpen(null)} />
-                    )}
-
-                    {/* Shades panel — slides from right edge of swatch */}
-                    {showShades && (
-                      <ShadesColumn hex={s.hex} onClose={() => setShadesOpen(null)} />
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </main>
+                  )
+                })}
+              </div>
+            </main>
+          )}
 
           {/* ─── Floating Tool Panels ─── */}
           {activeTool === 'simulate' && (
@@ -780,7 +795,7 @@ export default function DesktopStudio() {
           )}
 
           {/* Vision mode badge */}
-          {visionMode !== 'normal' && (
+          {visionMode !== 'normal' && activeTool !== 'preview' && (
             <button
               onClick={() => setVisionMode('normal')}
               className="absolute top-[66px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
@@ -792,8 +807,8 @@ export default function DesktopStudio() {
             </button>
           )}
 
-          {/* Spacebar hint — show when no panel open */}
-          {!activeTool && !previewOpen && !aiOpen && !exportOpen && (
+          {/* Spacebar hint — show when no panel open and not in preview */}
+          {!activeTool && !aiOpen && !exportOpen && (
             <div
               className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{
@@ -830,7 +845,6 @@ export default function DesktopStudio() {
 
         <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
         <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
-        <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} onProGate={openProModal} />
         <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
 
         <SaveNameModal
@@ -1380,6 +1394,453 @@ function ExtractDialog({
         </div>
       </div>
     </>
+  )
+}
+
+// ─── Preview Mode ────────────────────────────────────────────
+function PreviewMode({
+  swatches, isPro, onClose, onGenerate, onExport, onUndo, onRedo, onProGate, onLock,
+}: {
+  swatches: { id: string; hex: string; locked: boolean }[]
+  isPro: boolean
+  onClose: () => void
+  onGenerate: () => void
+  onExport: () => void
+  onUndo: () => void
+  onRedo: () => void
+  onProGate: (feature?: string, source?: string) => void
+  onLock: (id: string) => void
+}) {
+  const hexes = swatches.map(s => s.hex)
+  const c = (i: number) => hexes[i % hexes.length]
+
+  const handleCopyCSS = async () => {
+    const css = hexes.map((h, i) => `  --color-${i + 1}: ${h};`).join('\n')
+    try {
+      await navigator.clipboard.writeText(`:root {\n${css}\n}`)
+      showToast('CSS variables copied!')
+    } catch { /* silent */ }
+  }
+
+  const handleExportTailwind = () => {
+    showToast('Use Export panel for full Tailwind config')
+    onExport()
+  }
+
+  return (
+    <div className="absolute inset-0 flex flex-col" style={{ transition: 'all 400ms cubic-bezier(0.4,0,0.2,1)' }}>
+      {/* ─ Slim palette strip ─ */}
+      <div
+        className="flex-none flex items-stretch relative z-10"
+        style={{ height: 60, marginTop: 66 }}
+      >
+        {swatches.map(s => (
+          <div
+            key={s.id}
+            className="flex-1 flex items-center justify-center"
+            style={{ backgroundColor: s.hex }}
+          >
+            <span
+              className="font-mono text-[10px] font-semibold"
+              style={{ color: readableOn(s.hex) }}
+            >
+              {s.hex.toUpperCase()}
+            </span>
+          </div>
+        ))}
+        <button
+          onClick={onClose}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center bg-black/20 hover:bg-black/40 text-white transition-all"
+          aria-label="Exit preview mode"
+        >
+          <X size={12} />
+        </button>
+      </div>
+
+      {/* ─ Export actions bar ─ */}
+      <div
+        className="flex-none flex items-center justify-between px-6 border-b"
+        style={{ height: 44, backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}
+      >
+        <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>Preview</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportTailwind}
+            className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-all hover:bg-gray-50"
+            style={{ border: '1px solid #e5e7eb', color: BRAND_DARK }}
+          >
+            <Download size={13} />
+            Export Tailwind config
+          </button>
+          <button
+            onClick={handleCopyCSS}
+            className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-all hover:bg-gray-50"
+            style={{ border: '1px solid #e5e7eb', color: BRAND_DARK }}
+          >
+            <Copy size={13} />
+            Copy CSS variables
+          </button>
+        </div>
+      </div>
+
+      {/* ─ Mockup grid ─ */}
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ backgroundColor: '#f5f5f4', padding: 24 }}
+      >
+        <div
+          className="grid gap-4 mx-auto"
+          style={{ gridTemplateColumns: '1fr 1fr', maxWidth: 1100 }}
+        >
+          {/* Card 1: Landing page (FREE) */}
+          <MockupCard label="Landing page" badge="Free" badgeStyle="free">
+            <LandingMockup c={c} />
+          </MockupCard>
+
+          {/* Card 2: Dashboard (PRO) */}
+          <MockupCard
+            label="Dashboard"
+            badge="PRO"
+            badgeStyle="pro"
+            blurred={!isPro}
+            onProClick={() => onProGate('preview_dashboard', 'preview_grid')}
+          >
+            <DashboardMockup c={c} />
+          </MockupCard>
+
+          {/* Card 3: Mobile app (PRO, full width) */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <MockupCard
+              label="Mobile app"
+              badge="PRO"
+              badgeStyle="pro"
+              blurred={!isPro}
+              onProClick={() => onProGate('preview_mobile', 'preview_grid')}
+            >
+              <MobileAppMockup c={c} />
+            </MockupCard>
+          </div>
+        </div>
+
+        {/* Spacer for footer */}
+        <div style={{ height: 80 }} />
+      </div>
+
+      {/* ─ Floating control footer ─ */}
+      <div
+        className="absolute z-20 flex items-center gap-3"
+        style={{
+          bottom: 14,
+          left: 14,
+          right: 14,
+          height: 56,
+          borderRadius: 16,
+          backgroundColor: 'rgba(255,255,255,0.94)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 2px 28px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.6)',
+          padding: '0 16px',
+        }}
+      >
+        {/* Color swatches */}
+        <div className="flex items-center gap-2">
+          {swatches.map(s => (
+            <button
+              key={s.id}
+              onClick={() => onLock(s.id)}
+              className="relative w-9 h-9 rounded-lg transition-all hover:scale-105"
+              style={{ backgroundColor: s.hex, border: '1px solid rgba(0,0,0,0.08)' }}
+              aria-label={`${s.hex} ${s.locked ? '(locked)' : ''}`}
+            >
+              {s.locked && (
+                <Lock size={10} className="absolute bottom-0.5 right-0.5" style={{ color: readableOn(s.hex) }} />
+              )}
+            </button>
+          ))}
+          {swatches.length < 8 && (
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ border: '2px dashed #d1d5db' }}
+            >
+              <Plus size={14} style={{ color: '#9ca3af' }} />
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-7" style={{ backgroundColor: '#e5e7eb' }} />
+
+        {/* Tool buttons */}
+        <div className="flex items-center gap-1.5">
+          <DarkTooltip label="Shuffle" position="bottom">
+            <button
+              onClick={onGenerate}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              aria-label="Generate new palette"
+            >
+              <RefreshCw size={15} style={{ color: BRAND_DARK }} />
+            </button>
+          </DarkTooltip>
+          <DarkTooltip label="Adjust" position="bottom">
+            <button
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              aria-label="HSL adjust (coming soon)"
+            >
+              <SlidersHorizontal size={15} style={{ color: BRAND_DARK }} />
+            </button>
+          </DarkTooltip>
+          <DarkTooltip label="Undo" position="bottom">
+            <button
+              onClick={onUndo}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              aria-label="Undo"
+            >
+              <Undo2 size={15} style={{ color: BRAND_DARK }} />
+            </button>
+          </DarkTooltip>
+          <DarkTooltip label="Redo" position="bottom">
+            <button
+              onClick={onRedo}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              aria-label="Redo"
+            >
+              <Redo2 size={15} style={{ color: BRAND_DARK }} />
+            </button>
+          </DarkTooltip>
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Generate + Export */}
+        <button
+          onClick={onGenerate}
+          className="flex items-center gap-2 h-9 px-4 rounded-full text-[13px] font-medium transition-all hover:bg-gray-200"
+          style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb', color: BRAND_DARK }}
+        >
+          <Sparkles size={14} />
+          Generate
+        </button>
+        <button
+          onClick={onExport}
+          className="flex items-center gap-2 h-9 px-4 rounded-full text-white text-[13px] font-semibold transition-all hover:opacity-90"
+          style={{ backgroundColor: BRAND_VIOLET }}
+        >
+          <Download size={14} />
+          Export
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Mockup Card Wrapper ─────────────────────────────────────
+function MockupCard({
+  label, badge, badgeStyle, blurred, onProClick, children,
+}: {
+  label: string
+  badge: string
+  badgeStyle: 'free' | 'pro'
+  blurred?: boolean
+  onProClick?: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-3" style={{ height: 32, backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ef4444' }} />
+          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#eab308' }} />
+          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#22c55e' }} />
+        </div>
+        <div className="flex-1 h-5 rounded-md" style={{ backgroundColor: '#e5e7eb', maxWidth: 200 }} />
+      </div>
+
+      {/* Content */}
+      <div className="relative">
+        <div style={{ filter: blurred ? 'blur(3px)' : undefined, opacity: blurred ? 0.6 : 1 }}>
+          {children}
+        </div>
+
+        {/* PRO lock overlay */}
+        {blurred && (
+          <button
+            onClick={onProClick}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 cursor-pointer"
+            aria-label={`Unlock ${label} preview`}
+          >
+            <Lock size={24} style={{ color: BRAND_VIOLET }} />
+            <span className="text-[13px] font-semibold" style={{ color: BRAND_VIOLET }}>
+              Preview {label.toLowerCase()}
+            </span>
+            <span
+              className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
+              style={{ backgroundColor: BRAND_VIOLET }}
+            >
+              PRO
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Label */}
+      <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: '#f3f4f6' }}>
+        <span className="text-[12px] font-medium" style={{ color: BRAND_DARK }}>{label}</span>
+        <span
+          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+          style={{
+            backgroundColor: badgeStyle === 'pro' ? BRAND_VIOLET : '#e5e7eb',
+            color: badgeStyle === 'pro' ? '#ffffff' : '#374151',
+          }}
+        >
+          {badge}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Landing Page Mockup ─────────────────────────────────────
+function LandingMockup({ c }: { c: (i: number) => string }) {
+  return (
+    <div style={{ height: 280 }}>
+      {/* Nav */}
+      <div className="flex items-center justify-between px-4" style={{ height: 36, backgroundColor: '#ffffff' }}>
+        <div className="w-16 h-3 rounded" style={{ backgroundColor: c(0) }} />
+        <div className="flex gap-3">
+          <div className="w-10 h-2.5 rounded bg-gray-200" />
+          <div className="w-10 h-2.5 rounded bg-gray-200" />
+          <div className="w-14 h-6 rounded-full" style={{ backgroundColor: c(1) }} />
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="flex flex-col items-center justify-center text-center" style={{ height: 140, backgroundColor: c(0) }}>
+        <div className="w-32 h-3 rounded-full mb-2" style={{ backgroundColor: readableOn(c(0)), opacity: 0.8 }} />
+        <div className="w-48 h-2 rounded-full mb-4" style={{ backgroundColor: readableOn(c(0)), opacity: 0.4 }} />
+        <div className="flex gap-2">
+          <div className="w-20 h-7 rounded-full" style={{ backgroundColor: c(1) }} />
+          <div className="w-20 h-7 rounded-full" style={{ border: `1.5px solid ${readableOn(c(0))}`, opacity: 0.5 }} />
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-3 gap-3 p-4" style={{ backgroundColor: '#ffffff' }}>
+        {[0, 1, 2].map(i => (
+          <div key={i} className="flex flex-col items-center gap-1.5">
+            <div className="w-6 h-6 rounded-lg" style={{ backgroundColor: c(i + 2) }} />
+            <div className="w-12 h-1.5 rounded bg-gray-200" />
+            <div className="w-16 h-1 rounded bg-gray-100" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Dashboard Mockup ────────────────────────────────────────
+function DashboardMockup({ c }: { c: (i: number) => string }) {
+  return (
+    <div className="flex" style={{ height: 280 }}>
+      {/* Sidebar */}
+      <div className="flex flex-col gap-2 p-2" style={{ width: 60, backgroundColor: c(0) }}>
+        <div className="w-7 h-7 rounded-lg mx-auto" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="w-7 h-5 rounded mx-auto" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
+        ))}
+      </div>
+
+      {/* Main */}
+      <div className="flex-1 p-3" style={{ backgroundColor: '#f9fafb' }}>
+        {/* Stat cards */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="rounded-lg p-2" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+              <div className="w-8 h-1.5 rounded bg-gray-200 mb-1" />
+              <div className="w-12 h-3 rounded" style={{ backgroundColor: c(i + 1), opacity: 0.8 }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Chart area */}
+        <div className="rounded-lg p-3" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', height: 140 }}>
+          <div className="w-16 h-2 rounded bg-gray-200 mb-3" />
+          <div className="flex items-end gap-1.5 h-[90px]">
+            {[65, 40, 80, 55, 90, 45, 70, 60].map((h, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-t"
+                style={{ height: `${h}%`, backgroundColor: c(i), opacity: 0.7 }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Mobile App Mockup ───────────────────────────────────────
+function MobileAppMockup({ c }: { c: (i: number) => string }) {
+  return (
+    <div className="flex justify-center gap-4 py-4 px-6" style={{ height: 300, backgroundColor: '#f9fafb' }}>
+      {[0, 1, 2].map(screen => (
+        <div
+          key={screen}
+          className="rounded-2xl overflow-hidden flex flex-col"
+          style={{ width: 120, backgroundColor: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+        >
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-2" style={{ height: 18, backgroundColor: c(screen), fontSize: 8 }}>
+            <span style={{ color: readableOn(c(screen)), opacity: 0.6, fontSize: 7 }}>9:41</span>
+            <div className="flex gap-0.5">
+              <div className="w-2 h-1.5 rounded-sm" style={{ backgroundColor: readableOn(c(screen)), opacity: 0.4 }} />
+              <div className="w-2 h-1.5 rounded-sm" style={{ backgroundColor: readableOn(c(screen)), opacity: 0.4 }} />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 p-2 flex flex-col gap-1.5">
+            {screen === 0 && (
+              <>
+                <div className="w-16 h-2 rounded" style={{ backgroundColor: c(0), opacity: 0.8 }} />
+                <div className="w-full h-1.5 rounded bg-gray-100" />
+                <div className="w-3/4 h-1.5 rounded bg-gray-100" />
+                <div className="mt-1 w-14 h-5 rounded-full" style={{ backgroundColor: c(1) }} />
+              </>
+            )}
+            {screen === 1 && (
+              <>
+                <div className="w-12 h-2 rounded bg-gray-200" />
+                <div className="grid grid-cols-2 gap-1 mt-1">
+                  {[0, 1, 2, 3].map(i => (
+                    <div key={i} className="h-8 rounded" style={{ backgroundColor: c(i), opacity: 0.6 }} />
+                  ))}
+                </div>
+              </>
+            )}
+            {screen === 2 && (
+              <>
+                <div className="w-full h-16 rounded-lg" style={{ backgroundColor: c(2), opacity: 0.5 }} />
+                <div className="w-14 h-2 rounded bg-gray-200 mt-1" />
+                <div className="w-full h-1.5 rounded bg-gray-100" />
+              </>
+            )}
+          </div>
+
+          {/* Tab bar */}
+          <div className="flex items-center justify-around px-1" style={{ height: 22, borderTop: '1px solid #e5e7eb' }}>
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="w-3 h-3 rounded-sm" style={{ backgroundColor: i === screen ? c(screen) : '#d1d5db' }} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
