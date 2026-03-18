@@ -190,10 +190,10 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
             </p>
 
             {/* Feature list — scrollable with bottom fade hint */}
-            <div className="relative flex-1 min-h-0 mb-4">
+            <div className="relative flex-1 min-h-0 overflow-hidden mb-4">
               <div
                 ref={featureListRef}
-                className="h-full overflow-y-auto -mx-1 px-1 pb-1"
+                className="absolute inset-0 overflow-y-auto -mx-1 px-1 pb-6"
                 onScroll={checkScrollEnd}
               >
                 {PRO_FEATURES.map(({ Icon, bg, color, text }, i) => (
@@ -211,9 +211,10 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
               </div>
               {/* Fade gradient — hidden when scrolled to bottom */}
               <div
-                className="absolute inset-x-0 bottom-0 h-10 pointer-events-none transition-opacity duration-200"
+                className="absolute inset-x-0 bottom-0 pointer-events-none transition-opacity duration-200 z-[2]"
                 style={{
-                  background: 'linear-gradient(transparent, #FAFAF8)',
+                  height: 40,
+                  background: 'linear-gradient(to bottom, transparent, #FAFAF8)',
                   opacity: showFade ? 1 : 0,
                 }}
               />
