@@ -130,18 +130,18 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
       >
         {/* ============ LEFT PANEL ============ */}
         <div
-          className="flex-1 flex flex-col min-h-0 relative overflow-y-auto"
+          className="flex-1 flex flex-col min-h-0 relative overflow-hidden"
           style={{ background: '#FAFAF8' }}
         >
           {/* Subtle violet gradient at top */}
           <div
-            className="absolute inset-x-0 top-0 h-40 pointer-events-none"
+            className="absolute inset-x-0 top-0 h-40 pointer-events-none z-[1]"
             style={{ background: 'linear-gradient(180deg, rgba(108,71,255,0.04) 0%, transparent 100%)' }}
           />
 
-          <div className="relative flex-1 flex flex-col px-6 md:px-8 py-6 md:py-8">
+          <div className="relative flex-1 flex flex-col min-h-0 px-6 md:px-8 py-6 md:py-8">
             {/* Badge */}
-            <div className="mb-4">
+            <div className="mb-3 shrink-0">
               <span
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold text-white uppercase"
                 style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_END})`, letterSpacing: '0.08em' }}
@@ -153,17 +153,18 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
             {/* Headline */}
             <h2
               id="pro-modal-title"
-              className="text-[28px] md:text-[32px] font-bold leading-tight mb-1.5"
+              className="text-[26px] md:text-[32px] font-bold leading-tight mb-1 shrink-0"
               style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}
             >
               See your colors in real&nbsp;products
             </h2>
-            <p className="text-[14px] mb-5" style={{ color: '#9CA3AF' }}>
+            <p className="text-[14px] mb-4 shrink-0" style={{ color: '#9CA3AF' }}>
               Cancel anytime. No commitments.
             </p>
 
-            {/* Feature list — scrollable */}
-            <div className="flex-1 min-h-0 overflow-y-auto mb-5 -mx-1 px-1">
+            {/* Feature list — scrollable with bottom fade hint */}
+            <div className="relative flex-1 min-h-0 mb-4">
+              <div className="h-full overflow-y-auto -mx-1 px-1 pb-1">
               {PRO_FEATURES.map(({ Icon, bg, color, text }, i) => (
                 <div
                   key={text}
@@ -176,6 +177,12 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
                   <span className="text-[14px] font-medium" style={{ color: '#374151' }}>{text}</span>
                 </div>
               ))}
+              </div>
+              {/* Fade hint at bottom of scroll area */}
+              <div
+                className="absolute inset-x-0 bottom-0 h-6 pointer-events-none"
+                style={{ background: 'linear-gradient(transparent, #FAFAF8)' }}
+              />
             </div>
 
             {/* Pricing section — pinned at bottom */}
