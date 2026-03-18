@@ -9,7 +9,7 @@ import ImagePalette from './components/palette/ImagePalette'
 import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
 import type { VisionMode } from './components/palette/VisionSimulator'
 import PreviewPanel from './components/palette/PreviewPanel'
-import MobilePreviewModal from './components/palette/MobilePreviewModal'
+import PreviewModal from './components/palette/PreviewModal'
 import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import SignInModal from './components/ui/SignInModal'
@@ -617,8 +617,8 @@ export default function App() {
       {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
 
-      {/* Mobile preview modal */}
-      <MobilePreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} onProGate={openProModal} />
+      {/* Preview modal (mobile — triggered from drawer) */}
+      <PreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} onProGate={openProModal} />
 
       {/* Payment success modal — shown when returning from Stripe without being signed in */}
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
