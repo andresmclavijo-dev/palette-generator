@@ -15,7 +15,7 @@ import { BRAND_VIOLET } from '../lib/tokens'
 import { analytics } from '../lib/posthog'
 import { showToast } from '../utils/toast'
 import { createCheckoutSession, createPortalSession } from '../lib/stripe'
-import EmptyStateOverlay from './EmptyStateOverlay'
+// EmptyStateOverlay removed — mobile uses inline first-visit hint
 import ExportPanel from './palette/ExportPanel'
 import ProUpgradeModal from './ui/ProUpgradeModal'
 import SignInModal from './ui/SignInModal'
@@ -64,7 +64,6 @@ export default function MobileShell() {
   const [aiOpen, setAiOpen] = useState(false)
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [emptyDismissed, setEmptyDismissed] = useState(() => !!localStorage.getItem('paletta_has_generated'))
-  const [emptyMethod, setEmptyMethod] = useState<'spacebar' | 'button' | 'ai'>('button')
 
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
@@ -98,7 +97,10 @@ export default function MobileShell() {
 
   const triggerGenerate = useCallback(() => {
     generate()
-    if (!emptyDismissed) { setEmptyMethod('button'); setEmptyDismissed(true) }
+    if (!emptyDismissed) {
+      setEmptyDismissed(true)
+      localStorage.setItem('paletta_has_generated', 'true')
+    }
     analytics.track('palette_generated', { method: 'button', style: harmonyMode, color_count: count })
     if (!localStorage.getItem('paletta_first_generate_at')) {
       localStorage.setItem('paletta_first_generate_at', String(Date.now()))
@@ -145,7 +147,10 @@ export default function MobileShell() {
 
   const handleAiPalette = (hexes: string[]) => {
     setSwatches(hexes.map(h => makeSwatch(h)))
-    if (!emptyDismissed) { setEmptyMethod('ai'); setEmptyDismissed(true) }
+    if (!emptyDismissed) {
+      setEmptyDismissed(true)
+      localStorage.setItem('paletta_has_generated', 'true')
+    }
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
 
@@ -246,7 +251,6 @@ export default function MobileShell() {
             swatches={swatches}
             visionFilter={visionFilter}
             emptyDismissed={emptyDismissed}
-            emptyMethod={emptyMethod}
             onGenerate={triggerGenerate}
             onLock={lockSwatch}
             onSave={handleSave}
@@ -387,7 +391,6 @@ interface GenerateViewProps {
   swatches: { id: string; hex: string; locked: boolean }[]
   visionFilter?: string
   emptyDismissed: boolean
-  emptyMethod: 'spacebar' | 'button' | 'ai'
   onGenerate: () => void
   onLock: (id: string) => void
   onSave: () => void
@@ -401,7 +404,7 @@ interface GenerateViewProps {
 }
 
 function GenerateView({
-  swatches, visionFilter, emptyDismissed, emptyMethod,
+  swatches, visionFilter, emptyDismissed,
   onGenerate, onLock, onSave,
   isPro, count, onCountChange,
   historyIndex, historyLength, onUndo, onRedo,
@@ -424,8 +427,15 @@ function GenerateView({
 
   return (
     <div className="relative h-full flex flex-col" style={{ filter: visionFilter }}>
-      {/* Empty state overlay */}
-      <EmptyStateOverlay dismissed={emptyDismissed} method={emptyMethod} />
+      {/* Mobile first-visit hint */}
+      {!emptyDismissed && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center text-center px-6 py-5 rounded-2xl" style={{ background: 'rgba(26,26,46,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+            <p className="text-[17px] font-semibold m-0" style={{ color: '#fff' }}>Tap Generate to start</p>
+            <p className="text-[13px] mt-1 m-0" style={{ color: 'rgba(255,255,255,0.65)' }}>Lock colors you love, regenerate the rest</p>
+          </div>
+        </div>
+      )}
 
       {/* Swatches — full bleed */}
       <div className="flex-1 flex flex-col min-h-0">
@@ -436,16 +446,9 @@ function GenerateView({
           return (
             <div
               key={s.id}
-              className="flex-1 flex items-center px-3 relative"
+              className="flex-1 flex items-center px-4 relative"
               style={{ backgroundColor: s.hex, minHeight: 48, transition: 'background-color 300ms ease' }}
             >
-              {/* Grip handle */}
-              <div className="shrink-0 flex flex-col gap-[3px] mr-3 opacity-30" aria-hidden="true">
-                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
-                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
-                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
-              </div>
-
               {/* Tap area: copies hex */}
               <button
                 onClick={() => copyHex(s.id, s.hex)}
@@ -460,20 +463,20 @@ function GenerateView({
                 </span>
               </button>
 
-              {/* WCAG badge */}
+              {/* WCAG badge — solid dark bg for consistent readability */}
               {badge.pass && (
                 <span
-                  className="absolute bottom-1.5 left-10 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                  className="absolute bottom-1.5 left-4 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.18)',
-                    color: textColor,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    color: '#ffffff',
                   }}
                 >
                   {badge.level} {badge.ratio.toFixed(1)}:1
                 </span>
               )}
 
-              {/* Right: actions — 36px visible, 44px tap area via padding */}
+              {/* Right: actions — 36px visible, 44px tap target */}
               <div className="flex items-center gap-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); copyHex(s.id, s.hex) }}
@@ -508,14 +511,14 @@ function GenerateView({
         })}
       </div>
 
-      {/* Save heart — bottom left */}
+      {/* Save heart — bottom left, above controls bar */}
       <button
         onClick={onSave}
-        className="absolute bottom-20 left-4 w-11 h-11 rounded-xl flex items-center justify-center"
-        style={{ backgroundColor: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
+        className="absolute bottom-16 left-4 w-11 h-11 rounded-xl flex items-center justify-center"
+        style={{ backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
         aria-label="Save palette"
       >
-        <Heart size={20} style={{ color: isLight(swatches[swatches.length - 1]?.hex ?? '#000') ? '#1a1a2e' : '#fff' }} />
+        <Heart size={20} color="#ffffff" />
       </button>
 
       {/* Bottom controls bar */}
@@ -951,21 +954,26 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           Continue with Google
         </button>
 
-        {/* Feature highlights */}
-        <div className="space-y-4">
+        {/* Feature highlights — 40px icons, 56px rows */}
+        <div className="space-y-0">
           {[
-            { icon: '💾', title: 'Save palettes', desc: '3 free · unlimited with Pro' },
-            { icon: '✨', title: 'AI generations', desc: '3/day free · unlimited with Pro' },
-            { icon: '👁', title: 'Accessibility suite', desc: '2 free simulations · 5 with Pro' },
-          ].map(f => (
-            <div key={f.title} className="flex gap-3">
-              <span className="text-[20px]">{f.icon}</span>
-              <div>
-                <span className="text-[14px] font-semibold block" style={{ color: '#1a1a2e' }}>{f.title}</span>
-                <span className="text-[12px]" style={{ color: '#9CA3AF' }}>{f.desc}</span>
+            { icon: Heart, title: 'Save palettes', desc: '3 free · unlimited with Pro' },
+            { icon: Sparkles, title: 'AI generations', desc: '3/day free · unlimited with Pro' },
+            { icon: Eye, title: 'Accessibility suite', desc: '2 free simulations · 5 with Pro' },
+          ].map(f => {
+            const Icon = f.icon
+            return (
+              <div key={f.title} className="flex items-center gap-4" style={{ minHeight: 56 }}>
+                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                  <Icon size={20} style={{ color: '#9CA3AF' }} />
+                </div>
+                <div>
+                  <span className="text-[14px] font-semibold block" style={{ color: '#1a1a2e' }}>{f.title}</span>
+                  <span className="text-[12px]" style={{ color: '#9CA3AF' }}>{f.desc}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Legal links */}
@@ -984,20 +992,25 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
 
   return (
     <div className="h-full overflow-y-auto px-5 pb-8">
-      {/* Avatar + info */}
-      <div className="flex items-center gap-3.5 pt-4 mb-5">
+      {/* Avatar + info — 64px avatar */}
+      <div className="flex items-center gap-4 pt-4 mb-5">
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[18px] font-bold"
+          className="w-16 h-16 rounded-full flex items-center justify-center text-white text-[22px] font-bold shrink-0"
           style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
         >
           {initial}
         </div>
-        <div>
-          <span className="text-[16px] font-bold block" style={{ color: '#1a1a2e' }}>{name}</span>
-          {user?.email && <span className="text-[11px] block" style={{ color: '#D1D5DB' }}>{user.email}</span>}
-          <span className="text-[12px]" style={{ color: '#9CA3AF' }}>
-            {isPro ? 'Pro' : 'Free plan'}
-          </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[17px] font-bold truncate" style={{ color: '#1a1a2e' }}>{name}</span>
+            {isPro && (
+              <span className="shrink-0 text-[10px] font-bold text-white px-2 py-0.5 rounded-full" style={{ backgroundColor: BRAND_VIOLET }}>
+                PRO
+              </span>
+            )}
+          </div>
+          {user?.email && <span className="text-[12px] block truncate mt-0.5" style={{ color: '#9CA3AF' }}>{user.email}</span>}
+          {!isPro && <span className="text-[12px] block mt-0.5" style={{ color: '#D1D5DB' }}>Free plan</span>}
         </div>
       </div>
 
