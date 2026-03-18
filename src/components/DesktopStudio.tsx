@@ -1572,7 +1572,7 @@ function PreviewMode({
 
         {/* Tool buttons */}
         <div className="flex items-center gap-1.5">
-          <DarkTooltip label="Shuffle" position="bottom">
+          <DarkTooltip label="Shuffle" position="top">
             <button
               onClick={onGenerate}
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
@@ -1582,7 +1582,7 @@ function PreviewMode({
               <RefreshCw size={15} style={{ color: BRAND_DARK }} />
             </button>
           </DarkTooltip>
-          <DarkTooltip label="Adjust" position="bottom">
+          <DarkTooltip label="Adjust" position="top">
             <button
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
               style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
@@ -1591,7 +1591,7 @@ function PreviewMode({
               <SlidersHorizontal size={15} style={{ color: BRAND_DARK }} />
             </button>
           </DarkTooltip>
-          <DarkTooltip label="Undo" position="bottom">
+          <DarkTooltip label="Undo" position="top">
             <button
               onClick={onUndo}
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
@@ -1601,7 +1601,7 @@ function PreviewMode({
               <Undo2 size={15} style={{ color: BRAND_DARK }} />
             </button>
           </DarkTooltip>
-          <DarkTooltip label="Redo" position="bottom">
+          <DarkTooltip label="Redo" position="top">
             <button
               onClick={onRedo}
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
@@ -1885,35 +1885,29 @@ function FloatingPanel({
 const TOOLTIP_BG = '#1F2937'
 
 /** Positioned tooltip bubble — used standalone (DockItem) or via DarkTooltip wrapper */
-function DarkTooltipBubble({ label, position }: { label: string; position: 'right' | 'bottom' }) {
-  const isRight = position === 'right'
+function DarkTooltipBubble({ label, position }: { label: string; position: 'right' | 'bottom' | 'top' }) {
+  const posClass =
+    position === 'right' ? 'left-full top-1/2 -translate-y-1/2 ml-2'
+    : position === 'top' ? 'bottom-full left-1/2 -translate-x-1/2 mb-2'
+    : 'top-full left-1/2 -translate-x-1/2 mt-2'
+
+  const arrowStyle: React.CSSProperties = {
+    width: 6, height: 6, backgroundColor: TOOLTIP_BG, transform: 'rotate(45deg)',
+    ...(position === 'right'
+      ? { left: -3, top: '50%', marginTop: -3 }
+      : position === 'top'
+        ? { bottom: -3, left: '50%', marginLeft: -3 }
+        : { top: -3, left: '50%', marginLeft: -3 }),
+  }
+
   return (
-    <div
-      className={`absolute z-50 whitespace-nowrap pointer-events-none ${
-        isRight
-          ? 'left-full top-1/2 -translate-y-1/2 ml-2'
-          : 'top-full left-1/2 -translate-x-1/2 mt-2'
-      }`}
-      role="tooltip"
-    >
+    <div className={`absolute z-50 whitespace-nowrap pointer-events-none ${posClass}`} role="tooltip">
       <div
         className="relative text-[11px] font-medium text-white"
         style={{ backgroundColor: TOOLTIP_BG, padding: '4px 9px', borderRadius: 6 }}
       >
         {label}
-        {/* Arrow */}
-        <div
-          className="absolute"
-          style={{
-            width: 6,
-            height: 6,
-            backgroundColor: TOOLTIP_BG,
-            transform: 'rotate(45deg)',
-            ...(isRight
-              ? { left: -3, top: '50%', marginTop: -3 }
-              : { top: -3, left: '50%', marginLeft: -3 }),
-          }}
-        />
+        <div className="absolute" style={arrowStyle} />
       </div>
     </div>
   )
@@ -1924,7 +1918,7 @@ function DarkTooltip({
   label, position, children,
 }: {
   label: string
-  position: 'right' | 'bottom'
+  position: 'right' | 'bottom' | 'top'
   children: React.ReactNode
 }) {
   const [show, setShow] = useState(false)
