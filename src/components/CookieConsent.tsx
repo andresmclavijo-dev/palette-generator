@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom'
 
 const STORAGE_KEY = 'paletta_cookie_consent'
 
-export default function CookieConsent() {
+interface CookieConsentProps {
+  compact?: boolean
+}
+
+export default function CookieConsent({ compact }: CookieConsentProps) {
   const [visible, setVisible] = useState(false)
   const barRef = useRef<HTMLDivElement>(null)
 
@@ -40,6 +44,65 @@ export default function CookieConsent() {
 
   if (!visible) return null
 
+  // Compact (mobile MobileShell) — slim single-line bar
+  if (compact) {
+    return (
+      <div
+        ref={barRef}
+        role="dialog"
+        aria-label="Cookie consent"
+        className="flex-none w-full z-[9999]"
+        style={{
+          backgroundColor: '#1a1a2e',
+          color: '#ffffff',
+          padding: '10px 16px',
+        }}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <span style={{ fontSize: 12 }}>
+            We use{' '}
+            <Link to="/cookie-policy" style={{ color: '#9b82ff', textDecoration: 'underline' }}>cookies</Link>.
+          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleEssential}
+              style={{
+                padding: '6px 14px',
+                fontSize: 12,
+                fontWeight: 600,
+                borderRadius: 9999,
+                border: 'none',
+                backgroundColor: 'rgba(255,255,255,0.15)',
+                color: '#ffffff',
+                cursor: 'pointer',
+                minHeight: 32,
+              }}
+            >
+              Essential
+            </button>
+            <button
+              onClick={handleAccept}
+              style={{
+                padding: '6px 14px',
+                fontSize: 12,
+                fontWeight: 600,
+                borderRadius: 9999,
+                border: 'none',
+                backgroundColor: '#6C47FF',
+                color: '#ffffff',
+                cursor: 'pointer',
+                minHeight: 32,
+              }}
+            >
+              Accept
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Full (desktop) version
   return (
     <div
       ref={barRef}

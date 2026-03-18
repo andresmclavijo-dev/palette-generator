@@ -158,24 +158,24 @@ export default function MobileShell() {
     <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#FAFAF8' }}>
       {/* ─── Floating Header ─── */}
       <div
-        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-between px-3 py-2"
+        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-between rounded-full"
         style={{
-          top: 54,
+          top: 'max(env(safe-area-inset-top, 14px), 14px)',
+          padding: '8px 18px',
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: 18,
           boxShadow: '0 2px 20px rgba(0,0,0,0.06)',
         }}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center rounded-lg text-white font-bold text-sm"
-            style={{ width: 26, height: 26, backgroundColor: BRAND_VIOLET }}
+            className="flex items-center justify-center rounded-md text-white font-bold"
+            style={{ width: 24, height: 24, fontSize: 12, backgroundColor: BRAND_VIOLET }}
           >
             P
           </div>
-          <span className="text-[15px] font-semibold" style={{ color: '#1a1a2e' }}>Paletta</span>
+          <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>Paletta</span>
         </div>
 
         {showHarmonyBtn && (
@@ -202,7 +202,7 @@ export default function MobileShell() {
           <div
             className="absolute left-3.5 right-3.5 bg-white overflow-hidden"
             style={{
-              top: 108,
+              top: 'calc(56px + max(env(safe-area-inset-top, 14px), 14px))',
               borderRadius: 16,
               boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
@@ -240,7 +240,7 @@ export default function MobileShell() {
       )}
 
       {/* ─── Main Content Area ─── */}
-      <div className="flex-1 overflow-hidden" style={{ paddingTop: 100, paddingBottom: 80 }}>
+      <div className="flex-1 overflow-hidden" style={{ paddingTop: 'calc(60px + max(env(safe-area-inset-top, 14px), 14px))', paddingBottom: `calc(68px + env(safe-area-inset-bottom, 16px))`, animation: 'fadeIn 150ms ease' }}>
         {activeTab === 'generate' && (
           <GenerateView
             swatches={swatches}
@@ -307,9 +307,9 @@ export default function MobileShell() {
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 flex items-start justify-around"
         style={{
-          height: 80,
+          height: `calc(68px + env(safe-area-inset-bottom, 16px))`,
           paddingTop: 8,
-          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
@@ -326,6 +326,8 @@ export default function MobileShell() {
         ]).map(tab => {
           const active = activeTab === tab.id
           const Icon = tab.icon
+          // Sparkles uses fill when active for emphasis
+          const isFilled = tab.id === 'generate' && active
           return (
             <button
               key={tab.id}
@@ -338,11 +340,11 @@ export default function MobileShell() {
               <Icon
                 size={22}
                 strokeWidth={active ? 2 : 1.5}
+                fill={isFilled ? BRAND_VIOLET : 'none'}
                 style={{ color: active ? BRAND_VIOLET : '#9CA3AF' }}
               />
               <span
-                className="text-[10px]"
-                style={{ fontWeight: active ? 700 : 500, color: active ? BRAND_VIOLET : '#9CA3AF' }}
+                style={{ fontSize: 9, fontWeight: active ? 700 : 500, color: active ? BRAND_VIOLET : '#9CA3AF' }}
               >
                 {tab.label}
               </span>
@@ -369,7 +371,11 @@ export default function MobileShell() {
         colorCount={count}
       />
       <VisionFilterDefs />
-      <CookieConsent />
+
+      {/* Cookie consent — positioned above tab bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-[60]" style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px))` }}>
+        <CookieConsent compact />
+      </div>
     </div>
   )
 }
@@ -430,21 +436,34 @@ function GenerateView({
           return (
             <div
               key={s.id}
-              className="flex-1 flex items-center justify-between px-4 relative"
-              style={{ backgroundColor: s.hex, minHeight: 48 }}
+              className="flex-1 flex items-center px-3 relative"
+              style={{ backgroundColor: s.hex, minHeight: 48, transition: 'background-color 300ms ease' }}
             >
-              {/* Left: hex */}
-              <span
-                className="text-[14px] font-semibold font-mono tracking-wide"
-                style={{ color: textColor }}
+              {/* Grip handle */}
+              <div className="shrink-0 flex flex-col gap-[3px] mr-3 opacity-30" aria-hidden="true">
+                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
+                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
+                <div className="flex gap-[3px]"><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /><span className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: textColor }} /></div>
+              </div>
+
+              {/* Tap area: copies hex */}
+              <button
+                onClick={() => copyHex(s.id, s.hex)}
+                className="flex-1 flex items-center min-h-[44px]"
+                aria-label={`Copy ${s.hex}`}
               >
-                {s.hex}
-              </span>
+                <span
+                  className="text-[14px] font-semibold font-mono tracking-wide"
+                  style={{ color: textColor }}
+                >
+                  {isCopied ? 'Copied!' : s.hex}
+                </span>
+              </button>
 
               {/* WCAG badge */}
               {badge.pass && (
                 <span
-                  className="absolute bottom-1.5 left-4 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                  className="absolute bottom-1.5 left-10 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.18)',
                     color: textColor,
@@ -454,28 +473,28 @@ function GenerateView({
                 </span>
               )}
 
-              {/* Right: actions */}
-              <div className="flex items-center gap-1.5">
+              {/* Right: actions — 36px visible, 44px tap area via padding */}
+              <div className="flex items-center gap-1">
                 <button
-                  onClick={() => copyHex(s.id, s.hex)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}
+                  onClick={(e) => { e.stopPropagation(); copyHex(s.id, s.hex) }}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', minWidth: 44, minHeight: 44 }}
                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                 >
                   {isCopied
-                    ? <Check size={14} style={{ color: textColor }} />
-                    : <Copy size={14} style={{ color: textColor }} />
+                    ? <Check size={16} style={{ color: textColor }} />
+                    : <Copy size={16} style={{ color: textColor }} />
                   }
                 </button>
                 <button
-                  onClick={() => onLock(s.id)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)' }}
+                  onClick={(e) => { e.stopPropagation(); onLock(s.id) }}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', minWidth: 44, minHeight: 44 }}
                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {s.locked
-                    ? <Lock size={14} style={{ color: textColor }} />
-                    : <Unlock size={14} style={{ color: textColor }} />
+                    ? <Lock size={16} style={{ color: textColor }} />
+                    : <Unlock size={16} style={{ color: textColor }} />
                   }
                 </button>
               </div>
@@ -651,10 +670,10 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
   const { isPro } = usePro()
   const colors = swatches.slice(0, 5).map(s => s.hex)
 
-  const cards: { name: string; locked: boolean }[] = [
-    { name: 'Landing Page', locked: false },
-    { name: 'Dashboard', locked: !isPro },
-    { name: 'Mobile App', locked: !isPro },
+  const cards: { name: string; locked: boolean; cta: string }[] = [
+    { name: 'Landing Page', locked: false, cta: '' },
+    { name: 'Dashboard', locked: !isPro, cta: 'Preview on dashboard' },
+    { name: 'Mobile App', locked: !isPro, cta: 'Preview on mobile' },
   ]
 
   return (
@@ -680,6 +699,7 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
               style={{
                 height: 160,
                 background: `linear-gradient(135deg, ${colors[0] ?? '#3A86FF'}, ${colors[1] ?? '#5E9EFF'}, ${colors[2] ?? '#8AB8FF'})`,
+                opacity: card.locked ? 0.6 : 1,
               }}
             >
               {card.locked && (
@@ -688,15 +708,15 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
                 </div>
               )}
               {card.locked && (
-                <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(2px)' }}>
-                  <Lock size={24} style={{ color: '#6C47FF' }} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                  <Lock size={22} style={{ color: '#6C47FF' }} />
+                  <span className="text-[12px] font-semibold" style={{ color: '#6C47FF' }}>{card.cta}</span>
                 </div>
               )}
             </div>
             <div className="px-4 py-3 flex items-center gap-3">
               <LayoutDashboard size={16} style={{ color: '#9CA3AF' }} />
               <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>{card.name}</span>
-              {card.locked && <span className="text-[11px] ml-auto" style={{ color: '#9CA3AF' }}>Upgrade to unlock</span>}
             </div>
           </button>
         ))}
@@ -794,7 +814,6 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
     )
   }
 
-  const limit = isPro ? Infinity : 3
   const slotsText = isPro ? 'Unlimited saves' : `${palettes.length} of 3 free slots used`
 
   // Signed in, empty
@@ -812,6 +831,21 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
       </div>
     )
   }
+
+  // Relative time helper
+  const timeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    const days = Math.floor(hrs / 24)
+    if (days < 7) return `${days}d ago`
+    return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(date))
+  }
+
+  // Free tier slot count
+  const freeSlotCount = isPro ? 0 : 3
 
   // Signed in, has palettes
   return (
@@ -833,14 +867,15 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
             </button>
             <div className="flex items-center justify-between px-3 py-2">
               <div>
-                <span className="text-[13px] font-semibold" style={{ color: '#1a1a2e' }}>{p.name}</span>
-                <span className="text-[11px] ml-2" style={{ color: '#D1D5DB' }}>
-                  {new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(p.created_at))}
+                <span className="text-[13px] font-semibold block" style={{ color: '#1a1a2e' }}>{p.name}</span>
+                <span className="text-[10px]" style={{ color: '#D1D5DB' }}>
+                  Saved {timeAgo(p.created_at)}
                 </span>
               </div>
               <button
                 onClick={() => handleDelete(p.id)}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
+                style={{ minWidth: 44, minHeight: 44 }}
                 aria-label={`Delete ${p.name}`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -850,16 +885,28 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad }: L
             </div>
           </div>
         ))}
+
+        {/* Free tier: empty slot placeholders */}
+        {!isPro && Array.from({ length: Math.max(0, freeSlotCount - palettes.length) }).map((_, i) => (
+          <div
+            key={`empty-${i}`}
+            className="h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center"
+          >
+            <span className="text-[12px]" style={{ color: '#D1D5DB' }}>Empty slot</span>
+          </div>
+        ))}
+
+        {/* Pro upsell when all free slots full */}
+        {!isPro && palettes.length >= freeSlotCount && (
+          <button
+            onClick={onProGate}
+            className="w-full h-16 rounded-2xl flex items-center justify-center text-white text-[13px] font-semibold active:scale-95 transition-all"
+            style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+          >
+            Go Pro for unlimited saves
+          </button>
+        )}
       </div>
-      {!isPro && palettes.length >= limit && (
-        <button
-          onClick={onProGate}
-          className="w-full mt-4 h-11 rounded-2xl text-white text-[13px] font-semibold active:scale-95 transition-all"
-          style={{ backgroundColor: BRAND_VIOLET }}
-        >
-          Go Pro for unlimited saves
-        </button>
-      )}
     </div>
   )
 }
@@ -947,6 +994,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
         </div>
         <div>
           <span className="text-[16px] font-bold block" style={{ color: '#1a1a2e' }}>{name}</span>
+          {user?.email && <span className="text-[11px] block" style={{ color: '#D1D5DB' }}>{user.email}</span>}
           <span className="text-[12px]" style={{ color: '#9CA3AF' }}>
             {isPro ? 'Pro' : 'Free plan'}
           </span>
@@ -957,10 +1005,13 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       {!isPro && (
         <button
           onClick={onProGate}
-          className="w-full h-12 rounded-2xl text-white text-[14px] font-semibold active:scale-95 transition-all mb-5"
+          className="w-full h-12 rounded-2xl text-white text-[14px] font-semibold active:scale-95 transition-all mb-5 flex items-center justify-between px-5"
           style={{ backgroundColor: BRAND_VIOLET }}
         >
-          Upgrade to Pro — $5/mo
+          <span>Upgrade to Pro — $5/mo</span>
+          <div className="flex items-center gap-1.5 opacity-80">
+            <Sparkles size={14} /><Eye size={14} /><span className="text-[13px]">∞</span>
+          </div>
         </button>
       )}
 
@@ -977,26 +1028,27 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
-        {accountOpen && (
-          <div className="border-t border-gray-100">
-            {isPro && (
-              <button
-                onClick={onManageSubscription}
-                className="w-full text-left px-4 py-3 text-[13px] font-medium active:bg-gray-50 transition-colors"
-                style={{ color: '#1a1a2e' }}
-              >
-                Manage subscription
-              </button>
-            )}
+        <div
+          className="border-t border-gray-100 overflow-hidden transition-all duration-200"
+          style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}
+        >
+          {isPro && (
             <button
-              onClick={onSignOut}
+              onClick={onManageSubscription}
               className="w-full text-left px-4 py-3 text-[13px] font-medium active:bg-gray-50 transition-colors"
-              style={{ color: '#EF4444' }}
+              style={{ color: '#1a1a2e' }}
             >
-              Sign out
+              Manage subscription
             </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={onSignOut}
+            className="w-full text-left px-4 py-3 text-[13px] font-medium active:bg-gray-50 transition-colors"
+            style={{ color: '#EF4444' }}
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
       {/* Legal accordion */}
@@ -1012,13 +1064,14 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
-        {legalOpen && (
-          <div className="border-t border-gray-100 flex flex-col">
-            <Link to="/privacy-policy" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50" style={{ color: '#1a1a2e' }}>Privacy Policy</Link>
-            <Link to="/terms-of-service" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50 border-t border-gray-100" style={{ color: '#1a1a2e' }}>Terms of Service</Link>
-            <Link to="/cookie-policy" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50 border-t border-gray-100" style={{ color: '#1a1a2e' }}>Cookie Policy</Link>
-          </div>
-        )}
+        <div
+          className="border-t border-gray-100 flex flex-col overflow-hidden transition-all duration-200"
+          style={{ maxHeight: legalOpen ? 200 : 0, opacity: legalOpen ? 1 : 0 }}
+        >
+          <Link to="/privacy-policy" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50" style={{ color: '#1a1a2e' }}>Privacy Policy</Link>
+          <Link to="/terms-of-service" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50 border-t border-gray-100" style={{ color: '#1a1a2e' }}>Terms of Service</Link>
+          <Link to="/cookie-policy" className="px-4 py-3 text-[13px] font-medium no-underline active:bg-gray-50 border-t border-gray-100" style={{ color: '#1a1a2e' }}>Cookie Policy</Link>
+        </div>
       </div>
 
       {/* Support */}
