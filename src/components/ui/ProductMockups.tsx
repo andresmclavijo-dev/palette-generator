@@ -42,7 +42,7 @@ export function BrowserChrome({ children }: { children: ReactNode }) {
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
         </div>
         <div style={{ flex: 1, margin: '0 20px', height: 28, borderRadius: 8, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 12, color: '#9CA3AF', ...FONT }}>prodmast.com</span>
+          <span style={{ fontSize: 12, color: '#9CA3AF', ...FONT }}>yourproduct.com</span>
         </div>
       </div>
       <div style={{ position: 'relative', overflow: 'hidden' }}>
@@ -81,7 +81,7 @@ export function LandingMockup({ colors }: { colors: string[] }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 28, height: 28, borderRadius: '50%', background: c[0] }} />
-            <span style={{ fontSize: 18, fontWeight: 800, color: '#111827', letterSpacing: '-0.01em' }}>Prodmast</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#111827', letterSpacing: '-0.01em' }}>YourBrand</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             {['Home', 'About', 'Services', 'Contact'].map(t => (
@@ -153,7 +153,7 @@ export function LandingMockup({ colors }: { colors: string[] }) {
 
         {/* Footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F3F4F6', paddingTop: 16 }}>
-          <span style={{ fontSize: 12, color: '#D1D5DB' }}>© 2026 Prodmast</span>
+          <span style={{ fontSize: 12, color: '#D1D5DB' }}>© 2026 YourBrand</span>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Privacy', 'Terms', 'Contact'].map(t => (
               <span key={t} style={{ fontSize: 12, color: '#D1D5DB' }}>{t}</span>
@@ -208,9 +208,9 @@ export function DashboardMockup({ colors }: { colors: string[] }) {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, padding: '0 6px' }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>N</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M9 9h6v6H9z" /></svg>
           </div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>NexaVerse</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>YourApp</span>
         </div>
         {/* Nav items */}
         {DASH_NAV.map(n => (
@@ -242,7 +242,7 @@ export function DashboardMockup({ colors }: { colors: string[] }) {
               <span style={{ fontSize: 12, color: '#9CA3AF' }}>Search transactions, customers...</span>
             </div>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: c[0], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>NV</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>YA</span>
             </div>
           </div>
         </div>
@@ -481,7 +481,7 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
         <div style={{ background: c[0], padding: '8px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.25)' }} />
-            <span style={{ fontSize: 14, color: '#fff', fontWeight: 600 }}>Cooper 1.7 <span style={{ fontSize: 10, opacity: 0.5 }}>▾</span></span>
+            <span style={{ fontSize: 14, color: '#fff', fontWeight: 600 }}>YourApp <span style={{ fontSize: 10, opacity: 0.5 }}>▾</span></span>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
         </div>
@@ -496,7 +496,7 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: c[0], margin: '0 auto 6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>Talk with Cooper</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>Talk with AI</div>
               <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>Let&apos;s try it now</div>
             </div>
             <div style={{ flex: 1, borderRadius: 14, padding: '14px 10px', background: `${c[2] || c[0]}10`, textAlign: 'center', position: 'relative' }}>
@@ -537,7 +537,7 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
         <div style={{ background: c[0], padding: '8px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
-            <span style={{ fontSize: 14, color: '#fff', fontWeight: 600 }}>Cooper 1.7 <span style={{ fontSize: 10, opacity: 0.5 }}>▾</span></span>
+            <span style={{ fontSize: 14, color: '#fff', fontWeight: 600 }}>YourApp <span style={{ fontSize: 10, opacity: 0.5 }}>▾</span></span>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
         </div>
@@ -564,7 +564,7 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
               <span style={{ fontSize: 14, color: '#fff', fontWeight: 700 }}>C</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#111827', marginBottom: 6 }}>Cooper</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#111827', marginBottom: 6 }}>YourApp</div>
               <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.45, marginBottom: 10 }}>
                 Based on current data, AI investment will reach:
               </div>
@@ -601,7 +601,7 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
         <StatusBar bg={c[0]} />
         {/* Header with decorative text */}
         <div style={{ background: c[0], padding: '8px 16px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 36, fontWeight: 800, color: 'rgba(255,255,255,0.07)', lineHeight: 1 }}>Cooper+</div>
+          <div style={{ fontSize: 36, fontWeight: 800, color: 'rgba(255,255,255,0.07)', lineHeight: 1 }}>YourApp+</div>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.2)', margin: '8px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
           </div>
@@ -609,8 +609,8 @@ export function MobileAppMockup({ colors }: { colors: string[] }) {
         </div>
 
         <div style={{ padding: '16px 16px', background: '#FAFAFA' }}>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 4 }}>Cooper+ plans</div>
-          <div style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 14 }}>Try unlimited features with cooper+</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 4 }}>Pro plans</div>
+          <div style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center', marginBottom: 14 }}>Try unlimited features with YourApp+</div>
 
           {/* Plan cards */}
           {[
