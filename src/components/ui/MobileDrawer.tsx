@@ -5,12 +5,12 @@ import { HarmonyPickerList } from '../../components/palette/HarmonyPicker'
 import type { HarmonyMode } from '../../lib/colorEngine'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
 
-const VISION_MODES: { value: VisionMode; label: string }[] = [
-  { value: 'normal',        label: 'Normal' },
-  { value: 'protanopia',    label: 'Protanopia' },
-  { value: 'deuteranopia',  label: 'Deuteranopia' },
-  { value: 'tritanopia',    label: 'Tritanopia' },
-  { value: 'achromatopsia', label: 'Achromatopsia' },
+const VISION_MODES: { value: VisionMode; label: string; desc: string }[] = [
+  { value: 'normal',        label: 'Normal Vision',  desc: 'Default color rendering' },
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-blind color vision' },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Green-blind color vision' },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-blind color vision' },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness' },
 ]
 
 interface MobileDrawerProps {
@@ -238,24 +238,29 @@ export default function MobileDrawer({
                       onVisionChange(m.value)
                       onClose()
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors flex items-center justify-between ${
-                      visionMode === m.value ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                      visionMode === m.value ? 'bg-blue-50' : 'hover:bg-gray-50'
                     }`}
                   >
-                    <span>{m.label} {visionMode === m.value && '✓'}</span>
-                    {needsPro && (
-                      <span
-                        className="text-[10px] font-bold shrink-0"
-                        style={{
-                          background: 'rgba(108,71,255,0.1)',
-                          color: '#6C47FF',
-                          padding: '2px 8px',
-                          borderRadius: 99,
-                        }}
-                      >
-                        PRO
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[13px] font-medium ${visionMode === m.value ? 'text-blue-600' : 'text-gray-800'}`}>
+                        {m.label} {visionMode === m.value && '✓'}
                       </span>
-                    )}
+                      {needsPro && (
+                        <span
+                          className="text-[10px] font-bold shrink-0"
+                          style={{
+                            background: 'rgba(108,71,255,0.1)',
+                            color: '#6C47FF',
+                            padding: '2px 8px',
+                            borderRadius: 99,
+                          }}
+                        >
+                          PRO
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5 m-0">{m.desc}</p>
                   </button>
                 )
               })}
