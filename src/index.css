@@ -96,6 +96,14 @@ body {
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
+/* Mobile palette viewport: clear footer + cookie bar */
+.palette-viewport {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + var(--cookie-bar-h, 0px));
+}
+@media (min-width: 640px) {
+  .palette-viewport { padding-bottom: 0; }
+}
+
 /* Mobile: hide swatch labels while empty-state overlay is active */
 @media (max-width: 768px) {
   [data-overlay-active="true"] .swatch-info {

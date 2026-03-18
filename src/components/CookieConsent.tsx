@@ -1,15 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const STORAGE_KEY = 'paletta_cookie_consent'
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false)
+  const barRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (!stored) setVisible(true)
   }, [])
+
+  // Set a CSS custom property with the cookie bar height so toolbars can offset
+  useEffect(() => {
+    if (!visible) {
+      document.documentElement.style.setProperty('--cookie-bar-h', '0px')
+      return
+    }
+    const update = () => {
+      const h = barRef.current?.offsetHeight ?? 0
+      document.documentElement.style.setProperty('--cookie-bar-h', `${h}px`)
+    }
+    // Measure after paint
+    requestAnimationFrame(update)
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [visible])
 
   const handleAccept = () => {
     localStorage.setItem(STORAGE_KEY, 'all')
@@ -25,9 +42,10 @@ export default function CookieConsent() {
 
   return (
     <div
+      ref={barRef}
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 z-[9999] bottom-20 sm:bottom-16"
+      className="fixed inset-x-0 bottom-0 z-[9999]"
       style={{
         backgroundColor: '#1a1a2e',
         color: '#ffffff',

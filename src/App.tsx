@@ -365,7 +365,7 @@ export default function App() {
 
         {/* Palette with mobile footer clearance — vision filter applied here to avoid trapping fixed-position bottom sheets */}
         <div
-          className="w-full h-full pb-[calc(88px+env(safe-area-inset-bottom,0px))] sm:pb-0"
+          className="w-full h-full sm:!pb-0 palette-viewport"
           style={{ filter: visionFilter }}
         >
           <PaletteCanvas
@@ -383,7 +383,7 @@ export default function App() {
       {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
       <div
         className="flex-none hidden sm:flex items-center justify-between relative"
-        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
+        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px', marginBottom: 'var(--cookie-bar-h, 0px)' }}
       >
         {/* Left: Help / keyboard shortcuts */}
         <div className="relative z-10">
@@ -500,8 +500,8 @@ export default function App() {
 
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
-        className="fixed bottom-0 left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
-        style={{ minHeight: '64px', height: `calc(64px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
+        className="fixed left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
+        style={{ bottom: 'var(--cookie-bar-h, 0px)', minHeight: '64px', height: `calc(64px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button
