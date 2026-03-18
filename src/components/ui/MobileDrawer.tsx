@@ -6,10 +6,11 @@ import type { HarmonyMode } from '../../lib/colorEngine'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
 
 const VISION_MODES: { value: VisionMode; label: string }[] = [
-  { value: 'normal',       label: 'Normal' },
-  { value: 'deuteranopia', label: 'Deuteranopia' },
-  { value: 'protanopia',   label: 'Protanopia' },
-  { value: 'tritanopia',   label: 'Tritanopia' },
+  { value: 'normal',        label: 'Normal' },
+  { value: 'protanopia',    label: 'Protanopia' },
+  { value: 'deuteranopia',  label: 'Deuteranopia' },
+  { value: 'tritanopia',    label: 'Tritanopia' },
+  { value: 'achromatopsia', label: 'Achromatopsia' },
 ]
 
 interface MobileDrawerProps {

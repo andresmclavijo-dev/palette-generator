@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Tooltip from './ui/Tooltip'
 import { BRAND_DARK, BRAND_VIOLET } from '../lib/tokens'
 
@@ -34,7 +34,14 @@ export default function AppHeader({
   onManageSubscription,
 }: AppHeaderProps) {
   const [avatarOpen, setAvatarOpen] = useState(false)
+  const [heartPulse, setHeartPulse] = useState(false)
   const avatarRef = useRef<HTMLDivElement>(null)
+
+  const handleSaveClick = useCallback(() => {
+    onSave()
+    setHeartPulse(true)
+    setTimeout(() => setHeartPulse(false), 500)
+  }, [onSave])
 
   // Close avatar dropdown on outside click
   useEffect(() => {
@@ -109,14 +116,26 @@ export default function AppHeader({
             </button>
           </Tooltip>
 
-          {/* Desktop: Save — icon-only, filled red heart */}
+          {/* Desktop: Save — outline heart with save-pulse animation */}
           <Tooltip text="Save" position="bottom">
             <button
-              onClick={onSave}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              onClick={handleSaveClick}
+              className="w-9 h-9 rounded-full bg-white hover:bg-pink-50 flex items-center justify-center shrink-0"
+              style={{
+                transition: 'background 150ms, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transform: heartPulse ? 'scale(1.2)' : 'scale(1)',
+              }}
               aria-label="Save palette"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#EF4444" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg
+                width="16" height="16" viewBox="0 0 24 24"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                style={{
+                  fill: heartPulse ? '#EF4444' : 'none',
+                  stroke: heartPulse ? '#EF4444' : '#6B7280',
+                  transition: 'fill 300ms, stroke 300ms',
+                }}
+              >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </button>

@@ -3,13 +3,14 @@ import { createPortal } from 'react-dom'
 import { usePro } from '../../hooks/usePro'
 import ToolTooltip from '../ui/ToolTooltip'
 
-export type VisionMode = 'normal' | 'deuteranopia' | 'protanopia' | 'tritanopia'
+export type VisionMode = 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia'
 
-const MODES: { value: VisionMode; label: string }[] = [
-  { value: 'normal',       label: 'Normal' },
-  { value: 'deuteranopia', label: 'Deuteranopia' },
-  { value: 'protanopia',   label: 'Protanopia' },
-  { value: 'tritanopia',   label: 'Tritanopia' },
+const MODES: { value: VisionMode; label: string; desc: string; free: boolean }[] = [
+  { value: 'normal',        label: 'Normal Vision',  desc: 'Default color rendering',    free: true },
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-blind color vision',     free: true },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Green-blind color vision',   free: false },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-blind color vision',    free: false },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness',   free: false },
 ]
 
 interface VisionSimulatorProps {
@@ -26,10 +27,6 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 })
 
   const handleClick = () => {
-    if (!isPro) {
-      onProGate()
-      return
-    }
     if (!dropOpen && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       setDropPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
@@ -37,9 +34,13 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
     setDropOpen(o => !o)
   }
 
-  const handleSelect = (v: VisionMode) => {
-    onChange(v)
-    setDropOpen(false)
+  const handleSelect = (m: typeof MODES[number]) => {
+    if (!m.free && !isPro) {
+      setDropOpen(false)
+      onProGate()
+      return
+    }
+    onChange(m.value)
   }
 
   // Close on outside click
@@ -59,6 +60,16 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
     }
   }, [dropOpen])
 
+  // Close on Escape
+  useEffect(() => {
+    if (!dropOpen) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setDropOpen(false); btnRef.current?.focus() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [dropOpen])
+
   return (
     <div className="relative shrink-0 hidden sm:block">
       <ToolTooltip description="Simulate color blindness" disabled={dropOpen}>
@@ -70,7 +81,9 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
               ? 'bg-blue-50 text-blue-600'
               : 'hover:bg-surface-secondary hover:text-gray-700 text-[#444444]'
           }`}
-          aria-label="Check accessibility (Pro)"
+          aria-label="Accessibility vision simulation"
+          aria-haspopup="listbox"
+          aria-expanded={dropOpen}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -91,23 +104,47 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
       {dropOpen && createPortal(
         <div
           ref={dropRef}
-          className="w-44 bg-white rounded-xl shadow-xl border border-gray-200 py-1 overflow-hidden"
-          style={{ position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999 }}
+          role="listbox"
+          aria-label="Vision simulation modes"
+          className="bg-white rounded-xl shadow-xl border border-gray-200 py-1.5 overflow-hidden"
+          style={{ position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999, width: 300 }}
         >
-          {MODES.map(m => (
-            <button
-              key={m.value}
-              onClick={() => handleSelect(m.value)}
-              className={`w-full text-left px-4 py-2.5 text-[12px] font-medium transition-colors ${
-                mode === m.value
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {m.label}
-              {mode === m.value && <span className="float-right">{'\u2713'}</span>}
-            </button>
-          ))}
+          {MODES.map(m => {
+            const isActive = mode === m.value
+            const needsPro = !m.free && !isPro
+            return (
+              <button
+                key={m.value}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => handleSelect(m)}
+                className={`w-full text-left px-4 py-2.5 transition-colors ${
+                  isActive ? 'bg-blue-50' : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`text-[13px] font-semibold ${isActive ? 'text-blue-600' : 'text-gray-800'}`}>
+                      {m.label}
+                    </span>
+                    <span className="text-[11px] text-gray-400">{m.desc}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    {needsPro && (
+                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600">
+                        PRO
+                      </span>
+                    )}
+                    {isActive && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
         </div>,
         document.body
       )}
@@ -128,6 +165,9 @@ export function VisionFilterDefs() {
         </filter>
         <filter id="vision-tritanopia">
           <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+        </filter>
+        <filter id="vision-achromatopsia">
+          <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0" />
         </filter>
       </defs>
     </svg>

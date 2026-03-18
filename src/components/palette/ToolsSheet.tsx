@@ -15,9 +15,10 @@ interface ToolsSheetProps {
 }
 
 const VISION_MODES: { value: VisionMode; label: string }[] = [
-  { value: 'deuteranopia', label: 'Deuteranopia' },
-  { value: 'protanopia',   label: 'Protanopia' },
-  { value: 'tritanopia',   label: 'Tritanopia' },
+  { value: 'protanopia',    label: 'Protanopia' },
+  { value: 'deuteranopia',  label: 'Deuteranopia' },
+  { value: 'tritanopia',    label: 'Tritanopia' },
+  { value: 'achromatopsia', label: 'Achromatopsia' },
 ]
 
 export default function ToolsSheet({
