@@ -112,7 +112,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full h-full md:h-auto md:max-h-[min(92vh,680px)] md:w-[480px] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
+        className="relative w-full h-full md:h-[min(92vh,680px)] md:w-[480px] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
         onClick={e => e.stopPropagation()}
       >
         {/* Close button */}
@@ -160,10 +160,11 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
             </p>
 
             {/* Feature list — scrollable with bottom fade hint */}
-            <div className="relative flex-1 min-h-0 overflow-hidden mb-4">
+            <div className="relative min-h-0 overflow-hidden mb-4" style={{ flex: '1 1 0%' }}>
               <div
                 ref={featureListRef}
-                className="absolute inset-0 overflow-y-auto -mx-1 px-1 pb-6"
+                className="overflow-y-auto -mx-1 px-1 pb-6"
+                style={{ maxHeight: '100%' }}
                 onScroll={checkScrollEnd}
               >
                 {PRO_FEATURES.map(({ Icon, bg, color, text }, i) => (
