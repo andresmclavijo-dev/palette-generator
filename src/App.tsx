@@ -27,6 +27,8 @@ import SEOContent from './components/SEOContent'
 import CookieConsent from './components/CookieConsent'
 import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
+import { useIsMobile } from './hooks/useIsMobile'
+import MobileShell from './components/MobileShell'
 
 import { useAuth } from './hooks/useAuth'
 import { usePaletteStore } from './store/paletteStore'
@@ -62,6 +64,7 @@ export default function App() {
   const [aiRemaining, setAiRemaining]  = useState(getAiRemaining)
   const [emptyDismissed, setEmptyDismissed] = useState(() => !!localStorage.getItem('paletta_has_generated'))
   const [emptyDismissMethod, setEmptyDismissMethod] = useState<'spacebar' | 'button' | 'ai'>('button')
+  const isMobile = useIsMobile()
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mobileFileRef = useRef<HTMLInputElement>(null)
   const helpBtnRef = useRef<HTMLButtonElement>(null)
@@ -260,6 +263,9 @@ export default function App() {
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
+
+  // Mobile: render dedicated shell (desktop layout untouched)
+  if (isMobile) return <MobileShell />
 
   return (
     <>
