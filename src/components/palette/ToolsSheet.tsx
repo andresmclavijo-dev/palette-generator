@@ -10,6 +10,7 @@ interface ToolsSheetProps {
   onProGate: () => void
   onImagePalette: (hexes: string[]) => void
   onAiOpen: () => void
+  onPreviewOpen: () => void
   visionMode: VisionMode
   onVisionChange: (mode: VisionMode) => void
 }
@@ -22,7 +23,7 @@ const VISION_MODES: { value: VisionMode; label: string }[] = [
 
 export default function ToolsSheet({
   open, onClose, onProGate,
-  onImagePalette, onAiOpen,
+  onImagePalette, onAiOpen, onPreviewOpen,
   visionMode, onVisionChange,
 }: ToolsSheetProps) {
   const { isPro } = usePro()
@@ -67,6 +68,11 @@ export default function ToolsSheet({
 
   const handleVisionSelect = (mode: VisionMode) => {
     onVisionChange(mode)
+  }
+
+  const handlePreviewClick = () => {
+    onPreviewOpen()
+    onClose()
   }
 
   const handleAiClick = () => {
@@ -190,6 +196,30 @@ export default function ToolsSheet({
               ))}
             </div>
           )}
+
+          {/* Preview */}
+          <button
+            onClick={handlePreviewClick}
+            className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-medium text-gray-800">Preview</span>
+                {!isPro && <ProBadge />}
+              </div>
+              <p className="text-[12px] text-gray-500 mt-0.5">See palette in realistic UI mockups</p>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
 
           {/* AI */}
           <button

@@ -8,6 +8,8 @@ import AiPrompt, { getAiRemaining } from './components/palette/AiPrompt'
 import ImagePalette from './components/palette/ImagePalette'
 import VisionSimulator, { VisionFilterDefs } from './components/palette/VisionSimulator'
 import type { VisionMode } from './components/palette/VisionSimulator'
+import PreviewPanel from './components/palette/PreviewPanel'
+import MobilePreviewModal from './components/palette/MobilePreviewModal'
 import ToolsSheet from './components/palette/ToolsSheet'
 import ProUpgradeModal from './components/ui/ProUpgradeModal'
 import SignInModal from './components/ui/SignInModal'
@@ -49,6 +51,7 @@ export default function App() {
   const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
   const [proModalOpen, setProModalOpen] = useState(false)
   const [toolsOpen,    setToolsOpen]    = useState(false)
+  const [previewOpen,  setPreviewOpen]  = useState(false)
   const [signInOpen,   setSignInOpen]   = useState(false)
   const [drawerOpen,   setDrawerOpen]   = useState(false)
   const [savedOpen,    setSavedOpen]    = useState(false)
@@ -133,7 +136,7 @@ export default function App() {
       if (e.code === 'Space')                         { e.preventDefault(); triggerGenerate() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey)  { e.preventDefault(); redo() }
-      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setSignInOpen(false); setDrawerOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
+      if (e.key === 'Escape')                         { setExportOpen(false); setHelpOpen(false); setActivePanel(null); setProModalOpen(false); setToolsOpen(false); setPreviewOpen(false); setSignInOpen(false); setDrawerOpen(false); setSavedOpen(false); setSaveNameOpen(false); setAiOpen(false) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -281,6 +284,7 @@ export default function App() {
         <div className="hidden sm:flex items-center gap-1 shrink-0 ml-2">
           <VisionSimulator mode={visionMode} onChange={setVisionMode} onProGate={openProModal} />
           <ImagePalette onPalette={handleImagePalette} onProGate={openProModal} />
+          <PreviewPanel onProGate={openProModal} />
           <ToolTooltip description="Generate a palette from a text description" showProBadge={!isPro}>
             <button
               onClick={() => setAiOpen(true)}
@@ -571,6 +575,7 @@ export default function App() {
         onProGate={openProModal}
         onImagePalette={handleImagePalette}
         onAiOpen={() => { setAiOpen(true); setToolsOpen(false) }}
+        onPreviewOpen={() => setPreviewOpen(true)}
         visionMode={visionMode}
         onVisionChange={setVisionMode}
       />
@@ -610,6 +615,9 @@ export default function App() {
 
       {/* Unified Pro upgrade modal */}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
+
+      {/* Mobile preview modal */}
+      <MobilePreviewModal open={previewOpen} onClose={() => setPreviewOpen(false)} onProGate={openProModal} />
 
       {/* Payment success modal — shown when returning from Stripe without being signed in */}
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
