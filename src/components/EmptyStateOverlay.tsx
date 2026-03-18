@@ -30,14 +30,14 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
 
   return (
     <div
-      className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+      className="absolute inset-0 z-10 flex items-start md:items-center justify-center pointer-events-none pt-[30%] md:pt-0"
       style={{
         opacity: visible ? 1 : 0,
         transition: 'opacity 300ms ease-out',
       }}
     >
       <div
-        className="flex flex-col items-center text-center px-6 py-5 sm:px-10 sm:py-6"
+        className="flex flex-col items-center text-center px-5 py-4 md:px-10 md:py-6"
         style={{
           background: 'rgba(255, 255, 255, 0.85)',
           backdropFilter: 'blur(8px)',
@@ -56,19 +56,19 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
           </kbd>
         </p>
         <p className="hidden md:block text-sm mt-2" style={{ color: '#6B7280' }}>
-          Generate · Lock · Export — all from your keyboard
+          Generate, lock, and export — all from your keyboard
         </p>
 
         {/* Mobile */}
         <p
-          className="md:hidden text-xl font-semibold"
+          className="md:hidden text-lg font-semibold"
           style={{ color: '#1a1a2e' }}
         >
           Your next masterpiece starts now
         </p>
-        <p className="md:hidden text-sm mt-2" style={{ color: '#6B7280' }}>
+        <p className="md:hidden text-xs mt-1.5" style={{ color: '#6B7280' }}>
           Tap{' '}
-          <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-sm align-baseline">
+          <kbd className="inline-block px-1.5 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-xs align-baseline">
             Generate
           </kbd>
           {' '}to begin

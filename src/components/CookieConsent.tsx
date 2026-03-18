@@ -27,12 +27,8 @@ export default function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie consent"
+      className="fixed inset-x-0 z-[9999] bottom-20 sm:bottom-0"
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999,
         backgroundColor: '#1a1a2e',
         color: '#ffffff',
         padding: '16px 24px',

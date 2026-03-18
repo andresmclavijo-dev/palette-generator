@@ -46,7 +46,6 @@ export default function App() {
 
   const [shareCopied,  setShareCopied]  = useState(false)
   const [exportOpen,   setExportOpen]   = useState(false)
-  const [showHint,     setShowHint]     = useState(false)
   const [helpOpen,     setHelpOpen]     = useState(false)
   const [aiOpen,       setAiOpen]       = useState(false)
   const [visionMode,   setVisionMode]   = useState<VisionMode>('normal')
@@ -96,14 +95,6 @@ export default function App() {
     if (panel) setHelpOpen(false)
   }, [])
 
-  useEffect(() => {
-    const isMobile = window.innerWidth < 640
-    const seen = localStorage.getItem('paletta-hint')
-    if (!isMobile && !seen) {
-      setTimeout(() => setShowHint(true), 900)
-      setTimeout(() => { setShowHint(false); localStorage.setItem('paletta-hint', '1') }, 4000)
-    }
-  }, [])
 
   // Session start + pageview
   useEffect(() => {
@@ -386,14 +377,6 @@ export default function App() {
           />
         </div>
 
-        {/* Floating hint — desktop only, shown briefly on first load */}
-        {showHint && (
-          <div className="absolute floating-bottom left-1/2 -translate-x-1/2 z-20 hidden sm:block pointer-events-none">
-            <div className="px-3 py-1.5 rounded-lg bg-gray-900/90 text-white text-[11px] font-medium tracking-wide whitespace-nowrap">
-              Press <kbd className="mx-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Space</kbd> to generate
-            </div>
-          </div>
-        )}
       </main>
 
       {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
