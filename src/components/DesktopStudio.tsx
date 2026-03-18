@@ -3,7 +3,7 @@ import {
   Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
   X, Share2, Download, Grid3X3, RefreshCw, SlidersHorizontal,
-  Undo2, Redo2, Plus,
+  Undo2, Redo2, Plus, MoreHorizontal, ExternalLink,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
@@ -412,7 +412,7 @@ export default function DesktopStudio() {
                 active={activeTool === 'ai'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('ai')}
-                badge={dockExpanded && !isPro ? `${aiRemaining}/day` : undefined}
+                badge={!isPro ? String(aiRemaining) : undefined}
               />
               <DockItem
                 icon={<Heart size={20} />}
@@ -422,6 +422,9 @@ export default function DesktopStudio() {
                 onClick={() => handleToolClick('library')}
               />
             </div>
+
+            {/* Info / Legal links */}
+            <DockInfoMenu expanded={dockExpanded} />
 
             {/* Collapse / Expand toggle */}
             {dockExpanded ? (
@@ -595,6 +598,14 @@ export default function DesktopStudio() {
             </div>
           </header>
 
+          {/* ─── Horizontal Shade Bar ─── */}
+          {shadesOpen && (() => {
+            const sw = swatches.find(s => s.id === shadesOpen)
+            return sw ? (
+              <ShadeBar hex={sw.hex} onClose={() => setShadesOpen(null)} />
+            ) : null
+          })()}
+
           {/* ─── Color Canvas OR Preview Mode ─── */}
           {activeTool === 'preview' ? (
             <PreviewMode
@@ -629,8 +640,6 @@ export default function DesktopStudio() {
                       className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
                       style={{
                         backgroundColor: s.hex,
-                        flexGrow: showShades ? 2 : 1,
-                        transition: 'flex-grow 250ms ease',
                         paddingTop: 70,
                         paddingBottom: 40,
                       }}
@@ -750,10 +759,7 @@ export default function DesktopStudio() {
                         <ColorInfoPopover hex={s.hex} onClose={() => setInfoOpen(null)} />
                       )}
 
-                      {/* Shades panel — slides from right edge of swatch */}
-                      {showShades && (
-                        <ShadesColumn hex={s.hex} onClose={() => setShadesOpen(null)} />
-                      )}
+                      {/* Shades now rendered as horizontal bar above canvas */}
                     </div>
                   )
                 })}
@@ -935,13 +941,24 @@ function DockItem({
         }}
         aria-label={label}
       >
-        <span className="shrink-0" style={{ strokeWidth: primary || active ? 2.5 : 2 }}>{icon}</span>
+        <span className="shrink-0 relative" style={{ strokeWidth: primary || active ? 2.5 : 2 }}>
+          {icon}
+          {/* Small counter badge on icon when collapsed */}
+          {!expanded && badge && (
+            <span
+              className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center rounded-full text-[8px] font-bold text-white leading-none"
+              style={{ backgroundColor: BRAND_VIOLET }}
+            >
+              {badge}
+            </span>
+          )}
+        </span>
         {expanded && (
           <span className="text-[13px] whitespace-nowrap flex items-center gap-1.5">
             {label}
             {badge && (
               <span
-                className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
+                className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
                 style={{ backgroundColor: 'rgba(108,71,255,0.12)', color: BRAND_VIOLET }}
               >
                 {badge}
@@ -1085,8 +1102,8 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-// ─── Shades Column ───────────────────────────────────────────
-function ShadesColumn({ hex, onClose }: { hex: string; onClose: () => void }) {
+// ─── Shade Bar (horizontal overlay) ─────────────────────────
+function ShadeBar({ hex, onClose }: { hex: string; onClose: () => void }) {
   const shades = generateShades(hex, 10)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
 
@@ -1099,40 +1116,176 @@ function ShadesColumn({ hex, onClose }: { hex: string; onClose: () => void }) {
     } catch { /* silent */ }
   }
 
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
   return (
     <div
-      className="absolute top-0 right-0 bottom-0 flex flex-col z-10"
-      style={{ width: 120, backgroundColor: 'rgba(0,0,0,0.08)' }}
+      className="absolute left-0 right-0 z-20 flex items-stretch"
+      style={{ bottom: 0, height: 50 }}
+      role="region"
+      aria-label="Shade scale"
     >
-      {/* Close */}
-      <button
-        onClick={e => { e.stopPropagation(); onClose() }}
-        className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full flex items-center justify-center bg-black/20 hover:bg-black/40 text-white transition-all"
-        aria-label="Close shades"
-      >
-        <X size={10} />
-      </button>
-
       {shades.map((shade, i) => {
         const labelColor = readableOn(shade)
         const isCopied = copiedIdx === i
+        const isBase = TAILWIND_SHADE_LABELS[i] === 500
         return (
           <button
             key={shade + i}
-            className="flex-1 flex items-center justify-between px-2 cursor-pointer hover:opacity-90 transition-all"
-            style={{ backgroundColor: shade }}
-            onClick={e => { e.stopPropagation(); handleCopy(shade, i) }}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-all hover:opacity-90"
+            style={{
+              backgroundColor: shade,
+              outline: isBase ? `2px solid ${labelColor}` : undefined,
+              outlineOffset: -2,
+            }}
+            onClick={() => handleCopy(shade, i)}
             aria-label={`Copy shade ${TAILWIND_SHADE_LABELS[i]}: ${shade}`}
           >
-            <span className="text-[9px] font-mono opacity-50" style={{ color: labelColor }}>
+            <span className="text-[9px] font-mono font-semibold opacity-60" style={{ color: labelColor }}>
               {TAILWIND_SHADE_LABELS[i]}
             </span>
-            <span className="text-[10px] font-mono opacity-70" style={{ color: labelColor }}>
+            <span className="text-[10px] font-mono font-medium" style={{ color: labelColor }}>
               {isCopied ? '✓' : shade.toUpperCase()}
             </span>
           </button>
         )
       })}
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full flex items-center justify-center bg-black/20 hover:bg-black/40 text-white transition-all"
+        aria-label="Close shades"
+      >
+        <X size={10} />
+      </button>
+    </div>
+  )
+}
+
+// ─── Dock Info Menu ─────────────────────────────────────────
+function DockInfoMenu({ expanded }: { expanded: boolean }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const links = [
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms of Service', href: '/terms-of-service' },
+    { label: 'Cookie Policy', href: '/cookie-policy' },
+  ]
+
+  const shortcuts = [
+    { key: 'Space', desc: 'Generate' },
+    { key: 'U', desc: 'Undo' },
+    { key: 'R', desc: 'Redo' },
+  ]
+
+  if (expanded) {
+    return (
+      <div className="flex flex-col gap-0.5 py-2 border-t border-gray-100 mt-1">
+        {links.map(l => (
+          <a
+            key={l.href}
+            href={l.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all hover:bg-gray-100"
+            style={{ color: '#9ca3af', textDecoration: 'none' }}
+          >
+            {l.label}
+            <ExternalLink size={10} className="opacity-40" />
+          </a>
+        ))}
+        <div className="px-3 pt-1">
+          <p className="text-[9px] m-0" style={{ color: '#d1d5db' }}>
+            Built with Paletta
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Collapsed: icon trigger with floating popover
+  return (
+    <div ref={ref} className="relative flex justify-center py-1">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
+        style={{ color: '#9ca3af' }}
+        aria-label="Info and legal links"
+        aria-expanded={open}
+      >
+        <MoreHorizontal size={16} />
+      </button>
+
+      {open && (
+        <div
+          className="absolute z-50 bg-white rounded-xl overflow-hidden"
+          style={{
+            left: '100%',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            marginLeft: 10,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
+            minWidth: 200,
+            padding: '8px 0',
+          }}
+          role="menu"
+        >
+          {links.map(l => (
+            <a
+              key={l.href}
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 text-[12px] font-medium transition-all hover:bg-gray-50"
+              style={{ color: '#374151', textDecoration: 'none' }}
+              role="menuitem"
+            >
+              {l.label}
+              <ExternalLink size={10} className="opacity-40 ml-auto" />
+            </a>
+          ))}
+
+          <div className="border-t border-gray-100 my-1" />
+
+          <div className="px-4 py-1.5">
+            <p className="text-[10px] font-semibold m-0 mb-1" style={{ color: '#9ca3af' }}>Shortcuts</p>
+            {shortcuts.map(s => (
+              <div key={s.key} className="flex items-center justify-between py-0.5">
+                <span className="text-[11px]" style={{ color: '#6b7280' }}>{s.desc}</span>
+                <kbd
+                  className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
+                >
+                  {s.key}
+                </kbd>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-gray-100 my-1" />
+          <div className="px-4 py-1">
+            <p className="text-[10px] m-0" style={{ color: '#d1d5db' }}>Built with Paletta</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

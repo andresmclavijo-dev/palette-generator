@@ -31,9 +31,10 @@ if (devProOverride) {
 
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
-  const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
+  const { isPro, loading, showPaymentModal, fetched, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
   const cancelHandled = useRef(false)
+  const lastFetchedUserId = useRef<string | null>(null)
 
   const userId = user?.id ?? null
 
@@ -48,8 +49,13 @@ export function usePro() {
       setIsPro(false)
       setLoading(false)
       setFetched(false)
+      lastFetchedUserId.current = null
       return
     }
+
+    // Skip if already fetched for this user
+    if (fetched && lastFetchedUserId.current === userId) return
+    lastFetchedUserId.current = userId
 
     let cancelled = false
     setLoading(true)
@@ -60,7 +66,7 @@ export function usePro() {
       .single()
       .then(({ data }) => {
         if (cancelled) return
-        console.log('[usePro] profile fetch:', { userId, is_pro: data?.is_pro })
+        if (import.meta.env.DEV) console.log('[usePro] profile fetch:', { userId, is_pro: data?.is_pro })
         setIsPro(data?.is_pro === true)
         setLoading(false)
         setFetched(true)
@@ -90,7 +96,7 @@ export function usePro() {
 
     if (user) {
       // Signed in: force Pro immediately, then verify
-      console.log('[usePro] checkout success detected, forcing Pro for user', user.id)
+      if (import.meta.env.DEV) console.log('[usePro] checkout success detected, forcing Pro for user', user.id)
       setIsPro(true)
       setLoading(false)
       setFetched(true)
@@ -109,13 +115,13 @@ export function usePro() {
           .eq('id', uid)
           .single()
 
-        console.log('[usePro] post-payment profile re-fetch:', { uid, is_pro: data?.is_pro })
+        if (import.meta.env.DEV) console.log('[usePro] post-payment profile re-fetch:', { uid, is_pro: data?.is_pro })
         if (data?.is_pro) setIsPro(true)
       }
       refresh()
     } else {
       // Not signed in: show the payment success modal
-      console.log('[usePro] checkout success but no user — showing sign-in modal')
+      if (import.meta.env.DEV) console.log('[usePro] checkout success but no user — showing sign-in modal')
       setShowPaymentModal(true)
     }
   }, [user, authLoading, setIsPro, setLoading, setFetched, setShowPaymentModal])
