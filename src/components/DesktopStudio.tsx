@@ -87,6 +87,8 @@ export default function DesktopStudio() {
   const [editValue, setEditValue] = useState('')
   const [imageUploading, setImageUploading] = useState(false)
 
+  const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const harmonyRef = useRef<HTMLDivElement>(null)
   const trackedRef = useRef(false)
@@ -171,6 +173,8 @@ export default function DesktopStudio() {
 
   const triggerGenerate = useCallback((method: 'spacebar' | 'button' | 'ai' = 'button') => {
     generate()
+    setDockPulse(false)
+    sessionStorage.setItem('paletta_dock_pulsed', '1')
     analytics.track('palette_generated', { method, style: harmonyMode, color_count: count })
     if (!localStorage.getItem('paletta_first_generate_at')) {
       localStorage.setItem('paletta_first_generate_at', String(Date.now()))
@@ -333,6 +337,7 @@ export default function DesktopStudio() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
   const dockW = dockExpanded ? 152 : 54
+  const inPreview = activeTool === 'preview'
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -352,7 +357,12 @@ export default function DesktopStudio() {
         {/* ─── Side Dock ─── */}
         <aside
           className="absolute top-0 left-0 bottom-0 z-40 flex flex-col"
-          style={{ width: dockW, transition: 'width 200ms ease', padding: '66px 7px 10px 7px' }}
+          style={{
+            width: dockW,
+            transition: 'width 200ms ease',
+            padding: '76px 7px 10px 7px',
+            borderRight: inPreview ? '1px solid rgba(0,0,0,0.06)' : undefined,
+          }}
         >
           <nav
             className="flex-1 flex flex-col rounded-2xl"
@@ -366,29 +376,30 @@ export default function DesktopStudio() {
           >
             <div className="flex-1 flex flex-col gap-1">
               <DockItem
-                icon={<Sparkles size={18} />}
+                icon={<Sparkles size={20} />}
                 label="Generate"
                 active={false}
                 primary
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('generate')}
+                pulse={dockPulse}
               />
               <DockItem
-                icon={<Eye size={18} />}
+                icon={<Eye size={20} />}
                 label="Simulate"
                 active={activeTool === 'simulate'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('simulate')}
               />
               <DockItem
-                icon={<LayoutDashboard size={18} />}
+                icon={<LayoutDashboard size={20} />}
                 label="Preview"
                 active={activeTool === 'preview'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('preview')}
               />
               <DockItem
-                icon={<Image size={18} />}
+                icon={<Image size={20} />}
                 label="Extract"
                 active={activeTool === 'extract'}
                 expanded={dockExpanded}
@@ -396,7 +407,7 @@ export default function DesktopStudio() {
                 proBadge={!isPro}
               />
               <DockItem
-                icon={<Star size={18} />}
+                icon={<Star size={20} />}
                 label="AI Palette"
                 active={activeTool === 'ai'}
                 expanded={dockExpanded}
@@ -404,7 +415,7 @@ export default function DesktopStudio() {
                 badge={dockExpanded && !isPro ? `${aiRemaining}/day` : undefined}
               />
               <DockItem
-                icon={<Heart size={18} />}
+                icon={<Heart size={20} />}
                 label="Library"
                 active={activeTool === 'library'}
                 expanded={dockExpanded}
@@ -447,7 +458,7 @@ export default function DesktopStudio() {
           <header
             className="absolute z-30 flex items-center justify-between"
             style={{
-              top: 11,
+              top: 20,
               left: 12,
               right: 12,
               height: 46,
@@ -620,10 +631,12 @@ export default function DesktopStudio() {
                         backgroundColor: s.hex,
                         flexGrow: showShades ? 2 : 1,
                         transition: 'flex-grow 250ms ease',
+                        paddingTop: 70,
+                        paddingBottom: 40,
                       }}
                     >
                       {/* Per-swatch vertical cluster */}
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center justify-center gap-3">
                         {/* WCAG badge */}
                         <div
                           className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-white"
@@ -798,7 +811,7 @@ export default function DesktopStudio() {
           {visionMode !== 'normal' && activeTool !== 'preview' && (
             <button
               onClick={() => setVisionMode('normal')}
-              className="absolute top-[66px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
+              className="absolute top-[76px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
               style={{ color: '#374151' }}
             >
               <Eye size={14} />
@@ -890,7 +903,7 @@ export default function DesktopStudio() {
 
 // ─── Dock Item ───────────────────────────────────────────────
 function DockItem({
-  icon, label, active, primary, expanded, onClick, badge, proBadge,
+  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse,
 }: {
   icon: React.ReactNode
   label: string
@@ -900,6 +913,7 @@ function DockItem({
   onClick: () => void
   badge?: string
   proBadge?: boolean
+  pulse?: boolean
 }) {
   const [showTooltip, setShowTooltip] = useState(false)
 
@@ -909,7 +923,7 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (!expanded) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className="w-full flex items-center gap-2.5 rounded-xl transition-all"
+        className={`w-full flex items-center gap-2.5 rounded-xl transition-all${pulse ? ' dock-pulse' : ''}`}
         style={{
           padding: expanded ? '10px 12px' : '10px 0',
           justifyContent: expanded ? 'flex-start' : 'center',
@@ -917,6 +931,7 @@ function DockItem({
           color: primary ? '#ffffff' : active ? BRAND_VIOLET : '#374151',
           fontWeight: active || primary ? 600 : 500,
           minHeight: 40,
+          boxShadow: active ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
         }}
         aria-label={label}
       >
@@ -1432,7 +1447,7 @@ function PreviewMode({
       {/* ─ Slim palette strip ─ */}
       <div
         className="flex-none flex items-stretch relative z-10"
-        style={{ height: 60, marginTop: 66 }}
+        style={{ height: 60, marginTop: 76 }}
       >
         {swatches.map(s => (
           <div
@@ -1662,7 +1677,7 @@ function MockupCard({
 
       {/* Content */}
       <div className="relative">
-        <div style={{ filter: blurred ? 'blur(3px)' : undefined, opacity: blurred ? 0.6 : 1 }}>
+        <div style={{ filter: blurred ? 'blur(4px)' : undefined, opacity: blurred ? 0.55 : 1 }}>
           {children}
         </div>
 
@@ -1670,19 +1685,30 @@ function MockupCard({
         {blurred && (
           <button
             onClick={onProClick}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 cursor-pointer"
+            className="absolute inset-0 flex items-center justify-center cursor-pointer"
             aria-label={`Unlock ${label} preview`}
           >
-            <Lock size={24} style={{ color: BRAND_VIOLET }} />
-            <span className="text-[13px] font-semibold" style={{ color: BRAND_VIOLET }}>
-              Preview {label.toLowerCase()}
-            </span>
-            <span
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
-              style={{ backgroundColor: BRAND_VIOLET }}
+            <div
+              className="flex flex-col items-center gap-2"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.6)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                borderRadius: 16,
+                padding: '16px 24px',
+              }}
             >
-              PRO
-            </span>
+              <Lock size={24} style={{ color: BRAND_VIOLET }} />
+              <span className="text-[13px] font-semibold" style={{ color: BRAND_VIOLET }}>
+                Preview {label.toLowerCase()}
+              </span>
+              <span
+                className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
+                style={{ backgroundColor: BRAND_VIOLET }}
+              >
+                PRO
+              </span>
+            </div>
           </button>
         )}
       </div>

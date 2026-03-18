@@ -132,9 +132,17 @@ body {
   animation: hintFade 3s ease-out forwards;
 }
 
+/* Desktop dock Generate button pulse — first visit */
+@keyframes dockPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.dock-pulse { animation: dockPulse 1.5s ease-in-out 3; }
+
 @media (prefers-reduced-motion: reduce) {
   .tab-pulse { animation: none; }
   .tab-hint-fade { animation: none; opacity: 0; }
+  .dock-pulse { animation: none; }
 }
 
 /* Mobile: hide swatch labels while empty-state overlay is active */
