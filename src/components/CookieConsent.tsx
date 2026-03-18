@@ -45,7 +45,7 @@ export default function CookieConsent() {
       ref={barRef}
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-[9999]"
+      className="flex-none w-full z-[9999]"
       style={{
         backgroundColor: '#1a1a2e',
         color: '#ffffff',

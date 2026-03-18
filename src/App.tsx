@@ -383,7 +383,7 @@ export default function App() {
       {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
       <div
         className="flex-none hidden sm:flex items-center justify-between relative"
-        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px', marginBottom: 'var(--cookie-bar-h, 0px)' }}
+        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
       >
         {/* Left: Help / keyboard shortcuts */}
         <div className="relative z-10">
@@ -439,7 +439,7 @@ export default function App() {
           {/* Generate */}
           <button
             onClick={() => triggerGenerate('button')}
-            className="flex items-center gap-3 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover"
+            className={`flex items-center gap-3 h-10 rounded-full text-white text-[14px] font-medium transition-all duration-150 active:scale-95 bg-brand-violet hover:bg-brand-violet-hover${!emptyDismissed ? ' pulse-cta' : ''}`}
             style={{ padding: '0 16px', gap: 12 }}
             aria-label="Generate new palette"
           >
@@ -532,7 +532,7 @@ export default function App() {
         {/* Generate — pill, centered */}
         <button
           onClick={() => triggerGenerate('button')}
-          className="flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium shadow-md active:scale-95 transition-all bg-brand-violet hover:bg-brand-violet-hover"
+          className={`flex items-center gap-3 px-4 h-10 rounded-full text-white text-[14px] font-medium shadow-md active:scale-95 transition-all bg-brand-violet hover:bg-brand-violet-hover${!emptyDismissed ? ' pulse-cta' : ''}`}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>

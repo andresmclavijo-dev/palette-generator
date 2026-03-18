@@ -91,6 +91,16 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* Subtle CTA pulse — active only during empty state */
+@keyframes pulseCta {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(108, 71, 255, 0.3); }
+  50%      { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(108, 71, 255, 0); }
+}
+.pulse-cta { animation: pulseCta 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pulse-cta { animation: none; }
+}
+
 /* Safe area — floating controls above home indicator */
 .floating-bottom {
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
