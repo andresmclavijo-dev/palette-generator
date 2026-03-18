@@ -13,6 +13,8 @@ const MODES: { value: VisionMode; label: string; desc: string; free: boolean }[]
   { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness',   free: false },
 ]
 
+const PRIMARY = '#6C47FF'
+
 interface VisionSimulatorProps {
   mode: VisionMode
   onChange: (mode: VisionMode) => void
@@ -76,10 +78,10 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
         <button
           ref={btnRef}
           onClick={handleClick}
-          className={`flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all ${
+          className={`flex items-center gap-1.5 h-10 px-4 rounded-full text-[14px] font-medium transition-all duration-150 ${
             mode !== 'normal'
               ? 'bg-blue-50 text-blue-600'
-              : 'hover:bg-surface-secondary hover:text-gray-700 text-[#444444]'
+              : 'hover:bg-surface-secondary text-[#444444]'
           }`}
           aria-label="Accessibility vision simulation"
           aria-haspopup="listbox"
@@ -106,10 +108,15 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           ref={dropRef}
           role="listbox"
           aria-label="Vision simulation modes"
-          className="bg-white rounded-xl shadow-xl border border-gray-200 py-1.5 overflow-hidden"
-          style={{ position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999, width: 300 }}
+          className="bg-white overflow-hidden"
+          style={{
+            position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999,
+            width: 300, borderRadius: 12,
+            border: '1px solid #E5E7EB',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
         >
-          {MODES.map(m => {
+          {MODES.map((m, i) => {
             const isActive = mode === m.value
             const needsPro = !m.free && !isPro
             return (
@@ -118,30 +125,44 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
                 role="option"
                 aria-selected={isActive}
                 onClick={() => handleSelect(m)}
-                className={`w-full text-left px-4 py-2.5 transition-colors ${
-                  isActive ? 'bg-blue-50' : 'hover:bg-gray-50'
-                }`}
+                className="w-full text-left transition-colors duration-150"
+                style={{
+                  padding: '12px 16px',
+                  background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
+                  borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F9FAFB' }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className={`text-[13px] font-semibold ${isActive ? 'text-blue-600' : 'text-gray-800'}`}>
-                      {m.label}
-                    </span>
-                    <span className="text-[11px] text-gray-400">{m.desc}</span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <span
+                    className="text-[14px] font-bold"
+                    style={{ color: isActive ? PRIMARY : '#1a1a2e' }}
+                  >
+                    {m.label}
+                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
                     {needsPro && (
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600">
+                      <span
+                        className="text-[10px] font-bold"
+                        style={{
+                          background: 'rgba(108,71,255,0.1)',
+                          color: PRIMARY,
+                          padding: '2px 8px',
+                          borderRadius: 99,
+                        }}
+                      >
                         PRO
                       </span>
                     )}
                     {isActive && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
                   </div>
                 </div>
+                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: '#6B7280' }}>{m.desc}</p>
               </button>
             )
           })}
