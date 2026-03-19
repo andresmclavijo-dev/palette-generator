@@ -359,7 +359,7 @@ export default function DesktopStudio() {
           style={{
             width: dockW,
             transition: 'width 200ms ease',
-            padding: '16px 8px 16px 8px',
+            padding: '12px 8px 12px 12px',
           }}
         >
           <nav
@@ -500,7 +500,7 @@ export default function DesktopStudio() {
         <div
           className="relative flex-1 min-w-0 overflow-hidden"
           style={{
-            margin: '16px 16px 16px 0',
+            margin: '12px 12px 12px 0',
             borderRadius: 24,
             background: '#fff',
             border: '1px solid rgba(0,0,0,0.06)',
@@ -512,11 +512,11 @@ export default function DesktopStudio() {
             ref={harmonyRef}
             className="absolute flex items-center"
             style={{
-              top: 14,
-              left: 14,
+              top: 12,
+              left: 12,
               zIndex: 70,
               height: 40,
-              borderRadius: 10,
+              borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
@@ -528,7 +528,7 @@ export default function DesktopStudio() {
             <button
               onClick={() => setHarmonyOpen(o => !o)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-all hover:bg-black/5"
-              style={{ borderRadius: 6, color: BRAND_DARK }}
+              style={{ borderRadius: 8, color: BRAND_DARK }}
               aria-expanded={harmonyOpen}
               aria-haspopup="listbox"
             >
@@ -541,7 +541,7 @@ export default function DesktopStudio() {
             {harmonyOpen && (
               <div
                 className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
-                style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
+                style={{ borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
                 role="listbox"
                 aria-label="Harmony modes"
               >
@@ -570,11 +570,11 @@ export default function DesktopStudio() {
           <header
             className="absolute flex items-center gap-1"
             style={{
-              top: 14,
-              right: 14,
+              top: 12,
+              right: 12,
               zIndex: 70,
               height: 40,
-              borderRadius: 10,
+              borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
@@ -588,7 +588,7 @@ export default function DesktopStudio() {
               <button
                 onClick={handleSave}
                 className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 6 }}
+                style={{ borderRadius: 8 }}
                 aria-label="Save palette"
               >
                 <Heart size={16} style={{ color: BRAND_DARK }} />
@@ -600,7 +600,7 @@ export default function DesktopStudio() {
               <button
                 onClick={handleShare}
                 className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 6 }}
+                style={{ borderRadius: 8 }}
                 aria-label="Share palette link"
               >
                 {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
@@ -612,7 +612,7 @@ export default function DesktopStudio() {
               <button
                 onClick={() => setExportOpen(o => !o)}
                 className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 6 }}
+                style={{ borderRadius: 8 }}
                 aria-label="Export palette"
               >
                 <Download size={16} style={{ color: BRAND_DARK }} />
@@ -645,7 +645,7 @@ export default function DesktopStudio() {
               <button
                 onClick={() => setSignInOpen(true)}
                 className="h-7 px-3 text-[12px] font-semibold transition-all hover:bg-black/5"
-                style={{ borderRadius: 6, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
+                style={{ borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
               >
                 Sign In
               </button>
@@ -883,7 +883,7 @@ export default function DesktopStudio() {
           {/* Bottom bar — color count + spacebar hint */}
           {!activeTool && !aiOpen && !exportOpen && (
             <div
-              className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5"
               style={{
                 borderRadius: 10,
                 backgroundColor: 'rgba(26,26,46,0.75)',
@@ -2183,9 +2183,9 @@ function FloatingPanel({
     <div
       className="absolute z-30 bg-white overflow-hidden"
       style={{
-        borderRadius: 10,
+        borderRadius: 12,
         top: 60,
-        left: 14,
+        left: 12,
         width,
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         padding: 14,
