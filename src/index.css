@@ -5,17 +5,17 @@
 @layer base {
   :root {
     /* Brand */
-    --primary: 258 58% 64%;
-    --primary-hover: 252 72% 55%;
+    --primary: 252 100% 64%;
+    --primary-hover: 252 73% 55%;
     --primary-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
-    --destructive-hover: 0 76% 50%;
+    --destructive-hover: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Text hierarchy */
-    --foreground: 234 27% 14%;
+    --foreground: 240 28% 14%;
     --muted: 218 11% 65%;
     --muted-foreground: 220 9% 46%;
 
@@ -34,7 +34,7 @@
     --success-bg: 142 76% 92%;
 
     /* Ring (focus state) */
-    --ring: 258 58% 64%;
+    --ring: 252 100% 64%;
 
     /* Radius scale */
     --radius-bento: 24px;
