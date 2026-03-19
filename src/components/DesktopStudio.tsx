@@ -336,7 +336,7 @@ export default function DesktopStudio() {
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
-  const dockW = dockExpanded ? 152 : 54
+  const dockW = dockExpanded ? 200 : 64
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -370,12 +370,12 @@ export default function DesktopStudio() {
               WebkitBackdropFilter: 'blur(20px)',
               boxShadow: '0 4px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03)',
               border: '1px solid rgba(0,0,0,0.05)',
-              padding: '8px 6px',
+              padding: '14px 10px',
             }}
           >
-            <div className="flex-1 flex flex-col gap-1">
+            <div className="flex-1 flex flex-col gap-1.5">
               <DockItem
-                icon={<Sparkles size={20} />}
+                icon={<Sparkles size={22} />}
                 label="Generate"
                 active={false}
                 primary
@@ -384,21 +384,21 @@ export default function DesktopStudio() {
                 pulse={dockPulse}
               />
               <DockItem
-                icon={<Eye size={20} />}
+                icon={<Eye size={22} />}
                 label="Simulate"
                 active={activeTool === 'simulate'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('simulate')}
               />
               <DockItem
-                icon={<LayoutDashboard size={20} />}
+                icon={<LayoutDashboard size={22} />}
                 label="Preview"
                 active={activeTool === 'preview'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('preview')}
               />
               <DockItem
-                icon={<Image size={20} />}
+                icon={<Image size={22} />}
                 label="Extract"
                 active={activeTool === 'extract'}
                 expanded={dockExpanded}
@@ -406,7 +406,7 @@ export default function DesktopStudio() {
                 proBadge={!isPro}
               />
               <DockItem
-                icon={<Star size={20} />}
+                icon={<Star size={22} />}
                 label="AI Palette"
                 active={activeTool === 'ai'}
                 expanded={dockExpanded}
@@ -414,7 +414,7 @@ export default function DesktopStudio() {
                 badge={!isPro ? String(aiRemaining) : undefined}
               />
               <DockItem
-                icon={<Heart size={20} />}
+                icon={<Heart size={22} />}
                 label="Library"
                 active={activeTool === 'library'}
                 expanded={dockExpanded}
@@ -429,11 +429,11 @@ export default function DesktopStudio() {
             {dockExpanded ? (
               <button
                 onClick={toggleDock}
-                className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-[12px] font-medium transition-all hover:bg-gray-100"
+                className="flex items-center gap-2.5 w-full rounded-xl px-3.5 py-3 text-[13px] font-medium transition-all hover:bg-gray-100"
                 style={{ color: '#666' }}
                 aria-label="Collapse dock"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={18} />
                 <span>Collapse</span>
               </button>
             ) : (
@@ -441,10 +441,10 @@ export default function DesktopStudio() {
                 <button
                   onClick={toggleDock}
                   className="mx-auto flex items-center justify-center rounded-xl transition-all hover:bg-gray-100"
-                  style={{ width: 30, height: 30, color: '#666' }}
+                  style={{ width: 36, height: 36, color: '#666' }}
                   aria-label="Expand dock"
                 >
-                  <ChevronRight size={16} />
+                  <ChevronRight size={18} />
                 </button>
               </DarkTooltip>
             )}
@@ -478,14 +478,14 @@ export default function DesktopStudio() {
             }}
           >
             {/* Left: Logo */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2.5 shrink-0">
               <div
-                className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[13px] font-bold"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[14px] font-bold"
                 style={{ backgroundColor: BRAND_VIOLET }}
               >
                 P
               </div>
-              <span className="text-[13px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
+              <span className="text-[14px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
             </div>
 
             {/* Center: Harmony dropdown */}
@@ -933,14 +933,14 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (!expanded) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`w-full flex items-center gap-2.5 rounded-xl transition-all${pulse ? ' dock-pulse' : ''}`}
+        className={`w-full flex items-center gap-3 rounded-xl transition-all${pulse ? ' dock-pulse' : ''}`}
         style={{
-          padding: expanded ? '10px 12px' : '10px 0',
+          padding: expanded ? '12px 14px' : '12px 0',
           justifyContent: expanded ? 'flex-start' : 'center',
           backgroundColor: primary ? BRAND_VIOLET : active ? '#F3F0FF' : 'transparent',
           color: primary ? '#ffffff' : active ? BRAND_VIOLET : '#374151',
           fontWeight: active || primary ? 600 : 500,
-          minHeight: 40,
+          minHeight: 46,
           boxShadow: active ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
         }}
         aria-label={label}
@@ -958,7 +958,7 @@ function DockItem({
           )}
         </span>
         {expanded && (
-          <span className="text-[13px] whitespace-nowrap flex items-center gap-1.5">
+          <span className="text-[14px] whitespace-nowrap flex items-center gap-1.5">
             {label}
             {badge && (
               <span
