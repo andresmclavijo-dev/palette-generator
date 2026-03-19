@@ -15,11 +15,12 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        lg: "h-[var(--button-lg)] w-[var(--button-lg)] rounded-pill",       // 48px — dock
+        lg: "h-[var(--button-lg)] px-6 rounded-pill text-base",             // 48px — large CTA buttons
         default: "h-[var(--button-md)] px-4 rounded-button text-sm",         // 36px — action bar, modal actions
-        sm: "h-[var(--button-sm)] w-[var(--button-sm)] rounded-button",      // 32px — bottom bar, close buttons
+        sm: "h-[var(--button-sm)] px-3 rounded-button text-sm",              // 32px — compact text buttons
         icon: "h-[var(--button-md)] w-[var(--button-md)] rounded-button",    // 36px square — icon-only action bar
         "icon-sm": "h-[var(--button-sm)] w-[var(--button-sm)] rounded-button", // 32px square — close, bottom bar icons
+        "icon-lg": "h-[var(--button-lg)] w-[var(--button-lg)] rounded-pill", // 48px square — dock icons
       },
     },
     defaultVariants: {

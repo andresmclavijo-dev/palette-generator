@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Shuffle, Eye, Image, Star, Heart,
+  ChevronDown, Eye, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
   Share2, Download, Grid3X3,
   Plus, Minus,
@@ -410,12 +410,10 @@ export default function DesktopStudio() {
                           boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                           border: '1px solid rgba(0,0,0,0.04)',
                         }}
+                        aria-label="Harmony mode"
                       >
-                        <Shuffle size={16} strokeWidth={1.5} style={{ color: '#6B7280' }} />
                         {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
+                        <ChevronDown size={14} className="text-muted" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-[220px]">
@@ -459,36 +457,35 @@ export default function DesktopStudio() {
                   {/* Pill 3: Validate toggle */}
                   <button
                     onClick={() => setValidateOn(v => !v)}
-                    className="flex items-center transition-all hover:bg-black/[0.02]"
+                    className="flex items-center transition-all"
                     style={{
                       height: 36,
-                      padding: '0 10px',
+                      padding: '0 12px',
                       borderRadius: 8,
-                      backgroundColor: 'rgba(255,255,255,0.95)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                      border: validateOn ? `2px solid ${BRAND_VIOLET}` : '1px solid rgba(0,0,0,0.04)',
+                      backgroundColor: validateOn ? BRAND_VIOLET : 'rgba(255,255,255,0.95)',
+                      backdropFilter: validateOn ? undefined : 'blur(12px)',
+                      WebkitBackdropFilter: validateOn ? undefined : 'blur(12px)',
+                      boxShadow: validateOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+                      border: validateOn ? 'none' : '1px solid rgba(0,0,0,0.04)',
                       gap: 6,
+                      color: validateOn ? '#ffffff' : '#6B7280',
                     }}
                     aria-pressed={validateOn}
                     aria-label="Toggle accessibility validation"
                   >
-                    <Eye size={16} strokeWidth={1.5} style={{ color: validateOn ? BRAND_VIOLET : '#6B7280' }} />
+                    <Eye size={16} strokeWidth={1.5} />
+                    <span className="text-[13px] font-medium">Validate</span>
                     {validateOn && (
-                      <>
-                        <span className="text-[13px] font-medium" style={{ color: BRAND_VIOLET }}>A11y</span>
-                        <span
-                          className="text-[10px] font-bold px-1.5 py-0.5"
-                          style={{
-                            borderRadius: 6,
-                            backgroundColor: a11yGrade === 'A' ? '#D1FAE5' : a11yGrade === 'B' ? '#FEF3C7' : '#FEE2E2',
-                            color: a11yGrade === 'A' ? '#16A34A' : a11yGrade === 'B' ? '#D97706' : '#DC2626',
-                          }}
-                        >
-                          {a11yGrade}
-                        </span>
-                      </>
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5"
+                        style={{
+                          borderRadius: 6,
+                          backgroundColor: a11yGrade === 'A' ? '#D1FAE5' : a11yGrade === 'B' ? '#FEF3C7' : '#FEE2E2',
+                          color: a11yGrade === 'A' ? '#16A34A' : a11yGrade === 'B' ? '#D97706' : '#DC2626',
+                        }}
+                      >
+                        {a11yGrade}
+                      </span>
                     )}
                   </button>
                 </div>
