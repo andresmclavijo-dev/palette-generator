@@ -363,21 +363,34 @@ export default function DesktopStudio() {
           }}
         >
           <nav
-            className="flex-1 flex flex-col rounded-2xl"
+            className="flex-1 flex flex-col"
             style={{
-              backgroundColor: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 4px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03)',
-              border: '1px solid rgba(0,0,0,0.05)',
-              padding: '14px 10px',
+              borderRadius: 16,
+              backgroundColor: '#ffffff',
+              boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+              border: '1px solid rgba(0,0,0,0.04)',
+              padding: dockExpanded ? '14px 10px' : '12px 8px',
             }}
           >
             {/* Dock logo */}
-            <div className="flex items-center gap-2.5 mb-3" style={{ padding: dockExpanded ? '2px 6px 0' : '2px 0 0', justifyContent: dockExpanded ? 'flex-start' : 'center' }}>
+            <div
+              className="flex items-center shrink-0"
+              style={{
+                justifyContent: dockExpanded ? 'flex-start' : 'center',
+                padding: dockExpanded ? '2px 6px 0' : '2px 0 0',
+                marginBottom: 12,
+                gap: 10,
+              }}
+            >
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[14px] font-bold shrink-0"
-                style={{ backgroundColor: BRAND_VIOLET }}
+                className="flex items-center justify-center text-white font-bold shrink-0"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  backgroundColor: BRAND_VIOLET,
+                  fontSize: 15,
+                }}
               >
                 P
               </div>
@@ -386,7 +399,8 @@ export default function DesktopStudio() {
               )}
             </div>
 
-            <div className="flex-1 flex flex-col gap-1.5">
+            {/* Creation tools group */}
+            <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
               <DockItem
                 icon={<Sparkles size={22} />}
                 label="Generate"
@@ -410,6 +424,21 @@ export default function DesktopStudio() {
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('preview')}
               />
+            </div>
+
+            {/* Divider */}
+            <div
+              className="mx-auto shrink-0"
+              style={{
+                width: dockExpanded ? '80%' : 24,
+                height: 1,
+                backgroundColor: 'rgba(0,0,0,0.06)',
+                margin: '8px auto',
+              }}
+            />
+
+            {/* Utility tools group */}
+            <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
               <DockItem
                 icon={<Image size={22} />}
                 label="Extract"
@@ -435,6 +464,9 @@ export default function DesktopStudio() {
               />
             </div>
 
+            {/* Spacer */}
+            <div className="flex-1" />
+
             {/* Info / Legal links */}
             <DockInfoMenu expanded={dockExpanded} />
 
@@ -453,8 +485,8 @@ export default function DesktopStudio() {
               <DarkTooltip label="Expand" position="right">
                 <button
                   onClick={toggleDock}
-                  className="mx-auto flex items-center justify-center transition-all hover:bg-gray-100"
-                  style={{ width: 36, height: 36, borderRadius: 10, color: '#666' }}
+                  className="mx-auto flex items-center justify-center transition-all"
+                  style={{ width: 40, height: 40, borderRadius: 10, color: '#9ca3af' }}
                   aria-label="Expand dock"
                 >
                   <ChevronRight size={18} />
@@ -1003,34 +1035,68 @@ function DockItem({
 }) {
   const [showTooltip, setShowTooltip] = useState(false)
 
+  // Collapsed: 48x48 centered ghost container
+  // Expanded: full-width with label
+  const isCollapsed = !expanded
+
   return (
-    <div className="relative">
+    <div className="relative" style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'stretch' }}>
       <button
         onClick={onClick}
-        onMouseEnter={() => { if (!expanded) setShowTooltip(true) }}
+        onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`w-full flex items-center gap-3 transition-all${pulse ? ' dock-pulse' : ''}`}
+        className={`flex items-center transition-all${pulse ? ' dock-pulse' : ''}${!primary && !active ? ' hover:bg-black/[0.04]' : primary ? ' hover:brightness-110' : ''}`}
         style={{
-          borderRadius: 10,
-          padding: expanded ? '12px 14px' : '12px 0',
+          width: isCollapsed ? 48 : '100%',
+          height: isCollapsed ? 48 : undefined,
+          minHeight: expanded ? 46 : undefined,
+          borderRadius: isCollapsed ? 12 : 10,
+          padding: expanded ? '12px 14px' : '0',
+          gap: expanded ? 12 : 0,
           justifyContent: expanded ? 'flex-start' : 'center',
-          backgroundColor: primary ? BRAND_VIOLET : active ? '#F3F0FF' : 'transparent',
+          backgroundColor: primary
+            ? BRAND_VIOLET
+            : active
+              ? (isCollapsed ? 'rgba(108,71,255,0.08)' : '#F3F0FF')
+              : 'transparent',
           color: primary ? '#ffffff' : active ? BRAND_VIOLET : '#374151',
           fontWeight: active || primary ? 600 : 500,
-          minHeight: 46,
-          boxShadow: active ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
+          boxShadow: active && expanded ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
         }}
         aria-label={label}
       >
-        <span className="shrink-0 relative" style={{ strokeWidth: primary || active ? 2.5 : 2 }}>
+        <span className="shrink-0 relative" style={{ strokeWidth: primary || active ? 2 : 1.5 }}>
           {icon}
-          {/* Small counter badge on icon when collapsed */}
-          {!expanded && badge && (
+          {/* Badge overlay on collapsed icon container */}
+          {isCollapsed && badge && (
             <span
-              className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center rounded-full text-[8px] font-bold text-white leading-none"
-              style={{ backgroundColor: BRAND_VIOLET }}
+              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none"
+              style={{
+                top: -4,
+                right: -6,
+                minWidth: 16,
+                height: 16,
+                fontSize: 9,
+                padding: '0 3px',
+                backgroundColor: BRAND_VIOLET,
+              }}
             >
               {badge}
+            </span>
+          )}
+          {isCollapsed && proBadge && (
+            <span
+              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none"
+              style={{
+                top: -4,
+                right: -8,
+                height: 14,
+                fontSize: 8,
+                padding: '0 4px',
+                backgroundColor: BRAND_VIOLET,
+              }}
+            >
+              PRO
             </span>
           )}
         </span>
@@ -1058,7 +1124,7 @@ function DockItem({
       </button>
 
       {/* Collapsed tooltip */}
-      {showTooltip && !expanded && (
+      {showTooltip && isCollapsed && (
         <DarkTooltipBubble label={label} position="right" />
       )}
     </div>
