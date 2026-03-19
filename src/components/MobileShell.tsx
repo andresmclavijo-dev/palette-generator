@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Sparkles, Eye, LayoutDashboard, Heart, User,
-  Lock, Unlock, Copy, Check, RefreshCw, Info,
+  Shuffle, Sparkles, Eye, LayoutDashboard, Heart, User,
+  Lock, Unlock, Copy, Check, RefreshCw, Info, Download,
+  Plus, Minus, X, Grid3X3,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
 import { useAuth } from '../hooks/useAuth'
-import { readableOn, getColorName, getColorInfo, getContrastBadge, makeSwatch } from '../lib/colorEngine'
+import { readableOn, getColorName, getColorInfo, getContrastBadge, makeSwatch, generateShades, TAILWIND_SHADE_LABELS } from '../lib/colorEngine'
 import type { HarmonyMode } from '../lib/colorEngine'
 import type { VisionMode } from './palette/VisionSimulator'
 import { VisionFilterDefs } from './palette/VisionSimulator'
-import { BRAND_VIOLET } from '../lib/tokens'
+import { BRAND_VIOLET, BRAND_DARK } from '../lib/tokens'
 import { analytics } from '../lib/posthog'
 import { showToast } from '../utils/toast'
 import { createCheckoutSession, createPortalSession } from '../lib/stripe'
@@ -69,8 +70,9 @@ export default function MobileShell() {
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count,
-    generate, lockSwatch, setHarmonyMode, setSwatches,
+    generate, lockSwatch, setHarmonyMode, setSwatches, setCount,
   } = usePaletteStore()
+  const [shadesHex, setShadesHex] = useState<string | null>(null)
 
   // Auto-close Pro modal when user becomes Pro
   useEffect(() => { if (isPro) setProModalOpen(false) }, [isPro])
@@ -163,7 +165,7 @@ export default function MobileShell() {
     <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#FAFAF8' }}>
       {/* ─── Floating Header Pill ─── */}
       <div
-        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-center"
+        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-between"
         style={{
           top: 'max(env(safe-area-inset-top, 14px), 14px)',
           height: 44,
@@ -176,7 +178,18 @@ export default function MobileShell() {
           border: '1px solid rgba(0,0,0,0.04)',
         }}
       >
-        {showHarmonyBtn && (
+        {/* Logo */}
+        <div className="flex items-center gap-2" style={{ paddingLeft: 8 }}>
+          <div
+            className="flex items-center justify-center text-white font-bold shrink-0"
+            style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: BRAND_VIOLET, fontSize: 12 }}
+          >
+            P
+          </div>
+          <span className="text-[14px] font-semibold" style={{ color: BRAND_DARK }}>Paletta</span>
+        </div>
+
+        {showHarmonyBtn ? (
           <button
             onClick={() => setHarmonyOpen(o => !o)}
             className="flex items-center gap-1.5 text-[13px] font-medium active:bg-black/[0.08] transition-colors"
@@ -191,7 +204,7 @@ export default function MobileShell() {
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </button>
-        )}
+        ) : <div />}
       </div>
 
       {/* ─── Harmony Dropdown Overlay ─── */}
@@ -238,15 +251,26 @@ export default function MobileShell() {
         </div>
       )}
 
+      {/* Cookie consent — in document flow, pushes content down */}
+      <div className="shrink-0" style={{ paddingTop: 'calc(52px + max(env(safe-area-inset-top, 14px), 14px))' }}>
+        <CookieConsent compact />
+      </div>
+
       {/* ─── Main Content Area ─── */}
-      <div className="flex-1 overflow-hidden" style={{ paddingTop: 'calc(56px + max(env(safe-area-inset-top, 14px), 14px))', paddingBottom: `calc(68px + env(safe-area-inset-bottom, 16px))`, animation: 'fadeIn 150ms ease' }}>
+      <div className="flex-1 overflow-hidden" style={{ paddingTop: 'var(--cookie-bar-h, 0px)', paddingBottom: `calc(68px + env(safe-area-inset-bottom, 16px))`, animation: 'fadeIn 150ms ease' }}>
         {activeTab === 'generate' && (
           <GenerateView
             swatches={swatches}
             visionFilter={visionFilter}
+            count={count}
+            maxCount={isPro ? 8 : 5}
             onGenerate={triggerGenerate}
             onLock={lockSwatch}
             onSave={handleSave}
+            onExport={() => setExportOpen(true)}
+            onShades={(hex) => setShadesHex(hex)}
+            onIncrement={() => { if (count < (isPro ? 8 : 5)) setCount(count + 1) }}
+            onDecrement={() => { if (count > 3) setCount(count - 1) }}
           />
         )}
         {activeTab === 'simulate' && (
@@ -310,7 +334,7 @@ export default function MobileShell() {
         aria-label="Main navigation"
       >
         {([
-          { id: 'generate' as MobileTab, icon: Sparkles, label: 'Generate' },
+          { id: 'generate' as MobileTab, icon: Shuffle, label: 'Generate' },
           { id: 'simulate' as MobileTab, icon: Eye, label: 'Simulate' },
           { id: 'preview' as MobileTab, icon: LayoutDashboard, label: 'Preview' },
           { id: 'library' as MobileTab, icon: Heart, label: 'Library' },
@@ -371,6 +395,11 @@ export default function MobileShell() {
         </div>
       )}
 
+      {/* ─── Shade Grid Bottom Sheet ─── */}
+      {shadesHex && (
+        <MobileShadesSheet hex={shadesHex} onClose={() => setShadesHex(null)} />
+      )}
+
       {/* ─── Modals & Overlays ─── */}
       {exportOpen && <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />}
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
@@ -390,12 +419,128 @@ export default function MobileShell() {
       />
       <VisionFilterDefs />
 
-      {/* Cookie consent — top-positioned below header pill to avoid tab bar collision */}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════
+// MOBILE SHADES BOTTOM SHEET
+// ═══════════════════════════════════════════════════════════
+function mobileShadeContrast(bg: string, fg: string): number {
+  try {
+    const parse = (h: string) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]
+    const lum = (r: number, g: number, b: number) => {
+      const [rs, gs, bs] = [r / 255, g / 255, b / 255].map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+      return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+    }
+    const [r1, g1, b1] = parse(bg)
+    const [r2, g2, b2] = parse(fg)
+    const l1 = lum(r1, g1, b1), l2 = lum(r2, g2, b2)
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
+  } catch { return 1 }
+}
+
+function MobileShadesSheet({ hex, onClose }: { hex: string; onClose: () => void }) {
+  const shades = generateShades(hex, 10)
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const copyShade = (shade: string, idx: number) => {
+    navigator.clipboard.writeText(shade).catch(() => {})
+    setCopiedIdx(idx)
+    showToast(`Copied ${shade}`)
+    setTimeout(() => setCopiedIdx(null), 1500)
+  }
+
+  return (
+    <div className="fixed inset-0 z-[70]" onClick={onClose}>
+      {/* Backdrop */}
+      <div className="absolute inset-0 sheet-backdrop" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }} />
+
+      {/* Sheet */}
       <div
-        className="fixed left-0 right-0 z-[55]"
-        style={{ top: 'calc(52px + max(env(safe-area-inset-top, 14px), 14px))' }}
+        className="absolute bottom-0 left-0 right-0 bg-white sheet-slide-up"
+        style={{
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+          maxHeight: '85vh',
+          overflow: 'auto',
+        }}
+        onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-label="Shade scale"
+        aria-modal="true"
       >
-        <CookieConsent compact />
+        {/* Handle + header */}
+        <div className="flex flex-col items-center pt-3 pb-2">
+          <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#D1D5DB' }} />
+        </div>
+        <div className="flex items-center justify-between px-5 pb-3">
+          <div>
+            <h2 className="text-[16px] font-bold m-0" style={{ color: BRAND_DARK }}>Shade scale</h2>
+            <p className="text-[12px] m-0 mt-0.5" style={{ color: '#9CA3AF' }}>{hex.toUpperCase()}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center"
+            style={{ width: 36, height: 36, borderRadius: 8, minWidth: 44, minHeight: 44 }}
+            aria-label="Close"
+          >
+            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
+          </button>
+        </div>
+
+        {/* 2×5 Grid */}
+        <div className="px-5 pb-5">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+            {shades.map((shade, i) => {
+              const label = TAILWIND_SHADE_LABELS[i]
+              const isBase = label === 500
+              const textColor = readableOn(shade)
+              const whiteContrast = mobileShadeContrast(shade, '#ffffff')
+              const blackContrast = mobileShadeContrast(shade, '#000000')
+              const isCopied = copiedIdx === i
+
+              return (
+                <button
+                  key={i}
+                  onClick={() => copyShade(shade, i)}
+                  className="flex flex-col items-center justify-center active:scale-95 transition-all"
+                  style={{
+                    aspectRatio: '1',
+                    borderRadius: 12,
+                    backgroundColor: shade,
+                    border: isBase ? '2px solid #ffffff' : '1px solid rgba(0,0,0,0.06)',
+                    boxShadow: isBase ? `0 0 0 2px ${BRAND_VIOLET}` : undefined,
+                    position: 'relative',
+                  }}
+                  aria-label={`${label} shade: ${shade}${isBase ? ' (base)' : ''}`}
+                >
+                  {isCopied ? (
+                    <Check size={16} strokeWidth={2} style={{ color: textColor }} />
+                  ) : (
+                    <>
+                      <span className="text-[11px] font-bold" style={{ color: textColor }}>{label}</span>
+                      {isBase && <span className="text-[8px] font-medium mt-0.5" style={{ color: textColor, opacity: 0.7 }}>Base</span>}
+                    </>
+                  )}
+
+                  {/* Contrast dots */}
+                  <div className="absolute flex gap-0.5" style={{ bottom: 4, left: '50%', transform: 'translateX(-50%)' }}>
+                    <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#ffffff', opacity: whiteContrast >= 4.5 ? 1 : 0.3 }} />
+                    <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#000000', opacity: blackContrast >= 4.5 ? 1 : 0.3 }} />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -407,14 +552,21 @@ export default function MobileShell() {
 interface GenerateViewProps {
   swatches: { id: string; hex: string; locked: boolean }[]
   visionFilter?: string
+  count: number
+  maxCount: number
   onGenerate: () => void
   onLock: (id: string) => void
   onSave: () => void
+  onExport: () => void
+  onShades: (hex: string) => void
+  onIncrement: () => void
+  onDecrement: () => void
 }
 
 function GenerateView({
-  swatches, visionFilter,
-  onGenerate, onLock, onSave,
+  swatches, visionFilter, count, maxCount,
+  onGenerate, onLock, onSave, onExport, onShades,
+  onIncrement, onDecrement,
 }: GenerateViewProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [infoId, setInfoId] = useState<string | null>(null)
@@ -521,25 +673,77 @@ function GenerateView({
         <div className="fixed inset-0 z-30" onClick={() => setInfoId(null)} />
       )}
 
-      {/* Save palette FAB — bottom left */}
-      <button
-        onClick={onSave}
-        className="fixed left-4 flex items-center justify-center active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
-        aria-label="Save palette"
+      {/* ─── Floating action bar above tab bar ─── */}
+      <div
+        className="fixed left-3.5 right-3.5 z-40 flex items-center justify-between"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 12px)` }}
       >
-        <Heart size={20} color="#ffffff" />
-      </button>
+        {/* Left group: Save + Export + Shades */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onSave}
+            className="flex items-center justify-center active:scale-95 transition-all"
+            style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+            aria-label="Save palette"
+          >
+            <Heart size={20} color="#ffffff" />
+          </button>
+          <button
+            onClick={onExport}
+            className="flex items-center justify-center active:scale-95 transition-all"
+            style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+            aria-label="Export palette"
+          >
+            <Download size={20} color="#ffffff" />
+          </button>
+          <button
+            onClick={() => onShades(swatches[0]?.hex)}
+            className="flex items-center justify-center active:scale-95 transition-all"
+            style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+            aria-label="View shade scale"
+          >
+            <Grid3X3 size={20} color="#ffffff" />
+          </button>
+        </div>
 
-      {/* Mini Generate FAB — always visible */}
-      <button
-        onClick={onGenerate}
-        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
-        aria-label="Generate new palette"
-      >
-        <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
-      </button>
+        {/* Center: color count pill */}
+        <div
+          className="flex items-center"
+          style={{ height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', padding: '0 4px', gap: 2 }}
+        >
+          <button
+            onClick={onDecrement}
+            className="flex items-center justify-center active:scale-90 transition-all"
+            style={{ width: 36, height: 36, borderRadius: 8 }}
+            aria-label="Remove a color"
+            disabled={count <= 3}
+          >
+            <Minus size={16} color={count <= 3 ? 'rgba(255,255,255,0.3)' : '#ffffff'} />
+          </button>
+          <span className="text-[14px] font-bold tabular-nums" style={{ color: '#ffffff', minWidth: 20, textAlign: 'center' }}>
+            {count}
+          </span>
+          <button
+            onClick={onIncrement}
+            className="flex items-center justify-center active:scale-90 transition-all"
+            style={{ width: 36, height: 36, borderRadius: 8 }}
+            aria-label="Add a color"
+            disabled={count >= maxCount}
+          >
+            <Plus size={16} color={count >= maxCount ? 'rgba(255,255,255,0.3)' : '#ffffff'} />
+          </button>
+        </div>
+
+        {/* Right: Generate FAB */}
+        <button
+          onClick={onGenerate}
+          className="flex items-center justify-center active:scale-95 transition-all"
+          style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
+          aria-label="Generate new palette"
+        >
+          <Shuffle size={20} strokeWidth={2.5} color="#fff" />
+        </button>
+      </div>
     </div>
   )
 }
