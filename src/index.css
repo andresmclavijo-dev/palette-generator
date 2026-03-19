@@ -146,6 +146,30 @@ body {
   .dock-pulse { animation: none; }
 }
 
+/* Pro modal — entrance animation */
+.pro-modal-enter {
+  animation: proModalIn 200ms ease-out;
+}
+@keyframes proModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Pro modal — floating cards */
+.pro-float-card {
+  transform: rotate(-6deg);
+  animation: proFloat 3s ease-in-out infinite alternate;
+}
+@keyframes proFloat {
+  from { transform: rotate(-6deg) translateY(6px); }
+  to { transform: rotate(-6deg) translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pro-modal-enter { animation: none; }
+  .pro-float-card { animation: none; transform: rotate(-6deg); }
+}
+
 /* Mobile: hide swatch labels while empty-state overlay is active */
 @media (max-width: 768px) {
   [data-overlay-active="true"] .swatch-info {
