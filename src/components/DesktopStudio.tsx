@@ -657,11 +657,11 @@ export default function DesktopStudio() {
             )}
           </div>
 
-          {/* ─── Horizontal Shade Bar ─── */}
+          {/* ─── Shade Specimen Grid ─── */}
           {shadesOpen && (() => {
             const sw = swatches.find(s => s.id === shadesOpen)
             return sw ? (
-              <ShadeBar hex={sw.hex} onClose={() => setShadesOpen(null)} />
+              <ShadesSpecimen hex={sw.hex} onClose={() => setShadesOpen(null)} />
             ) : null
           })()}
 
@@ -1330,19 +1330,16 @@ function InfoRow({ label, value, copied, onClick }: { label: string; value: stri
   )
 }
 
-// ─── Shade Bar (horizontal overlay) ─────────────────────────
-function ShadeBar({ hex, onClose }: { hex: string; onClose: () => void }) {
+// ─── Shade Specimen Grid (bento overlay) ─────────────────────
+function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) {
   const shades = useMemo(() => generateShades(hex, 10), [hex])
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [entering, setEntering] = useState(true)
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
-  const handleCopy = async (shade: string, i: number) => {
-    try {
-      await navigator.clipboard.writeText(shade.toUpperCase())
-      setCopiedIdx(i)
-      showToast('Copied!')
-      setTimeout(() => setCopiedIdx(null), 1200)
-    } catch { /* silent */ }
-  }
+  useEffect(() => {
+    requestAnimationFrame(() => setEntering(false))
+  }, [])
 
   // Close on Escape
   useEffect(() => {
@@ -1353,48 +1350,159 @@ function ShadeBar({ hex, onClose }: { hex: string; onClose: () => void }) {
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
 
-  return (
-    <div
-      className="absolute left-0 right-0 z-20 flex items-stretch"
-      style={{ bottom: 0, height: 50 }}
-      role="region"
-      aria-label="Shade scale"
-    >
-      {shades.map((shade, i) => {
-        const labelColor = readableOn(shade)
-        const isCopied = copiedIdx === i
-        const isBase = TAILWIND_SHADE_LABELS[i] === 500
-        return (
-          <button
-            key={shade + i}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-all hover:opacity-90"
-            style={{
-              backgroundColor: shade,
-              outline: isBase ? `2px solid ${labelColor}` : undefined,
-              outlineOffset: -2,
-            }}
-            onClick={() => handleCopy(shade, i)}
-            aria-label={`Copy shade ${TAILWIND_SHADE_LABELS[i]}: ${shade}`}
-          >
-            <span className="text-[9px] font-mono font-semibold opacity-60" style={{ color: labelColor }}>
-              {TAILWIND_SHADE_LABELS[i]}
-            </span>
-            <span className="text-[10px] font-mono font-medium" style={{ color: labelColor }}>
-              {isCopied ? '✓' : shade.toUpperCase()}
-            </span>
-          </button>
-        )
-      })}
+  const handleCopy = async (shade: string, i: number) => {
+    try {
+      await navigator.clipboard.writeText(shade.toUpperCase())
+      setCopiedIdx(i)
+      showToast('Copied!')
+      setTimeout(() => setCopiedIdx(null), 1200)
+    } catch { /* silent */ }
+  }
 
-      {/* Close button */}
-      <button
+  // Contrast check: does white or black text pass 4.5:1?
+  const passesContrast = (bg: string, fg: string) => {
+    try {
+      const [r1, g1, b1] = [parseInt(bg.slice(1, 3), 16), parseInt(bg.slice(3, 5), 16), parseInt(bg.slice(5, 7), 16)]
+      const [r2, g2, b2] = [parseInt(fg.slice(1, 3), 16), parseInt(fg.slice(3, 5), 16), parseInt(fg.slice(5, 7), 16)]
+      const lum = (r: number, g: number, b: number) => {
+        const [rs, gs, bs] = [r / 255, g / 255, b / 255].map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+        return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs
+      }
+      const l1 = lum(r1, g1, b1), l2 = lum(r2, g2, b2)
+      const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
+      return ratio >= 4.5
+    } catch { return false }
+  }
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0"
+        style={{ zIndex: 74, backgroundColor: 'rgba(0,0,0,0.15)' }}
         onClick={onClose}
-        className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full flex items-center justify-center bg-black/20 hover:bg-black/40 text-white transition-all"
-        aria-label="Close shades"
+      />
+
+      {/* Panel */}
+      <div
+        className="absolute left-1/2"
+        style={{
+          top: 60,
+          zIndex: 75,
+          transform: `translateX(-50%) translateY(${entering ? '-8px' : '0'})`,
+          opacity: entering ? 0 : 1,
+          transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+          width: '90%',
+          maxWidth: 900,
+          borderRadius: 24,
+          backgroundColor: 'rgba(255,255,255,0.97)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 16px 60px rgba(0,0,0,0.12)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          padding: 20,
+        }}
+        role="dialog"
+        aria-label="Shade scale"
+        aria-modal="true"
       >
-        <X size={10} />
-      </button>
-    </div>
+        {/* Header */}
+        <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+          <h2 className="text-[16px] font-bold m-0" style={{ color: BRAND_DARK }}>Shade scale</h2>
+
+          <div className="flex items-center" style={{ gap: 10 }}>
+            <div
+              style={{
+                width: 40, height: 40, borderRadius: 12,
+                backgroundColor: hex, flexShrink: 0,
+              }}
+            />
+            <span className="text-[13px] font-mono" style={{ color: '#6b7280' }}>
+              {hex.toUpperCase()}
+            </span>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center transition-all hover:bg-gray-100"
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 8, flexShrink: 0 }}
+            aria-label="Close shade scale"
+          >
+            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
+          </button>
+        </div>
+
+        {/* 2×5 Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+          {shades.map((shade, i) => {
+            const label = TAILWIND_SHADE_LABELS[i]
+            const isBase = label === 500
+            const labelColor = readableOn(shade)
+            const isCopied = copiedIdx === i
+            const isHovered = hoveredIdx === i
+            const whitePass = passesContrast(shade, '#ffffff')
+            const blackPass = passesContrast(shade, '#000000')
+
+            return (
+              <button
+                key={label}
+                onClick={() => handleCopy(shade, i)}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                className="relative flex flex-col items-center justify-end cursor-pointer"
+                style={{
+                  height: 80,
+                  borderRadius: 12,
+                  backgroundColor: shade,
+                  paddingBottom: 8,
+                  border: isBase ? `2px solid ${BRAND_VIOLET}` : '1px solid rgba(0,0,0,0.06)',
+                  transform: isHovered ? 'scale(1.03)' : 'scale(1)',
+                  transition: 'transform 150ms ease',
+                }}
+                aria-label={`Copy shade ${label}: ${shade}`}
+              >
+                {/* Contrast dots */}
+                <div className="absolute flex" style={{ top: 6, right: 6, gap: 3 }}>
+                  <div style={{
+                    width: 6, height: 6, borderRadius: 3,
+                    backgroundColor: '#ffffff',
+                    opacity: whitePass ? 1 : 0.25,
+                    border: '0.5px solid rgba(0,0,0,0.1)',
+                  }} />
+                  <div style={{
+                    width: 6, height: 6, borderRadius: 3,
+                    backgroundColor: '#000000',
+                    opacity: blackPass ? 1 : 0.25,
+                  }} />
+                </div>
+
+                {/* Copy icon on hover */}
+                {isHovered && !isCopied && (
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ borderRadius: 12 }}>
+                    <Copy size={16} strokeWidth={1.5} style={{ color: labelColor, opacity: 0.7 }} />
+                  </div>
+                )}
+
+                {/* Copied checkmark */}
+                {isCopied && (
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ borderRadius: 12 }}>
+                    <Check size={16} strokeWidth={2} style={{ color: labelColor }} />
+                  </div>
+                )}
+
+                {/* Labels */}
+                <span className="text-[10px] font-semibold" style={{ color: labelColor, lineHeight: 1.2 }}>
+                  {isBase ? '500 · Base' : String(label)}
+                </span>
+                <span className="text-[10px] font-mono" style={{ color: labelColor, opacity: 0.7, lineHeight: 1.2 }}>
+                  {shade.toUpperCase()}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </>
   )
 }
 
