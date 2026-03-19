@@ -480,8 +480,8 @@ export default function DesktopStudio() {
           {/* ═══ STUDIO SECTION ═══ */}
           {section === 'studio' && (
             <>
-              {/* ─── Action Bar (top of bento) — hidden in preview mode ─── */}
-              {viewMode === 'colors' && <div
+              {/* ─── Action Bar (top of bento) — always visible ─── */}
+              <div
                 className="absolute flex items-center justify-between"
                 style={{ top: 12, left: 12, right: 12, zIndex: 110 }}
               >
@@ -740,10 +740,10 @@ export default function DesktopStudio() {
                     </button>
                   )}
                 </div>
-              </div>}
+              </div>
 
               {/* ─── Validate: Vision Picker Bar ─── */}
-              {viewMode === 'colors' && validateOn && (
+              {validateOn && (
                 <div
                   className="absolute flex items-center"
                   style={{
@@ -924,7 +924,6 @@ export default function DesktopStudio() {
                 <PreviewMode
                   swatches={swatches}
                   isPro={isPro}
-                  onClose={() => setViewMode('colors')}
                   onGenerate={() => triggerGenerate('button')}
                   onExport={() => openDialog('export')}
                   onUndo={undo}
@@ -2141,11 +2140,10 @@ function ExtractDialog({
 
 // ─── Preview Mode ────────────────────────────────────────────
 function PreviewMode({
-  swatches, isPro, onClose, onGenerate, onExport, onUndo, onRedo, onProGate, onLock, visionFilter,
+  swatches, isPro, onGenerate, onExport, onUndo, onRedo, onProGate, onLock, visionFilter,
 }: {
   swatches: { id: string; hex: string; locked: boolean }[]
   isPro: boolean
-  onClose: () => void
   onGenerate: () => void
   onExport: () => void
   onUndo: () => void
@@ -2171,66 +2169,48 @@ function PreviewMode({
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col" style={{ overflow: 'hidden' }}>
-      {/* ─ Export actions bar ─ */}
-      <div
-        className="flex-none flex items-center justify-between"
-        style={{
-          height: 44,
-          padding: '0 24px',
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
-        }}
+    <div className="absolute inset-0" style={{ backgroundColor: '#f9f9f8' }}>
+      {/* Scrollable content area */}
+      <div className="absolute inset-0 overflow-y-auto">
+        {/* ─ Mockup grid ─ */}
+        <div
+          style={{
+            padding: '68px 24px 80px',
+            opacity: entering ? 0 : 1,
+            transition: 'opacity 300ms ease 100ms',
+            filter: visionFilter,
+          }}
       >
-        <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>Preview</span>
-        <div className="flex items-center" style={{ gap: 6 }}>
+        {/* Inline export actions */}
+        <div className="flex items-center justify-end mx-auto" style={{ maxWidth: 1000, marginBottom: 12, gap: 6 }}>
           <button
             onClick={() => onExport()}
-            className="flex items-center transition-all hover:bg-gray-50"
+            className="flex items-center transition-all hover:bg-white"
             style={{
-              height: 36, padding: '0 12px', gap: 6, borderRadius: 8,
-              border: '1px solid rgba(0,0,0,0.06)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+              height: 32, padding: '0 10px', gap: 6, borderRadius: 8,
+              border: '1px solid rgba(0,0,0,0.08)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+              backgroundColor: 'rgba(255,255,255,0.8)',
             }}
             aria-label="Export Tailwind config"
           >
-            <Download size={16} strokeWidth={1.5} />
+            <Download size={14} strokeWidth={1.5} />
             Export Tailwind
           </button>
           <button
             onClick={handleCopyCSS}
-            className="flex items-center transition-all hover:bg-gray-50"
+            className="flex items-center transition-all hover:bg-white"
             style={{
-              height: 36, padding: '0 12px', gap: 6, borderRadius: 8,
-              border: '1px solid rgba(0,0,0,0.06)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+              height: 32, padding: '0 10px', gap: 6, borderRadius: 8,
+              border: '1px solid rgba(0,0,0,0.08)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+              backgroundColor: 'rgba(255,255,255,0.8)',
             }}
             aria-label="Copy CSS variables"
           >
-            <Copy size={16} strokeWidth={1.5} />
+            <Copy size={14} strokeWidth={1.5} />
             Copy CSS
           </button>
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center transition-all hover:bg-gray-100"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-            aria-label="Exit preview mode"
-          >
-            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
-          </button>
         </div>
-      </div>
 
-      {/* ─ Mockup grid ─ */}
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{
-          backgroundColor: '#f9f9f8',
-          padding: 24,
-          paddingBottom: 80,
-          opacity: entering ? 0 : 1,
-          transition: 'opacity 300ms ease 100ms',
-          filter: visionFilter,
-        }}
-      >
         <div
           className="grid mx-auto"
           style={{ gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 1000 }}
@@ -2264,7 +2244,8 @@ function PreviewMode({
             </MockupCard>
           </div>
         </div>
-      </div>
+      </div>{/* close padding/content div */}
+      </div>{/* close scrollable content area */}
 
       {/* ─ Floating control footer ─ */}
       <div
