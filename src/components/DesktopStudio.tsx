@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Shuffle, Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
+  Shuffle, Sparkles, Eye, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
   X, Share2, Download, Grid3X3,
   Undo2, Redo2, Plus, Minus, MoreHorizontal, ExternalLink,
+  Folder, User,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
@@ -31,7 +32,8 @@ import { analytics } from '../lib/posthog'
 import { createCheckoutSession, createPortalSession } from '../lib/stripe'
 
 // ─── Types ───────────────────────────────────────────────────
-type ToolId = 'generate' | 'simulate' | 'preview' | 'extract' | 'ai' | 'library'
+type SectionId = 'studio' | 'library' | 'profile'
+type ViewMode = 'colors' | 'preview'
 type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
 const HARMONIES: { mode: HarmonyMode; label: string; desc: string }[] = [
@@ -68,8 +70,12 @@ export default function DesktopStudio() {
     const stored = localStorage.getItem(DOCK_STORAGE_KEY)
     return stored !== null ? stored === 'true' : true
   })
-  const [activeTool, setActiveTool] = useState<ToolId | null>(null)
+  const [section, setSection] = useState<SectionId>('studio')
+  const [viewMode, setViewMode] = useState<ViewMode>('colors')
+  const [validateOn, setValidateOn] = useState(false)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
+  const [aiPanelOpen, setAiPanelOpen] = useState(false)
+  const [extractOpen, setExtractOpen] = useState(false)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
@@ -188,20 +194,22 @@ export default function DesktopStudio() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.code === 'Space') { e.preventDefault(); triggerGenerate('spacebar') }
+      if (e.code === 'Space' && section === 'studio') { e.preventDefault(); triggerGenerate('spacebar') }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey) { e.preventDefault(); redo() }
+      if (e.key === '1' && section === 'studio') setViewMode('colors')
+      if (e.key === '2' && section === 'studio') setViewMode('preview')
       if (e.key === 'Escape') {
         setExportOpen(false); setAiOpen(false); setProModalOpen(false)
         setSignInOpen(false); setSavedOpen(false); setSaveNameOpen(false)
-        setHarmonyOpen(false)
-        setActiveTool(null); setShadesOpen(null); setInfoOpen(null)
+        setHarmonyOpen(false); setValidateOn(false); setAiPanelOpen(false)
+        setExtractOpen(false); setShadesOpen(null); setInfoOpen(null)
         setEditingId(null)
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [triggerGenerate, undo, redo])
+  }, [triggerGenerate, undo, redo, section])
 
   // Click outside harmony dropdown
   useEffect(() => {
@@ -275,7 +283,7 @@ export default function DesktopStudio() {
     try {
       const colors = await extractColorsFromFile(file)
       setSwatches(colors.slice(0, count).map(h => makeSwatch(h)))
-      setActiveTool(null)
+      setExtractOpen(false)
     } catch {
       showToast('Failed to extract colors')
     } finally {
@@ -319,25 +327,16 @@ export default function DesktopStudio() {
     triggerGenerate('button')
   }
 
-  const handleToolClick = (tool: ToolId) => {
-    if (tool === 'generate') {
-      triggerGenerate('button')
-      return
-    }
-    if (tool === 'extract') {
-      if (!isPro) { openProModal('image_extraction', 'dock'); return }
-      setActiveTool(activeTool === 'extract' ? null : 'extract')
-      return
-    }
-    if (tool === 'preview') {
-      setActiveTool(activeTool === 'preview' ? null : 'preview')
-      return
-    }
-    setActiveTool(activeTool === tool ? null : tool)
-  }
-
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
   const dockW = dockExpanded ? 200 : 80
+
+  // Compute a11y grade from average contrast ratio
+  const avgContrastRatio = useMemo(() => {
+    if (swatches.length === 0) return 0
+    const sum = swatches.reduce((acc, s) => acc + getContrastBadge(s.hex).ratio, 0)
+    return sum / swatches.length
+  }, [swatches])
+  const a11yGrade: 'A' | 'B' | 'C' = avgContrastRatio >= 7 ? 'A' : avgContrastRatio >= 4.5 ? 'B' : 'C'
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -404,72 +403,36 @@ export default function DesktopStudio() {
               )}
             </div>
 
-            {/* Creation tools group */}
+            {/* Section navigation */}
             <div className="flex flex-col" style={{ gap: dockExpanded ? 4 : 6 }}>
               <DockItem
-                icon={<Shuffle size={20} />}
-                label="Generate"
-                active={false}
+                icon={<Sparkles size={20} />}
+                label="Studio"
+                active={section === 'studio'}
                 expanded={dockExpanded}
-                onClick={() => handleToolClick('generate')}
+                onClick={() => setSection('studio')}
                 pulse={dockPulse}
               />
               <DockItem
-                icon={<Eye size={20} />}
-                label="Simulate"
-                active={activeTool === 'simulate'}
-                expanded={dockExpanded}
-                onClick={() => handleToolClick('simulate')}
-              />
-              <DockItem
-                icon={<LayoutDashboard size={20} />}
-                label="Preview"
-                active={activeTool === 'preview'}
-                expanded={dockExpanded}
-                onClick={() => handleToolClick('preview')}
-              />
-            </div>
-
-            {/* Divider */}
-            <div
-              className="shrink-0"
-              style={{
-                width: dockExpanded ? 'calc(100% - 28px)' : 24,
-                height: 1,
-                backgroundColor: 'rgba(0,0,0,0.06)',
-                margin: dockExpanded ? '10px 14px' : '8px auto',
-              }}
-            />
-
-            {/* Utility tools group */}
-            <div className="flex flex-col" style={{ gap: dockExpanded ? 4 : 6 }}>
-              <DockItem
-                icon={<Image size={20} />}
-                label="Extract"
-                active={activeTool === 'extract'}
-                expanded={dockExpanded}
-                onClick={() => handleToolClick('extract')}
-                proBadge={!isPro}
-              />
-              <DockItem
-                icon={<Star size={20} />}
-                label="AI Palette"
-                active={activeTool === 'ai'}
-                expanded={dockExpanded}
-                onClick={() => handleToolClick('ai')}
-                badge={!isPro ? String(aiRemaining) : undefined}
-              />
-              <DockItem
-                icon={<Heart size={20} />}
+                icon={<Folder size={20} />}
                 label="Library"
-                active={activeTool === 'library'}
+                active={section === 'library'}
                 expanded={dockExpanded}
-                onClick={() => handleToolClick('library')}
+                onClick={() => setSection('library')}
               />
             </div>
 
             {/* Spacer */}
             <div className="flex-1" />
+
+            {/* Profile — at bottom, separated */}
+            <DockItem
+              icon={<User size={20} />}
+              label="Profile"
+              active={section === 'profile'}
+              expanded={dockExpanded}
+              onClick={() => setSection('profile')}
+            />
 
             {/* Info / Legal links */}
             <DockInfoMenu expanded={dockExpanded} />
@@ -511,475 +474,561 @@ export default function DesktopStudio() {
             boxShadow: '0 20px 50px -12px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05)',
           }}
         >
-          {/* ─── Floating Harmony Pill (top-left) ─── */}
-          <div
-            ref={harmonyRef}
-            className="absolute flex items-center"
-            style={{
-              top: 12,
-              left: 12,
-              zIndex: 70,
-              borderRadius: 12,
-              backgroundColor: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-              border: '1px solid rgba(0,0,0,0.04)',
-              padding: 4,
-            }}
-          >
-            <button
-              onClick={() => setHarmonyOpen(o => !o)}
-              className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
-              style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK, backgroundColor: 'transparent' }}
-              aria-expanded={harmonyOpen}
-              aria-haspopup="listbox"
-            >
-              {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-
-            {harmonyOpen && (
+          {/* ═══ STUDIO SECTION ═══ */}
+          {section === 'studio' && (
+            <>
+              {/* ─── Action Bar (top of bento) ─── */}
               <div
-                className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
-                style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
-                role="listbox"
-                aria-label="Harmony modes"
+                className="absolute flex items-center justify-between"
+                style={{ top: 12, left: 12, right: 12, zIndex: 70 }}
               >
-                {HARMONIES.map(h => (
-                  <button
-                    key={h.mode}
-                    role="option"
-                    aria-selected={harmonyMode === h.mode}
-                    onClick={() => handleHarmonySelect(h.mode)}
-                    className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
+                {/* LEFT GROUP — 3 pills */}
+                <div className="flex items-center" style={{ gap: 6 }}>
+                  {/* Pill 1: Harmony dropdown */}
+                  <div
+                    ref={harmonyRef}
+                    className="relative flex items-center"
                     style={{
-                      borderRadius: 6,
-                      backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
-                      color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                      border: '1px solid rgba(0,0,0,0.04)',
+                      padding: 3,
                     }}
                   >
-                    <span className="text-[13px] font-semibold">{h.label}</span>
-                    <span className="text-[11px] opacity-60">{h.desc}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ─── Floating Actions Pill (top-right) ─── */}
-          <div
-            className="absolute flex items-center"
-            style={{
-              top: 12,
-              right: 12,
-              zIndex: 70,
-              gap: 6,
-              borderRadius: 12,
-              backgroundColor: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-              border: '1px solid rgba(0,0,0,0.04)',
-              padding: 4,
-            }}
-            role="toolbar"
-            aria-label="Palette actions"
-          >
-            {/* Save */}
-            <DarkTooltip label="Save palette" position="bottom">
-              <button
-                onClick={handleSave}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
-                aria-label="Save palette"
-              >
-                <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
-              </button>
-            </DarkTooltip>
-
-            {/* Share */}
-            <DarkTooltip label="Share" position="bottom">
-              <button
-                onClick={handleShare}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
-                aria-label="Share palette link"
-              >
-                {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
-              </button>
-            </DarkTooltip>
-
-            {/* Export */}
-            <DarkTooltip label="Export" position="bottom">
-              <button
-                onClick={() => setExportOpen(o => !o)}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
-                aria-label="Export palette"
-              >
-                <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
-              </button>
-            </DarkTooltip>
-
-            {/* Divider */}
-            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 2px' }} />
-
-            {/* Go Pro (non-Pro) */}
-            {!isPro && (
-              <button
-                onClick={() => openProModal()}
-                className="text-white text-[13px] font-semibold transition-all hover:opacity-90"
-                style={{ height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET }}
-              >
-                Go Pro
-              </button>
-            )}
-
-            {/* Auth */}
-            {isSignedIn ? (
-              <UserMenu
-                email={user?.email ?? ''}
-                isPro={isPro}
-                onSignOut={signOut}
-                onManage={handleManageSubscription}
-              />
-            ) : (
-              <button
-                onClick={() => setSignInOpen(true)}
-                className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-                style={{ height: 36, padding: '0 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
-              >
-                Sign In
-              </button>
-            )}
-          </div>
-
-          {/* ─── Shade Specimen Grid ─── */}
-          {shadesOpen && (() => {
-            const sw = swatches.find(s => s.id === shadesOpen)
-            return sw ? (
-              <ShadesSpecimen hex={sw.hex} onClose={() => setShadesOpen(null)} />
-            ) : null
-          })()}
-
-          {/* ─── Color Canvas OR Preview Mode ─── */}
-          {activeTool === 'preview' ? (
-            <PreviewMode
-              swatches={swatches}
-              isPro={isPro}
-              onClose={() => setActiveTool(null)}
-              onGenerate={() => triggerGenerate('button')}
-              onExport={() => setExportOpen(true)}
-              onUndo={undo}
-              onRedo={redo}
-              onProGate={openProModal}
-              onLock={lockSwatch}
-            />
-          ) : (
-            <main
-              id="main-canvas"
-              className="absolute inset-0 overflow-hidden"
-              style={{ filter: visionFilter }}
-            >
-              <div className="flex h-full">
-                {swatches.map(s => {
-                  const textColor = readableOn(s.hex)
-                  const contrast = getContrastBadge(s.hex)
-                  const isCopied = copiedId === s.id
-                  const isEditing = editingId === s.id
-                  const showShades = shadesOpen === s.id
-                  const showInfo = infoOpen === s.id
-
-                  return (
-                    <div
-                      key={s.id}
-                      className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
-                      style={{
-                        backgroundColor: s.hex,
-                        paddingTop: 70,
-                        paddingBottom: 40,
-                      }}
-                    >
-                      {/* Per-swatch vertical cluster */}
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        {/* WCAG badge */}
-                        <div
-                          className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold text-white"
-                          style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-                        >
-                          {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
-                        </div>
-
-                        {/* Hex code — click to edit */}
-                        {isEditing ? (
-                          <input
-                            autoFocus
-                            value={editValue}
-                            onChange={e => setEditValue(e.target.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7))}
-                            onBlur={() => confirmEdit(s.id)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter') confirmEdit(s.id)
-                              if (e.key === 'Escape') setEditingId(null)
-                            }}
-                            className="bg-transparent border-b-2 text-center font-mono text-[16px] font-bold outline-none w-24"
-                            style={{ color: textColor, borderColor: textColor }}
-                            aria-label="Edit hex code"
-                          />
-                        ) : (
-                          <button
-                            onClick={() => startEdit(s.id, s.hex)}
-                            className="font-mono text-[16px] font-bold tracking-wide cursor-text transition-all hover:opacity-80"
-                            style={{ color: textColor }}
-                            aria-label={`Edit color ${s.hex}`}
-                          >
-                            {s.hex.toUpperCase()}
-                          </button>
-                        )}
-
-                        {/* Action buttons */}
-                        <div className="flex flex-col items-center" style={{ gap: 6 }}>
-                          {/* Copy */}
-                          <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
-                            <button
-                              onClick={() => copyHex(s.id, s.hex)}
-                              className="flex items-center justify-center transition-all"
-                              style={{
-                                width: 36, height: 36, padding: 0, borderRadius: 8,
-                                backgroundColor: 'rgba(255,255,255,0.08)',
-                                color: textColor,
-                              }}
-                              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
-                              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
-                              aria-label={isCopied ? 'Copied' : 'Copy hex code'}
-                            >
-                              {isCopied ? <Check size={20} strokeWidth={1.5} /> : <Copy size={20} strokeWidth={1.5} />}
-                            </button>
-                          </DarkTooltip>
-
-                          {/* Info */}
-                          <DarkTooltip label="Color info" position="right">
-                            <button
-                              onClick={(e) => {
-                                if (showInfo) {
-                                  setInfoOpen(null)
-                                  setInfoAnchorRect(null)
-                                } else {
-                                  setInfoOpen(s.id)
-                                  setInfoAnchorRect(e.currentTarget.getBoundingClientRect())
-                                }
-                              }}
-                              className="flex items-center justify-center transition-all"
-                              style={{
-                                width: 36, height: 36, padding: 0, borderRadius: 8,
-                                backgroundColor: showInfo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                                color: textColor,
-                              }}
-                              onMouseEnter={e => { if (!showInfo) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
-                              onMouseLeave={e => { if (!showInfo) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
-                              aria-label="Color info"
-                            >
-                              <Info size={20} strokeWidth={1.5} />
-                            </button>
-                          </DarkTooltip>
-
-                          {/* Shades */}
-                          <DarkTooltip label="Shade scale" position="right">
-                            <button
-                              onClick={() => {
-                                const next = showShades ? null : s.id
-                                setShadesOpen(next)
-                                if (next) analytics.track('shade_panel_opened')
-                              }}
-                              className="flex items-center justify-center transition-all"
-                              style={{
-                                width: 36, height: 36, padding: 0, borderRadius: 8,
-                                backgroundColor: showShades ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                                color: textColor,
-                              }}
-                              onMouseEnter={e => { if (!showShades) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
-                              onMouseLeave={e => { if (!showShades) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
-                              aria-label={showShades ? 'Close shades' : 'Show shades'}
-                            >
-                              <Grid3X3 size={20} strokeWidth={1.5} />
-                            </button>
-                          </DarkTooltip>
-
-                          {/* Lock */}
-                          <DarkTooltip label={s.locked ? 'Unlock color' : 'Lock color'} position="right">
-                            <button
-                              onClick={() => lockSwatch(s.id)}
-                              className="flex items-center justify-center transition-all"
-                              style={{
-                                width: 36, height: 36, padding: 0, borderRadius: 8,
-                                backgroundColor: s.locked ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                                color: textColor,
-                              }}
-                              onMouseEnter={e => { if (!s.locked) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
-                              onMouseLeave={e => { if (!s.locked) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
-                              aria-label={s.locked ? 'Unlock color' : 'Lock color'}
-                            >
-                              {s.locked ? <Lock size={20} strokeWidth={1.5} /> : <Unlock size={20} strokeWidth={1.5} />}
-                            </button>
-                          </DarkTooltip>
-                        </div>
-
-                        {/* Locked badge */}
-                        {s.locked && (
-                          <span
-                            className="text-[10px] font-bold tracking-widest uppercase opacity-60"
-                            style={{ color: textColor }}
-                          >
-                            LOCKED
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Info popover rendered via portal-like fixed positioning */}
-
-                      {/* Shades now rendered as horizontal bar above canvas */}
-                    </div>
-                  )
-                })}
-              </div>
-            </main>
-          )}
-
-          {/* ─── Floating Tool Panels ─── */}
-          {activeTool === 'simulate' && (
-            <SimulatePanel
-              mode={visionMode}
-              isPro={isPro}
-              onChange={m => {
-                if (VISION_MODES.find(v => v.mode === m)?.pro && !isPro) {
-                  openProModal('vision_sim', 'dock')
-                  return
-                }
-                setVisionMode(m)
-              }}
-              onClose={() => setActiveTool(null)}
-            />
-          )}
-
-          {activeTool === 'ai' && (
-            <AiFloatingPanel
-              onClose={() => setActiveTool(null)}
-              onOpenFull={() => { setAiOpen(true); setActiveTool(null) }}
-              isPro={isPro}
-              aiRemaining={aiRemaining}
-            />
-          )}
-
-          {activeTool === 'library' && (
-            <LibraryPanel
-              isSignedIn={isSignedIn}
-              userId={user?.id}
-              isPro={isPro}
-              onLoad={hexes => { setSwatches(hexes.map(h => makeSwatch(h))); setActiveTool(null) }}
-              onProGate={openProModal}
-              onSignIn={() => setSignInOpen(true)}
-              onClose={() => setActiveTool(null)}
-            />
-          )}
-
-          {activeTool === 'extract' && (
-            <ExtractDialog
-              uploading={imageUploading}
-              onFile={handleImageUpload}
-              onClose={() => setActiveTool(null)}
-              fileInputRef={fileInputRef}
-            />
-          )}
-
-          {/* Vision mode badge */}
-          {visionMode !== 'normal' && activeTool !== 'preview' && (
-            <button
-              onClick={() => setVisionMode('normal')}
-              className="absolute top-[60px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
-              style={{ color: '#374151' }}
-            >
-              <Eye size={14} />
-              {visionMode.charAt(0).toUpperCase() + visionMode.slice(1)}
-              <span className="text-gray-400 ml-1">✕</span>
-            </button>
-          )}
-
-          {/* Bottom bar — color count + spacebar hint */}
-          {!activeTool && !aiOpen && !exportOpen && (
-            <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
-              style={{
-                gap: 6,
-                borderRadius: 12,
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                padding: '4px 6px',
-              }}
-            >
-              {/* Color count controls */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => { if (count > 3) setCount(count - 1) }}
-                  className="flex items-center justify-center transition-all hover:bg-white/10"
-                  style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
-                  disabled={count <= 3}
-                  aria-label="Remove color"
-                >
-                  <Minus size={16} style={{ color: '#fff' }} />
-                </button>
-                <span className="text-[14px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>
-                  {count}
-                </span>
-                {(() => {
-                  const freeMax = 5
-                  const proMax = 8
-                  const max = isPro ? proMax : freeMax
-                  const atFreeLimit = !isPro && count >= freeMax
-                  return (
                     <button
-                      onClick={() => {
-                        if (atFreeLimit) {
-                          openProModal('color_count', 'canvas_bar')
-                        } else if (count < max) {
-                          setCount(count + 1)
-                        }
-                      }}
-                      className="relative flex items-center justify-center transition-all hover:bg-white/10"
-                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
-                      disabled={!atFreeLimit && count >= max}
-                      aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : 'Add color'}
+                      onClick={() => setHarmonyOpen(o => !o)}
+                      className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
+                      style={{ height: 34, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
+                      aria-expanded={harmonyOpen}
+                      aria-haspopup="listbox"
                     >
-                      <Plus size={16} style={{ color: '#fff' }} />
-                      {atFreeLimit && (
+                      <Shuffle size={16} strokeWidth={1.5} style={{ color: '#6B7280' }} />
+                      {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+
+                    {harmonyOpen && (
+                      <div
+                        className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
+                        style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220, zIndex: 80 }}
+                        role="listbox"
+                        aria-label="Harmony modes"
+                      >
+                        {HARMONIES.map(h => (
+                          <button
+                            key={h.mode}
+                            role="option"
+                            aria-selected={harmonyMode === h.mode}
+                            onClick={() => handleHarmonySelect(h.mode)}
+                            className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
+                            style={{
+                              borderRadius: 6,
+                              backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
+                              color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
+                            }}
+                          >
+                            <span className="text-[13px] font-semibold">{h.label}</span>
+                            <span className="text-[11px] opacity-50">{h.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pill 2: View mode segmented control */}
+                  <div
+                    className="flex items-center"
+                    style={{
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                      border: '1px solid rgba(0,0,0,0.04)',
+                      padding: 3,
+                      gap: 2,
+                    }}
+                  >
+                    {(['colors', 'preview'] as ViewMode[]).map(mode => (
+                      <button
+                        key={mode}
+                        onClick={() => setViewMode(mode)}
+                        className="text-[13px] transition-all"
+                        style={{
+                          height: 34,
+                          padding: '0 16px',
+                          borderRadius: 8,
+                          fontWeight: viewMode === mode ? 600 : 400,
+                          backgroundColor: viewMode === mode ? '#ffffff' : 'transparent',
+                          boxShadow: viewMode === mode ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
+                          color: viewMode === mode ? BRAND_DARK : '#6B7280',
+                        }}
+                      >
+                        {mode === 'colors' ? 'Colors' : 'Preview'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Pill 3: Validate toggle */}
+                  <button
+                    onClick={() => setValidateOn(v => !v)}
+                    className="flex items-center transition-all hover:bg-black/[0.02]"
+                    style={{
+                      height: 40,
+                      padding: '0 12px',
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                      border: validateOn ? `2px solid ${BRAND_VIOLET}` : '1px solid rgba(0,0,0,0.04)',
+                      gap: 6,
+                    }}
+                    aria-pressed={validateOn}
+                    aria-label="Toggle accessibility validation"
+                  >
+                    <Eye size={16} strokeWidth={1.5} style={{ color: validateOn ? BRAND_VIOLET : '#6B7280' }} />
+                    {validateOn && (
+                      <>
+                        <span className="text-[13px] font-medium" style={{ color: BRAND_VIOLET }}>A11y</span>
                         <span
-                          className="absolute -top-1.5 -right-1.5 w-3 h-3 flex items-center justify-center rounded-full text-[6px] font-bold text-white"
-                          style={{ backgroundColor: BRAND_VIOLET }}
+                          className="text-[10px] font-bold px-1.5 py-0.5"
+                          style={{
+                            borderRadius: 6,
+                            backgroundColor: a11yGrade === 'A' ? '#D1FAE5' : a11yGrade === 'B' ? '#FEF3C7' : '#FEE2E2',
+                            color: a11yGrade === 'A' ? '#16A34A' : a11yGrade === 'B' ? '#D97706' : '#DC2626',
+                          }}
                         >
-                          P
+                          {a11yGrade}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* RIGHT GROUP — single pill */}
+                <div
+                  className="flex items-center"
+                  style={{
+                    borderRadius: 12,
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                    border: '1px solid rgba(0,0,0,0.04)',
+                    padding: 4,
+                    gap: 6,
+                  }}
+                  role="toolbar"
+                  aria-label="Palette actions"
+                >
+                  {/* AI */}
+                  <DarkTooltip label="AI palette" position="bottom">
+                    <button
+                      onClick={() => setAiPanelOpen(o => !o)}
+                      className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
+                      style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
+                      aria-label="AI palette"
+                    >
+                      <Star size={16} strokeWidth={1.5} />
+                      <span className="text-[12px] font-medium">AI</span>
+                      {!isPro && (
+                        <span
+                          className="text-[8px] font-bold text-white px-1.5 py-0.5"
+                          style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
+                        >
+                          {aiRemaining}
                         </span>
                       )}
                     </button>
-                  )
-                })()}
+                  </DarkTooltip>
+
+                  {/* Extract */}
+                  <DarkTooltip label="Extract from image" position="bottom">
+                    <button
+                      onClick={() => {
+                        if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
+                        setExtractOpen(o => !o)
+                      }}
+                      className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
+                      style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
+                      aria-label="Extract colors from image"
+                    >
+                      <Image size={16} strokeWidth={1.5} />
+                      {!isPro && (
+                        <span
+                          className="text-[8px] font-bold text-white px-1.5 py-0.5"
+                          style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
+                        >
+                          PRO
+                        </span>
+                      )}
+                    </button>
+                  </DarkTooltip>
+
+                  {/* Divider */}
+                  <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.06)' }} />
+
+                  {/* Save */}
+                  <DarkTooltip label="Save palette" position="bottom">
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+                      aria-label="Save palette"
+                    >
+                      <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+                    </button>
+                  </DarkTooltip>
+
+                  {/* Share */}
+                  <DarkTooltip label="Share" position="bottom">
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+                      aria-label="Share palette link"
+                    >
+                      {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
+                    </button>
+                  </DarkTooltip>
+
+                  {/* Export */}
+                  <DarkTooltip label="Export" position="bottom">
+                    <button
+                      onClick={() => setExportOpen(o => !o)}
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+                      aria-label="Export palette"
+                    >
+                      <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+                    </button>
+                  </DarkTooltip>
+
+                  {/* Divider */}
+                  <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)' }} />
+
+                  {/* Go Pro */}
+                  {!isPro && (
+                    <button
+                      onClick={() => openProModal(undefined, 'action_bar')}
+                      className="text-[12px] font-semibold transition-all hover:opacity-80"
+                      style={{ height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET, color: '#ffffff' }}
+                    >
+                      Go Pro
+                    </button>
+                  )}
+
+                  {/* Auth */}
+                  {isSignedIn && user?.email ? (
+                    <UserMenu email={user.email} isPro={isPro} onSignOut={signOut} onManage={handleManageSubscription} />
+                  ) : (
+                    <button
+                      onClick={() => setSignInOpen(true)}
+                      className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
+                      style={{ height: 36, padding: '0 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
+                    >
+                      Sign In
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Divider */}
-              <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
-
-              {/* Spacebar hint */}
-              <div className="flex items-center gap-2">
-                <kbd
-                  className="inline-flex items-center justify-center text-[11px] font-mono font-semibold"
-                  style={{ padding: '2px 8px', borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}
+              {/* ─── Validate: Vision Picker Bar ─── */}
+              {validateOn && (
+                <div
+                  className="absolute flex items-center"
+                  style={{
+                    top: 60, left: 12, zIndex: 70,
+                    borderRadius: 10,
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                    border: '1px solid rgba(0,0,0,0.04)',
+                    padding: 3, gap: 2,
+                  }}
+                  role="radiogroup"
+                  aria-label="Vision simulation modes"
                 >
-                  Space
-                </kbd>
-                <span className="text-[12px] font-medium text-white/70">generate</span>
-              </div>
-            </div>
+                  {VISION_MODES.map(v => {
+                    const needsPro = v.pro && !isPro
+                    const isActive = visionMode === v.mode
+                    return (
+                      <button
+                        key={v.mode}
+                        onClick={() => {
+                          if (needsPro) { openProModal('vision_sim', 'validate_bar'); return }
+                          setVisionMode(v.mode)
+                        }}
+                        className="text-[11px] transition-all"
+                        style={{
+                          height: 30, padding: '0 10px', borderRadius: 6,
+                          fontWeight: isActive ? 600 : 400,
+                          backgroundColor: isActive ? '#ffffff' : 'transparent',
+                          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
+                          color: needsPro ? '#9CA3AF' : isActive ? BRAND_DARK : '#6B7280',
+                          opacity: needsPro ? 0.6 : 1,
+                        }}
+                        role="radio"
+                        aria-checked={isActive}
+                        aria-label={v.label}
+                      >
+                        {v.label.replace(' Vision', '')}
+                        {needsPro && (
+                          <span className="ml-1 text-[8px] font-bold text-white px-1 py-0.5" style={{ borderRadius: 4, backgroundColor: BRAND_VIOLET }}>PRO</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* ─── Shade Specimen Grid ─── */}
+              {shadesOpen && (() => {
+                const sw = swatches.find(s => s.id === shadesOpen)
+                return sw ? <ShadesSpecimen hex={sw.hex} onClose={() => setShadesOpen(null)} /> : null
+              })()}
+
+              {/* ─── Colors View ─── */}
+              {viewMode === 'colors' && (
+                <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: validateOn ? visionFilter : undefined }}>
+                  <div className="flex h-full">
+                    {swatches.map(s => {
+                      const textColor = readableOn(s.hex)
+                      const contrast = getContrastBadge(s.hex)
+                      const isCopied = copiedId === s.id
+                      const isEditing = editingId === s.id
+                      const showShades = shadesOpen === s.id
+                      const showInfo = infoOpen === s.id
+                      return (
+                        <div
+                          key={s.id}
+                          className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
+                          style={{ backgroundColor: s.hex, paddingTop: 70, paddingBottom: 40 }}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            {/* WCAG badge */}
+                            <div
+                              className="px-2.5 py-1 rounded-md font-mono font-semibold text-white"
+                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: validateOn ? 18 : 11 }}
+                            >
+                              {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
+                            </div>
+
+                            {/* Validate: Aa text previews */}
+                            {validateOn && (
+                              <div className="flex gap-2">
+                                <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#ffffff', color: s.hex }}>Aa</span>
+                                <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#000000', color: s.hex }}>Aa</span>
+                              </div>
+                            )}
+
+                            {/* Hex code */}
+                            {isEditing ? (
+                              <input
+                                autoFocus
+                                value={editValue}
+                                onChange={e => setEditValue(e.target.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7))}
+                                onBlur={() => confirmEdit(s.id)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') confirmEdit(s.id)
+                                  if (e.key === 'Escape') setEditingId(null)
+                                }}
+                                className="bg-transparent border-b-2 text-center font-mono text-[16px] font-bold outline-none w-24"
+                                style={{ color: textColor, borderColor: textColor }}
+                                aria-label="Edit hex code"
+                              />
+                            ) : (
+                              <button
+                                onClick={() => startEdit(s.id, s.hex)}
+                                className="font-mono text-[16px] font-bold tracking-wide cursor-text transition-all hover:opacity-80"
+                                style={{ color: textColor }}
+                                aria-label={`Edit color ${s.hex}`}
+                              >
+                                {s.hex.toUpperCase()}
+                              </button>
+                            )}
+
+                            {/* Action buttons */}
+                            <div className="flex flex-col items-center" style={{ gap: 6 }}>
+                              <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
+                                <button
+                                  onClick={() => copyHex(s.id, s.hex)}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                                  aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
+                                >
+                                  {isCopied
+                                    ? <Check size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                    : <Copy size={20} strokeWidth={1.5} style={{ color: textColor }} />}
+                                </button>
+                              </DarkTooltip>
+                              <DarkTooltip label="Color details" position="right">
+                                <button
+                                  onClick={(e) => {
+                                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                                    if (infoOpen === s.id) { setInfoOpen(null); setInfoAnchorRect(null) }
+                                    else { setInfoOpen(s.id); setInfoAnchorRect(rect) }
+                                  }}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
+                                  aria-label="Color info"
+                                  aria-expanded={showInfo}
+                                >
+                                  <Info size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                </button>
+                              </DarkTooltip>
+                              <DarkTooltip label="Shade scale" position="right">
+                                <button
+                                  onClick={() => setShadesOpen(shadesOpen === s.id ? null : s.id)}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
+                                  aria-label="View shade scale"
+                                  aria-expanded={showShades}
+                                >
+                                  <Grid3X3 size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                </button>
+                              </DarkTooltip>
+                              <DarkTooltip label={s.locked ? 'Unlock' : 'Lock'} position="right">
+                                <button
+                                  onClick={() => lockSwatch(s.id)}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                                  aria-label={s.locked ? 'Unlock color' : 'Lock color'}
+                                >
+                                  {s.locked
+                                    ? <Lock size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                    : <Unlock size={20} strokeWidth={1.5} style={{ color: textColor }} />}
+                                </button>
+                              </DarkTooltip>
+                            </div>
+
+                            {s.locked && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: '#ffffff' }}>Locked</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </main>
+              )}
+
+              {/* ─── Preview View ─── */}
+              {viewMode === 'preview' && (
+                <PreviewMode
+                  swatches={swatches}
+                  isPro={isPro}
+                  onClose={() => setViewMode('colors')}
+                  onGenerate={() => triggerGenerate('button')}
+                  onExport={() => setExportOpen(true)}
+                  onUndo={undo}
+                  onRedo={redo}
+                  onProGate={openProModal}
+                  onLock={lockSwatch}
+                  visionFilter={validateOn ? visionFilter : undefined}
+                />
+              )}
+
+              {/* ─── Floating Panels (AI, Extract) ─── */}
+              {aiPanelOpen && (
+                <AiFloatingPanel
+                  onClose={() => setAiPanelOpen(false)}
+                  onOpenFull={() => { setAiOpen(true); setAiPanelOpen(false) }}
+                  isPro={isPro}
+                  aiRemaining={aiRemaining}
+                />
+              )}
+
+              {extractOpen && (
+                <ExtractDialog
+                  uploading={imageUploading}
+                  onFile={handleImageUpload}
+                  onClose={() => setExtractOpen(false)}
+                  fileInputRef={fileInputRef}
+                />
+              )}
+
+              {/* Bottom bar — color count + spacebar hint */}
+              {viewMode === 'colors' && !aiOpen && !exportOpen && (
+                <div
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
+                  style={{ gap: 6, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '4px 6px' }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => { if (count > 3) setCount(count - 1) }}
+                      className="flex items-center justify-center transition-all hover:bg-white/10"
+                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
+                      disabled={count <= 3}
+                      aria-label="Remove color"
+                    >
+                      <Minus size={16} style={{ color: '#fff' }} />
+                    </button>
+                    <span className="text-[14px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
+                    {(() => {
+                      const freeMax = 5
+                      const proMax = 8
+                      const max = isPro ? proMax : freeMax
+                      const atFreeLimit = !isPro && count >= freeMax
+                      return (
+                        <button
+                          onClick={() => {
+                            if (atFreeLimit) openProModal('color_count', 'canvas_bar')
+                            else if (count < max) setCount(count + 1)
+                          }}
+                          className="relative flex items-center justify-center transition-all hover:bg-white/10"
+                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
+                          disabled={!atFreeLimit && count >= max}
+                          aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : 'Add color'}
+                        >
+                          <Plus size={16} style={{ color: '#fff' }} />
+                          {atFreeLimit && (
+                            <span className="absolute -top-1.5 -right-1.5 w-3 h-3 flex items-center justify-center rounded-full text-[6px] font-bold text-white" style={{ backgroundColor: BRAND_VIOLET }}>P</span>
+                          )}
+                        </button>
+                      )
+                    })()}
+                  </div>
+                  <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
+                  <div className="flex items-center gap-2">
+                    <kbd className="inline-flex items-center justify-center text-[11px] font-mono font-semibold" style={{ padding: '2px 8px', borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>Space</kbd>
+                    <span className="text-[12px] font-medium text-white/70">generate</span>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ═══ LIBRARY SECTION ═══ */}
+          {section === 'library' && (
+            <LibrarySection
+              isSignedIn={isSignedIn}
+              userId={user?.id}
+              isPro={isPro}
+              onLoad={hexes => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio') }}
+              onProGate={openProModal}
+              onSignIn={() => setSignInOpen(true)}
+            />
+          )}
+
+          {/* ═══ PROFILE SECTION ═══ */}
+          {section === 'profile' && (
+            <ProfileSection
+              user={user}
+              isSignedIn={isSignedIn}
+              isPro={isPro}
+              onSignIn={signInWithGoogle}
+              onSignOut={signOut}
+              onProGate={() => openProModal(undefined, 'profile')}
+              onManageSubscription={handleManageSubscription}
+            />
           )}
         </div>
 
@@ -1054,6 +1103,309 @@ export default function DesktopStudio() {
       {/* SEO content below fold */}
       <SEOContent />
     </>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LIBRARY SECTION (full-page inside bento)
+// ═══════════════════════════════════════════════════════════════
+function LibrarySection({
+  isSignedIn, userId, isPro, onLoad, onProGate, onSignIn,
+}: {
+  isSignedIn: boolean
+  userId?: string
+  isPro: boolean
+  onLoad: (hexes: string[]) => void
+  onProGate: (feature?: string, source?: string) => void
+  onSignIn: () => void
+}) {
+  const [palettes, setPalettes] = useState<{ id: string; name: string; colors: string[]; created_at: string }[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!isSignedIn || !userId) return
+    setLoading(true)
+    ;(async () => {
+      try {
+        const { supabase } = await import('../lib/supabase')
+        const { data } = await supabase
+          .from('saved_palettes')
+          .select('id, name, colors, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(50)
+        setPalettes(data ?? [])
+      } catch { /* silent */ }
+      finally { setLoading(false) }
+    })()
+  }, [isSignedIn, userId])
+
+  const handleDelete = async (id: string) => {
+    const { supabase } = await import('../lib/supabase')
+    await supabase.from('saved_palettes').delete().eq('id', id)
+    setPalettes(p => p.filter(x => x.id !== id))
+    showToast('Deleted')
+  }
+
+  const timeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    const days = Math.floor(hrs / 24)
+    if (days < 7) return `${days}d ago`
+    return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(date))
+  }
+
+  const slotsText = isPro ? 'Unlimited saves' : `${palettes.length} of 3 free slots used`
+
+  if (!isSignedIn) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+        <div className="rounded-full flex items-center justify-center mb-5" style={{ width: 56, height: 56, backgroundColor: BRAND_VIOLET }}>
+          <Heart size={28} color="#ffffff" />
+        </div>
+        <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Your collection starts here</h2>
+        <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: '#6B7280' }}>
+          Save your favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
+        </p>
+        <button
+          onClick={onSignIn}
+          className="flex items-center justify-center gap-2.5 text-white text-[16px] font-bold transition-all hover:opacity-90"
+          style={{ height: 52, padding: '0 32px', borderRadius: 12, backgroundColor: BRAND_VIOLET }}
+        >
+          Sign in to get started
+        </button>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-[13px]" style={{ color: '#9CA3AF' }}>Loading...</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="absolute inset-0 overflow-y-auto" style={{ padding: 32 }}>
+      <div className="max-w-[640px] mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Library</h2>
+            <p className="text-[13px] mt-1" style={{ color: '#9CA3AF' }}>Your saved palettes</p>
+          </div>
+          <span className="text-[12px]" style={{ color: '#9CA3AF' }}>{slotsText}</span>
+        </div>
+
+        {palettes.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <Heart size={32} style={{ color: '#d1d5db' }} />
+            <p className="text-[15px] font-medium mt-4" style={{ color: '#6B7280' }}>No saved palettes yet</p>
+            <p className="text-[13px] mt-1" style={{ color: '#9CA3AF' }}>Use the heart icon in Studio to save palettes here</p>
+          </div>
+        ) : (
+          <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+            {palettes.map(p => (
+              <div key={p.id} className="bg-white overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+                <button
+                  onClick={() => onLoad(p.colors)}
+                  className="w-full flex h-14 overflow-hidden"
+                  style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                  aria-label={`Load palette: ${p.name}`}
+                >
+                  {p.colors.map((c, i) => (
+                    <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+                  ))}
+                </button>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <div>
+                    <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
+                    <span className="text-[10px]" style={{ color: '#D1D5DB' }}>Saved {timeAgo(p.created_at)}</span>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
+                    style={{ minWidth: 36, minHeight: 36 }}
+                    aria-label={`Delete ${p.name}`}
+                  >
+                    <X size={14} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isPro && palettes.length >= 3 && (
+          <button
+            onClick={() => onProGate('save_limit', 'library')}
+            className="w-full mt-4 text-white text-[13px] font-semibold transition-all hover:opacity-90"
+            style={{ height: 48, borderRadius: 12, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+          >
+            Go Pro for unlimited saves
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE SECTION (full-page inside bento)
+// ═══════════════════════════════════════════════════════════════
+function ProfileSection({
+  user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription,
+}: {
+  user: { id: string; email?: string | null; user_metadata?: { full_name?: string; avatar_url?: string } } | null
+  isSignedIn: boolean
+  isPro: boolean
+  onSignIn: () => Promise<{ error: Error | null }>
+  onSignOut: () => void
+  onProGate: () => void
+  onManageSubscription: () => void
+}) {
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [legalOpen, setLegalOpen] = useState(false)
+
+  if (!isSignedIn) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+        <h2 className="text-[28px] font-bold" style={{ color: BRAND_DARK }}>Welcome to Paletta</h2>
+        <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: '#6B7280' }}>
+          The color palette generator built for accessibility
+        </p>
+        <button
+          onClick={() => onSignIn()}
+          className="flex items-center justify-center gap-2.5 text-white text-[16px] font-bold transition-all hover:opacity-90 mb-8"
+          style={{ height: 52, padding: '0 32px', borderRadius: 12, backgroundColor: BRAND_VIOLET }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#8fa8ff"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#7ee6a1"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fdd663"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#f28b82"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        {/* Pro features */}
+        <div className="w-full max-w-[360px] overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+          {[
+            { icon: Sparkles, title: 'Unlimited AI palettes' },
+            { icon: Eye, title: 'All 5 vision simulations' },
+            { icon: Heart, title: 'Unlimited saves + export' },
+          ].map((f, i) => {
+            const Icon = f.icon
+            return (
+              <div key={f.title} className="flex items-center justify-between px-4" style={{ minHeight: 52, borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}>
+                <div className="flex items-center gap-3">
+                  <Icon size={20} style={{ color: BRAND_VIOLET }} />
+                  <span className="text-[14px] font-semibold" style={{ color: BRAND_DARK }}>{f.title}</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5" style={{ backgroundColor: BRAND_VIOLET, color: '#ffffff', borderRadius: 6 }}>PRO</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'
+  const initial = name.charAt(0).toUpperCase()
+
+  return (
+    <div className="absolute inset-0 overflow-y-auto" style={{ padding: 32 }}>
+      <div className="max-w-[480px] mx-auto">
+        {/* Avatar + info */}
+        <div className="flex items-center gap-4 mb-6">
+          <div
+            className="rounded-full flex items-center justify-center text-white text-[20px] font-bold shrink-0"
+            style={{ width: 56, height: 56, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+          >
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[20px] font-bold truncate" style={{ color: BRAND_DARK }}>{name}</span>
+              {isPro && (
+                <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1" style={{ backgroundColor: BRAND_VIOLET, borderRadius: 6 }}>PRO</span>
+              )}
+            </div>
+            {user?.email && <span className="text-[13px] block truncate mt-0.5" style={{ color: '#9CA3AF' }}>{user.email}</span>}
+            {!isPro && <span className="text-[12px] block mt-0.5" style={{ color: '#D1D5DB' }}>Free plan</span>}
+          </div>
+        </div>
+
+        {/* Upgrade */}
+        {!isPro && (
+          <button
+            onClick={onProGate}
+            className="w-full text-white text-[14px] font-semibold transition-all hover:opacity-90 mb-5 flex items-center justify-between px-5"
+            style={{ height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET }}
+          >
+            <span>Upgrade to Pro</span>
+            <span className="text-[13px] opacity-80">$5/mo</span>
+          </button>
+        )}
+
+        {/* Account accordion */}
+        <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+          <button
+            onClick={() => setAccountOpen(o => !o)}
+            className="w-full flex items-center justify-between px-4 hover:bg-gray-50 transition-colors"
+            style={{ minHeight: 52 }}
+          >
+            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Account</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
+              style={{ transform: accountOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div className="border-t border-gray-100 overflow-hidden transition-all duration-200" style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}>
+            {isPro && (
+              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-gray-50 transition-colors" style={{ color: BRAND_DARK, minHeight: 52 }}>
+                Manage subscription
+              </button>
+            )}
+            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-gray-50 transition-colors" style={{ color: '#EF4444', minHeight: 52 }}>
+              Sign out
+            </button>
+          </div>
+        </div>
+
+        {/* Legal accordion */}
+        <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+          <button
+            onClick={() => setLegalOpen(o => !o)}
+            className="w-full flex items-center justify-between px-4 hover:bg-gray-50 transition-colors"
+            style={{ minHeight: 52 }}
+          >
+            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Legal</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
+              style={{ transform: legalOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div className="border-t border-gray-100 flex flex-col overflow-hidden transition-all duration-200" style={{ maxHeight: legalOpen ? 300 : 0, opacity: legalOpen ? 1 : 0 }}>
+            <a href="/privacy-policy" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center" style={{ color: BRAND_DARK, minHeight: 52 }}>Privacy Policy</a>
+            <a href="/terms-of-service" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center border-t border-gray-100" style={{ color: BRAND_DARK, minHeight: 52 }}>Terms of Service</a>
+            <a href="/cookie-policy" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center border-t border-gray-100" style={{ color: BRAND_DARK, minHeight: 52 }}>Cookie Policy</a>
+          </div>
+        </div>
+
+        {/* Support */}
+        <div className="overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+          <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-gray-50 transition-colors" style={{ minHeight: 52 }}>
+            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Support</span>
+            <span className="text-[12px]" style={{ color: '#9CA3AF' }}>hello@usepaletta.io</span>
+          </a>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -1655,47 +2007,6 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
   )
 }
 
-// ─── Simulate Panel ──────────────────────────────────────────
-function SimulatePanel({
-  mode, isPro, onChange, onClose,
-}: {
-  mode: VisionMode
-  isPro: boolean
-  onChange: (m: VisionMode) => void
-  onClose: () => void
-}) {
-  return (
-    <FloatingPanel title="Vision simulation" width={280} onClose={onClose}>
-      <div className="flex flex-col gap-1">
-        {VISION_MODES.map(v => (
-          <button
-            key={v.mode}
-            onClick={() => onChange(v.mode)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all hover:bg-gray-50"
-            style={{
-              backgroundColor: mode === v.mode ? '#F3F0FF' : undefined,
-              color: mode === v.mode ? BRAND_VIOLET : BRAND_DARK,
-            }}
-          >
-            <div className="flex flex-col">
-              <span className="text-[13px] font-semibold">{v.label}</span>
-              <span className="text-[11px] opacity-50">{v.desc}</span>
-            </div>
-            {v.pro && !isPro && (
-              <span
-                className="text-[9px] px-1.5 py-0.5 rounded-full font-bold text-white shrink-0 ml-2"
-                style={{ backgroundColor: BRAND_VIOLET }}
-              >
-                PRO
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    </FloatingPanel>
-  )
-}
-
 // ─── AI Floating Panel (quick access — opens full AiPrompt) ─
 function AiFloatingPanel({
   onClose, onOpenFull, isPro, aiRemaining,
@@ -1747,95 +2058,6 @@ function AiFloatingPanel({
           {isPro ? '✦ Unlimited prompts' : `${aiRemaining}/day free · Unlimited with Pro`}
         </p>
       </div>
-    </FloatingPanel>
-  )
-}
-
-// ─── Library Panel ───────────────────────────────────────────
-function LibraryPanel({
-  isSignedIn, userId, isPro, onLoad, onProGate, onSignIn, onClose,
-}: {
-  isSignedIn: boolean
-  userId?: string
-  isPro: boolean
-  onLoad: (hexes: string[]) => void
-  onProGate: () => void
-  onSignIn: () => void
-  onClose: () => void
-}) {
-  const [palettes, setPalettes] = useState<{ id: string; name: string; colors: string[] }[]>([])
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (!isSignedIn || !userId) return
-    setLoading(true)
-    ;(async () => {
-      try {
-        const { supabase } = await import('../lib/supabase')
-        const { data } = await supabase
-          .from('saved_palettes')
-          .select('id, name, colors')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(50)
-        setPalettes(data ?? [])
-      } catch { /* silent */ }
-      finally { setLoading(false) }
-    })()
-  }, [isSignedIn, userId])
-
-  return (
-    <FloatingPanel title="Saved palettes" width={280} onClose={onClose}>
-      {!isSignedIn ? (
-        <div className="flex flex-col items-center gap-3 py-4 text-center">
-          <Heart size={24} style={{ color: '#d1d5db' }} />
-          <p className="text-[13px] m-0" style={{ color: '#6b7280' }}>Sign in to save palettes</p>
-          <button
-            onClick={onSignIn}
-            className="h-9 px-4 rounded-full text-white text-[13px] font-semibold transition-all hover:opacity-90"
-            style={{ backgroundColor: BRAND_VIOLET }}
-          >
-            Sign In
-          </button>
-        </div>
-      ) : loading ? (
-        <p className="text-[13px] text-center py-4" style={{ color: '#6b7280' }}>Loading…</p>
-      ) : palettes.length === 0 ? (
-        <p className="text-[13px] text-center py-4" style={{ color: '#6b7280' }}>No saved palettes yet</p>
-      ) : (
-        <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto">
-          {palettes.map(p => (
-            <button
-              key={p.id}
-              onClick={() => onLoad(p.colors)}
-              className="w-full flex flex-col gap-1.5 p-2 rounded-xl border border-gray-100 hover:border-gray-300 transition-all text-left"
-            >
-              <div className="flex h-[38px] rounded-lg overflow-hidden border border-gray-100">
-                {p.colors.map((c, i) => (
-                  <div key={i} className="flex-1" style={{ backgroundColor: c }} />
-                ))}
-              </div>
-              <span className="text-[12px] font-medium truncate" style={{ color: BRAND_DARK }}>
-                {p.name || 'Untitled'}
-              </span>
-            </button>
-          ))}
-
-          {/* Slot counter */}
-          {!isPro && (
-            <p className="text-[11px] text-center mt-1" style={{ color: '#6b7280' }}>
-              {palettes.length} of 3 free ·{' '}
-              <button
-                onClick={onProGate}
-                className="underline font-semibold"
-                style={{ color: BRAND_VIOLET }}
-              >
-                Go Pro
-              </button>
-            </p>
-          )}
-        </div>
-      )}
     </FloatingPanel>
   )
 }
@@ -1932,7 +2154,7 @@ function ExtractDialog({
 
 // ─── Preview Mode ────────────────────────────────────────────
 function PreviewMode({
-  swatches, isPro, onClose, onGenerate, onExport, onUndo, onRedo, onProGate, onLock,
+  swatches, isPro, onClose, onGenerate, onExport, onUndo, onRedo, onProGate, onLock, visionFilter,
 }: {
   swatches: { id: string; hex: string; locked: boolean }[]
   isPro: boolean
@@ -1943,6 +2165,7 @@ function PreviewMode({
   onRedo: () => void
   onProGate: (feature?: string, source?: string) => void
   onLock: (id: string) => void
+  visionFilter?: string
 }) {
   const hexes = swatches.map(s => s.hex)
   const c = (i: number) => hexes[i % hexes.length]
@@ -2013,11 +2236,12 @@ function PreviewMode({
       <div
         className="flex-1 overflow-y-auto"
         style={{
-          backgroundColor: '#f5f5f4',
+          backgroundColor: '#f9f9f8',
           padding: 24,
           paddingBottom: 80,
           opacity: entering ? 0 : 1,
           transition: 'opacity 300ms ease 100ms',
+          filter: visionFilter,
         }}
       >
         <div
