@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Shuffle, Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
-  X, Share2, Download, Grid3X3, RefreshCw, SlidersHorizontal,
+  X, Share2, Download, Grid3X3,
   Undo2, Redo2, Plus, Minus, MoreHorizontal, ExternalLink,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
@@ -1946,6 +1946,11 @@ function PreviewMode({
 }) {
   const hexes = swatches.map(s => s.hex)
   const c = (i: number) => hexes[i % hexes.length]
+  const [entering, setEntering] = useState(true)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setEntering(false))
+  }, [])
 
   const handleCopyCSS = async () => {
     const css = hexes.map((h, i) => `  --color-${i + 1}: ${h};`).join('\n')
@@ -1955,17 +1960,16 @@ function PreviewMode({
     } catch { /* silent */ }
   }
 
-  const handleExportTailwind = () => {
-    showToast('Use Export panel for full Tailwind config')
-    onExport()
-  }
-
   return (
-    <div className="absolute inset-0 flex flex-col" style={{ transition: 'all 400ms cubic-bezier(0.4,0,0.2,1)' }}>
+    <div className="absolute inset-0 flex flex-col" style={{ overflow: 'hidden' }}>
       {/* ─ Slim palette strip ─ */}
       <div
         className="flex-none flex items-stretch relative z-10"
-        style={{ height: 60, marginTop: 60 }}
+        style={{
+          height: 60,
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+          transition: 'height 400ms cubic-bezier(0.4,0,0.2,1)',
+        }}
       >
         {swatches.map(s => (
           <div
@@ -1974,7 +1978,7 @@ function PreviewMode({
             style={{ backgroundColor: s.hex }}
           >
             <span
-              className="font-mono text-[10px] font-semibold"
+              className="font-mono text-[11px] font-semibold"
               style={{ color: readableOn(s.hex) }}
             >
               {s.hex.toUpperCase()}
@@ -1983,35 +1987,54 @@ function PreviewMode({
         ))}
         <button
           onClick={onClose}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center bg-black/20 hover:bg-black/40 text-white transition-all"
+          className="absolute flex items-center justify-center transition-all hover:bg-white/20"
+          style={{
+            right: 12, top: '50%', transform: 'translateY(-50%)',
+            width: 36, height: 36, padding: 0, borderRadius: 8,
+            backgroundColor: 'rgba(0,0,0,0.15)',
+            color: '#ffffff',
+          }}
           aria-label="Exit preview mode"
         >
-          <X size={12} />
+          <X size={20} strokeWidth={1.5} />
         </button>
       </div>
 
       {/* ─ Export actions bar ─ */}
       <div
-        className="flex-none flex items-center justify-between px-6 border-b"
-        style={{ height: 44, backgroundColor: '#ffffff', borderColor: '#e5e7eb' }}
+        className="flex-none flex items-center justify-between"
+        style={{
+          height: 44,
+          padding: '0 24px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}
       >
         <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>Preview</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center" style={{ gap: 6 }}>
           <button
-            onClick={handleExportTailwind}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-all hover:bg-gray-50"
-            style={{ border: '1px solid #e5e7eb', color: BRAND_DARK }}
+            onClick={() => onExport()}
+            className="flex items-center transition-all hover:bg-gray-50"
+            style={{
+              height: 36, padding: '0 12px', gap: 6, borderRadius: 8,
+              border: '1px solid rgba(0,0,0,0.06)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+            }}
+            aria-label="Export Tailwind config"
           >
-            <Download size={13} />
-            Export Tailwind config
+            <Download size={16} strokeWidth={1.5} />
+            Export Tailwind
           </button>
           <button
             onClick={handleCopyCSS}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12px] font-medium transition-all hover:bg-gray-50"
-            style={{ border: '1px solid #e5e7eb', color: BRAND_DARK }}
+            className="flex items-center transition-all hover:bg-gray-50"
+            style={{
+              height: 36, padding: '0 12px', gap: 6, borderRadius: 8,
+              border: '1px solid rgba(0,0,0,0.06)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
+            }}
+            aria-label="Copy CSS variables"
           >
-            <Copy size={13} />
-            Copy CSS variables
+            <Copy size={16} strokeWidth={1.5} />
+            Copy CSS
           </button>
         </div>
       </div>
@@ -2019,11 +2042,17 @@ function PreviewMode({
       {/* ─ Mockup grid ─ */}
       <div
         className="flex-1 overflow-y-auto"
-        style={{ backgroundColor: '#f5f5f4', padding: 24 }}
+        style={{
+          backgroundColor: '#f5f5f4',
+          padding: 24,
+          paddingBottom: 80,
+          opacity: entering ? 0 : 1,
+          transition: 'opacity 300ms ease 100ms',
+        }}
       >
         <div
-          className="grid gap-4 mx-auto"
-          style={{ gridTemplateColumns: '1fr 1fr', maxWidth: 1100 }}
+          className="grid mx-auto"
+          style={{ gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 1000 }}
         >
           {/* Card 1: Landing page (FREE) */}
           <MockupCard label="Landing page" badge="Free" badgeStyle="free">
@@ -2036,7 +2065,7 @@ function PreviewMode({
             badge="PRO"
             badgeStyle="pro"
             blurred={!isPro}
-            onProClick={() => onProGate('preview_dashboard', 'preview_grid')}
+            onProClick={() => { onProGate('preview_dashboard', 'preview_grid'); analytics.track('pro_gate_hit', { feature: 'preview_dashboard' }) }}
           >
             <DashboardMockup c={c} />
           </MockupCard>
@@ -2048,52 +2077,60 @@ function PreviewMode({
               badge="PRO"
               badgeStyle="pro"
               blurred={!isPro}
-              onProClick={() => onProGate('preview_mobile', 'preview_grid')}
+              onProClick={() => { onProGate('preview_mobile', 'preview_grid'); analytics.track('pro_gate_hit', { feature: 'preview_mobile' }) }}
             >
               <MobileAppMockup c={c} />
             </MockupCard>
           </div>
         </div>
-
-        {/* Spacer for footer */}
-        <div style={{ height: 80 }} />
       </div>
 
       {/* ─ Floating control footer ─ */}
       <div
-        className="absolute z-20 flex items-center gap-3"
+        className="absolute z-20 flex items-center"
         style={{
-          bottom: 14,
-          left: 14,
-          right: 14,
-          height: 56,
-          borderRadius: 16,
-          backgroundColor: 'rgba(255,255,255,0.94)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 2px 28px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.6)',
-          padding: '0 16px',
+          bottom: 12,
+          left: 12,
+          right: 12,
+          height: 52,
+          borderRadius: 12,
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '1px solid rgba(0,0,0,0.04)',
+          padding: '4px 8px',
+          gap: 6,
+          transform: entering ? 'translateY(20px)' : 'translateY(0)',
+          opacity: entering ? 0 : 1,
+          transition: 'transform 200ms ease-out 100ms, opacity 200ms ease-out 100ms',
         }}
       >
         {/* Color swatches */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center" style={{ gap: 6 }}>
           {swatches.map(s => (
             <button
               key={s.id}
               onClick={() => onLock(s.id)}
-              className="relative w-9 h-9 rounded-lg transition-all hover:scale-105"
-              style={{ backgroundColor: s.hex, border: '1px solid rgba(0,0,0,0.08)' }}
-              aria-label={`${s.hex} ${s.locked ? '(locked)' : ''}`}
+              className="relative flex items-center justify-center transition-all hover:scale-105"
+              style={{
+                width: 36, height: 36, padding: 0, borderRadius: 8,
+                backgroundColor: s.hex, border: '1px solid rgba(0,0,0,0.08)',
+              }}
+              aria-label={`${s.hex} ${s.locked ? '(locked)' : '(unlocked)'}`}
             >
               {s.locked && (
-                <Lock size={10} className="absolute bottom-0.5 right-0.5" style={{ color: readableOn(s.hex) }} />
+                <Lock size={12} style={{ color: readableOn(s.hex) }} />
               )}
             </button>
           ))}
           {swatches.length < 8 && (
             <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ border: '2px dashed #d1d5db' }}
+              className="flex items-center justify-center"
+              style={{
+                width: 36, height: 36, borderRadius: 8,
+                border: '2px dashed #d1d5db',
+              }}
             >
               <Plus size={14} style={{ color: '#9ca3af' }} />
             </div>
@@ -2101,47 +2138,38 @@ function PreviewMode({
         </div>
 
         {/* Divider */}
-        <div className="w-px h-7" style={{ backgroundColor: '#e5e7eb' }} />
+        <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 6px' }} />
 
         {/* Tool buttons */}
-        <div className="flex items-center gap-1.5">
-          <DarkTooltip label="Shuffle" position="top">
+        <div className="flex items-center" style={{ gap: 6 }}>
+          <DarkTooltip label="Generate" position="top">
             <button
               onClick={onGenerate}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Generate new palette"
             >
-              <RefreshCw size={15} style={{ color: BRAND_DARK }} />
-            </button>
-          </DarkTooltip>
-          <DarkTooltip label="Adjust" position="top">
-            <button
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
-              aria-label="HSL adjust (coming soon)"
-            >
-              <SlidersHorizontal size={15} style={{ color: BRAND_DARK }} />
+              <Shuffle size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Undo" position="top">
             <button
               onClick={onUndo}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Undo"
             >
-              <Undo2 size={15} style={{ color: BRAND_DARK }} />
+              <Undo2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Redo" position="top">
             <button
               onClick={onRedo}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-              style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Redo"
             >
-              <Redo2 size={15} style={{ color: BRAND_DARK }} />
+              <Redo2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
             </button>
           </DarkTooltip>
         </div>
@@ -2151,18 +2179,24 @@ function PreviewMode({
         {/* Generate + Export */}
         <button
           onClick={onGenerate}
-          className="flex items-center gap-2 h-9 px-4 rounded-full text-[13px] font-medium transition-all hover:bg-gray-200"
-          style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb', color: BRAND_DARK }}
+          className="flex items-center text-[13px] font-medium transition-all hover:bg-gray-200"
+          style={{
+            height: 36, padding: '0 16px', gap: 6, borderRadius: 8,
+            backgroundColor: '#f3f4f6', border: '1px solid rgba(0,0,0,0.06)', color: BRAND_DARK,
+          }}
         >
-          <Sparkles size={14} />
+          <Sparkles size={16} strokeWidth={1.5} />
           Generate
         </button>
         <button
           onClick={onExport}
-          className="flex items-center gap-2 h-9 px-4 rounded-full text-white text-[13px] font-semibold transition-all hover:opacity-90"
-          style={{ backgroundColor: BRAND_VIOLET }}
+          className="flex items-center text-white text-[13px] font-semibold transition-all hover:opacity-90"
+          style={{
+            height: 36, padding: '0 16px', gap: 6, borderRadius: 8,
+            backgroundColor: BRAND_VIOLET,
+          }}
         >
-          <Download size={14} />
+          <Download size={16} strokeWidth={1.5} />
           Export
         </button>
       </div>
@@ -2182,20 +2216,20 @@ function MockupCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+    <div className="overflow-hidden" style={{ borderRadius: 12, backgroundColor: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
       {/* Browser chrome */}
-      <div className="flex items-center gap-2 px-3" style={{ height: 32, backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ef4444' }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#eab308' }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#22c55e' }} />
+      <div className="flex items-center gap-2 px-3" style={{ height: 28, backgroundColor: '#f3f4f6', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="flex" style={{ gap: 5 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#ef4444' }} />
+          <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#eab308' }} />
+          <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#22c55e' }} />
         </div>
-        <div className="flex-1 h-5 rounded-md" style={{ backgroundColor: '#e5e7eb', maxWidth: 200 }} />
+        <div className="flex-1 h-4 rounded" style={{ backgroundColor: '#e5e7eb', maxWidth: 180 }} />
       </div>
 
       {/* Content */}
       <div className="relative">
-        <div style={{ filter: blurred ? 'blur(4px)' : undefined, opacity: blurred ? 0.55 : 1 }}>
+        <div style={{ filter: blurred ? 'blur(4px)' : undefined, opacity: blurred ? 0.5 : 1 }}>
           {children}
         </div>
 
@@ -2209,20 +2243,20 @@ function MockupCard({
             <div
               className="flex flex-col items-center gap-2"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.6)',
+                backgroundColor: 'rgba(255,255,255,0.8)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                borderRadius: 16,
+                borderRadius: 12,
                 padding: '16px 24px',
               }}
             >
               <Lock size={24} style={{ color: BRAND_VIOLET }} />
-              <span className="text-[13px] font-semibold" style={{ color: BRAND_VIOLET }}>
-                Preview {label.toLowerCase()}
+              <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>
+                {label} preview
               </span>
               <span
-                className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white"
-                style={{ backgroundColor: BRAND_VIOLET }}
+                className="text-[9px] font-bold px-2 py-0.5 text-white"
+                style={{ backgroundColor: BRAND_VIOLET, borderRadius: 4 }}
               >
                 PRO
               </span>
@@ -2232,11 +2266,12 @@ function MockupCard({
       </div>
 
       {/* Label */}
-      <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: '#f3f4f6' }}>
+      <div className="flex items-center gap-2 px-3 py-2" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
         <span className="text-[12px] font-medium" style={{ color: BRAND_DARK }}>{label}</span>
         <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+          className="text-[9px] font-bold px-1.5 py-0.5"
           style={{
+            borderRadius: 4,
             backgroundColor: badgeStyle === 'pro' ? BRAND_VIOLET : '#e5e7eb',
             color: badgeStyle === 'pro' ? '#ffffff' : '#374151',
           }}
