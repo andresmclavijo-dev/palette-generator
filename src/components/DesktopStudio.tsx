@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
   X, Share2, Download, Grid3X3,
   Undo2, Redo2, Plus, Minus, MoreHorizontal, ExternalLink,
-  Folder, User,
+  Folder, User, Link2,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
@@ -1024,7 +1024,7 @@ export default function DesktopStudio() {
               isSignedIn={isSignedIn}
               userId={user?.id}
               isPro={isPro}
-              onLoad={hexes => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio') }}
+              onLoad={(hexes, name) => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio'); setViewMode('colors'); showToast(`Loaded · ${name || 'Untitled'}`) }}
               onProGate={openProModal}
               onSignIn={() => openDialog('sign-in')}
             />
@@ -1146,12 +1146,13 @@ function LibrarySection({
   isSignedIn: boolean
   userId?: string
   isPro: boolean
-  onLoad: (hexes: string[]) => void
+  onLoad: (hexes: string[], name?: string) => void
   onProGate: (feature?: string, source?: string) => void
   onSignIn: () => void
 }) {
   const [palettes, setPalettes] = useState<{ id: string; name: string; colors: string[]; created_at: string }[]>([])
   const [loading, setLoading] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; colors: string[] } | null>(null)
 
   useEffect(() => {
     if (!isSignedIn || !userId) return
@@ -1171,12 +1172,31 @@ function LibrarySection({
     })()
   }, [isSignedIn, userId])
 
-  const handleDelete = async (id: string) => {
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
     const { supabase } = await import('../lib/supabase')
-    await supabase.from('saved_palettes').delete().eq('id', id)
-    setPalettes(p => p.filter(x => x.id !== id))
-    showToast('Deleted')
+    await supabase.from('saved_palettes').delete().eq('id', deleteTarget.id)
+    setPalettes(p => p.filter(x => x.id !== deleteTarget.id))
+    setDeleteTarget(null)
+    showToast('Palette deleted')
   }
+
+  const handleShare = async (colors: string[]) => {
+    const hex = colors.map(c => c.replace('#', '')).join('-')
+    const url = `https://www.usepaletta.io/?p=${hex}`
+    try {
+      await navigator.clipboard.writeText(url)
+      showToast('Link copied!')
+    } catch { /* silent */ }
+  }
+
+  // Close delete confirmation on Escape
+  useEffect(() => {
+    if (!deleteTarget) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setDeleteTarget(null) }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [deleteTarget])
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime()
@@ -1221,6 +1241,7 @@ function LibrarySection({
   }
 
   return (
+    <>
     <div className="absolute inset-0 overflow-y-auto" style={{ padding: 32 }}>
       <div className="max-w-[640px] mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -1240,30 +1261,40 @@ function LibrarySection({
         ) : (
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {palettes.map(p => (
-              <div key={p.id} className="bg-white overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
-                <button
-                  onClick={() => onLoad(p.colors)}
-                  className="w-full flex h-14 overflow-hidden"
-                  style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-                  aria-label={`Load palette: ${p.name}`}
-                >
+              <div
+                key={p.id}
+                className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+                style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}
+                onClick={() => onLoad(p.colors, p.name)}
+                role="button"
+                aria-label={`Load palette: ${p.name || 'Untitled'}`}
+              >
+                <div className="flex h-14 overflow-hidden" style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
                   {p.colors.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
-                </button>
+                </div>
                 <div className="flex items-center justify-between px-3 py-2">
                   <div>
                     <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
                     <span className="text-[10px]" style={{ color: '#D1D5DB' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
-                    style={{ minWidth: 36, minHeight: 36 }}
-                    aria-label={`Delete ${p.name}`}
-                  >
-                    <X size={14} strokeWidth={2} />
-                  </button>
+                  <div className="flex items-center" style={{ gap: 2 }}>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 transition-colors"
+                      aria-label="Copy palette link"
+                    >
+                      <Link2 size={14} strokeWidth={2} />
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
+                      aria-label={`Delete ${p.name || 'Untitled'}`}
+                    >
+                      <X size={14} strokeWidth={2} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1281,6 +1312,55 @@ function LibrarySection({
         )}
       </div>
     </div>
+
+    {/* Delete confirmation modal */}
+    {deleteTarget && (
+      <>
+        <div
+          className="fixed inset-0 z-[100]"
+          onClick={() => setDeleteTarget(null)}
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          }}
+        />
+        <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+          <div
+            className="bg-white shadow-2xl max-w-sm w-full pointer-events-auto"
+            style={{ borderRadius: 16, padding: 24 }}
+            role="dialog"
+            aria-label="Delete palette confirmation"
+            aria-modal="true"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 m-0">Delete palette?</h2>
+            <p className="text-sm mt-1 m-0" style={{ color: '#6b7280' }}>
+              &ldquo;{deleteTarget.name || 'Untitled'}&rdquo; will be permanently deleted. This can&rsquo;t be undone.
+            </p>
+            <div className="flex rounded-lg overflow-hidden h-10 mt-4">
+              {deleteTarget.colors.map((c, i) => (
+                <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+              ))}
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 h-9 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+    </>
   )
 }
 
