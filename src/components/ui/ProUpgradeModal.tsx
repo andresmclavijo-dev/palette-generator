@@ -109,7 +109,7 @@ export default function ProUpgradeModal({ open, onClose }: ProUpgradeModalProps)
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-stretch md:items-center md:justify-center"
+      className="fixed inset-0 z-[200] flex items-stretch md:items-center md:justify-center"
       onClick={handleDismiss}
       role="dialog"
       aria-modal="true"

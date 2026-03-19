@@ -1962,44 +1962,6 @@ function PreviewMode({
 
   return (
     <div className="absolute inset-0 flex flex-col" style={{ overflow: 'hidden' }}>
-      {/* ─ Slim palette strip ─ */}
-      <div
-        className="flex-none flex items-stretch relative z-10"
-        style={{
-          height: 60,
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
-          transition: 'height 400ms cubic-bezier(0.4,0,0.2,1)',
-        }}
-      >
-        {swatches.map(s => (
-          <div
-            key={s.id}
-            className="flex-1 flex items-center justify-center"
-            style={{ backgroundColor: s.hex }}
-          >
-            <span
-              className="font-mono text-[11px] font-semibold"
-              style={{ color: readableOn(s.hex) }}
-            >
-              {s.hex.toUpperCase()}
-            </span>
-          </div>
-        ))}
-        <button
-          onClick={onClose}
-          className="absolute flex items-center justify-center transition-all hover:bg-white/20"
-          style={{
-            right: 12, top: '50%', transform: 'translateY(-50%)',
-            width: 36, height: 36, padding: 0, borderRadius: 8,
-            backgroundColor: 'rgba(0,0,0,0.15)',
-            color: '#ffffff',
-          }}
-          aria-label="Exit preview mode"
-        >
-          <X size={20} strokeWidth={1.5} />
-        </button>
-      </div>
-
       {/* ─ Export actions bar ─ */}
       <div
         className="flex-none flex items-center justify-between"
@@ -2035,6 +1997,14 @@ function PreviewMode({
           >
             <Copy size={16} strokeWidth={1.5} />
             Copy CSS
+          </button>
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center transition-all hover:bg-gray-100"
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+            aria-label="Exit preview mode"
+          >
+            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
           </button>
         </div>
       </div>
