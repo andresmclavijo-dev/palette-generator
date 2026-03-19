@@ -336,7 +336,7 @@ export default function DesktopStudio() {
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
-  const dockW = dockExpanded ? 200 : 64
+  const dockW = dockExpanded ? 200 : 80
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -359,7 +359,7 @@ export default function DesktopStudio() {
           style={{
             width: dockW,
             transition: 'width 200ms ease',
-            padding: '12px 8px 12px 12px',
+            padding: '12px 8px 12px 8px',
           }}
         >
           <nav
