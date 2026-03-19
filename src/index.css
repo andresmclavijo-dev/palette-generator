@@ -21,6 +21,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   color: #2C2C2A;
   font-size: 14px;
+  background-color: #EEEEEC;
 }
 
 #root {
@@ -28,6 +29,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: auto;
+  background-color: #EEEEEC;
 }
 
 /* Mobile bottom sheet animation */

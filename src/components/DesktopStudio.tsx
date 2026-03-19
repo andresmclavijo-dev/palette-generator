@@ -363,7 +363,7 @@ export default function DesktopStudio() {
           className="shrink-0 z-40 flex flex-col"
           style={{
             width: dockW,
-            transition: 'width 200ms ease',
+            transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
             padding: '12px 8px 12px 8px',
           }}
         >
@@ -374,7 +374,7 @@ export default function DesktopStudio() {
               backgroundColor: '#ffffff',
               boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: dockExpanded ? '14px 10px' : '12px 8px',
+              padding: dockExpanded ? '14px 12px' : '12px 8px',
             }}
           >
             {/* Dock logo */}
@@ -383,7 +383,7 @@ export default function DesktopStudio() {
               style={{
                 justifyContent: dockExpanded ? 'flex-start' : 'center',
                 padding: dockExpanded ? '2px 6px 0' : '2px 0 0',
-                marginBottom: 10,
+                marginBottom: dockExpanded ? 14 : 10,
                 gap: 10,
               }}
             >
@@ -400,12 +400,12 @@ export default function DesktopStudio() {
                 P
               </div>
               {dockExpanded && (
-                <span className="text-[14px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
+                <span className="text-[15px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
               )}
             </div>
 
             {/* Creation tools group */}
-            <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
+            <div className="flex flex-col" style={{ gap: dockExpanded ? 4 : 6 }}>
               <DockItem
                 icon={<Shuffle size={20} />}
                 label="Generate"
@@ -432,17 +432,17 @@ export default function DesktopStudio() {
 
             {/* Divider */}
             <div
-              className="mx-auto shrink-0"
+              className="shrink-0"
               style={{
-                width: dockExpanded ? '80%' : 24,
+                width: dockExpanded ? 'calc(100% - 28px)' : 24,
                 height: 1,
                 backgroundColor: 'rgba(0,0,0,0.06)',
-                margin: '8px auto',
+                margin: dockExpanded ? '10px 14px' : '8px auto',
               }}
             />
 
             {/* Utility tools group */}
-            <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
+            <div className="flex flex-col" style={{ gap: dockExpanded ? 4 : 6 }}>
               <DockItem
                 icon={<Image size={20} />}
                 label="Extract"
@@ -478,11 +478,11 @@ export default function DesktopStudio() {
             {dockExpanded ? (
               <button
                 onClick={toggleDock}
-                className="flex items-center gap-2.5 w-full px-3.5 py-3 text-[13px] font-medium transition-all hover:bg-gray-100"
-                style={{ borderRadius: 10, color: '#666' }}
+                className="flex items-center w-full text-[13px] font-medium transition-all hover:bg-black/[0.04]"
+                style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10, color: '#9ca3af' }}
                 aria-label="Collapse dock"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={16} />
                 <span>Collapse</span>
               </button>
             ) : (
@@ -1083,24 +1083,22 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`flex items-center justify-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
+        className={`flex items-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
         style={{
           width: isCollapsed ? 48 : '100%',
-          height: isCollapsed ? 48 : undefined,
-          minHeight: expanded ? 46 : undefined,
+          height: 48,
           flexShrink: 0,
-          borderRadius: isCollapsed ? 12 : 10,
-          padding: expanded ? '12px 14px' : '0',
+          borderRadius: 12,
+          padding: expanded ? '0 14px' : '0',
           gap: expanded ? 12 : 0,
           justifyContent: expanded ? 'flex-start' : 'center',
           backgroundColor: primary
             ? BRAND_VIOLET
             : active
-              ? (isCollapsed ? 'rgba(108,71,255,0.08)' : '#F3F0FF')
+              ? 'rgba(108,71,255,0.08)'
               : 'transparent',
           color: primary ? '#ffffff' : active ? BRAND_VIOLET : '#374151',
           fontWeight: active || primary ? 600 : 500,
-          boxShadow: active && expanded ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
         }}
         onMouseOver={(e) => {
           if (primary) (e.currentTarget.style.backgroundColor = '#7C5AFF')
@@ -1151,25 +1149,25 @@ function DockItem({
           )}
         </span>
         {expanded && (
-          <span className="text-[14px] whitespace-nowrap flex items-center gap-1.5">
-            {label}
+          <>
+            <span className="text-[14px] whitespace-nowrap">{label}</span>
             {badge && (
               <span
-                className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold"
-                style={{ backgroundColor: 'rgba(108,71,255,0.12)', color: BRAND_VIOLET }}
+                className="text-[8px] font-bold text-white flex items-center justify-center"
+                style={{ marginLeft: 'auto', minWidth: 18, height: 18, borderRadius: 4, backgroundColor: BRAND_VIOLET, padding: '0 5px' }}
               >
                 {badge}
               </span>
             )}
             {proBadge && (
               <span
-                className="text-[9px] px-1.5 py-0.5 rounded-full font-bold text-white"
-                style={{ backgroundColor: BRAND_VIOLET }}
+                className="text-[8px] font-bold text-white"
+                style={{ marginLeft: 'auto', borderRadius: 4, backgroundColor: BRAND_VIOLET, padding: '2px 5px' }}
               >
                 PRO
               </span>
             )}
-          </span>
+          </>
         )}
       </button>
 
@@ -1568,25 +1566,22 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
   if (expanded) {
     return (
-      <div className="flex flex-col gap-0.5 py-2 border-t border-gray-100 mt-1">
+      <div className="flex flex-col" style={{ gap: 4, marginBottom: 8 }}>
         {links.map(l => (
           <a
             key={l.href}
             href={l.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all hover:bg-gray-100"
-            style={{ color: '#9ca3af', textDecoration: 'none' }}
+            className="text-[11px] transition-all hover:underline"
+            style={{ color: '#9ca3af', textDecoration: 'none', padding: '0 14px' }}
           >
             {l.label}
-            <ExternalLink size={10} className="opacity-40" />
           </a>
         ))}
-        <div className="px-3 pt-1">
-          <p className="text-[9px] m-0" style={{ color: '#d1d5db' }}>
-            Built with Paletta
-          </p>
-        </div>
+        <p className="text-[10px] m-0" style={{ color: '#d1d5db', padding: '4px 14px 0' }}>
+          Built with Paletta
+        </p>
       </div>
     )
   }
