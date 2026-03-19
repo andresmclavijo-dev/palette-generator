@@ -480,8 +480,8 @@ export default function DesktopStudio() {
           {/* ═══ STUDIO SECTION ═══ */}
           {section === 'studio' && (
             <>
-              {/* ─── Action Bar (top of bento) ─── */}
-              <div
+              {/* ─── Action Bar (top of bento) — hidden in preview mode ─── */}
+              {viewMode === 'colors' && <div
                 className="absolute flex items-center justify-between"
                 style={{ top: 12, left: 12, right: 12, zIndex: 110 }}
               >
@@ -740,10 +740,10 @@ export default function DesktopStudio() {
                     </button>
                   )}
                 </div>
-              </div>
+              </div>}
 
               {/* ─── Validate: Vision Picker Bar ─── */}
-              {validateOn && (
+              {viewMode === 'colors' && validateOn && (
                 <div
                   className="absolute flex items-center"
                   style={{
