@@ -530,8 +530,8 @@ export default function DesktopStudio() {
           >
             <button
               onClick={() => setHarmonyOpen(o => !o)}
-              className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.08]"
-              style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK, backgroundColor: 'rgba(0,0,0,0.04)' }}
+              className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
+              style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK, backgroundColor: 'transparent' }}
               aria-expanded={harmonyOpen}
               aria-haspopup="listbox"
             >
@@ -592,8 +592,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Save palette" position="bottom">
               <button
                 onClick={handleSave}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.08]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.04)' }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
                 aria-label="Save palette"
               >
                 <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
@@ -604,8 +604,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Share" position="bottom">
               <button
                 onClick={handleShare}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.08]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.04)' }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
                 aria-label="Share palette link"
               >
                 {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
@@ -616,8 +616,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Export" position="bottom">
               <button
                 onClick={() => setExportOpen(o => !o)}
-                className="flex items-center justify-center transition-all hover:bg-black/[0.08]"
-                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.04)' }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'transparent' }}
                 aria-label="Export palette"
               >
                 <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
