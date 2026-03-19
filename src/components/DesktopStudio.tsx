@@ -571,7 +571,7 @@ export default function DesktopStudio() {
               top: 12,
               right: 12,
               zIndex: 70,
-              gap: 2,
+              gap: 4,
               borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
@@ -627,7 +627,7 @@ export default function DesktopStudio() {
               <button
                 onClick={() => openProModal()}
                 className="text-white text-[13px] font-semibold transition-all hover:opacity-90"
-                style={{ height: 36, padding: '6px 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET }}
+                style={{ height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET }}
               >
                 Go Pro
               </button>
@@ -645,7 +645,7 @@ export default function DesktopStudio() {
               <button
                 onClick={() => setSignInOpen(true)}
                 className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-                style={{ height: 36, padding: '6px 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
+                style={{ height: 36, padding: '0 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
               >
                 Sign In
               </button>
@@ -735,7 +735,7 @@ export default function DesktopStudio() {
                         )}
 
                         {/* Action buttons */}
-                        <div className="flex flex-col items-center" style={{ gap: 4 }}>
+                        <div className="flex flex-col items-center" style={{ gap: 6 }}>
                           {/* Copy */}
                           <button
                             onClick={() => copyHex(s.id, s.hex)}
