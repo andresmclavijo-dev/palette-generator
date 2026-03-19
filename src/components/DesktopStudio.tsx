@@ -3,7 +3,7 @@ import {
   Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
   X, Share2, Download, Grid3X3, RefreshCw, SlidersHorizontal,
-  Undo2, Redo2, Plus, MoreHorizontal, ExternalLink,
+  Undo2, Redo2, Plus, Minus, MoreHorizontal, ExternalLink,
 } from 'lucide-react'
 import { usePaletteStore } from '../store/paletteStore'
 import { usePro } from '../hooks/usePro'
@@ -59,7 +59,7 @@ export default function DesktopStudio() {
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count,
-    generate, lockSwatch, editSwatch, setHarmonyMode,
+    generate, lockSwatch, editSwatch, setHarmonyMode, setCount,
     undo, redo, setSwatches,
   } = usePaletteStore()
 
@@ -848,22 +848,76 @@ export default function DesktopStudio() {
             </button>
           )}
 
-          {/* Spacebar hint — show when no panel open and not in preview */}
+          {/* Bottom bar — color count + spacebar hint */}
           {!activeTool && !aiOpen && !exportOpen && (
             <div
-              className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full"
+              className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5"
               style={{
+                borderRadius: 10,
                 backgroundColor: 'rgba(26,26,46,0.75)',
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <kbd
-                className="inline-flex items-center justify-center h-5 px-2 rounded text-[10px] font-mono font-semibold"
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}
-              >
-                Space
-              </kbd>
-              <span className="text-[12px] font-medium text-white/70">generate</span>
+              {/* Color count controls */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => { if (count > 3) setCount(count - 1) }}
+                  className="w-6 h-6 flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ borderRadius: 6, opacity: count <= 3 ? 0.3 : 1 }}
+                  disabled={count <= 3}
+                  aria-label="Remove color"
+                >
+                  <Minus size={12} style={{ color: '#fff' }} />
+                </button>
+                <span className="text-[12px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 14, textAlign: 'center' }}>
+                  {count}
+                </span>
+                {(() => {
+                  const freeMax = 5
+                  const proMax = 8
+                  const max = isPro ? proMax : freeMax
+                  const atFreeLimit = !isPro && count >= freeMax
+                  return (
+                    <button
+                      onClick={() => {
+                        if (atFreeLimit) {
+                          openProModal('color_count', 'canvas_bar')
+                        } else if (count < max) {
+                          setCount(count + 1)
+                        }
+                      }}
+                      className="relative w-6 h-6 flex items-center justify-center transition-all hover:bg-white/10"
+                      style={{ borderRadius: 6, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
+                      disabled={!atFreeLimit && count >= max}
+                      aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : 'Add color'}
+                    >
+                      <Plus size={12} style={{ color: '#fff' }} />
+                      {atFreeLimit && (
+                        <span
+                          className="absolute -top-1.5 -right-1.5 w-3 h-3 flex items-center justify-center rounded-full text-[6px] font-bold text-white"
+                          style={{ backgroundColor: BRAND_VIOLET }}
+                        >
+                          P
+                        </span>
+                      )}
+                    </button>
+                  )
+                })()}
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-4" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+
+              {/* Spacebar hint */}
+              <div className="flex items-center gap-2">
+                <kbd
+                  className="inline-flex items-center justify-center h-5 px-2 rounded text-[10px] font-mono font-semibold"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}
+                >
+                  Space
+                </kbd>
+                <span className="text-[12px] font-medium text-white/70">generate</span>
+              </div>
             </div>
           )}
         </div>
@@ -907,7 +961,6 @@ export default function DesktopStudio() {
         )}
 
         <VisionFilterDefs />
-        <CookieConsent />
 
         {/* Hidden file input for image extraction */}
         <input
@@ -921,6 +974,11 @@ export default function DesktopStudio() {
             e.target.value = ''
           }}
         />
+      </div>
+
+      {/* Cookie banner — fixed above everything, outside flex layout */}
+      <div className="fixed top-0 left-0 right-0" style={{ zIndex: 100 }}>
+        <CookieConsent />
       </div>
 
       {/* SEO content below fold */}
