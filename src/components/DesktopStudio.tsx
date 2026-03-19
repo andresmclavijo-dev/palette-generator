@@ -373,6 +373,19 @@ export default function DesktopStudio() {
               padding: '14px 10px',
             }}
           >
+            {/* Dock logo */}
+            <div className="flex items-center gap-2.5 mb-3" style={{ padding: dockExpanded ? '2px 6px 0' : '2px 0 0', justifyContent: dockExpanded ? 'flex-start' : 'center' }}>
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[14px] font-bold shrink-0"
+                style={{ backgroundColor: BRAND_VIOLET }}
+              >
+                P
+              </div>
+              {dockExpanded && (
+                <span className="text-[14px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
+              )}
+            </div>
+
             <div className="flex-1 flex flex-col gap-1.5">
               <DockItem
                 icon={<Sparkles size={22} />}
@@ -462,144 +475,145 @@ export default function DesktopStudio() {
             boxShadow: '0 8px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
           }}
         >
-          {/* ─── Floating Header Pill ─── */}
-          <header
-            className="absolute z-30 flex items-center justify-between"
+          {/* ─── Floating Harmony Pill (top-left) ─── */}
+          <div
+            ref={harmonyRef}
+            className="absolute flex items-center"
             style={{
-              top: 12,
-              left: 12,
-              right: 12,
-              height: 46,
-              borderRadius: 20,
+              top: 14,
+              left: 14,
+              zIndex: 70,
+              height: 38,
+              borderRadius: 14,
               backgroundColor: 'rgba(255,255,255,0.95)',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              borderBottom: '1px solid rgba(0,0,0,0.04)',
-              padding: '6px 9px 6px 15px',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              border: '1px solid rgba(0,0,0,0.04)',
+              padding: '0 4px',
             }}
           >
-            {/* Left: Logo */}
-            <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setHarmonyOpen(o => !o)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium transition-all hover:bg-black/5"
+              style={{ color: BRAND_DARK }}
+              aria-expanded={harmonyOpen}
+              aria-haspopup="listbox"
+            >
+              {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {harmonyOpen && (
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[14px] font-bold"
+                className="absolute top-full left-0 mt-2 bg-white rounded-2xl overflow-hidden"
+                style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
+                role="listbox"
+                aria-label="Harmony modes"
+              >
+                {HARMONIES.map(h => (
+                  <button
+                    key={h.mode}
+                    role="option"
+                    aria-selected={harmonyMode === h.mode}
+                    onClick={() => handleHarmonySelect(h.mode)}
+                    className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
+                    style={{
+                      backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
+                      color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
+                    }}
+                  >
+                    <span className="text-[13px] font-semibold">{h.label}</span>
+                    <span className="text-[11px] opacity-60">{h.desc}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ─── Floating Actions Pill (top-right) ─── */}
+          <header
+            className="absolute flex items-center gap-1"
+            style={{
+              top: 14,
+              right: 14,
+              zIndex: 70,
+              height: 38,
+              borderRadius: 14,
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              border: '1px solid rgba(0,0,0,0.04)',
+              padding: '0 6px',
+            }}
+          >
+            {/* Save */}
+            <DarkTooltip label="Save palette" position="bottom">
+              <button
+                onClick={handleSave}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                aria-label="Save palette"
+              >
+                <Heart size={16} style={{ color: BRAND_DARK }} />
+              </button>
+            </DarkTooltip>
+
+            {/* Share */}
+            <DarkTooltip label="Share" position="bottom">
+              <button
+                onClick={handleShare}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                aria-label="Share palette link"
+              >
+                {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
+              </button>
+            </DarkTooltip>
+
+            {/* Export */}
+            <DarkTooltip label="Export" position="bottom">
+              <button
+                onClick={() => setExportOpen(o => !o)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                aria-label="Export palette"
+              >
+                <Download size={16} style={{ color: BRAND_DARK }} />
+              </button>
+            </DarkTooltip>
+
+            {/* Divider */}
+            <div className="w-px h-5 mx-0.5" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
+
+            {/* Go Pro (non-Pro) */}
+            {!isPro && (
+              <button
+                onClick={() => openProModal()}
+                className="h-7 px-3 rounded-lg text-white text-[12px] font-semibold transition-all hover:opacity-90"
                 style={{ backgroundColor: BRAND_VIOLET }}
               >
-                P
-              </div>
-              <span className="text-[14px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
-            </div>
-
-            {/* Center: Harmony dropdown */}
-            <div
-              ref={harmonyRef}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            >
-              <button
-                onClick={() => setHarmonyOpen(o => !o)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium transition-all hover:bg-black/5"
-                style={{ color: BRAND_DARK }}
-                aria-expanded={harmonyOpen}
-                aria-haspopup="listbox"
-              >
-                {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                Go Pro
               </button>
+            )}
 
-              {harmonyOpen && (
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl overflow-hidden"
-                  style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
-                  role="listbox"
-                  aria-label="Harmony modes"
-                >
-                  {HARMONIES.map(h => (
-                    <button
-                      key={h.mode}
-                      role="option"
-                      aria-selected={harmonyMode === h.mode}
-                      onClick={() => handleHarmonySelect(h.mode)}
-                      className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
-                      style={{
-                        backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
-                        color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
-                      }}
-                    >
-                      <span className="text-[13px] font-semibold">{h.label}</span>
-                      <span className="text-[11px] opacity-60">{h.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Right: Actions */}
-            <div className="flex items-center gap-1 shrink-0">
-              {/* Save */}
-              <DarkTooltip label="Save palette" position="bottom">
-                <button
-                  onClick={handleSave}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                  aria-label="Save palette"
-                >
-                  <Heart size={16} style={{ color: BRAND_DARK }} />
-                </button>
-              </DarkTooltip>
-
-              {/* Share */}
-              <DarkTooltip label="Share" position="bottom">
-                <button
-                  onClick={handleShare}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                  aria-label="Share palette link"
-                >
-                  {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
-                </button>
-              </DarkTooltip>
-
-              {/* Export */}
-              <DarkTooltip label="Export" position="bottom">
-                <button
-                  onClick={() => setExportOpen(o => !o)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
-                  aria-label="Export palette"
-                >
-                  <Download size={16} style={{ color: BRAND_DARK }} />
-                </button>
-              </DarkTooltip>
-
-              {/* Divider */}
-              <div className="w-px h-5 mx-1" style={{ backgroundColor: '#e5e7eb' }} />
-
-              {/* Go Pro (non-Pro) or Manage (Pro) */}
-              {!isPro && (
-                <button
-                  onClick={() => openProModal()}
-                  className="h-7 px-3 rounded-full text-white text-[12px] font-semibold transition-all hover:opacity-90"
-                  style={{ backgroundColor: BRAND_VIOLET }}
-                >
-                  Go Pro
-                </button>
-              )}
-
-              {/* Auth */}
-              {isSignedIn ? (
-                <UserMenu
-                  email={user?.email ?? ''}
-                  isPro={isPro}
-                  onSignOut={signOut}
-                  onManage={handleManageSubscription}
-                />
-              ) : (
-                <button
-                  onClick={() => setSignInOpen(true)}
-                  className="h-7 px-3 rounded-full text-[12px] font-semibold transition-all hover:bg-black/5"
-                  style={{ color: BRAND_DARK, border: '1px solid #e5e7eb' }}
-                >
-                  Sign In
-                </button>
-              )}
-            </div>
+            {/* Auth */}
+            {isSignedIn ? (
+              <UserMenu
+                email={user?.email ?? ''}
+                isPro={isPro}
+                onSignOut={signOut}
+                onManage={handleManageSubscription}
+              />
+            ) : (
+              <button
+                onClick={() => setSignInOpen(true)}
+                className="h-7 px-3 rounded-lg text-[12px] font-semibold transition-all hover:bg-black/5"
+                style={{ color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
+              >
+                Sign In
+              </button>
+            )}
           </header>
 
           {/* ─── Horizontal Shade Bar ─── */}
@@ -821,7 +835,7 @@ export default function DesktopStudio() {
           {visionMode !== 'normal' && activeTool !== 'preview' && (
             <button
               onClick={() => setVisionMode('normal')}
-              className="absolute top-[76px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
+              className="absolute top-[60px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium hover:bg-white transition-all"
               style={{ color: '#374151' }}
             >
               <Eye size={14} />
@@ -1604,7 +1618,7 @@ function PreviewMode({
       {/* ─ Slim palette strip ─ */}
       <div
         className="flex-none flex items-stretch relative z-10"
-        style={{ height: 60, marginTop: 76 }}
+        style={{ height: 60, marginTop: 60 }}
       >
         {swatches.map(s => (
           <div
@@ -2040,8 +2054,8 @@ function FloatingPanel({
     <div
       className="absolute z-30 bg-white rounded-2xl overflow-hidden"
       style={{
-        top: 70,
-        left: 12,
+        top: 60,
+        left: 14,
         width,
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         padding: 14,
