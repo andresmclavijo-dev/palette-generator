@@ -119,10 +119,11 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      {/* Backdrop */}
+    <>
+      {/* Backdrop — separate fixed layer */}
       <div
-        className="absolute inset-0"
+        className="fixed inset-0 z-[100]"
+        onClick={onClose}
         style={{
           backgroundColor: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(8px)',
@@ -132,22 +133,24 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
         }}
       />
 
-      {/* Modal card */}
+      {/* Modal card — separate fixed layer */}
       <div
-        className="relative flex flex-col w-full max-w-lg bg-white shadow-2xl"
-        style={{
-          maxHeight: '80vh',
-          borderRadius: 16,
-          padding: 24,
-          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
-          transform: entering ? 'scale(0.95)' : 'scale(1)',
-          opacity: entering ? 0 : 1,
-        }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-label="Export palette"
-        aria-modal="true"
+        className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
       >
+        <div
+          className="relative flex flex-col w-full max-w-lg bg-white shadow-2xl pointer-events-auto"
+          style={{
+            maxHeight: '80vh',
+            borderRadius: 16,
+            padding: 24,
+            transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+            transform: entering ? 'scale(0.95)' : 'scale(1)',
+            opacity: entering ? 0 : 1,
+          }}
+          role="dialog"
+          aria-label="Export palette"
+          aria-modal="true"
+        >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -304,7 +307,8 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
             )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -61,8 +61,10 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   },
 
   setCount: (n) => {
+    const clamped = Math.max(3, Math.min(8, n))
     const { swatches, harmonyMode, seedColor, count, history, historyIndex } = get()
-    if (n === count) return
+    if (clamped === count) return
+    n = clamped
     let next: Swatch[]
     if (n < count) {
       // Shrink — keep first n
