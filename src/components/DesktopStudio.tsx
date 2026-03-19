@@ -19,6 +19,7 @@ import PaymentSuccessModal from './ui/PaymentSuccessModal'
 import SavedPalettesPanel from './ui/SavedPalettesPanel'
 import SaveNameModal from './ui/SaveNameModal'
 // PreviewModal no longer used — preview is inline via PreviewMode component
+import { Button } from '@/components/ui/button'
 import CookieConsent from './CookieConsent'
 import {
   readableOn, getColorName, getColorInfo, getContrastBadge,
@@ -718,26 +719,28 @@ export default function DesktopStudio() {
 
                   {/* Go Pro */}
                   {!isPro && (
-                    <button
+                    <Button
+                      variant="default"
+                      size="default"
                       onClick={() => { openProModal(undefined, 'action_bar') }}
-                      className="text-[12px] font-semibold transition-all hover:opacity-80"
-                      style={{ height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET, color: '#ffffff' }}
+                      className="text-[12px] font-semibold"
                     >
                       Go Pro
-                    </button>
+                    </Button>
                   )}
 
                   {/* Auth */}
                   {isSignedIn && user?.email ? (
                     <UserMenu email={user.email} isPro={isPro} onSignOut={signOut} onManage={handleManageSubscription} />
                   ) : (
-                    <button
+                    <Button
+                      variant="outline"
+                      size="default"
                       onClick={() => openDialog('sign-in')}
-                      className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-                      style={{ height: 36, padding: '0 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
+                      className="text-[13px] font-medium"
                     >
                       Sign In
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -2172,13 +2175,14 @@ function ExtractDialog({
           <h2 className="text-lg font-semibold text-gray-900 m-0">
             Extract from image
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
             aria-label="Close"
           >
-            <X size={16} />
-          </button>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Drop zone */}
