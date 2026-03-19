@@ -161,37 +161,31 @@ export default function MobileShell() {
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#FAFAF8' }}>
-      {/* ─── Floating Header ─── */}
+      {/* ─── Floating Header Pill ─── */}
       <div
-        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-between rounded-full"
+        className="fixed left-3.5 right-3.5 z-50 flex items-center justify-center"
         style={{
           top: 'max(env(safe-area-inset-top, 14px), 14px)',
-          padding: '8px 18px',
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.06)',
+          height: 44,
+          padding: 4,
+          borderRadius: 12,
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '1px solid rgba(0,0,0,0.04)',
         }}
       >
-        <div className="flex items-center gap-2">
-          <div
-            className="flex items-center justify-center rounded-md text-white font-bold"
-            style={{ width: 24, height: 24, fontSize: 12, backgroundColor: BRAND_VIOLET }}
-          >
-            P
-          </div>
-          <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>Paletta</span>
-        </div>
-
         {showHarmonyBtn && (
           <button
             onClick={() => setHarmonyOpen(o => !o)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-[13px] font-medium text-gray-700 active:bg-gray-200 transition-colors"
+            className="flex items-center gap-1.5 text-[13px] font-medium active:bg-black/[0.08] transition-colors"
+            style={{ height: 36, padding: '0 12px', borderRadius: 8, color: '#1a1a2e' }}
             aria-label="Change harmony mode"
             aria-expanded={harmonyOpen}
           >
             {HARMONY_LABELS[harmonyMode]}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"
               style={{ transform: harmonyOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}
             >
               <polyline points="6 9 12 15 18 9"/>
@@ -207,8 +201,8 @@ export default function MobileShell() {
           <div
             className="absolute left-3.5 right-3.5 bg-white overflow-hidden"
             style={{
-              top: 'calc(56px + max(env(safe-area-inset-top, 14px), 14px))',
-              borderRadius: 16,
+              top: 'calc(52px + max(env(safe-area-inset-top, 14px), 14px))',
+              borderRadius: 12,
               boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
             onClick={e => e.stopPropagation()}
@@ -245,7 +239,7 @@ export default function MobileShell() {
       )}
 
       {/* ─── Main Content Area ─── */}
-      <div className="flex-1 overflow-hidden" style={{ paddingTop: 'calc(60px + max(env(safe-area-inset-top, 14px), 14px))', paddingBottom: `calc(68px + env(safe-area-inset-bottom, 16px))`, animation: 'fadeIn 150ms ease' }}>
+      <div className="flex-1 overflow-hidden" style={{ paddingTop: 'calc(56px + max(env(safe-area-inset-top, 14px), 14px))', paddingBottom: `calc(68px + env(safe-area-inset-bottom, 16px))`, animation: 'fadeIn 150ms ease' }}>
         {activeTab === 'generate' && (
           <GenerateView
             swatches={swatches}
@@ -336,21 +330,21 @@ export default function MobileShell() {
                   switchTab(tab.id)
                 }
               }}
-              className="flex flex-col items-center gap-0.5 pt-1"
-              style={{ minWidth: 56, minHeight: 44 }}
+              className="flex flex-col items-center justify-center gap-0.5"
+              style={{ minWidth: 56, height: 48 }}
               aria-label={tab.id === 'generate' && activeTab === 'generate' ? 'Generate new palette' : tab.label}
               aria-current={active ? 'page' : undefined}
             >
               <div className={isFirstVisitGenerate ? 'tab-pulse' : undefined}>
                 <Icon
-                  size={22}
+                  size={20}
                   strokeWidth={active ? 2 : 1.5}
                   fill={isFilled ? BRAND_VIOLET : 'none'}
                   style={{ color: active ? BRAND_VIOLET : '#9CA3AF' }}
                 />
               </div>
               <span
-                style={{ fontSize: 9, fontWeight: active ? 700 : 500, color: active ? BRAND_VIOLET : '#9CA3AF' }}
+                style={{ fontSize: 10, fontWeight: active ? 600 : 500, color: active ? BRAND_VIOLET : '#9CA3AF' }}
               >
                 {tab.label}
               </span>
@@ -399,7 +393,7 @@ export default function MobileShell() {
       {/* Cookie consent — top-positioned below header pill to avoid tab bar collision */}
       <div
         className="fixed left-0 right-0 z-[55]"
-        style={{ top: 'calc(56px + max(env(safe-area-inset-top, 14px), 14px))' }}
+        style={{ top: 'calc(52px + max(env(safe-area-inset-top, 14px), 14px))' }}
       >
         <CookieConsent compact />
       </div>
@@ -458,7 +452,7 @@ function GenerateView({
                 aria-label={`Copy ${s.hex}`}
               >
                 <span
-                  className="text-[14px] font-bold font-mono tracking-wide"
+                  className="text-[16px] font-bold font-mono tracking-wide"
                   style={{ color: textColor }}
                 >
                   {isCopied ? 'Copied!' : s.hex.toUpperCase()}
@@ -468,44 +462,44 @@ function GenerateView({
               {/* Center-right: badge */}
               {badge.pass && (
                 <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0"
-                  style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#ffffff' }}
+                  className="text-[11px] font-bold px-2 py-0.5 shrink-0"
+                  style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#ffffff', borderRadius: 6 }}
                 >
                   {badge.level} {badge.ratio.toFixed(1)}:1
                 </span>
               )}
 
               {/* Right: action buttons — [copy] [info] [lock] */}
-              <div className="flex items-center gap-2 shrink-0 ml-2">
+              <div className="flex items-center shrink-0 ml-2" style={{ gap: 6 }}>
                 <button
                   onClick={() => copyHex(s.id, s.hex)}
-                  className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
+                  className="flex items-center justify-center transition-all"
+                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                 >
                   {isCopied
-                    ? <Check size={15} style={{ color: textColor }} />
-                    : <Copy size={15} style={{ color: textColor }} />
+                    ? <Check size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                    : <Copy size={20} strokeWidth={1.5} style={{ color: textColor }} />
                   }
                 </button>
                 <button
                   onClick={() => toggleInfo(s.id)}
-                  className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 34, height: 34, backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
+                  className="flex items-center justify-center transition-all"
+                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
                   aria-label="Color info"
                   aria-expanded={showInfo}
                 >
-                  <Info size={15} style={{ color: textColor }} />
+                  <Info size={20} strokeWidth={1.5} style={{ color: textColor }} />
                 </button>
                 <button
                   onClick={() => onLock(s.id)}
-                  className="rounded-lg flex items-center justify-center transition-all"
-                  style={{ width: 34, height: 34, backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
+                  className="flex items-center justify-center transition-all"
+                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', minWidth: 44, minHeight: 44 }}
                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {s.locked
-                    ? <Lock size={15} style={{ color: textColor }} />
-                    : <Unlock size={15} style={{ color: textColor }} />
+                    ? <Lock size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                    : <Unlock size={20} strokeWidth={1.5} style={{ color: textColor }} />
                   }
                 </button>
               </div>
@@ -530,8 +524,8 @@ function GenerateView({
       {/* Save palette FAB — bottom left */}
       <button
         onClick={onSave}
-        className="fixed left-4 w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
+        className="fixed left-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)' }}
         aria-label="Save palette"
       >
         <Heart size={20} color="#ffffff" />
@@ -540,8 +534,8 @@ function GenerateView({
       {/* Mini Generate FAB — always visible */}
       <button
         onClick={onGenerate}
-        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
+        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -557,8 +551,8 @@ function ColorInfoPopover({ hex }: { hex: string }) {
 
   return (
     <div
-      className="absolute right-4 z-40 bg-white rounded-2xl overflow-hidden"
-      style={{ top: '50%', transform: 'translateY(-50%)', boxShadow: '0 8px 32px rgba(0,0,0,0.16)', minWidth: 200 }}
+      className="absolute right-4 z-40 bg-white overflow-hidden"
+      style={{ top: '50%', transform: 'translateY(-50%)', boxShadow: '0 8px 32px rgba(0,0,0,0.16)', minWidth: 200, borderRadius: 12 }}
       onClick={e => e.stopPropagation()}
       role="dialog"
       aria-label={`Color details for ${hex}`}
@@ -604,14 +598,14 @@ function SimulateView({ swatches, visionMode, onVisionChange, onGenerate, isPro,
   return (
     <div className="h-full flex flex-col">
       {/* Palette strip */}
-      <div className="flex h-28 shrink-0 mx-3.5 rounded-2xl overflow-hidden" style={{ filter }}>
+      <div className="flex h-28 shrink-0 mx-3.5 overflow-hidden" style={{ filter, borderRadius: 12 }}>
         {swatches.map(s => (
           <div key={s.id} className="flex-1" style={{ backgroundColor: s.hex }} />
         ))}
       </div>
 
       {/* Vision options */}
-      <div className="flex-1 overflow-y-auto mt-4 mx-3.5 bg-white rounded-2xl border border-gray-200">
+      <div className="flex-1 overflow-y-auto mt-4 mx-3.5 bg-white" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
         <div className="px-4 pt-4 pb-2">
           <h2 className="text-[16px] font-bold" style={{ color: '#1a1a2e' }}>Vision simulation</h2>
           <p className="text-[12px] mt-0.5" style={{ color: '#9CA3AF' }}>Preview your palette through different types of color vision</p>
@@ -629,6 +623,7 @@ function SimulateView({ swatches, visionMode, onVisionChange, onGenerate, isPro,
               className="w-full text-left transition-colors active:bg-gray-100"
               style={{
                 padding: '14px 16px',
+                minHeight: 48,
                 background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
                 borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
               }}
@@ -639,7 +634,7 @@ function SimulateView({ swatches, visionMode, onVisionChange, onGenerate, isPro,
                 </span>
                 <div className="flex items-center gap-2 shrink-0">
                   {needsPro && (
-                    <span className="text-[10px] font-bold" style={{ background: 'rgba(108,71,255,0.1)', color: BRAND_VIOLET, padding: '2px 8px', borderRadius: 99 }}>
+                    <span className="text-[10px] font-bold" style={{ background: BRAND_VIOLET, color: '#ffffff', padding: '2px 8px', borderRadius: 6 }}>
                       PRO
                     </span>
                   )}
@@ -659,8 +654,8 @@ function SimulateView({ swatches, visionMode, onVisionChange, onGenerate, isPro,
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -704,7 +699,8 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
               if (card.locked) { onProGate('preview_template', 'mobile_preview'); return }
               onOpenPreviewModal()
             }}
-            className="w-full rounded-2xl border border-gray-200 bg-white overflow-hidden text-left active:scale-[0.98] transition-all"
+            className="w-full bg-white overflow-hidden text-left active:scale-[0.98] transition-all"
+            style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
           >
             {/* Gradient preview area */}
             <div
@@ -716,7 +712,7 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
               }}
             >
               {card.locked && (
-                <div className="absolute top-3 right-3 text-[10px] font-bold" style={{ background: 'rgba(108,71,255,0.9)', color: '#fff', padding: '3px 10px', borderRadius: 99 }}>
+                <div className="absolute top-3 right-3 text-[10px] font-bold" style={{ background: BRAND_VIOLET, color: '#fff', padding: '3px 10px', borderRadius: 6 }}>
                   PRO
                 </div>
               )}
@@ -738,8 +734,8 @@ function PreviewView({ onGenerate, onProGate, onOpenPreviewModal }: PreviewViewP
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -807,8 +803,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
         </p>
         <button
           onClick={onSignIn}
-          className="w-full flex items-center justify-center gap-2.5 rounded-2xl text-white text-[16px] font-bold active:scale-95 transition-all"
-          style={{ height: 52, backgroundColor: BRAND_VIOLET }}
+          className="w-full flex items-center justify-center gap-2.5 text-white text-[16px] font-bold active:scale-95 transition-all"
+          style={{ height: 52, borderRadius: 12, backgroundColor: BRAND_VIOLET }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#8fa8ff"/>
@@ -823,8 +819,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
         {/* Mini Generate FAB */}
         <button
           onClick={onGenerate}
-          className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-          style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+          className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+          style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
           aria-label="Generate new palette"
         >
           <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -857,8 +853,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-xl flex items-center justify-center"
-              style={{ height: 64, border: '2px dashed #E5E7EB' }}
+              className="flex items-center justify-center"
+              style={{ height: 64, border: '2px dashed #E5E7EB', borderRadius: 12 }}
             >
               <span className="text-[12px]" style={{ color: '#D1D5DB' }}>
                 {isPro ? 'Empty slot' : `Slot ${i + 1} of 3`}
@@ -905,10 +901,11 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
       </div>
       <div className="space-y-2.5">
         {palettes.map(p => (
-          <div key={p.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <div key={p.id} className="bg-white overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
             <button
               onClick={() => onLoad(p.colors)}
-              className="w-full flex h-16 rounded-t-2xl overflow-hidden"
+              className="w-full flex h-16 overflow-hidden"
+              style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
             >
               {p.colors.map((c, i) => (
                 <div key={i} className="flex-1" style={{ backgroundColor: c }} />
@@ -939,7 +936,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
         {!isPro && Array.from({ length: Math.max(0, freeSlotCount - palettes.length) }).map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center"
+            className="h-16 flex items-center justify-center"
+            style={{ borderRadius: 12, border: '2px dashed #E5E7EB' }}
           >
             <span className="text-[12px]" style={{ color: '#D1D5DB' }}>Empty slot</span>
           </div>
@@ -949,8 +947,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
         {!isPro && palettes.length >= freeSlotCount && (
           <button
             onClick={onProGate}
-            className="w-full h-16 rounded-2xl flex items-center justify-center text-white text-[13px] font-semibold active:scale-95 transition-all"
-            style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+            className="w-full h-16 flex items-center justify-center text-white text-[13px] font-semibold active:scale-95 transition-all"
+            style={{ borderRadius: 12, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
           >
             Go Pro for unlimited saves
           </button>
@@ -960,8 +958,8 @@ function LibraryView({ user, isSignedIn, isPro, onSignIn, onProGate, onLoad, onG
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
@@ -999,8 +997,8 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
 
         <button
           onClick={onSignIn}
-          className="w-full flex items-center justify-center gap-2.5 rounded-2xl text-white text-[16px] font-bold active:scale-95 transition-all mb-6"
-          style={{ height: 52, backgroundColor: BRAND_VIOLET }}
+          className="w-full flex items-center justify-center gap-2.5 text-white text-[16px] font-bold active:scale-95 transition-all mb-6"
+          style={{ height: 52, borderRadius: 12, backgroundColor: BRAND_VIOLET }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#8fa8ff"/>
@@ -1012,7 +1010,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
         </button>
 
         {/* Pro features card */}
-        <div className="border border-gray-200 rounded-2xl overflow-hidden mb-6">
+        <div className="overflow-hidden mb-6" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
           {[
             { icon: Sparkles, title: 'Unlimited AI palettes' },
             { icon: Eye, title: 'All 5 vision simulations' },
@@ -1026,10 +1024,10 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
                 style={{ minHeight: 52, borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}
               >
                 <div className="flex items-center gap-3">
-                  <Icon size={18} style={{ color: BRAND_VIOLET }} />
+                  <Icon size={20} style={{ color: BRAND_VIOLET }} />
                   <span className="text-[14px] font-semibold" style={{ color: '#1a1a2e' }}>{f.title}</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(108,71,255,0.1)', color: BRAND_VIOLET }}>
+                <span className="text-[10px] font-bold px-2 py-0.5" style={{ backgroundColor: BRAND_VIOLET, color: '#ffffff', borderRadius: 6 }}>
                   PRO
                 </span>
               </div>
@@ -1071,8 +1069,8 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       {/* Avatar + info — 64px avatar */}
       <div className="flex items-center gap-4 pt-4 mb-5">
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-white text-[22px] font-bold shrink-0"
-          style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+          className="rounded-full flex items-center justify-center text-white text-[20px] font-bold shrink-0"
+          style={{ width: 48, height: 48, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
         >
           {initial}
         </div>
@@ -1080,7 +1078,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
           <div className="flex items-center gap-2">
             <span className="text-[18px] font-bold truncate" style={{ color: '#1a1a2e' }}>{name}</span>
             {isPro && (
-              <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1 rounded-full" style={{ backgroundColor: BRAND_VIOLET }}>
+              <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1" style={{ backgroundColor: BRAND_VIOLET, borderRadius: 6 }}>
                 PRO
               </span>
             )}
@@ -1094,8 +1092,8 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       {!isPro && (
         <button
           onClick={onProGate}
-          className="w-full h-12 rounded-2xl text-white text-[14px] font-semibold active:scale-95 transition-all mb-5 flex items-center justify-between px-5"
-          style={{ backgroundColor: BRAND_VIOLET }}
+          className="w-full text-white text-[14px] font-semibold active:scale-95 transition-all mb-5 flex items-center justify-between px-5"
+          style={{ height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET }}
         >
           <span>Upgrade to Pro</span>
           <span className="text-[13px] opacity-80">$5/mo</span>
@@ -1103,7 +1101,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       )}
 
       {/* Account accordion — 52px row targets */}
-      <div className="border border-gray-200 rounded-2xl overflow-hidden mb-3">
+      <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
         <button
           onClick={() => setAccountOpen(o => !o)}
           className="w-full flex items-center justify-between px-4 active:bg-gray-50 transition-colors"
@@ -1140,7 +1138,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       </div>
 
       {/* Legal accordion — 52px row targets */}
-      <div className="border border-gray-200 rounded-2xl overflow-hidden mb-3">
+      <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
         <button
           onClick={() => setLegalOpen(o => !o)}
           className="w-full flex items-center justify-between px-4 active:bg-gray-50 transition-colors"
@@ -1164,7 +1162,7 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       </div>
 
       {/* Support — 52px row */}
-      <div className="border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
         <a
           href="mailto:hello@usepaletta.io"
           className="flex items-center justify-between px-4 no-underline active:bg-gray-50 transition-colors"
@@ -1178,8 +1176,8 @@ function ProfileView({ user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, 
       {/* Mini Generate FAB */}
       <button
         onClick={onGenerate}
-        className="fixed right-4 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all z-40"
-        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, backgroundColor: BRAND_VIOLET }}
+        className="fixed right-4 flex items-center justify-center active:scale-95 transition-all z-40"
+        style={{ bottom: `calc(68px + env(safe-area-inset-bottom, 16px) + 16px)`, width: 48, height: 48, borderRadius: 12, backgroundColor: BRAND_VIOLET, boxShadow: '0 4px 20px rgba(108,71,255,0.5)' }}
         aria-label="Generate new palette"
       >
         <RefreshCw size={20} strokeWidth={2.5} color="#fff" />
