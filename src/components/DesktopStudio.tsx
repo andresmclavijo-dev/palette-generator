@@ -82,6 +82,7 @@ export default function DesktopStudio() {
   const [aiRemaining, setAiRemaining] = useState(getAiRemaining)
   const [shadesOpen, setShadesOpen] = useState<string | null>(null)
   const [infoOpen, setInfoOpen] = useState<string | null>(null)
+  const [infoAnchorRect, setInfoAnchorRect] = useState<DOMRect | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
@@ -757,7 +758,15 @@ export default function DesktopStudio() {
                           {/* Info */}
                           <DarkTooltip label="Color info" position="right">
                             <button
-                              onClick={() => setInfoOpen(showInfo ? null : s.id)}
+                              onClick={(e) => {
+                                if (showInfo) {
+                                  setInfoOpen(null)
+                                  setInfoAnchorRect(null)
+                                } else {
+                                  setInfoOpen(s.id)
+                                  setInfoAnchorRect(e.currentTarget.getBoundingClientRect())
+                                }
+                              }}
                               className="flex items-center justify-center transition-all"
                               style={{
                                 width: 36, height: 36, padding: 0, borderRadius: 8,
@@ -824,10 +833,7 @@ export default function DesktopStudio() {
                         )}
                       </div>
 
-                      {/* Info popover */}
-                      {showInfo && (
-                        <ColorInfoPopover hex={s.hex} onClose={() => setInfoOpen(null)} />
-                      )}
+                      {/* Info popover rendered via portal-like fixed positioning */}
 
                       {/* Shades now rendered as horizontal bar above canvas */}
                     </div>
@@ -1026,6 +1032,19 @@ export default function DesktopStudio() {
           }}
         />
       </div>
+
+      {/* Color info popover — fixed positioned, outside overflow containers */}
+      {infoOpen && infoAnchorRect && (() => {
+        const sw = swatches.find(s => s.id === infoOpen)
+        if (!sw) return null
+        return (
+          <ColorInfoPopover
+            hex={sw.hex}
+            anchorRect={infoAnchorRect}
+            onClose={() => { setInfoOpen(null); setInfoAnchorRect(null) }}
+          />
+        )
+      })()}
 
       {/* Cookie banner — fixed above everything, outside flex layout */}
       <div className="fixed top-0 left-0 right-0" style={{ zIndex: 100 }}>
@@ -1235,9 +1254,10 @@ function UserMenu({
 }
 
 // ─── Color Info Popover ──────────────────────────────────────
-function ColorInfoPopover({ hex, onClose }: { hex: string; onClose: () => void }) {
+function ColorInfoPopover({ hex, anchorRect, onClose }: { hex: string; anchorRect: DOMRect; onClose: () => void }) {
   const name = getColorName(hex)
   const { rgb, hsl } = getColorInfo(hex)
+  const [copied, setCopied] = useState<string | null>(null)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -1245,32 +1265,48 @@ function ColorInfoPopover({ hex, onClose }: { hex: string; onClose: () => void }
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
 
+  const copyValue = async (label: string, val: string) => {
+    try {
+      await navigator.clipboard.writeText(val)
+      setCopied(label)
+      setTimeout(() => setCopied(null), 1200)
+    } catch { /* silent */ }
+  }
+
+  // Position to the right of the anchor button; if too close to right edge, show to the left
+  const popoverWidth = 210
+  const spaceRight = window.innerWidth - anchorRect.right
+  const showRight = spaceRight > popoverWidth + 16
+  const top = anchorRect.top + anchorRect.height / 2
+  const left = showRight ? anchorRect.right + 8 : anchorRect.left - popoverWidth - 8
+
   return (
     <>
       {/* Click-outside overlay */}
-      <div className="fixed inset-0 z-30" onClick={onClose} />
+      <div className="fixed inset-0 z-[79]" onClick={onClose} />
       <div
-        className="absolute z-[80] bg-white overflow-hidden"
+        className="fixed z-[80] bg-white"
         style={{
-          bottom: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginBottom: 8,
+          top,
+          left,
+          transform: 'translateY(-50%)',
           borderRadius: 12,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.16)',
-          minWidth: 200,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          border: '1px solid rgba(0,0,0,0.06)',
+          width: popoverWidth,
+          overflow: 'hidden',
         }}
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-label={`Color details for ${hex}`}
       >
-        <div style={{ height: 8, backgroundColor: hex }} />
+        <div style={{ height: 6, backgroundColor: hex }} />
         <div style={{ padding: '12px 16px' }}>
           <p className="text-[15px] font-bold m-0" style={{ color: BRAND_DARK }}>{name}</p>
           <div className="mt-2 flex flex-col gap-1">
-            <InfoRow label="HEX" value={hex.toUpperCase()} />
-            <InfoRow label="RGB" value={rgb} />
-            <InfoRow label="HSL" value={hsl} />
+            <InfoRow label="HEX" value={hex.toUpperCase()} copied={copied === 'HEX'} onClick={() => copyValue('HEX', hex.toUpperCase())} />
+            <InfoRow label="RGB" value={rgb} copied={copied === 'RGB'} onClick={() => copyValue('RGB', rgb)} />
+            <InfoRow label="HSL" value={hsl} copied={copied === 'HSL'} onClick={() => copyValue('HSL', hsl)} />
           </div>
         </div>
       </div>
@@ -1278,12 +1314,19 @@ function ColorInfoPopover({ hex, onClose }: { hex: string; onClose: () => void }
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value, copied, onClick }: { label: string; value: string; copied: boolean; onClick: () => void }) {
   return (
-    <div className="flex items-center gap-2">
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 w-full text-left transition-all hover:bg-gray-50 -mx-1 px-1 rounded"
+      style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px 4px' }}
+      aria-label={`Copy ${label} value`}
+    >
       <span className="text-[10px] font-bold tracking-wider opacity-40 w-7" style={{ color: BRAND_DARK }}>{label}</span>
-      <span className="text-[12px] font-mono" style={{ color: '#374151' }}>{value}</span>
-    </div>
+      <span className="text-[12px] font-mono" style={{ color: copied ? '#16a34a' : '#374151' }}>
+        {copied ? 'Copied!' : value}
+      </span>
+    </button>
   )
 }
 

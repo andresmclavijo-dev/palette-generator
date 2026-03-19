@@ -9,6 +9,7 @@ interface CookieConsentProps {
 
 export default function CookieConsent({ compact }: CookieConsentProps) {
   const [visible, setVisible] = useState(false)
+  const [dismissing, setDismissing] = useState(false)
   const barRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -32,14 +33,10 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
     return () => window.removeEventListener('resize', update)
   }, [visible])
 
-  const handleAccept = () => {
-    localStorage.setItem(STORAGE_KEY, 'all')
-    setVisible(false)
-  }
-
-  const handleEssential = () => {
-    localStorage.setItem(STORAGE_KEY, 'essential')
-    setVisible(false)
+  const dismiss = (choice: 'all' | 'essential') => {
+    localStorage.setItem(STORAGE_KEY, choice)
+    setDismissing(true)
+    setTimeout(() => setVisible(false), 300)
   }
 
   if (!visible) return null
@@ -58,6 +55,9 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
           WebkitBackdropFilter: 'blur(20px)',
           boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
           padding: '10px 16px',
+          transition: dismissing ? 'transform 300ms ease, opacity 300ms ease' : undefined,
+          transform: dismissing ? 'translateY(-100%)' : undefined,
+          opacity: dismissing ? 0 : 1,
         }}
       >
         <div className="flex items-center justify-between gap-3">
@@ -67,12 +67,12 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
           </span>
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={handleEssential}
+              onClick={() => dismiss('essential')}
               style={{
                 padding: '6px 14px',
                 fontSize: 12,
                 fontWeight: 600,
-                borderRadius: 9999,
+                borderRadius: 8,
                 border: '1px solid #E5E7EB',
                 backgroundColor: '#ffffff',
                 color: '#1a1a2e',
@@ -83,12 +83,12 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
               Essential
             </button>
             <button
-              onClick={handleAccept}
+              onClick={() => dismiss('all')}
               style={{
                 padding: '6px 14px',
                 fontSize: 12,
                 fontWeight: 600,
-                borderRadius: 9999,
+                borderRadius: 8,
                 border: 'none',
                 backgroundColor: '#6C47FF',
                 color: '#ffffff',
@@ -110,11 +110,14 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
       ref={barRef}
       role="dialog"
       aria-label="Cookie consent"
-      className="flex-none w-full z-[9999]"
+      className="flex-none w-full"
       style={{
-        backgroundColor: '#1a1a2e',
-        color: '#ffffff',
-        padding: '16px 24px',
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
+        padding: '10px 24px',
+        transition: dismissing ? 'transform 300ms ease, opacity 300ms ease' : undefined,
+        transform: dismissing ? 'translateY(-100%)' : undefined,
+        opacity: dismissing ? 0 : 1,
       }}
     >
       <div
@@ -122,51 +125,49 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
           maxWidth: 960,
           margin: '0 auto',
           display: 'flex',
-          flexWrap: 'wrap',
           alignItems: 'center',
           gap: 16,
           justifyContent: 'space-between',
         }}
       >
-        <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5, flex: '1 1 400px' }}>
-          We use cookies for essential features and analytics. Read our{' '}
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: '#374151' }}>
+          We use cookies for essential features and analytics.{' '}
           <Link
             to="/cookie-policy"
-            style={{ color: '#9b82ff', textDecoration: 'underline' }}
+            style={{ color: '#6C47FF', textDecoration: 'underline' }}
           >
             Cookie Policy
-          </Link>{' '}
-          to learn more.
+          </Link>
         </p>
-        <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
           <button
-            onClick={handleEssential}
+            onClick={() => dismiss('essential')}
             style={{
-              padding: '10px 20px',
-              fontSize: 14,
-              fontWeight: 600,
-              borderRadius: 9999,
-              border: 'none',
-              backgroundColor: '#ffffff',
-              color: '#1a1a2e',
+              padding: '6px 14px',
+              fontSize: 13,
+              fontWeight: 500,
+              borderRadius: 8,
+              border: '1px solid rgba(0,0,0,0.1)',
+              backgroundColor: 'transparent',
+              color: '#374151',
               cursor: 'pointer',
-              minHeight: 44,
+              height: 36,
             }}
           >
             Essential Only
           </button>
           <button
-            onClick={handleAccept}
+            onClick={() => dismiss('all')}
             style={{
-              padding: '10px 20px',
-              fontSize: 14,
+              padding: '6px 14px',
+              fontSize: 13,
               fontWeight: 600,
-              borderRadius: 9999,
+              borderRadius: 8,
               border: 'none',
               backgroundColor: '#6C47FF',
               color: '#ffffff',
               cursor: 'pointer',
-              minHeight: 44,
+              height: 36,
             }}
           >
             Accept All
