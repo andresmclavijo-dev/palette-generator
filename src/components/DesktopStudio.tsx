@@ -520,7 +520,7 @@ export default function DesktopStudio() {
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: 6,
+              padding: 4,
             }}
           >
             <button
@@ -565,27 +565,30 @@ export default function DesktopStudio() {
           </div>
 
           {/* ─── Floating Actions Pill (top-right) ─── */}
-          <header
+          <div
             className="absolute flex items-center"
             style={{
               top: 12,
               right: 12,
               zIndex: 70,
+              gap: 2,
               borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: 6,
+              padding: 4,
             }}
+            role="toolbar"
+            aria-label="Palette actions"
           >
             {/* Save */}
             <DarkTooltip label="Save palette" position="bottom">
               <button
                 onClick={handleSave}
                 className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
-                style={{ width: 36, height: 36, borderRadius: 8 }}
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                 aria-label="Save palette"
               >
                 <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
@@ -597,7 +600,7 @@ export default function DesktopStudio() {
               <button
                 onClick={handleShare}
                 className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
-                style={{ width: 36, height: 36, borderRadius: 8 }}
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                 aria-label="Share palette link"
               >
                 {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
@@ -609,7 +612,7 @@ export default function DesktopStudio() {
               <button
                 onClick={() => setExportOpen(o => !o)}
                 className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
-                style={{ width: 36, height: 36, borderRadius: 8 }}
+                style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                 aria-label="Export palette"
               >
                 <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
@@ -617,7 +620,7 @@ export default function DesktopStudio() {
             </DarkTooltip>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 24, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 6px' }} />
+            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 4px' }} />
 
             {/* Go Pro (non-Pro) */}
             {!isPro && (
@@ -647,7 +650,7 @@ export default function DesktopStudio() {
                 Sign In
               </button>
             )}
-          </header>
+          </div>
 
           {/* ─── Horizontal Shade Bar ─── */}
           {shadesOpen && (() => {
