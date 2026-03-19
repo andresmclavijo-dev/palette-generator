@@ -24,6 +24,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import CookieConsent from './CookieConsent'
 import {
   readableOn, getColorName, getColorInfo, getContrastBadge,
@@ -98,7 +103,6 @@ export default function DesktopStudio() {
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const harmonyRef = useRef<HTMLDivElement>(null)
   const trackedRef = useRef(false)
 
   // Color count gating — computed from reactive state
@@ -214,18 +218,6 @@ export default function DesktopStudio() {
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [triggerGenerate, undo, redo, section, closeDialog])
-
-  // Click outside harmony dropdown
-  useEffect(() => {
-    if (activeDialog !== 'harmony') return
-    const handler = (e: MouseEvent) => {
-      if (harmonyRef.current && !harmonyRef.current.contains(e.target as Node)) {
-        closeDialog()
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [activeDialog, closeDialog])
 
   // Handlers
   const handleShare = async () => {
@@ -493,94 +485,69 @@ export default function DesktopStudio() {
                 {/* LEFT GROUP — 3 pills */}
                 <div className="flex items-center" style={{ gap: 6 }}>
                   {/* Pill 1: Harmony dropdown */}
-                  <div
-                    ref={harmonyRef}
-                    className="relative flex items-center"
-                    style={{
-                      borderRadius: 12,
-                      backgroundColor: 'rgba(255,255,255,0.95)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                      border: '1px solid rgba(0,0,0,0.04)',
-                      padding: 3,
-                    }}
+                  <DropdownMenu
+                    open={activeDialog === 'harmony'}
+                    onOpenChange={(open) => open ? openDialog('harmony') : closeDialog()}
                   >
-                    <button
-                      onClick={() => activeDialog === 'harmony' ? closeDialog() : openDialog('harmony')}
-                      className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
-                      style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
-                      aria-expanded={activeDialog === 'harmony'}
-                      aria-haspopup="listbox"
-                    >
-                      <Shuffle size={16} strokeWidth={1.5} style={{ color: '#6B7280' }} />
-                      {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <polyline points="6 9 12 15 18 9" />
-                      </svg>
-                    </button>
-
-                    {activeDialog === 'harmony' && (
-                      <div
-                        className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
-                        style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220, zIndex: 80 }}
-                        role="listbox"
-                        aria-label="Harmony modes"
-                      >
-                        {HARMONIES.map(h => (
-                          <button
-                            key={h.mode}
-                            role="option"
-                            aria-selected={harmonyMode === h.mode}
-                            onClick={() => handleHarmonySelect(h.mode)}
-                            className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
-                            style={{
-                              borderRadius: 6,
-                              backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
-                              color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
-                            }}
-                          >
-                            <span className="text-[13px] font-semibold">{h.label}</span>
-                            <span className="text-[11px] opacity-50">{h.desc}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Pill 2: View mode segmented control */}
-                  <div
-                    className="flex items-center"
-                    style={{
-                      borderRadius: 12,
-                      backgroundColor: 'rgba(255,255,255,0.95)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                      border: '1px solid rgba(0,0,0,0.04)',
-                      padding: 3,
-                      gap: 2,
-                    }}
-                  >
-                    {(['colors', 'preview'] as ViewMode[]).map(mode => (
+                    <DropdownMenuTrigger asChild>
                       <button
-                        key={mode}
-                        onClick={() => setViewMode(mode)}
-                        className="text-[13px] transition-all"
+                        className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
                         style={{
                           height: 36,
-                          padding: '0 16px',
+                          padding: '0 12px',
                           borderRadius: 8,
-                          fontWeight: viewMode === mode ? 600 : 400,
-                          backgroundColor: viewMode === mode ? '#ffffff' : 'transparent',
-                          boxShadow: viewMode === mode ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
-                          color: viewMode === mode ? BRAND_DARK : '#6B7280',
+                          color: BRAND_DARK,
+                          backgroundColor: 'rgba(255,255,255,0.95)',
+                          backdropFilter: 'blur(12px)',
+                          WebkitBackdropFilter: 'blur(12px)',
+                          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                          border: '1px solid rgba(0,0,0,0.04)',
                         }}
                       >
-                        {mode === 'colors' ? 'Colors' : 'Preview'}
+                        <Shuffle size={16} strokeWidth={1.5} style={{ color: '#6B7280' }} />
+                        {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
                       </button>
-                    ))}
-                  </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="min-w-[220px]">
+                      {HARMONIES.map(h => (
+                        <DropdownMenuItem
+                          key={h.mode}
+                          onClick={() => handleHarmonySelect(h.mode)}
+                          className="flex-col items-start gap-0.5 py-2.5"
+                          style={{
+                            backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
+                          }}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-[13px] font-semibold" style={{ color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK }}>
+                              {h.label}
+                            </span>
+                            {harmonyMode === h.mode && <Check size={14} className="text-primary" />}
+                          </div>
+                          <span className="text-[11px] text-muted">{h.desc}</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Pill 2: View mode segmented control */}
+                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+                    <TabsList
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        border: '1px solid rgba(0,0,0,0.04)',
+                      }}
+                    >
+                      <TabsTrigger value="colors">Colors</TabsTrigger>
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
 
                   {/* Pill 3: Validate toggle */}
                   <button
