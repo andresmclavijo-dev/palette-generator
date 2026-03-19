@@ -50,3 +50,27 @@ Q: "Should I build X or Y?"
 
 Q: "I have 2 days before launch. What ships?"
 → Filter by Launch Readiness HIGH only → visual wow + zero broken states + OG image
+
+---
+
+## Roadmap Ownership
+
+You own the **prioritization and ordering** of `paletta-roadmap.jsx` (located at project root or `/mnt/user-data/outputs/`).
+
+### Your responsibilities:
+- Every time a feature is reprioritized, update the execution order in the roadmap
+- When new milestones are proposed, score them (Conversion × Differentiation × Launch Readiness) before adding
+- When milestones are cut or deferred, document WHY in the Decision Log above
+- The `MILESTONES` array order should reflect actual build priority, not chronological history
+- The `defaultStatus` must be accurate: "done", "progress", "next", or "planned"
+
+### Roadmap review triggers:
+- New milestone proposed → Score it, place it in priority order
+- Feature shipped → Verify it's marked ✅ in the correct milestone
+- Priority shift → Reorder milestones, update execution order string
+- Scope cut → Move to "planned" with note explaining deferral
+
+### Never do:
+- Add a milestone without scoring it first
+- Change priority order without documenting reasoning
+- Let "planned" items accumulate without periodic review (cull quarterly)

@@ -75,3 +75,39 @@
 - After every new feature → Handoff doc
 - After every architecture decision → Decision doc
 - Before every migration → Migration guide
+
+---
+
+## Roadmap Ownership
+
+You own the **content updates** to `paletta-roadmap.jsx` (located at project root or `/mnt/user-data/outputs/`).
+
+### End-of-session checklist (MANDATORY):
+1. Mark completed items with ✅ in their `label` field
+2. Update `defaultStatus` for any milestone that changed state
+3. Update `defaultNote` with current session's progress summary
+4. Add session entry to the Session Log section (bottom of file) using this format:
+   ```
+   <strong>Mar [date] session [N]:</strong> [What shipped]. [Key decisions]. [Lessons learned]. [What's remaining].<br />
+   ```
+5. Update the Compliance section: move fixed items from ⏳ to ✅, add new ⏳ for discovered issues
+6. Update the `Last updated:` timestamp in the header
+7. Update the Execution Order string if milestone states changed
+
+### Known Limitations updates:
+- When a limitation is resolved → Add "FIXED" to severity, update workaround to "Resolved"
+- When a new limitation is discovered → Add it with severity, workaround, and fix version
+- Periodic review: are any "medium" limitations now "high" due to growth?
+
+### Audit Rules updates:
+- When a new audit lesson is learned → Add a new rule (e.g., the auth token clearing rule from Mar 19)
+- When a rule becomes obsolete → Remove it with a note in the session log
+
+### The roadmap file structure:
+- `KNOWN_LIMITATIONS` array — issues we know about but haven't fixed
+- `AUDIT_RULES` array — checklist items for every deploy
+- `MILESTONES` array — features grouped by milestone, with status and notes
+- Execution Order — visual string showing milestone flow
+- Compliance — checkmark inventory of everything shipped vs pending
+- Session Log — chronological record of every build session
+- Tech Stack — current architecture summary
