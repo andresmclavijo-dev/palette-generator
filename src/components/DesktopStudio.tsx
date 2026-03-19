@@ -378,18 +378,18 @@ export default function DesktopStudio() {
               style={{
                 justifyContent: dockExpanded ? 'flex-start' : 'center',
                 padding: dockExpanded ? '2px 6px 0' : '2px 0 0',
-                marginBottom: 12,
+                marginBottom: 10,
                 gap: 10,
               }}
             >
               <div
                 className="flex items-center justify-center text-white font-bold shrink-0"
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   borderRadius: 10,
                   backgroundColor: BRAND_VIOLET,
-                  fontSize: 15,
+                  fontSize: 16,
                 }}
               >
                 P
@@ -402,7 +402,7 @@ export default function DesktopStudio() {
             {/* Creation tools group */}
             <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
               <DockItem
-                icon={<Sparkles size={22} />}
+                icon={<Sparkles size={20} />}
                 label="Generate"
                 active={false}
                 primary
@@ -411,14 +411,14 @@ export default function DesktopStudio() {
                 pulse={dockPulse}
               />
               <DockItem
-                icon={<Eye size={22} />}
+                icon={<Eye size={20} />}
                 label="Simulate"
                 active={activeTool === 'simulate'}
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('simulate')}
               />
               <DockItem
-                icon={<LayoutDashboard size={22} />}
+                icon={<LayoutDashboard size={20} />}
                 label="Preview"
                 active={activeTool === 'preview'}
                 expanded={dockExpanded}
@@ -440,7 +440,7 @@ export default function DesktopStudio() {
             {/* Utility tools group */}
             <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
               <DockItem
-                icon={<Image size={22} />}
+                icon={<Image size={20} />}
                 label="Extract"
                 active={activeTool === 'extract'}
                 expanded={dockExpanded}
@@ -448,7 +448,7 @@ export default function DesktopStudio() {
                 proBadge={!isPro}
               />
               <DockItem
-                icon={<Star size={22} />}
+                icon={<Star size={20} />}
                 label="AI Palette"
                 active={activeTool === 'ai'}
                 expanded={dockExpanded}
@@ -456,7 +456,7 @@ export default function DesktopStudio() {
                 badge={!isPro ? String(aiRemaining) : undefined}
               />
               <DockItem
-                icon={<Heart size={22} />}
+                icon={<Heart size={20} />}
                 label="Library"
                 active={activeTool === 'library'}
                 expanded={dockExpanded}
@@ -489,7 +489,7 @@ export default function DesktopStudio() {
                   style={{ width: 40, height: 40, borderRadius: 10, color: '#9ca3af' }}
                   aria-label="Expand dock"
                 >
-                  <ChevronRight size={18} />
+                  <ChevronRight size={16} />
                 </button>
               </DarkTooltip>
             )}
@@ -1045,7 +1045,7 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`flex items-center transition-all${pulse ? ' dock-pulse' : ''}${!primary && !active ? ' hover:bg-black/[0.04]' : primary ? ' hover:brightness-110' : ''}`}
+        className={`flex items-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
         style={{
           width: isCollapsed ? 48 : '100%',
           height: isCollapsed ? 48 : undefined,
@@ -1063,6 +1063,14 @@ function DockItem({
           fontWeight: active || primary ? 600 : 500,
           boxShadow: active && expanded ? `0 0 12px ${BRAND_VIOLET}30` : undefined,
         }}
+        onMouseOver={(e) => {
+          if (primary) (e.currentTarget.style.backgroundColor = '#7C5AFF')
+          else if (!active) (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')
+        }}
+        onMouseOut={(e) => {
+          if (primary) (e.currentTarget.style.backgroundColor = BRAND_VIOLET)
+          else if (!active) (e.currentTarget.style.backgroundColor = 'transparent')
+        }}
         aria-label={label}
       >
         <span className="shrink-0 relative" style={{ strokeWidth: primary || active ? 2 : 1.5 }}>
@@ -1070,15 +1078,16 @@ function DockItem({
           {/* Badge overlay on collapsed icon container */}
           {isCollapsed && badge && (
             <span
-              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none"
+              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none pointer-events-none"
               style={{
                 top: -4,
-                right: -6,
+                right: -4,
                 minWidth: 16,
                 height: 16,
                 fontSize: 9,
                 padding: '0 3px',
                 backgroundColor: BRAND_VIOLET,
+                border: '1px solid #ffffff',
               }}
             >
               {badge}
@@ -1086,14 +1095,16 @@ function DockItem({
           )}
           {isCollapsed && proBadge && (
             <span
-              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none"
+              className="absolute flex items-center justify-center font-bold text-white leading-none pointer-events-none"
               style={{
                 top: -4,
-                right: -8,
+                right: -4,
                 height: 14,
-                fontSize: 8,
+                fontSize: 7,
                 padding: '0 4px',
+                borderRadius: 4,
                 backgroundColor: BRAND_VIOLET,
+                border: '1px solid #ffffff',
               }}
             >
               PRO
@@ -1378,7 +1389,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
         aria-label="Info and legal links"
         aria-expanded={open}
       >
-        <MoreHorizontal size={16} />
+        <MoreHorizontal size={20} />
       </button>
 
       {open && (
