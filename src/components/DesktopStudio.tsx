@@ -25,7 +25,7 @@ import {
   encodePalette, decodePalette, parseHex,
 } from '../lib/colorEngine'
 import { extractColorsFromFile } from '../lib/kMeans'
-import { BRAND_VIOLET, BRAND_DARK, BRAND_WARM } from '../lib/tokens'
+import { BRAND_VIOLET, BRAND_DARK } from '../lib/tokens'
 import { showToast } from '../utils/toast'
 import { analytics } from '../lib/posthog'
 import { createCheckoutSession, createPortalSession } from '../lib/stripe'
@@ -337,12 +337,11 @@ export default function DesktopStudio() {
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
   const dockW = dockExpanded ? 152 : 54
-  const inPreview = activeTool === 'preview'
 
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="relative w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
+      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#E8E8E8' }}>
         {/* Skip link */}
         <a
           href="#main-canvas"
@@ -356,12 +355,11 @@ export default function DesktopStudio() {
 
         {/* ─── Side Dock ─── */}
         <aside
-          className="absolute top-0 left-0 bottom-0 z-40 flex flex-col"
+          className="shrink-0 z-40 flex flex-col"
           style={{
             width: dockW,
             transition: 'width 200ms ease',
             padding: '76px 7px 10px 7px',
-            borderRight: inPreview ? '1px solid rgba(0,0,0,0.06)' : undefined,
           }}
         >
           <nav
@@ -452,10 +450,13 @@ export default function DesktopStudio() {
           </nav>
         </aside>
 
-        {/* ─── Main Area ─── */}
+        {/* ─── Main Area (bento container) ─── */}
         <div
-          className="absolute top-0 right-0 bottom-0"
-          style={{ left: dockW, transition: 'left 200ms ease' }}
+          className="relative flex-1 min-w-0 overflow-hidden"
+          style={{
+            margin: '12px 12px 12px 0',
+            borderRadius: 24,
+          }}
         >
           {/* ─── Floating Header Pill ─── */}
           <header
