@@ -97,3 +97,8 @@ Key rules (quick reference):
 
 For full spec, token values, and review checklist: see `agents/01-design-system-architect.md`
 For project context and architecture: see `agents/MANIFESTO.md`
+
+---
+
+## End-of-Session Protocol
+Before the final commit of any session, read `agents/04-documentation-specialist.md` and update `paletta-roadmap.jsx` following its end-of-session checklist (mark ✅ items, update session log, refresh compliance section, update timestamp).
