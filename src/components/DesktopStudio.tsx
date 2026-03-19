@@ -93,6 +93,7 @@ export default function DesktopStudio() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [imageUploading, setImageUploading] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
 
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
 
@@ -204,7 +205,7 @@ export default function DesktopStudio() {
         setSignInOpen(false); setSavedOpen(false); setSaveNameOpen(false)
         setHarmonyOpen(false); setValidateOn(false); setAiPanelOpen(false)
         setExtractOpen(false); setShadesOpen(null); setInfoOpen(null)
-        setEditingId(null)
+        setEditingId(null); setShortcutsOpen(false)
       }
     }
     window.addEventListener('keydown', handler)
@@ -341,7 +342,9 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="flex flex-col w-screen" style={{ height: '100dvh', backgroundColor: '#EEEEEC' }}>
+      <div className="w-screen" style={{ backgroundColor: '#EEEEEC' }}>
+      {/* App shell — fixed viewport height */}
+      <div className="flex flex-col" style={{ height: '100dvh' }}>
       {/* Cookie banner — in normal flow, pushes app down */}
       <CookieConsent />
 
@@ -501,7 +504,7 @@ export default function DesktopStudio() {
                     <button
                       onClick={() => setHarmonyOpen(o => !o)}
                       className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
-                      style={{ height: 34, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
+                      style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
                       aria-expanded={harmonyOpen}
                       aria-haspopup="listbox"
                     >
@@ -560,7 +563,7 @@ export default function DesktopStudio() {
                         onClick={() => setViewMode(mode)}
                         className="text-[13px] transition-all"
                         style={{
-                          height: 34,
+                          height: 36,
                           padding: '0 16px',
                           borderRadius: 8,
                           fontWeight: viewMode === mode ? 600 : 400,
@@ -579,9 +582,9 @@ export default function DesktopStudio() {
                     onClick={() => setValidateOn(v => !v)}
                     className="flex items-center transition-all hover:bg-black/[0.02]"
                     style={{
-                      height: 40,
-                      padding: '0 12px',
-                      borderRadius: 12,
+                      height: 36,
+                      padding: '0 10px',
+                      borderRadius: 8,
                       backgroundColor: 'rgba(255,255,255,0.95)',
                       backdropFilter: 'blur(12px)',
                       WebkitBackdropFilter: 'blur(12px)',
@@ -1001,6 +1004,41 @@ export default function DesktopStudio() {
                     <kbd className="inline-flex items-center justify-center text-[11px] font-mono font-semibold" style={{ padding: '2px 8px', borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>Space</kbd>
                     <span className="text-[12px] font-medium text-white/70">generate</span>
                   </div>
+                  <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
+                  <div className="relative">
+                    <button
+                      onClick={() => setShortcutsOpen(o => !o)}
+                      className="flex items-center justify-center transition-all hover:bg-white/10"
+                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
+                      aria-label="Keyboard shortcuts"
+                      aria-expanded={shortcutsOpen}
+                    >
+                      <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }} aria-hidden="true">?</span>
+                    </button>
+                    {shortcutsOpen && (
+                      <div
+                        className="absolute bottom-full mb-2 right-0 bg-white overflow-hidden"
+                        style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.14)', minWidth: 200, padding: '10px 0' }}
+                        role="dialog"
+                        aria-label="Keyboard shortcuts"
+                      >
+                        <p className="text-[11px] font-semibold m-0 px-3 pb-1.5" style={{ color: '#9CA3AF' }}>Keyboard shortcuts</p>
+                        {[
+                          { key: 'Space', desc: 'Generate palette' },
+                          { key: '⌘ Z', desc: 'Undo' },
+                          { key: '⇧ ⌘ Z', desc: 'Redo' },
+                          { key: '1', desc: 'Colors view' },
+                          { key: '2', desc: 'Preview view' },
+                          { key: 'Esc', desc: 'Close panel' },
+                        ].map(s => (
+                          <div key={s.key} className="flex items-center justify-between px-3 py-1">
+                            <span className="text-[12px]" style={{ color: '#374151' }}>{s.desc}</span>
+                            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>{s.key}</kbd>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </>
@@ -1085,7 +1123,7 @@ export default function DesktopStudio() {
           }}
         />
       </div>{/* close inner flex row (dock + bento) */}
-      </div>{/* close outer flex column (banner + app) */}
+      </div>{/* close app shell (100dvh) */}
 
       {/* Color info popover — fixed positioned, outside overflow containers */}
       {infoOpen && infoAnchorRect && (() => {
@@ -1100,8 +1138,9 @@ export default function DesktopStudio() {
         )
       })()}
 
-      {/* SEO content below fold */}
+      {/* SEO content below fold — scrollable past the app viewport */}
       <SEOContent />
+      </div>{/* close outer w-screen wrapper */}
     </>
   )
 }
