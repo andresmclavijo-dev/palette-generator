@@ -526,7 +526,7 @@ export default function DesktopStudio() {
             <button
               onClick={() => setHarmonyOpen(o => !o)}
               className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-              style={{ height: 36, padding: '6px 12px', borderRadius: 8, color: BRAND_DARK }}
+              style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
               aria-expanded={harmonyOpen}
               aria-haspopup="listbox"
             >
@@ -737,64 +737,80 @@ export default function DesktopStudio() {
                         {/* Action buttons */}
                         <div className="flex flex-col items-center" style={{ gap: 6 }}>
                           {/* Copy */}
-                          <button
-                            onClick={() => copyHex(s.id, s.hex)}
-                            className="flex items-center justify-center transition-all hover:bg-white/20"
-                            style={{
-                              width: 36, height: 36, padding: 0, borderRadius: 8,
-                              backgroundColor: 'rgba(255,255,255,0.08)',
-                              color: textColor,
-                            }}
-                            aria-label={isCopied ? 'Copied' : 'Copy hex code'}
-                          >
-                            {isCopied ? <Check size={20} strokeWidth={1.5} /> : <Copy size={20} strokeWidth={1.5} />}
-                          </button>
+                          <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
+                            <button
+                              onClick={() => copyHex(s.id, s.hex)}
+                              className="flex items-center justify-center transition-all"
+                              style={{
+                                width: 36, height: 36, padding: 0, borderRadius: 8,
+                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                color: textColor,
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+                              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
+                              aria-label={isCopied ? 'Copied' : 'Copy hex code'}
+                            >
+                              {isCopied ? <Check size={20} strokeWidth={1.5} /> : <Copy size={20} strokeWidth={1.5} />}
+                            </button>
+                          </DarkTooltip>
 
                           {/* Info */}
-                          <button
-                            onClick={() => setInfoOpen(showInfo ? null : s.id)}
-                            className="flex items-center justify-center transition-all hover:bg-white/20"
-                            style={{
-                              width: 36, height: 36, padding: 0, borderRadius: 8,
-                              backgroundColor: showInfo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                              color: textColor,
-                            }}
-                            aria-label="Color info"
-                          >
-                            <Info size={20} strokeWidth={1.5} />
-                          </button>
+                          <DarkTooltip label="Color info" position="right">
+                            <button
+                              onClick={() => setInfoOpen(showInfo ? null : s.id)}
+                              className="flex items-center justify-center transition-all"
+                              style={{
+                                width: 36, height: 36, padding: 0, borderRadius: 8,
+                                backgroundColor: showInfo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
+                                color: textColor,
+                              }}
+                              onMouseEnter={e => { if (!showInfo) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+                              onMouseLeave={e => { if (!showInfo) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
+                              aria-label="Color info"
+                            >
+                              <Info size={20} strokeWidth={1.5} />
+                            </button>
+                          </DarkTooltip>
 
                           {/* Shades */}
-                          <button
-                            onClick={() => {
-                              const next = showShades ? null : s.id
-                              setShadesOpen(next)
-                              if (next) analytics.track('shade_panel_opened')
-                            }}
-                            className="flex items-center justify-center transition-all hover:bg-white/20"
-                            style={{
-                              width: 36, height: 36, padding: 0, borderRadius: 8,
-                              backgroundColor: showShades ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                              color: textColor,
-                            }}
-                            aria-label={showShades ? 'Close shades' : 'Show shades'}
-                          >
-                            <Grid3X3 size={20} strokeWidth={1.5} />
-                          </button>
+                          <DarkTooltip label="Shade scale" position="right">
+                            <button
+                              onClick={() => {
+                                const next = showShades ? null : s.id
+                                setShadesOpen(next)
+                                if (next) analytics.track('shade_panel_opened')
+                              }}
+                              className="flex items-center justify-center transition-all"
+                              style={{
+                                width: 36, height: 36, padding: 0, borderRadius: 8,
+                                backgroundColor: showShades ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
+                                color: textColor,
+                              }}
+                              onMouseEnter={e => { if (!showShades) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+                              onMouseLeave={e => { if (!showShades) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
+                              aria-label={showShades ? 'Close shades' : 'Show shades'}
+                            >
+                              <Grid3X3 size={20} strokeWidth={1.5} />
+                            </button>
+                          </DarkTooltip>
 
                           {/* Lock */}
-                          <button
-                            onClick={() => lockSwatch(s.id)}
-                            className="flex items-center justify-center transition-all hover:bg-white/20"
-                            style={{
-                              width: 36, height: 36, padding: 0, borderRadius: 8,
-                              backgroundColor: s.locked ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                              color: textColor,
-                            }}
-                            aria-label={s.locked ? 'Unlock color' : 'Lock color'}
-                          >
-                            {s.locked ? <Lock size={20} strokeWidth={1.5} /> : <Unlock size={20} strokeWidth={1.5} />}
-                          </button>
+                          <DarkTooltip label={s.locked ? 'Unlock color' : 'Lock color'} position="right">
+                            <button
+                              onClick={() => lockSwatch(s.id)}
+                              className="flex items-center justify-center transition-all"
+                              style={{
+                                width: 36, height: 36, padding: 0, borderRadius: 8,
+                                backgroundColor: s.locked ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
+                                color: textColor,
+                              }}
+                              onMouseEnter={e => { if (!s.locked) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+                              onMouseLeave={e => { if (!s.locked) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'scale(1)' }}
+                              aria-label={s.locked ? 'Unlock color' : 'Lock color'}
+                            >
+                              {s.locked ? <Lock size={20} strokeWidth={1.5} /> : <Unlock size={20} strokeWidth={1.5} />}
+                            </button>
+                          </DarkTooltip>
                         </div>
 
                         {/* Locked badge */}
@@ -1223,17 +1239,24 @@ function ColorInfoPopover({ hex, onClose }: { hex: string; onClose: () => void }
   const name = getColorName(hex)
   const { rgb, hsl } = getColorInfo(hex)
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
   return (
     <>
       {/* Click-outside overlay */}
       <div className="fixed inset-0 z-30" onClick={onClose} />
       <div
-        className="absolute z-40 bg-white rounded-2xl overflow-hidden"
+        className="absolute z-[80] bg-white overflow-hidden"
         style={{
-          top: '50%',
-          right: '100%',
-          transform: 'translateY(-50%)',
-          marginRight: 8,
+          bottom: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          marginBottom: 8,
+          borderRadius: 12,
           boxShadow: '0 8px 32px rgba(0,0,0,0.16)',
           minWidth: 200,
         }}
