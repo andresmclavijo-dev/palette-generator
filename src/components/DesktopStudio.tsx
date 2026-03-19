@@ -341,7 +341,7 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#E5E5E5' }}>
+      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#EEEEED' }}>
         {/* Skip link */}
         <a
           href="#main-canvas"
@@ -359,16 +359,17 @@ export default function DesktopStudio() {
           style={{
             width: dockW,
             transition: 'width 200ms ease',
-            padding: '16px 4px 16px 7px',
+            padding: '16px 8px 16px 8px',
           }}
         >
           <nav
             className="flex-1 flex flex-col rounded-2xl"
             style={{
-              backgroundColor: 'rgba(255,255,255,0.92)',
+              backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 2px 28px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.6)',
+              boxShadow: '0 4px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.05)',
               padding: '8px 6px',
             }}
           >
@@ -455,24 +456,24 @@ export default function DesktopStudio() {
           className="relative flex-1 min-w-0 overflow-hidden"
           style={{
             margin: '16px 16px 16px 0',
-            borderRadius: 28,
+            borderRadius: 32,
+            background: '#fff',
             border: '1px solid rgba(0,0,0,0.06)',
-            boxShadow: '0 2px 40px rgba(0,0,0,0.04)',
+            boxShadow: '0 8px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
           }}
         >
           {/* ─── Floating Header Pill ─── */}
           <header
             className="absolute z-30 flex items-center justify-between"
             style={{
-              top: 16,
-              left: 16,
-              right: 16,
+              top: 12,
+              left: 12,
+              right: 12,
               height: 46,
-              borderRadius: 9999,
-              backgroundColor: 'rgba(255,255,255,0.9)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              boxShadow: '0 2px 28px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.6)',
+              borderRadius: 20,
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              borderBottom: '1px solid rgba(0,0,0,0.04)',
               padding: '6px 9px 6px 15px',
             }}
           >
@@ -696,7 +697,7 @@ export default function DesktopStudio() {
                             }}
                             aria-label={isCopied ? 'Copied' : 'Copy hex code'}
                           >
-                            {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                            {isCopied ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
                           </button>
 
                           {/* Info */}
@@ -710,7 +711,7 @@ export default function DesktopStudio() {
                             }}
                             aria-label="Color info"
                           >
-                            <Info size={14} />
+                            <Info size={14} strokeWidth={1.5} />
                           </button>
 
                           {/* Shades */}
@@ -728,7 +729,7 @@ export default function DesktopStudio() {
                             }}
                             aria-label={showShades ? 'Close shades' : 'Show shades'}
                           >
-                            <Grid3X3 size={14} />
+                            <Grid3X3 size={14} strokeWidth={1.5} />
                           </button>
 
                           {/* Lock */}
@@ -742,7 +743,7 @@ export default function DesktopStudio() {
                             }}
                             aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                           >
-                            {s.locked ? <Lock size={14} /> : <Unlock size={14} />}
+                            {s.locked ? <Lock size={14} strokeWidth={1.5} /> : <Unlock size={14} strokeWidth={1.5} />}
                           </button>
                         </div>
 
