@@ -401,7 +401,7 @@ export default function MobileShell() {
       )}
 
       {/* ─── Modals & Overlays ─── */}
-      {exportOpen && <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />}
+      <ExportPanel open={exportOpen} hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
       <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
       <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
       <SaveNameModal open={saveNameOpen} defaultName={defaultPaletteName} onConfirm={handleSaveConfirm} onClose={() => setSaveNameOpen(false)} />

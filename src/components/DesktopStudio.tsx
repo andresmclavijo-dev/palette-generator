@@ -20,6 +20,10 @@ import SavedPalettesPanel from './ui/SavedPalettesPanel'
 import SaveNameModal from './ui/SaveNameModal'
 // PreviewModal no longer used — preview is inline via PreviewMode component
 import { Button } from '@/components/ui/button'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter,
+} from '@/components/ui/dialog'
 import CookieConsent from './CookieConsent'
 import {
   readableOn, getColorName, getColorInfo, getContrastBadge,
@@ -1075,18 +1079,15 @@ export default function DesktopStudio() {
         colorCount={count}
       />
 
-      {activeDialog === 'export' && (
-        <ExportPanel hexes={swatches.map(s => s.hex)} onClose={closeDialog} onProGate={() => openProModal()} />
-      )}
+      <ExportPanel open={activeDialog === 'export'} hexes={swatches.map(s => s.hex)} onClose={closeDialog} onProGate={() => openProModal()} />
 
-      {activeDialog === 'extract' && (
-        <ExtractDialog
-          uploading={imageUploading}
-          onFile={handleImageUpload}
-          onClose={closeDialog}
-          fileInputRef={fileInputRef}
-        />
-      )}
+      <ExtractDialog
+        open={activeDialog === 'extract'}
+        uploading={imageUploading}
+        onFile={handleImageUpload}
+        onClose={closeDialog}
+        fileInputRef={fileInputRef}
+      />
 
       <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
       <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} paletteColors={swatches.map(s => s.hex)} />
@@ -1111,11 +1112,15 @@ export default function DesktopStudio() {
       )}
 
       {/* Shade scale modal */}
-      {activeDialog === 'shades' && shadesOpen && (() => {
-        const sw = swatches.find(s => s.id === shadesOpen)
-        return sw ? (
-          <ShadesSpecimen hex={sw.hex} onClose={() => { setShadesOpen(null); closeDialog() }} />
-        ) : null
+      {(() => {
+        const sw = shadesOpen ? swatches.find(s => s.id === shadesOpen) : null
+        return (
+          <ShadesSpecimen
+            open={activeDialog === 'shades' && !!sw}
+            hex={sw?.hex ?? '#000000'}
+            onClose={() => { setShadesOpen(null); closeDialog() }}
+          />
+        )
       })()}
 
       </div>{/* close app shell (100dvh) */}
@@ -1317,52 +1322,27 @@ function LibrarySection({
     </div>
 
     {/* Delete confirmation modal */}
-    {deleteTarget && (
-      <>
-        <div
-          className="fixed inset-0 z-[100]"
-          onClick={() => setDeleteTarget(null)}
-          style={{
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-          }}
-        />
-        <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
-          <div
-            className="bg-white shadow-2xl max-w-sm w-full pointer-events-auto"
-            style={{ borderRadius: 16, padding: 24 }}
-            role="dialog"
-            aria-label="Delete palette confirmation"
-            aria-modal="true"
-          >
-            <h2 className="text-lg font-semibold text-gray-900 m-0">Delete palette?</h2>
-            <p className="text-sm mt-1 m-0" style={{ color: '#6b7280' }}>
-              &ldquo;{deleteTarget.name || 'Untitled'}&rdquo; will be permanently deleted. This can&rsquo;t be undone.
-            </p>
-            <div className="flex rounded-lg overflow-hidden h-10 mt-4">
-              {deleteTarget.colors.map((c, i) => (
-                <div key={i} className="flex-1" style={{ backgroundColor: c }} />
-              ))}
-            </div>
-            <div className="flex items-center justify-end gap-3 mt-6">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="px-4 h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 h-9 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
+    <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Delete palette?</DialogTitle>
+          <DialogDescription>
+            &ldquo;{deleteTarget?.name || 'Untitled'}&rdquo; will be permanently deleted. This can&rsquo;t be undone.
+          </DialogDescription>
+        </DialogHeader>
+        {deleteTarget && (
+          <div className="flex rounded-button overflow-hidden h-10 mt-1">
+            {deleteTarget.colors.map((c, i) => (
+              <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+            ))}
           </div>
-        </div>
-      </>
-    )}
+        )}
+        <DialogFooter>
+          <Button variant="outline" size="default" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button variant="destructive" size="default" onClick={confirmDelete}>Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   )
 }
@@ -1809,23 +1789,10 @@ function shadeContrastRatio(bg: string, fg: string): number {
   } catch { return 1 }
 }
 
-function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) {
+function ShadesSpecimen({ open, hex, onClose }: { open: boolean; hex: string; onClose: () => void }) {
   const shades = useMemo(() => generateShades(hex, 10), [hex])
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
-  const [entering, setEntering] = useState(true)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-
-  useEffect(() => {
-    requestAnimationFrame(() => setEntering(false))
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
 
   const handleCopy = async (shade: string, i: number) => {
     try {
@@ -1837,39 +1804,11 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
   }
 
   return (
-    <>
-      {/* Backdrop — separate fixed layer */}
-      <div
-        className="fixed inset-0 z-[100]"
-        onClick={onClose}
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          transition: 'opacity 150ms ease-out',
-          opacity: entering ? 0 : 1,
-        }}
-      />
-
-      {/* Modal card — separate fixed layer */}
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
-        <div
-          className="relative w-full max-w-2xl bg-white shadow-2xl pointer-events-auto"
-          style={{
-            borderRadius: 16,
-            padding: 24,
-            transition: 'transform 150ms ease-out, opacity 150ms ease-out',
-            transform: entering ? 'scale(0.95)' : 'scale(1)',
-            opacity: entering ? 0 : 1,
-          }}
-          role="dialog"
-          aria-label="Shade scale"
-          aria-modal="true"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
-          <div className="flex items-center" style={{ gap: 10 }}>
-            <h2 className="text-lg font-semibold m-0" style={{ color: BRAND_DARK }}>Shade scale</h2>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2.5">
+            Shade scale
             <div
               style={{
                 width: 24, height: 24, borderRadius: 6,
@@ -1877,22 +1816,14 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
                 border: '1px solid rgba(0,0,0,0.06)',
               }}
             />
-            <span className="text-[13px] font-mono" style={{ color: '#6b7280' }}>
+            <span className="text-[13px] font-mono font-normal" style={{ color: '#6b7280' }}>
               {hex.toUpperCase()}
             </span>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
-            aria-label="Close shade scale"
-          >
-            <X size={16} />
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         {/* 2×5 Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginTop: 8 }}>
           {shades.map((shade, i) => {
             const label = TAILWIND_SHADE_LABELS[i]
             const isBase = label === 500
@@ -1995,9 +1926,8 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
             )
           })}
         </div>
-        </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -2120,19 +2050,15 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
 // ─── Extract Dialog ──────────────────────────────────────────
 function ExtractDialog({
-  uploading, onFile, onClose, fileInputRef,
+  open, uploading, onFile, onClose, fileInputRef,
 }: {
+  open: boolean
   uploading: boolean
   onFile: (file: File) => void
   onClose: () => void
   fileInputRef: React.RefObject<HTMLInputElement | null>
 }) {
   const [dragOver, setDragOver] = useState(false)
-  const [entering, setEntering] = useState(true)
-
-  useEffect(() => {
-    requestAnimationFrame(() => setEntering(false))
-  }, [])
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -2142,48 +2068,11 @@ function ExtractDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          transition: 'opacity 150ms ease-out',
-          opacity: entering ? 0 : 1,
-        }}
-      />
-
-      {/* Modal card */}
-      <div
-        className="relative w-full max-w-lg bg-white shadow-2xl"
-        style={{
-          borderRadius: 16,
-          padding: 24,
-          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
-          transform: entering ? 'scale(0.95)' : 'scale(1)',
-          opacity: entering ? 0 : 1,
-        }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-label="Extract colors from image"
-        aria-modal="true"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 m-0">
-            Extract from image
-          </h2>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle>Extract from image</DialogTitle>
+        </DialogHeader>
 
         {/* Drop zone */}
         <div
@@ -2217,8 +2106,8 @@ function ExtractDialog({
         <p className="text-xs mt-3 m-0" style={{ color: '#9ca3af' }}>
           Colors are extracted using k-means clustering
         </p>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

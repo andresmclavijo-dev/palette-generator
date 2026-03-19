@@ -577,9 +577,7 @@ export default function App() {
         )}
       </footer>
 
-      {exportOpen && (
-        <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
-      )}
+      <ExportPanel open={exportOpen} hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
 
       {/* Mobile tools bottom sheet */}
       <ToolsSheet

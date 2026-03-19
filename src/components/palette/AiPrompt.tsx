@@ -3,6 +3,9 @@ import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
 import { BRAND_VIOLET } from '../../lib/tokens'
 import { analytics } from '../../lib/posthog'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '../ui/dialog'
 export const AI_MAX_FREE = 3
 
 function todayKey() {
@@ -171,44 +174,14 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
     }
   }
 
-  if (!open) return null
-
   const AI_PRESETS = ['Warm sunset', 'Ocean breeze', 'Forest canopy', 'Neon cyber', 'Pastel dream', 'Earthy tones']
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        }}
-      />
-
-      {/* Modal card */}
-      <div
-        className="relative w-full max-w-md bg-white shadow-2xl"
-        style={{ borderRadius: 16, padding: 24 }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-label="AI palette"
-        aria-modal="true"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 m-0">AI palette</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
-            aria-label="Close"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle>AI palette</DialogTitle>
+        </DialogHeader>
 
         <div className="flex flex-col gap-3">
           {/* Input + Generate button (inline) */}
@@ -226,7 +199,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
               }}
               placeholder={exhausted ? 'Upgrade to Pro for unlimited AI' : 'Describe a mood or theme\u2026'}
               disabled={exhausted}
-              className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none transition-all disabled:opacity-50"
+              className="flex-1 h-9 px-3 rounded-button border border-border text-sm outline-none transition-all disabled:opacity-50"
               style={{ color: '#1a1a2e' }}
               onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,71,255,0.15)' }}
               onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none' }}
@@ -234,7 +207,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             {exhausted ? (
               <button
                 onClick={handleUpgradeOrGenerate}
-                className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90 shrink-0"
+                className="h-9 px-4 rounded-button text-white text-sm font-medium transition-all hover:opacity-90 shrink-0"
                 style={{ backgroundColor: BRAND_VIOLET }}
               >
                 Unlock Pro
@@ -243,7 +216,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
               <button
                 onClick={handleUpgradeOrGenerate}
                 disabled={loading || !prompt.trim()}
-                className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90 disabled:opacity-40 shrink-0 flex items-center gap-1.5"
+                className="h-9 px-4 rounded-button text-white text-sm font-medium transition-all hover:opacity-90 disabled:opacity-40 shrink-0 flex items-center gap-1.5"
                 style={{ backgroundColor: BRAND_VIOLET }}
               >
                 {loading ? (
@@ -279,7 +252,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
             {isPro ? '✦ Unlimited prompts' : exhausted ? 'No AI generations left today' : `${remaining}/day free · Unlimited with Pro`}
           </p>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

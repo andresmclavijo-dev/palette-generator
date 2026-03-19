@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react'
-import { Copy, Check, X, Lock } from 'lucide-react'
+import { useState } from 'react'
+import { Copy, Check, Lock } from 'lucide-react'
 import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
 import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription,
+} from '../ui/dialog'
 
 type Format = 'css' | 'tailwind' | 'svg'
 type NamingMode = 'default' | 'smart'
 
 interface ExportPanelProps {
+  open: boolean
   hexes: string[]
   onClose: () => void
   onProGate?: () => void
@@ -81,22 +86,11 @@ const FORMATS: { id: Format; label: string; pro?: boolean }[] = [
   { id: 'svg', label: 'SVG' },
 ]
 
-export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelProps) {
+export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportPanelProps) {
   const { isPro } = usePro()
   const [format, setFormat] = useState<Format>('css')
   const [naming, setNaming] = useState<NamingMode>('default')
   const [copied, setCopied] = useState(false)
-  const [entering, setEntering] = useState(true)
-
-  useEffect(() => {
-    requestAnimationFrame(() => setEntering(false))
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
 
   const content =
     format === 'css' ? buildCSS(hexes, isPro, naming) :
@@ -119,52 +113,12 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
   }
 
   return (
-    <>
-      {/* Backdrop — separate fixed layer */}
-      <div
-        className="fixed inset-0 z-[100]"
-        onClick={onClose}
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          transition: 'opacity 150ms ease-out',
-          opacity: entering ? 0 : 1,
-        }}
-      />
-
-      {/* Modal card — separate fixed layer */}
-      <div
-        className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
-      >
-        <div
-          className="relative flex flex-col w-full max-w-lg bg-white shadow-2xl pointer-events-auto"
-          style={{
-            maxHeight: '80vh',
-            borderRadius: 16,
-            padding: 24,
-            transition: 'transform 150ms ease-out, opacity 150ms ease-out',
-            transform: entering ? 'scale(0.95)' : 'scale(1)',
-            opacity: entering ? 0 : 1,
-          }}
-          role="dialog"
-          aria-label="Export palette"
-          aria-modal="true"
-        >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 m-0">Export palette</h2>
-            <p className="text-sm text-gray-500 mt-0.5 m-0">Copy your palette in any format</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg" style={{ maxHeight: '80vh' }}>
+        <DialogHeader>
+          <DialogTitle>Export palette</DialogTitle>
+          <DialogDescription>Copy your palette in any format</DialogDescription>
+        </DialogHeader>
 
         {/* Format switcher */}
         <div
@@ -307,8 +261,7 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
             )}
           </div>
         )}
-        </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }
