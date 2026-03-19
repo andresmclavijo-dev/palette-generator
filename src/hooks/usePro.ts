@@ -31,7 +31,7 @@ if (devProOverride) {
 
 export function usePro() {
   const { user, loading: authLoading } = useAuth()
-  const { isPro, loading, showPaymentModal, fetched, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
+  const { isPro, loading, showPaymentModal, setIsPro, setLoading, setShowPaymentModal, setFetched } = useProStore()
   const paymentHandled = useRef(false)
   const cancelHandled = useRef(false)
   const lastFetchedUserId = useRef<string | null>(null)
@@ -53,8 +53,9 @@ export function usePro() {
       return
     }
 
-    // Skip if already fetched for this user
-    if (fetched && lastFetchedUserId.current === userId) return
+    // Skip if already fetched (or in-flight) for this user.
+    // Use ref alone — Zustand `fetched` updates async and causes races.
+    if (lastFetchedUserId.current === userId) return
     lastFetchedUserId.current = userId
 
     let cancelled = false

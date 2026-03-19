@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
@@ -175,7 +175,7 @@ export default function DesktopStudio() {
     generate()
     setDockPulse(false)
     sessionStorage.setItem('paletta_dock_pulsed', '1')
-    analytics.track('palette_generated', { method, style: harmonyMode, color_count: count })
+    analytics.trackDebounced('palette_generated', { method, style: harmonyMode, color_count: count })
     if (!localStorage.getItem('paletta_first_generate_at')) {
       localStorage.setItem('paletta_first_generate_at', String(Date.now()))
       const sessionStart = Number(sessionStorage.getItem('paletta_session_start') || Date.now())
@@ -1104,7 +1104,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 // ─── Shade Bar (horizontal overlay) ─────────────────────────
 function ShadeBar({ hex, onClose }: { hex: string; onClose: () => void }) {
-  const shades = generateShades(hex, 10)
+  const shades = useMemo(() => generateShades(hex, 10), [hex])
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
 
   const handleCopy = async (shade: string, i: number) => {

@@ -162,10 +162,15 @@ export function isLight(hex: string): boolean {
   try { return chroma(hex).luminance() > 0.4 } catch { return true }
 }
 
+const _readableOnCache = new Map<string, string>()
 export function readableOn(bg: string): string {
+  const cached = _readableOnCache.get(bg)
+  if (cached) return cached
   try {
-    return chroma.contrast(bg, '#ffffff') > chroma.contrast(bg, '#000000')
+    const result = chroma.contrast(bg, '#ffffff') > chroma.contrast(bg, '#000000')
       ? '#ffffff' : '#000000'
+    _readableOnCache.set(bg, result)
+    return result
   } catch { return '#000000' }
 }
 
@@ -183,15 +188,21 @@ export function getColorInfo(hex: string): { rgb: string; hsl: string } {
   }
 }
 
+const _contrastBadgeCache = new Map<string, { ratio: number; level: 'AAA' | 'AA' | 'Fail'; pass: boolean }>()
 export function getContrastBadge(hex: string): { ratio: number; level: 'AAA' | 'AA' | 'Fail'; pass: boolean } {
+  const cached = _contrastBadgeCache.get(hex)
+  if (cached) return cached
   try {
     const white = chroma.contrast(hex, '#ffffff')
     const black = chroma.contrast(hex, '#000000')
     const ratio = Math.max(white, black)
     const rounded = Math.round(ratio * 10) / 10
-    if (ratio >= 7) return { ratio: rounded, level: 'AAA', pass: true }
-    if (ratio >= 4.5) return { ratio: rounded, level: 'AA', pass: true }
-    return { ratio: rounded, level: 'Fail', pass: false }
+    let result: { ratio: number; level: 'AAA' | 'AA' | 'Fail'; pass: boolean }
+    if (ratio >= 7) result = { ratio: rounded, level: 'AAA', pass: true }
+    else if (ratio >= 4.5) result = { ratio: rounded, level: 'AA', pass: true }
+    else result = { ratio: rounded, level: 'Fail', pass: false }
+    _contrastBadgeCache.set(hex, result)
+    return result
   } catch {
     return { ratio: 1, level: 'Fail', pass: false }
   }

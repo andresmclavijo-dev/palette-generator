@@ -28,6 +28,7 @@ import CookieConsent from './components/CookieConsent'
 import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
 import { useIsMobile } from './hooks/useIsMobile'
+// TODO: code-split with React.lazy() — only one of these renders at a time
 import MobileShell from './components/MobileShell'
 import DesktopStudio from './components/DesktopStudio'
 
