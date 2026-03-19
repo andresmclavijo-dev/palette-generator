@@ -980,6 +980,7 @@ export default function DesktopStudio() {
                       const proMax = 8
                       const max = isPro ? proMax : freeMax
                       const atFreeLimit = !isPro && count >= freeMax
+                      const atAbsMax = count >= max && !atFreeLimit
                       return (
                         <button
                           onClick={() => {
@@ -987,13 +988,15 @@ export default function DesktopStudio() {
                             else if (count < max) setCount(count + 1)
                           }}
                           className="relative flex items-center justify-center transition-all hover:bg-white/10"
-                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
-                          disabled={!atFreeLimit && count >= max}
-                          aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : 'Add color'}
+                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: atFreeLimit ? 0.5 : atAbsMax ? 0.3 : 1 }}
+                          disabled={atAbsMax}
+                          aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : atAbsMax ? 'Maximum colors reached' : 'Add color'}
                         >
                           <Plus size={16} style={{ color: '#fff' }} />
                           {atFreeLimit && (
-                            <span className="absolute -top-1.5 -right-1.5 w-3 h-3 flex items-center justify-center rounded-full text-[6px] font-bold text-white" style={{ backgroundColor: BRAND_VIOLET }}>P</span>
+                            <span className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full" style={{ width: 12, height: 12, backgroundColor: BRAND_VIOLET }}>
+                              <Lock size={7} style={{ color: '#fff' }} />
+                            </span>
                           )}
                         </button>
                       )
