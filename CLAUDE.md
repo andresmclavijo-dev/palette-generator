@@ -98,6 +98,19 @@ Key rules (quick reference):
 For full spec, token values, and review checklist: see `agents/01-design-system-architect.md`
 For project context and architecture: see `agents/MANIFESTO.md`
 
+## Frontend Expert (auto-loaded)
+
+Read `agents/05-frontend-expert.md` before writing any React components, hooks, or state logic. All component architecture decisions must follow the patterns defined there.
+
+Key rules (quick reference):
+- Components > 300 lines → decompose
+- No prop drilling > 2 levels → read from Zustand directly
+- No inline styles for layout/colors → use Tailwind tokens
+- No hand-coded modals/buttons/inputs → use shadcn components
+- Use cn() for conditional classes, never string concatenation
+- useMemo on expensive calculations (contrast ratios)
+- Conditional rendering (not display:none) for inactive views
+
 ---
 
 ## End-of-Session Protocol
