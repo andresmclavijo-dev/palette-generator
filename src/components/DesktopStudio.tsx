@@ -514,25 +514,24 @@ export default function DesktopStudio() {
               top: 12,
               left: 12,
               zIndex: 70,
-              height: 40,
               borderRadius: 12,
-              backgroundColor: 'rgba(255,255,255,0.92)',
+              backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: '0 4px',
+              padding: 6,
             }}
           >
             <button
               onClick={() => setHarmonyOpen(o => !o)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-all hover:bg-black/5"
-              style={{ borderRadius: 8, color: BRAND_DARK }}
+              className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.04]"
+              style={{ height: 36, padding: '6px 12px', borderRadius: 8, color: BRAND_DARK }}
               aria-expanded={harmonyOpen}
               aria-haspopup="listbox"
             >
               {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
@@ -540,7 +539,7 @@ export default function DesktopStudio() {
             {harmonyOpen && (
               <div
                 className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
-                style={{ borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
+                style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
                 role="listbox"
                 aria-label="Harmony modes"
               >
@@ -567,18 +566,18 @@ export default function DesktopStudio() {
 
           {/* ─── Floating Actions Pill (top-right) ─── */}
           <header
-            className="absolute flex items-center gap-0.5"
+            className="absolute flex items-center"
             style={{
               top: 12,
               right: 12,
               zIndex: 70,
               borderRadius: 12,
-              backgroundColor: 'rgba(255,255,255,0.92)',
+              backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: '4px 8px',
+              padding: 6,
             }}
           >
             {/* Save */}
@@ -618,14 +617,14 @@ export default function DesktopStudio() {
             </DarkTooltip>
 
             {/* Divider */}
-            <div className="w-px h-5 mx-1.5" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
+            <div style={{ width: 1, height: 24, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 6px' }} />
 
             {/* Go Pro (non-Pro) */}
             {!isPro && (
               <button
                 onClick={() => openProModal()}
-                className="h-7 px-3 text-white text-[12px] font-semibold transition-all hover:opacity-90"
-                style={{ borderRadius: 8, backgroundColor: BRAND_VIOLET }}
+                className="text-white text-[13px] font-semibold transition-all hover:opacity-90"
+                style={{ height: 36, padding: '6px 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET }}
               >
                 Go Pro
               </button>
@@ -642,8 +641,8 @@ export default function DesktopStudio() {
             ) : (
               <button
                 onClick={() => setSignInOpen(true)}
-                className="h-7 px-3 text-[12px] font-semibold transition-all hover:bg-black/5"
-                style={{ borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
+                className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
+                style={{ height: 36, padding: '6px 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
               >
                 Sign In
               </button>
