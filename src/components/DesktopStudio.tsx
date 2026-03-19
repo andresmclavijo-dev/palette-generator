@@ -75,7 +75,7 @@ export default function DesktopStudio() {
   const [validateOn, setValidateOn] = useState(false)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
   // Unified dialog state — only one dialog open at a time
-  type DialogType = 'extract' | 'harmony' | 'export' | 'ai-full' | 'pro' | 'sign-in' | 'saved' | 'save-name' | 'shortcuts' | null
+  type DialogType = 'extract' | 'harmony' | 'export' | 'ai-full' | 'pro' | 'sign-in' | 'saved' | 'save-name' | 'shortcuts' | 'shades' | null
   const [activeDialog, setActiveDialog] = useState<DialogType>(null)
   const openDialog = useCallback((type: DialogType) => setActiveDialog(type), [])
   const closeDialog = useCallback(() => setActiveDialog(null), [])
@@ -95,6 +95,11 @@ export default function DesktopStudio() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const harmonyRef = useRef<HTMLDivElement>(null)
   const trackedRef = useRef(false)
+
+  // Color count gating — computed from reactive state
+  const isAtFreeCap = !isPro && swatches.length >= 5
+  const isAtProMax = isPro && swatches.length >= 8
+  const isColorGated = isAtFreeCap || isAtProMax
 
   // Track desktop_studio_loaded once
   useEffect(() => {
@@ -787,11 +792,7 @@ export default function DesktopStudio() {
                 </div>
               )}
 
-              {/* ─── Shade Specimen Grid ─── */}
-              {shadesOpen && (() => {
-                const sw = swatches.find(s => s.id === shadesOpen)
-                return sw ? <ShadesSpecimen hex={sw.hex} onClose={() => setShadesOpen(null)} /> : null
-              })()}
+              {/* Shade scale rendered as modal below */}
 
               {/* ─── Colors View ─── */}
               {viewMode === 'colors' && (
@@ -884,7 +885,7 @@ export default function DesktopStudio() {
                               </DarkTooltip>
                               <DarkTooltip label="Shade scale" position="right">
                                 <button
-                                  onClick={() => setShadesOpen(shadesOpen === s.id ? null : s.id)}
+                                  onClick={() => { setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog() }}
                                   className="flex items-center justify-center transition-all"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
                                   aria-label="View shade scale"
@@ -935,7 +936,7 @@ export default function DesktopStudio() {
               )}
 
               {/* Bottom bar — color count + spacebar hint */}
-              {viewMode === 'colors' && activeDialog !== 'ai-full' && activeDialog !== 'export' && (
+              {viewMode === 'colors' && activeDialog !== 'ai-full' && activeDialog !== 'export' && activeDialog !== 'shades' && (
                 <div
                   className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
                   style={{ gap: 6, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '4px 6px' }}
@@ -951,35 +952,27 @@ export default function DesktopStudio() {
                       <Minus size={16} style={{ color: '#fff' }} />
                     </button>
                     <span className="text-[14px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
-                    {(() => {
-                      const freeMax = 5
-                      const proMax = 8
-                      const currentCount = swatches.length
-                      const max = isPro ? proMax : freeMax
-                      const atFreeLimit = !isPro && currentCount >= freeMax
-                      const atAbsMax = isPro && currentCount >= proMax
-                      const canAdd = !atFreeLimit && !atAbsMax
-                      return (
-                        <button
-                          onClick={() => {
-                            if (atFreeLimit) { openProModal('color_count', 'canvas_bar'); return }
-                            if (atAbsMax) return
-                            if (currentCount < max) setCount(currentCount + 1)
-                          }}
-                          className={`relative flex items-center justify-center transition-all ${atAbsMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${canAdd ? 'hover:bg-white/10' : ''}`}
-                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: canAdd ? 1 : atFreeLimit ? 0.5 : 0.3 }}
-                          disabled={atAbsMax}
-                          aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : atAbsMax ? 'Maximum colors reached' : 'Add color'}
-                        >
-                          <Plus size={16} style={{ color: '#fff' }} />
-                          {atFreeLimit && (
-                            <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -6, right: -6, width: 16, height: 16, backgroundColor: 'rgba(0,0,0,0.75)' }}>
-                              <Lock size={10} style={{ color: '#fff' }} />
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })()}
+                    <button
+                      onClick={() => {
+                        // Re-read from store at click time to avoid stale closures
+                        const liveCount = usePaletteStore.getState().swatches.length
+                        const liveMax = isPro ? 8 : 5
+                        if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                        if (liveCount >= liveMax) return
+                        setCount(liveCount + 1)
+                      }}
+                      className={`relative flex items-center justify-center transition-all ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-white/10' : ''}`}
+                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
+                      disabled={isAtProMax}
+                      aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
+                    >
+                      <Plus size={16} style={{ color: '#fff' }} />
+                      {isAtFreeCap && (
+                        <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -6, right: -6, width: 16, height: 16, backgroundColor: 'rgba(0,0,0,0.75)' }}>
+                          <Lock size={10} style={{ color: '#fff' }} />
+                        </span>
+                      )}
+                    </button>
                   </div>
                   <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
                   <div className="flex items-center gap-2">
@@ -1114,6 +1107,14 @@ export default function DesktopStudio() {
           onProGate={openProModal}
         />
       )}
+
+      {/* Shade scale modal */}
+      {activeDialog === 'shades' && shadesOpen && (() => {
+        const sw = swatches.find(s => s.id === shadesOpen)
+        return sw ? (
+          <ShadesSpecimen hex={sw.hex} onClose={() => { setShadesOpen(null); closeDialog() }} />
+        ) : null
+      })()}
 
       </div>{/* close app shell (100dvh) */}
 
@@ -1736,7 +1737,6 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
     requestAnimationFrame(() => setEntering(false))
   }, [])
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -1755,46 +1755,43 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
   }
 
   return (
-    <>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
       {/* Backdrop */}
       <div
         className="absolute inset-0"
-        style={{ zIndex: 74, backgroundColor: 'rgba(0,0,0,0.15)' }}
-        onClick={onClose}
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          transition: 'opacity 150ms ease-out',
+          opacity: entering ? 0 : 1,
+        }}
       />
 
-      {/* Panel */}
+      {/* Modal card */}
       <div
-        className="absolute left-1/2"
+        className="relative w-full max-w-2xl bg-white shadow-2xl"
         style={{
-          top: 60,
-          zIndex: 75,
-          transform: `translateX(-50%) translateY(${entering ? '-8px' : '0'})`,
-          opacity: entering ? 0 : 1,
-          transition: 'transform 200ms ease-out, opacity 200ms ease-out',
-          width: '90%',
-          maxWidth: 900,
-          borderRadius: 24,
-          backgroundColor: 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 16px 60px rgba(0,0,0,0.12)',
-          border: '1px solid rgba(0,0,0,0.06)',
+          borderRadius: 16,
           padding: 24,
+          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+          transform: entering ? 'scale(0.95)' : 'scale(1)',
+          opacity: entering ? 0 : 1,
         }}
+        onClick={e => e.stopPropagation()}
         role="dialog"
         aria-label="Shade scale"
         aria-modal="true"
       >
         {/* Header */}
         <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
-          <h2 className="text-[16px] font-bold m-0" style={{ color: BRAND_DARK }}>Shade scale</h2>
-
           <div className="flex items-center" style={{ gap: 10 }}>
+            <h2 className="text-lg font-semibold m-0" style={{ color: BRAND_DARK }}>Shade scale</h2>
             <div
               style={{
-                width: 40, height: 40, borderRadius: 12,
+                width: 24, height: 24, borderRadius: 6,
                 backgroundColor: hex, flexShrink: 0,
+                border: '1px solid rgba(0,0,0,0.06)',
               }}
             />
             <span className="text-[13px] font-mono" style={{ color: '#6b7280' }}>
@@ -1804,11 +1801,10 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
 
           <button
             onClick={onClose}
-            className="flex items-center justify-center transition-all hover:bg-gray-100"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: 8, flexShrink: 0 }}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
             aria-label="Close shade scale"
           >
-            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
+            <X size={16} />
           </button>
         </div>
 
@@ -1917,7 +1913,7 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
           })}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

@@ -44,7 +44,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [usageCount, setUsageCount] = useState(getAiUsageToday)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const remaining = Math.max(0, AI_MAX_FREE - usageCount)
   const exhausted = !isPro && remaining <= 0
 
@@ -52,7 +52,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
   useEffect(() => {
     if (open) {
       setUsageCount(getAiUsageToday())
-      setTimeout(() => textareaRef.current?.focus(), 100)
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
   }, [open])
 
@@ -173,89 +173,113 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
   if (!open) return null
 
+  const AI_PRESETS = ['Warm sunset', 'Ocean breeze', 'Forest canopy', 'Neon cyber', 'Pastel dream', 'Earthy tones']
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      {/* Backdrop */}
       <div
-        className="relative w-[400px] max-w-[90vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="absolute inset-0"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
+      />
+
+      {/* Modal card */}
+      <div
+        className="relative w-full max-w-md bg-white shadow-2xl"
+        style={{ borderRadius: 16, padding: 24 }}
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-label="AI palette"
+        aria-modal="true"
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all z-10"
-          aria-label="Close AI prompt"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-
-        <div className="px-6 pt-7 pb-2">
-          <h2 className="text-[18px] font-bold text-gray-900">Generate with AI</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 m-0">AI palette</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+            aria-label="Close"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
 
-        <div className="px-6 pb-4">
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleUpgradeOrGenerate() }
-              e.stopPropagation()
-            }}
-            placeholder={exhausted ? 'Upgrade to Pro for unlimited AI palettes' : 'Describe a palette\u2026 e.g. Warm Mediterranean cafe at sunset'}
-            disabled={exhausted}
-            rows={3}
-            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[13px] text-gray-700 placeholder:text-gray-400 outline-none focus:border-blue-300 resize-none disabled:opacity-50"
-          />
-        </div>
+        <div className="flex flex-col gap-3">
+          {/* Input + Generate button (inline) */}
+          <div className="flex gap-2">
+            <label htmlFor="ai-prompt-input" className="sr-only">AI prompt</label>
+            <input
+              id="ai-prompt-input"
+              ref={inputRef}
+              type="text"
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && prompt.trim()) { e.preventDefault(); handleUpgradeOrGenerate() }
+                e.stopPropagation()
+              }}
+              placeholder={exhausted ? 'Upgrade to Pro for unlimited AI' : 'Describe a mood or theme\u2026'}
+              disabled={exhausted}
+              className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none transition-all disabled:opacity-50"
+              style={{ color: '#1a1a2e' }}
+              onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,71,255,0.15)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none' }}
+            />
+            {exhausted ? (
+              <button
+                onClick={handleUpgradeOrGenerate}
+                className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90 shrink-0"
+                style={{ backgroundColor: BRAND_VIOLET }}
+              >
+                Unlock Pro
+              </button>
+            ) : (
+              <button
+                onClick={handleUpgradeOrGenerate}
+                disabled={loading || !prompt.trim()}
+                className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90 disabled:opacity-40 shrink-0 flex items-center gap-1.5"
+                style={{ backgroundColor: BRAND_VIOLET }}
+              >
+                {loading ? (
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                ) : 'Generate'}
+              </button>
+            )}
+          </div>
 
-        <div className="px-6 pb-5">
-          {exhausted ? (
-            <button
-              onClick={handleUpgradeOrGenerate}
-              className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 flex items-center justify-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
-            >
-              Unlock unlimited AI ✨
-            </button>
-          ) : (
-            <button
-              onClick={handleUpgradeOrGenerate}
-              disabled={loading || !prompt.trim()}
-              className="w-full h-10 rounded-full text-white text-[14px] font-medium transition-all active:scale-95 disabled:opacity-40 flex items-center justify-center gap-3 bg-brand-violet hover:bg-brand-violet-hover"
-            >
-              {loading ? (
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3"/>
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                </svg>
-              ) : (
-                <>
-                  <span>✨</span>
-                  Generate
-                </>
-              )}
-            </button>
-          )}
+          {/* Preset tags */}
+          <div className="flex flex-wrap gap-1.5">
+            {AI_PRESETS.map(chip => (
+              <button
+                key={chip}
+                onClick={e => {
+                  e.stopPropagation()
+                  setPrompt(chip)
+                  inputRef.current?.focus()
+                }}
+                className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
+                style={{ borderRadius: 6, backgroundColor: '#f3f4f6', color: '#374151' }}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
 
-          {/* Usage label */}
-          {isPro ? (
-            <p className="text-center text-[12px] font-medium mt-2.5" style={{ color: BRAND_VIOLET }}>
-              ✦ Unlimited prompts
-            </p>
-          ) : !exhausted ? (
-            <p className="text-center text-[11px] text-gray-400 mt-2.5">
-              {remaining} AI generation{remaining !== 1 ? 's' : ''} left today
-            </p>
-          ) : (
-            <p className="text-center text-[11px] text-gray-400 mt-2.5">
-              No AI generations left today
-            </p>
-          )}
+          {/* Usage counter */}
+          <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
+            {isPro ? '✦ Unlimited prompts' : exhausted ? 'No AI generations left today' : `${remaining}/day free · Unlimited with Pro`}
+          </p>
         </div>
       </div>
-
     </div>
   )
 }
