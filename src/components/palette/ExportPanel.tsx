@@ -120,14 +120,14 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-[100] flex items-center justify-center"
       onClick={onClose}
     >
       {/* Overlay */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: 'rgba(0,0,0,0.3)',
+          backgroundColor: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
         }}

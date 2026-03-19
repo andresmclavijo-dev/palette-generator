@@ -995,8 +995,8 @@ export default function DesktopStudio() {
                         >
                           <Plus size={16} style={{ color: '#fff' }} />
                           {atFreeLimit && (
-                            <span className="absolute -bottom-1 -right-1 flex items-center justify-center rounded-full" style={{ width: 12, height: 12, backgroundColor: BRAND_VIOLET }}>
-                              <Lock size={7} style={{ color: '#fff' }} />
+                            <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -6, right: -6, width: 16, height: 16, backgroundColor: 'rgba(0,0,0,0.75)' }}>
+                              <Lock size={10} style={{ color: '#fff' }} />
                             </span>
                           )}
                         </button>
@@ -2361,17 +2361,7 @@ function PreviewMode({
               )}
             </button>
           ))}
-          {swatches.length < 8 && (
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: 36, height: 36, borderRadius: 8,
-                border: '2px dashed #d1d5db',
-              }}
-            >
-              <Plus size={14} style={{ color: '#9ca3af' }} />
-            </div>
-          )}
+          {/* Add button removed — color count changes not supported in Preview mode */}
         </div>
 
         {/* Divider */}
