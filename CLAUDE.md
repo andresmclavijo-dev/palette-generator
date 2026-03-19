@@ -79,3 +79,21 @@ Inherits all global WCAG 2.1 AA rules from ~/.claude/CLAUDE.md. Additional Palet
 - Model: claude-haiku (20x cheaper than Sonnet)
 - Spend limit: $10/mo, auto-recharge at $5 → tops up to $15
 - Key stored in Vercel env vars as `ANTHROPIC_API_KEY`
+
+---
+
+## Design System Agent (auto-loaded)
+
+Read `agents/01-design-system-architect.md` before writing any UI code. All visual decisions must follow the token spec defined there.
+
+Key rules (quick reference):
+- NEVER hardcode hex values — use semantic tokens (bg-primary, not bg-[#6C47FF])
+- Button heights: 48px (dock) / 36px (action bar + modal) / 32px (bottom bar + close)
+- Button radius: ALWAYS 8px (rounded-button) — not 12px, not 6px
+- Modal card radius: ALWAYS 16px (rounded-card)
+- Gaps between sibling buttons: ALWAYS 6px (gap-1.5)
+- Destructive actions (delete): RED (bg-destructive), not violet
+- Every button must have aria-label
+
+For full spec, token values, and review checklist: see `agents/01-design-system-architect.md`
+For project context and architecture: see `agents/MANIFESTO.md`
