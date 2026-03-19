@@ -2160,14 +2160,6 @@ function PreviewMode({
     requestAnimationFrame(() => setEntering(false))
   }, [])
 
-  const handleCopyCSS = async () => {
-    const css = hexes.map((h, i) => `  --color-${i + 1}: ${h};`).join('\n')
-    try {
-      await navigator.clipboard.writeText(`:root {\n${css}\n}`)
-      showToast('CSS variables copied!')
-    } catch { /* silent */ }
-  }
-
   return (
     <div className="absolute inset-0" style={{ backgroundColor: '#f9f9f8' }}>
       {/* Scrollable content area */}
@@ -2181,36 +2173,6 @@ function PreviewMode({
             filter: visionFilter,
           }}
       >
-        {/* Inline export actions */}
-        <div className="flex items-center justify-end mx-auto" style={{ maxWidth: 1000, marginBottom: 12, gap: 6 }}>
-          <button
-            onClick={() => onExport()}
-            className="flex items-center transition-all hover:bg-white"
-            style={{
-              height: 32, padding: '0 10px', gap: 6, borderRadius: 8,
-              border: '1px solid rgba(0,0,0,0.08)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
-              backgroundColor: 'rgba(255,255,255,0.8)',
-            }}
-            aria-label="Export Tailwind config"
-          >
-            <Download size={14} strokeWidth={1.5} />
-            Export Tailwind
-          </button>
-          <button
-            onClick={handleCopyCSS}
-            className="flex items-center transition-all hover:bg-white"
-            style={{
-              height: 32, padding: '0 10px', gap: 6, borderRadius: 8,
-              border: '1px solid rgba(0,0,0,0.08)', color: BRAND_DARK, fontSize: 12, fontWeight: 500,
-              backgroundColor: 'rgba(255,255,255,0.8)',
-            }}
-            aria-label="Copy CSS variables"
-          >
-            <Copy size={14} strokeWidth={1.5} />
-            Copy CSS
-          </button>
-        </div>
-
         <div
           className="grid mx-auto"
           style={{ gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 1000 }}
