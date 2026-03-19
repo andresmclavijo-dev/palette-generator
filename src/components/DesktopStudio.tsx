@@ -621,7 +621,7 @@ export default function DesktopStudio() {
             </DarkTooltip>
 
             {/* Divider */}
-            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)', margin: '0 2px' }} />
 
             {/* Go Pro (non-Pro) */}
             {!isPro && (
@@ -992,7 +992,7 @@ export default function DesktopStudio() {
         />
 
         {exportOpen && (
-          <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} />
+          <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} onProGate={() => openProModal()} />
         )}
 
         <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
