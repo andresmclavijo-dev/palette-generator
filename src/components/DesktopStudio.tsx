@@ -341,7 +341,7 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#EEEEED' }}>
+      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#EEEEEC' }}>
         {/* Skip link */}
         <a
           href="#main-canvas"
@@ -442,8 +442,8 @@ export default function DesktopStudio() {
             {dockExpanded ? (
               <button
                 onClick={toggleDock}
-                className="flex items-center gap-2.5 w-full rounded-xl px-3.5 py-3 text-[13px] font-medium transition-all hover:bg-gray-100"
-                style={{ color: '#666' }}
+                className="flex items-center gap-2.5 w-full px-3.5 py-3 text-[13px] font-medium transition-all hover:bg-gray-100"
+                style={{ borderRadius: 10, color: '#666' }}
                 aria-label="Collapse dock"
               >
                 <ChevronLeft size={18} />
@@ -453,8 +453,8 @@ export default function DesktopStudio() {
               <DarkTooltip label="Expand" position="right">
                 <button
                   onClick={toggleDock}
-                  className="mx-auto flex items-center justify-center rounded-xl transition-all hover:bg-gray-100"
-                  style={{ width: 36, height: 36, color: '#666' }}
+                  className="mx-auto flex items-center justify-center transition-all hover:bg-gray-100"
+                  style={{ width: 36, height: 36, borderRadius: 10, color: '#666' }}
                   aria-label="Expand dock"
                 >
                   <ChevronRight size={18} />
@@ -469,10 +469,10 @@ export default function DesktopStudio() {
           className="relative flex-1 min-w-0 overflow-hidden"
           style={{
             margin: '16px 16px 16px 0',
-            borderRadius: 32,
+            borderRadius: 24,
             background: '#fff',
             border: '1px solid rgba(0,0,0,0.06)',
-            boxShadow: '0 8px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+            boxShadow: '0 20px 50px -12px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05)',
           }}
         >
           {/* ─── Floating Harmony Pill (top-left) ─── */}
@@ -483,9 +483,9 @@ export default function DesktopStudio() {
               top: 14,
               left: 14,
               zIndex: 70,
-              height: 38,
-              borderRadius: 14,
-              backgroundColor: 'rgba(255,255,255,0.95)',
+              height: 40,
+              borderRadius: 10,
+              backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
@@ -495,8 +495,8 @@ export default function DesktopStudio() {
           >
             <button
               onClick={() => setHarmonyOpen(o => !o)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-medium transition-all hover:bg-black/5"
-              style={{ color: BRAND_DARK }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-all hover:bg-black/5"
+              style={{ borderRadius: 6, color: BRAND_DARK }}
               aria-expanded={harmonyOpen}
               aria-haspopup="listbox"
             >
@@ -508,8 +508,8 @@ export default function DesktopStudio() {
 
             {harmonyOpen && (
               <div
-                className="absolute top-full left-0 mt-2 bg-white rounded-2xl overflow-hidden"
-                style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
+                className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
+                style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220 }}
                 role="listbox"
                 aria-label="Harmony modes"
               >
@@ -521,6 +521,7 @@ export default function DesktopStudio() {
                     onClick={() => handleHarmonySelect(h.mode)}
                     className="w-full flex flex-col px-4 py-3 text-left transition-all hover:bg-gray-50"
                     style={{
+                      borderRadius: 6,
                       backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
                       color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK,
                     }}
@@ -540,9 +541,9 @@ export default function DesktopStudio() {
               top: 14,
               right: 14,
               zIndex: 70,
-              height: 38,
-              borderRadius: 14,
-              backgroundColor: 'rgba(255,255,255,0.95)',
+              height: 40,
+              borderRadius: 10,
+              backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
@@ -554,7 +555,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Save palette" position="bottom">
               <button
                 onClick={handleSave}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
+                style={{ borderRadius: 6 }}
                 aria-label="Save palette"
               >
                 <Heart size={16} style={{ color: BRAND_DARK }} />
@@ -565,7 +567,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Share" position="bottom">
               <button
                 onClick={handleShare}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
+                style={{ borderRadius: 6 }}
                 aria-label="Share palette link"
               >
                 {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
@@ -576,7 +579,8 @@ export default function DesktopStudio() {
             <DarkTooltip label="Export" position="bottom">
               <button
                 onClick={() => setExportOpen(o => !o)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-black/5"
+                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
+                style={{ borderRadius: 6 }}
                 aria-label="Export palette"
               >
                 <Download size={16} style={{ color: BRAND_DARK }} />
@@ -590,8 +594,8 @@ export default function DesktopStudio() {
             {!isPro && (
               <button
                 onClick={() => openProModal()}
-                className="h-7 px-3 rounded-lg text-white text-[12px] font-semibold transition-all hover:opacity-90"
-                style={{ backgroundColor: BRAND_VIOLET }}
+                className="h-7 px-3 text-white text-[12px] font-semibold transition-all hover:opacity-90"
+                style={{ borderRadius: 8, backgroundColor: BRAND_VIOLET }}
               >
                 Go Pro
               </button>
@@ -608,8 +612,8 @@ export default function DesktopStudio() {
             ) : (
               <button
                 onClick={() => setSignInOpen(true)}
-                className="h-7 px-3 rounded-lg text-[12px] font-semibold transition-all hover:bg-black/5"
-                style={{ color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
+                className="h-7 px-3 text-[12px] font-semibold transition-all hover:bg-black/5"
+                style={{ borderRadius: 6, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.08)' }}
               >
                 Sign In
               </button>
@@ -947,8 +951,9 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (!expanded) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`w-full flex items-center gap-3 rounded-xl transition-all${pulse ? ' dock-pulse' : ''}`}
+        className={`w-full flex items-center gap-3 transition-all${pulse ? ' dock-pulse' : ''}`}
         style={{
+          borderRadius: 10,
           padding: expanded ? '12px 14px' : '12px 0',
           justifyContent: expanded ? 'flex-start' : 'center',
           backgroundColor: primary ? BRAND_VIOLET : active ? '#F3F0FF' : 'transparent',
@@ -2052,8 +2057,9 @@ function FloatingPanel({
 }) {
   return (
     <div
-      className="absolute z-30 bg-white rounded-2xl overflow-hidden"
+      className="absolute z-30 bg-white overflow-hidden"
       style={{
+        borderRadius: 10,
         top: 60,
         left: 14,
         width,
