@@ -342,7 +342,11 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#EEEEEC' }}>
+      <div className="flex flex-col w-screen" style={{ height: '100dvh', backgroundColor: '#EEEEEC' }}>
+      {/* Cookie banner — in normal flow, pushes app down */}
+      <CookieConsent />
+
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Skip link */}
         <a
           href="#main-canvas"
@@ -1031,7 +1035,8 @@ export default function DesktopStudio() {
             e.target.value = ''
           }}
         />
-      </div>
+      </div>{/* close inner flex row (dock + bento) */}
+      </div>{/* close outer flex column (banner + app) */}
 
       {/* Color info popover — fixed positioned, outside overflow containers */}
       {infoOpen && infoAnchorRect && (() => {
@@ -1045,11 +1050,6 @@ export default function DesktopStudio() {
           />
         )
       })()}
-
-      {/* Cookie banner — fixed above everything, outside flex layout */}
-      <div className="fixed top-0 left-0 right-0" style={{ zIndex: 100 }}>
-        <CookieConsent />
-      </div>
 
       {/* SEO content below fold */}
       <SEOContent />
