@@ -111,6 +111,40 @@ Key rules (quick reference):
 - useMemo on expensive calculations (contrast ratios)
 - Conditional rendering (not display:none) for inactive views
 
+## UX Writer (auto-loaded for copy changes)
+
+Read `agents/07-ux-writer.md` before writing any user-facing text. This includes button labels, toast messages, error messages, empty states, tooltips, aria-labels, and Pro conversion copy.
+
+Key rules:
+- Strong verbs only (Save, Generate, Export — never Submit, OK, Continue)
+- Toasts: max 3 words + icon
+- Errors: [what happened] + [what to do], never technical
+- Pro gates: lead with what they GET, not what's missing
+
+## Micro-interactions Designer (auto-loaded for interactive elements)
+
+Read `agents/08-microinteractions-designer.md` before adding any interactive elements, animations, or transitions.
+
+Key rules:
+- Every button needs: hover state (150ms) + active:scale-[0.98] + focus-visible:ring-2
+- Every modal needs: enter animation (scale 0.96→1 + fade, 200ms ease-out)
+- Every card needs: hover:shadow-md (200ms)
+- Always respect prefers-reduced-motion
+- Paletta is calm — no bounce, no elastic, no overshoot
+
+## Auto-Trigger Reference (which agents activate when)
+
+| Trigger | Agents loaded |
+|---------|---------------|
+| Writing UI components | Design System Architect + Frontend Expert |
+| Writing user-facing text | UX Writer |
+| Adding interactive elements | Micro-interactions Designer |
+| Touching API routes, Supabase, Stripe | Backend Expert |
+| After deploy (audit) | QA Specialist |
+| End of session | Documentation Specialist (roadmap update) |
+| Prioritization decisions | Product Strategist |
+| Any code change | Design System Architect (token compliance) |
+
 ---
 
 ## End-of-Session Protocol
