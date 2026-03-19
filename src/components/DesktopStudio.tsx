@@ -1755,10 +1755,11 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      {/* Backdrop */}
+    <>
+      {/* Backdrop — separate fixed layer */}
       <div
-        className="absolute inset-0"
+        className="fixed inset-0 z-[100]"
+        onClick={onClose}
         style={{
           backgroundColor: 'rgba(0,0,0,0.4)',
           backdropFilter: 'blur(8px)',
@@ -1768,20 +1769,20 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
         }}
       />
 
-      {/* Modal card */}
-      <div
-        className="relative w-full max-w-2xl bg-white shadow-2xl"
-        style={{
-          borderRadius: 16,
-          padding: 24,
-          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
-          transform: entering ? 'scale(0.95)' : 'scale(1)',
-          opacity: entering ? 0 : 1,
-        }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-label="Shade scale"
-        aria-modal="true"
+      {/* Modal card — separate fixed layer */}
+      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+        <div
+          className="relative w-full max-w-2xl bg-white shadow-2xl pointer-events-auto"
+          style={{
+            borderRadius: 16,
+            padding: 24,
+            transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+            transform: entering ? 'scale(0.95)' : 'scale(1)',
+            opacity: entering ? 0 : 1,
+          }}
+          role="dialog"
+          aria-label="Shade scale"
+          aria-modal="true"
       >
         {/* Header */}
         <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
@@ -1912,8 +1913,9 @@ function ShadesSpecimen({ hex, onClose }: { hex: string; onClose: () => void }) 
             )
           })}
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
