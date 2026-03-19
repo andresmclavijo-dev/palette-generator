@@ -486,7 +486,7 @@ export default function DesktopStudio() {
                 <button
                   onClick={toggleDock}
                   className="mx-auto flex items-center justify-center transition-all"
-                  style={{ width: 40, height: 40, borderRadius: 10, color: '#9ca3af' }}
+                  style={{ width: 40, height: 40, flexShrink: 0, padding: 0, borderRadius: 10, color: '#9ca3af' }}
                   aria-label="Expand dock"
                 >
                   <ChevronRight size={16} />
@@ -1045,11 +1045,12 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`flex items-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
+        className={`flex items-center justify-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
         style={{
           width: isCollapsed ? 48 : '100%',
           height: isCollapsed ? 48 : undefined,
           minHeight: expanded ? 46 : undefined,
+          flexShrink: 0,
           borderRadius: isCollapsed ? 12 : 10,
           padding: expanded ? '12px 14px' : '0',
           gap: expanded ? 12 : 0,
