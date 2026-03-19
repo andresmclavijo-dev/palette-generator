@@ -735,33 +735,33 @@ export default function DesktopStudio() {
                         )}
 
                         {/* Action buttons */}
-                        <div className="flex flex-col items-center gap-1.5">
+                        <div className="flex flex-col items-center" style={{ gap: 4 }}>
                           {/* Copy */}
                           <button
                             onClick={() => copyHex(s.id, s.hex)}
-                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            className="flex items-center justify-center transition-all hover:bg-white/20"
                             style={{
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(8px)',
+                              width: 36, height: 36, padding: 0, borderRadius: 8,
+                              backgroundColor: 'rgba(255,255,255,0.08)',
                               color: textColor,
                             }}
                             aria-label={isCopied ? 'Copied' : 'Copy hex code'}
                           >
-                            {isCopied ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
+                            {isCopied ? <Check size={20} strokeWidth={1.5} /> : <Copy size={20} strokeWidth={1.5} />}
                           </button>
 
                           {/* Info */}
                           <button
                             onClick={() => setInfoOpen(showInfo ? null : s.id)}
-                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            className="flex items-center justify-center transition-all hover:bg-white/20"
                             style={{
-                              backgroundColor: showInfo ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(8px)',
+                              width: 36, height: 36, padding: 0, borderRadius: 8,
+                              backgroundColor: showInfo ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
                               color: textColor,
                             }}
                             aria-label="Color info"
                           >
-                            <Info size={14} strokeWidth={1.5} />
+                            <Info size={20} strokeWidth={1.5} />
                           </button>
 
                           {/* Shades */}
@@ -771,29 +771,29 @@ export default function DesktopStudio() {
                               setShadesOpen(next)
                               if (next) analytics.track('shade_panel_opened')
                             }}
-                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            className="flex items-center justify-center transition-all hover:bg-white/20"
                             style={{
-                              backgroundColor: showShades ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(8px)',
+                              width: 36, height: 36, padding: 0, borderRadius: 8,
+                              backgroundColor: showShades ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
                               color: textColor,
                             }}
                             aria-label={showShades ? 'Close shades' : 'Show shades'}
                           >
-                            <Grid3X3 size={14} strokeWidth={1.5} />
+                            <Grid3X3 size={20} strokeWidth={1.5} />
                           </button>
 
                           {/* Lock */}
                           <button
                             onClick={() => lockSwatch(s.id)}
-                            className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                            className="flex items-center justify-center transition-all hover:bg-white/20"
                             style={{
-                              backgroundColor: s.locked ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(8px)',
+                              width: 36, height: 36, padding: 0, borderRadius: 8,
+                              backgroundColor: s.locked ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
                               color: textColor,
                             }}
                             aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                           >
-                            {s.locked ? <Lock size={14} strokeWidth={1.5} /> : <Unlock size={14} strokeWidth={1.5} />}
+                            {s.locked ? <Lock size={20} strokeWidth={1.5} /> : <Unlock size={20} strokeWidth={1.5} />}
                           </button>
                         </div>
 
@@ -883,25 +883,28 @@ export default function DesktopStudio() {
           {/* Bottom bar — color count + spacebar hint */}
           {!activeTool && !aiOpen && !exportOpen && (
             <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
               style={{
-                borderRadius: 10,
-                backgroundColor: 'rgba(26,26,46,0.75)',
-                backdropFilter: 'blur(8px)',
+                gap: 6,
+                borderRadius: 12,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                padding: '4px 6px',
               }}
             >
               {/* Color count controls */}
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => { if (count > 3) setCount(count - 1) }}
-                  className="w-6 h-6 flex items-center justify-center transition-all hover:bg-white/10"
-                  style={{ borderRadius: 6, opacity: count <= 3 ? 0.3 : 1 }}
+                  className="flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
                   disabled={count <= 3}
                   aria-label="Remove color"
                 >
-                  <Minus size={12} style={{ color: '#fff' }} />
+                  <Minus size={16} style={{ color: '#fff' }} />
                 </button>
-                <span className="text-[12px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 14, textAlign: 'center' }}>
+                <span className="text-[14px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>
                   {count}
                 </span>
                 {(() => {
@@ -918,12 +921,12 @@ export default function DesktopStudio() {
                           setCount(count + 1)
                         }
                       }}
-                      className="relative w-6 h-6 flex items-center justify-center transition-all hover:bg-white/10"
-                      style={{ borderRadius: 6, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
+                      className="relative flex items-center justify-center transition-all hover:bg-white/10"
+                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !atFreeLimit && count >= max ? 0.3 : 1 }}
                       disabled={!atFreeLimit && count >= max}
                       aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : 'Add color'}
                     >
-                      <Plus size={12} style={{ color: '#fff' }} />
+                      <Plus size={16} style={{ color: '#fff' }} />
                       {atFreeLimit && (
                         <span
                           className="absolute -top-1.5 -right-1.5 w-3 h-3 flex items-center justify-center rounded-full text-[6px] font-bold text-white"
@@ -938,13 +941,13 @@ export default function DesktopStudio() {
               </div>
 
               {/* Divider */}
-              <div className="w-px h-4" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+              <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
 
               {/* Spacebar hint */}
               <div className="flex items-center gap-2">
                 <kbd
-                  className="inline-flex items-center justify-center h-5 px-2 rounded text-[10px] font-mono font-semibold"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}
+                  className="inline-flex items-center justify-center text-[11px] font-mono font-semibold"
+                  style={{ padding: '2px 8px', borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}
                 >
                   Space
                 </kbd>
