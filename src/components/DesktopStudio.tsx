@@ -412,7 +412,7 @@ export default function DesktopStudio() {
                         }}
                         aria-label="Harmony mode"
                       >
-                        {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
+                        Harmony: {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
                         <ChevronDown size={14} className="text-muted" />
                       </button>
                     </DropdownMenuTrigger>
