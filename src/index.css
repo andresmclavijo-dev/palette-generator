@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* Brand */
+    --primary: 258 58% 64%;
+    --primary-hover: 252 72% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-hover: 0 76% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Text hierarchy */
+    --foreground: 234 27% 14%;
+    --muted: 218 11% 65%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Surfaces */
+    --background: 60 5% 93%;
+    --card: 0 0% 100%;
+    --surface: 210 20% 98%;
+    --surface-warm: 40 20% 98%;
+
+    /* Borders */
+    --border: 220 13% 91%;
+    --border-light: 220 14% 96%;
+
+    /* Feedback */
+    --success: 142 76% 36%;
+    --success-bg: 142 76% 92%;
+
+    /* Ring (focus state) */
+    --ring: 258 58% 64%;
+
+    /* Radius scale */
+    --radius-bento: 24px;
+    --radius-card: 16px;
+    --radius-pill: 12px;
+    --radius-button: 8px;
+    --radius-badge: 6px;
+    --radius: 8px;
+
+    /* Button heights */
+    --button-lg: 48px;
+    --button-md: 36px;
+    --button-sm: 32px;
+  }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

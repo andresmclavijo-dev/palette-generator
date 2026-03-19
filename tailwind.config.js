@@ -7,6 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Legacy tokens (existing — will be migrated in Phase 3)
         'brand-violet': '#6C47FF',
         'brand-violet-hover': '#5431df',
         'brand-violet-light': '#9b82ff',
@@ -14,13 +15,44 @@ export default {
         'brand-dark': '#1a1a2e',
         'brand-warm': '#FAFAF8',
         'surface-secondary': '#f5f5f3',
-        'success': '#3B6D11',
+        'success-legacy': '#3B6D11',
         'warning': '#854F0B',
         'error': '#791F1F',
         'text-faint': '#bbbbbb',
         'border-default': '#e8e8e8',
         'pro-badge-bg': '#EEEDFE',
         'pro-badge-text': '#3C3489',
+        // shadcn semantic tokens (Layer 2)
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          hover: "hsl(var(--primary-hover))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          hover: "hsl(var(--destructive-hover))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        foreground: "hsl(var(--foreground))",
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        background: "hsl(var(--background))",
+        card: "hsl(var(--card))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          warm: "hsl(var(--surface-warm))",
+        },
+        border: {
+          DEFAULT: "hsl(var(--border))",
+          light: "hsl(var(--border-light))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          bg: "hsl(var(--success-bg))",
+        },
+        ring: "hsl(var(--ring))",
       },
       fontSize: {
         'xxs': ['8px', { lineHeight: '1' }],
@@ -41,6 +73,12 @@ export default {
         'sm': '4px',
         'md': '8px',
         'lg': '12px',
+        // shadcn semantic radius
+        bento: "var(--radius-bento)",
+        card: "var(--radius-card)",
+        pill: "var(--radius-pill)",
+        button: "var(--radius-button)",
+        badge: "var(--radius-badge)",
       },
       zIndex: {
         'swatch-hover': '10',
@@ -79,5 +117,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
