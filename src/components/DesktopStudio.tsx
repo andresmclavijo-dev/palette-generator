@@ -981,14 +981,15 @@ export default function DesktopStudio() {
                       const max = isPro ? proMax : freeMax
                       const atFreeLimit = !isPro && count >= freeMax
                       const atAbsMax = count >= max && !atFreeLimit
+                      const canAdd = !atFreeLimit && !atAbsMax
                       return (
                         <button
                           onClick={() => {
                             if (atFreeLimit) openProModal('color_count', 'canvas_bar')
                             else if (count < max) setCount(count + 1)
                           }}
-                          className="relative flex items-center justify-center transition-all hover:bg-white/10"
-                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: atFreeLimit ? 0.5 : atAbsMax ? 0.3 : 1 }}
+                          className={`relative flex items-center justify-center transition-all ${atAbsMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${canAdd ? 'hover:bg-white/10' : ''}`}
+                          style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: canAdd ? 1 : atFreeLimit ? 0.5 : 0.3 }}
                           disabled={atAbsMax}
                           aria-label={atFreeLimit ? 'Upgrade to Pro for more colors' : atAbsMax ? 'Maximum colors reached' : 'Add color'}
                         >
