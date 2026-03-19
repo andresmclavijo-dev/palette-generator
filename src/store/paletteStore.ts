@@ -7,7 +7,7 @@ import {
   generateByMode,
 } from '../lib/colorEngine'
 
-const SEED_HEX = ['#3A86FF', '#5E9EFF', '#8AB8FF', '#B8D4FF', '#E8F1FF']
+const SEED_HEX = ['#6C47FF', '#FF6B6B', '#4ECDC4', '#FFE66D', '#2D6A4F']
 const HISTORY_LIMIT = 20
 
 interface PaletteState {

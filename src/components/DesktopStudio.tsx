@@ -571,7 +571,7 @@ export default function DesktopStudio() {
               top: 12,
               right: 12,
               zIndex: 70,
-              gap: 4,
+              gap: 6,
               borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
@@ -1188,8 +1188,8 @@ function UserMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[13px] font-bold text-white transition-all hover:ring-2 hover:ring-black/10"
-        style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+        className="rounded-full flex items-center justify-center text-[13px] font-bold text-white transition-all hover:ring-2 hover:ring-black/10"
+        style={{ width: 36, height: 36, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
         aria-label="Account menu"
         aria-expanded={open}
       >
