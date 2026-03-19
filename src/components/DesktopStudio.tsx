@@ -932,25 +932,6 @@ export default function DesktopStudio() {
                 />
               )}
 
-              {/* ─── Floating Panels (AI, Extract) ─── */}
-              {activeDialog === 'ai-popover' && (
-                <AiFloatingPanel
-                  onClose={closeDialog}
-                  onOpenFull={() => openDialog('ai-full')}
-                  isPro={isPro}
-                  aiRemaining={aiRemaining}
-                />
-              )}
-
-              {activeDialog === 'extract' && (
-                <ExtractDialog
-                  uploading={imageUploading}
-                  onFile={handleImageUpload}
-                  onClose={closeDialog}
-                  fileInputRef={fileInputRef}
-                />
-              )}
-
               {/* Bottom bar — color count + spacebar hint */}
               {viewMode === 'colors' && activeDialog !== 'ai-full' && activeDialog !== 'export' && (
                 <div
@@ -971,15 +952,17 @@ export default function DesktopStudio() {
                     {(() => {
                       const freeMax = 5
                       const proMax = 8
+                      const currentCount = swatches.length
                       const max = isPro ? proMax : freeMax
-                      const atFreeLimit = !isPro && count >= freeMax
-                      const atAbsMax = count >= max && !atFreeLimit
+                      const atFreeLimit = !isPro && currentCount >= freeMax
+                      const atAbsMax = isPro && currentCount >= proMax
                       const canAdd = !atFreeLimit && !atAbsMax
                       return (
                         <button
                           onClick={() => {
-                            if (atFreeLimit) openProModal('color_count', 'canvas_bar')
-                            else if (count < max) setCount(count + 1)
+                            if (atFreeLimit) { openProModal('color_count', 'canvas_bar'); return }
+                            if (atAbsMax) return
+                            if (currentCount < max) setCount(currentCount + 1)
                           }}
                           className={`relative flex items-center justify-center transition-all ${atAbsMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${canAdd ? 'hover:bg-white/10' : ''}`}
                           style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: canAdd ? 1 : atFreeLimit ? 0.5 : 0.3 }}
@@ -1067,44 +1050,6 @@ export default function DesktopStudio() {
           )}
         </div>
 
-        {/* ─── Modals (full-screen, above everything) ─── */}
-        <AiPrompt
-          open={activeDialog === 'ai-full'}
-          onClose={closeDialog}
-          onPalette={handleAiPalette}
-          onFallback={triggerGenerate}
-          onProGate={openProModal}
-          onUsageChange={() => setAiRemaining(getAiRemaining())}
-          onError={msg => showToast(msg)}
-          colorCount={count}
-        />
-
-        {activeDialog === 'export' && (
-          <ExportPanel hexes={swatches.map(s => s.hex)} onClose={closeDialog} onProGate={() => openProModal()} />
-        )}
-
-        <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
-        <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} />
-        <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
-
-        <SaveNameModal
-          open={activeDialog === 'save-name'}
-          defaultName={defaultPaletteName}
-          onConfirm={handleSaveConfirm}
-          onClose={closeDialog}
-        />
-
-        {user && (
-          <SavedPalettesPanel
-            open={activeDialog === 'saved'}
-            onClose={closeDialog}
-            userId={user.id}
-            onLoad={hexes => setSwatches(hexes.map(h => makeSwatch(h)))}
-            isPro={isPro}
-            onProGate={openProModal}
-          />
-        )}
-
         <VisionFilterDefs />
 
         {/* Hidden file input for image extraction */}
@@ -1120,6 +1065,63 @@ export default function DesktopStudio() {
           }}
         />
       </div>{/* close inner flex row (dock + bento) */}
+
+      {/* ─── Modals (outside overflow-hidden, above everything) ─── */}
+      <AiPrompt
+        open={activeDialog === 'ai-full'}
+        onClose={closeDialog}
+        onPalette={handleAiPalette}
+        onFallback={triggerGenerate}
+        onProGate={openProModal}
+        onUsageChange={() => setAiRemaining(getAiRemaining())}
+        onError={msg => showToast(msg)}
+        colorCount={count}
+      />
+
+      {activeDialog === 'export' && (
+        <ExportPanel hexes={swatches.map(s => s.hex)} onClose={closeDialog} onProGate={() => openProModal()} />
+      )}
+
+      {activeDialog === 'ai-popover' && (
+        <AiModalDialog
+          onClose={closeDialog}
+          onOpenFull={() => openDialog('ai-full')}
+          isPro={isPro}
+          aiRemaining={aiRemaining}
+        />
+      )}
+
+      {activeDialog === 'extract' && (
+        <ExtractDialog
+          uploading={imageUploading}
+          onFile={handleImageUpload}
+          onClose={closeDialog}
+          fileInputRef={fileInputRef}
+        />
+      )}
+
+      <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
+      <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} />
+      <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
+
+      <SaveNameModal
+        open={activeDialog === 'save-name'}
+        defaultName={defaultPaletteName}
+        onConfirm={handleSaveConfirm}
+        onClose={closeDialog}
+      />
+
+      {user && (
+        <SavedPalettesPanel
+          open={activeDialog === 'saved'}
+          onClose={closeDialog}
+          userId={user.id}
+          onLoad={hexes => setSwatches(hexes.map(h => makeSwatch(h)))}
+          isPro={isPro}
+          onProGate={openProModal}
+        />
+      )}
+
       </div>{/* close app shell (100dvh) */}
 
       {/* Color info popover — fixed positioned, outside overflow containers */}
@@ -2043,8 +2045,8 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
   )
 }
 
-// ─── AI Floating Panel (quick access — opens full AiPrompt) ─
-function AiFloatingPanel({
+// ─── AI Modal Dialog (centered modal — quick access, opens full AiPrompt) ─
+function AiModalDialog({
   onClose, onOpenFull, isPro, aiRemaining,
 }: {
   onClose: () => void
@@ -2053,73 +2055,95 @@ function AiFloatingPanel({
   aiRemaining: number
 }) {
   const [prompt, setPrompt] = useState('')
+  const [entering, setEntering] = useState(true)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setEntering(false))
+  }, [])
 
   return (
-    <div
-      className="absolute z-30 bg-white"
-      style={{
-        borderRadius: 12,
-        top: 60,
-        left: 12,
-        width: 320,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-        border: '1px solid #f3f4f6',
-        padding: 16,
-      }}
-      role="dialog"
-      aria-label="AI palette"
-    >
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[14px] font-bold m-0" style={{ color: BRAND_DARK }}>AI palette</h2>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label="Close AI palette"
-        >
-          <X size={16} />
-        </button>
-      </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-2">
-          <label htmlFor="ai-prompt" className="sr-only">AI prompt</label>
-          <input
-            id="ai-prompt"
-            autoFocus
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && prompt.trim()) onOpenFull() }}
-            placeholder="Describe a mood or theme…"
-            className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-[13px] outline-none transition-all"
-            style={{ color: BRAND_DARK }}
-            onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET }}
-            onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb' }}
-          />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          transition: 'opacity 150ms ease-out',
+          opacity: entering ? 0 : 1,
+        }}
+      />
+
+      {/* Modal card */}
+      <div
+        className="relative w-full max-w-md bg-white shadow-2xl"
+        style={{
+          borderRadius: 16,
+          padding: 24,
+          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+          transform: entering ? 'scale(0.95)' : 'scale(1)',
+          opacity: entering ? 0 : 1,
+        }}
+        onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-label="AI palette"
+        aria-modal="true"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 m-0">AI palette</h2>
           <button
-            onClick={onOpenFull}
-            className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90"
-            style={{ backgroundColor: BRAND_VIOLET }}
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+            aria-label="Close"
           >
-            Generate
+            <X size={16} />
           </button>
         </div>
 
-        {/* Suggestion chips */}
-        <div className="flex flex-wrap gap-1.5">
-          {['Warm sunset', 'Ocean breeze', 'Forest canopy', 'Neon cyber', 'Pastel dream', 'Earthy tones'].map(chip => (
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            <label htmlFor="ai-modal-prompt" className="sr-only">AI prompt</label>
+            <input
+              id="ai-modal-prompt"
+              autoFocus
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && prompt.trim()) onOpenFull() }}
+              placeholder="Describe a mood or theme…"
+              className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-sm outline-none transition-all"
+              style={{ color: BRAND_DARK }}
+              onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,71,255,0.15)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none' }}
+            />
             <button
-              key={chip}
-              onClick={() => { setPrompt(chip); onOpenFull() }}
-              className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
-              style={{ borderRadius: 6, backgroundColor: '#f3f4f6', color: '#374151' }}
+              onClick={onOpenFull}
+              className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90"
+              style={{ backgroundColor: BRAND_VIOLET }}
             >
-              {chip}
+              Generate
             </button>
-          ))}
-        </div>
+          </div>
 
-        <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
-          {isPro ? '✦ Unlimited prompts' : `${aiRemaining}/day free · Unlimited with Pro`}
-        </p>
+          {/* Suggestion chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {['Warm sunset', 'Ocean breeze', 'Forest canopy', 'Neon cyber', 'Pastel dream', 'Earthy tones'].map(chip => (
+              <button
+                key={chip}
+                onClick={() => { setPrompt(chip); onOpenFull() }}
+                className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
+                style={{ borderRadius: 6, backgroundColor: '#f3f4f6', color: '#374151' }}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
+            {isPro ? '✦ Unlimited prompts' : `${aiRemaining}/day free · Unlimited with Pro`}
+          </p>
+        </div>
       </div>
     </div>
   )
