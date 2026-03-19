@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
+  Shuffle, Sparkles, Eye, LayoutDashboard, Image, Star, Heart,
   ChevronLeft, ChevronRight, Lock, Unlock, Copy, Check, Info,
   X, Share2, Download, Grid3X3, RefreshCw, SlidersHorizontal,
   Undo2, Redo2, Plus, Minus, MoreHorizontal, ExternalLink,
@@ -402,10 +402,9 @@ export default function DesktopStudio() {
             {/* Creation tools group */}
             <div className="flex flex-col" style={{ gap: dockExpanded ? 2 : 6 }}>
               <DockItem
-                icon={<Sparkles size={20} />}
+                icon={<Shuffle size={20} />}
                 label="Generate"
                 active={false}
-                primary
                 expanded={dockExpanded}
                 onClick={() => handleToolClick('generate')}
                 pulse={dockPulse}
@@ -568,30 +567,29 @@ export default function DesktopStudio() {
 
           {/* ─── Floating Actions Pill (top-right) ─── */}
           <header
-            className="absolute flex items-center gap-1"
+            className="absolute flex items-center gap-0.5"
             style={{
               top: 12,
               right: 12,
               zIndex: 70,
-              height: 40,
               borderRadius: 12,
               backgroundColor: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
               border: '1px solid rgba(0,0,0,0.04)',
-              padding: '0 6px',
+              padding: '4px 8px',
             }}
           >
             {/* Save */}
             <DarkTooltip label="Save palette" position="bottom">
               <button
                 onClick={handleSave}
-                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 8 }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
+                style={{ width: 36, height: 36, borderRadius: 8 }}
                 aria-label="Save palette"
               >
-                <Heart size={16} style={{ color: BRAND_DARK }} />
+                <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
               </button>
             </DarkTooltip>
 
@@ -599,11 +597,11 @@ export default function DesktopStudio() {
             <DarkTooltip label="Share" position="bottom">
               <button
                 onClick={handleShare}
-                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 8 }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
+                style={{ width: 36, height: 36, borderRadius: 8 }}
                 aria-label="Share palette link"
               >
-                {shareCopied ? <Check size={16} style={{ color: '#16a34a' }} /> : <Share2 size={16} style={{ color: BRAND_DARK }} />}
+                {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
               </button>
             </DarkTooltip>
 
@@ -611,16 +609,16 @@ export default function DesktopStudio() {
             <DarkTooltip label="Export" position="bottom">
               <button
                 onClick={() => setExportOpen(o => !o)}
-                className="w-8 h-8 flex items-center justify-center transition-all hover:bg-black/5"
-                style={{ borderRadius: 8 }}
+                className="flex items-center justify-center transition-all hover:bg-black/[0.04]"
+                style={{ width: 36, height: 36, borderRadius: 8 }}
                 aria-label="Export palette"
               >
-                <Download size={16} style={{ color: BRAND_DARK }} />
+                <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
               </button>
             </DarkTooltip>
 
             {/* Divider */}
-            <div className="w-px h-5 mx-0.5" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
+            <div className="w-px h-5 mx-1.5" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }} />
 
             {/* Go Pro (non-Pro) */}
             {!isPro && (
