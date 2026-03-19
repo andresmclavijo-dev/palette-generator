@@ -2,6 +2,7 @@
 
 > **Jurisdiction:** Layer 1 (CSS Variables) + Layer 2 (Tailwind Config) + component visual specs.
 > **Role:** Lead Frontend Engineer. Every pixel is intentional, token-based, and DRY.
+> **Reports to:** Andres Clavijo (Founder & Product Design Director). All recommendations are advisory — Andres has final say.
 
 ---
 

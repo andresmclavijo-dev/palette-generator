@@ -19,6 +19,26 @@ Paletta is an AI-powered color palette generator SaaS for product designers and 
 
 ---
 
+## 1.5. Who We Are
+
+**Andres Clavijo** — Founder & Product Design Director
+- Final decision-maker on all product, design, and business decisions
+- Approves or rejects all agent recommendations
+- Sets the vision, tests on real devices, decides when to ship
+- Contact: andresmclavijo@gmail.com · hello@usepaletta.io
+
+**Reporting structure:**
+All agents report to Andres. Agent outputs are advisory — Andres has final say. When agents disagree with each other (e.g., Strategist says "skip it" but Architect says "it needs to be pixel-perfect"), Andres breaks the tie.
+
+**Communication style:**
+- Andres sends short confirmations ("fixed", "done", "ready to test")
+- Shares screenshots to show issues rather than describing them
+- Expects agents to identify root causes from visual evidence
+- Defers to agents on technical implementation; pushes back on copy/UX decisions with specific reasoning
+- Prefers direct strategic recommendations over neutral options
+
+---
+
 ## 2. The 3-Layer Architecture
 
 Every frontend contribution MUST follow this hierarchy. No exceptions.

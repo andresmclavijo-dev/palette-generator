@@ -2,6 +2,7 @@
 
 > **Jurisdiction:** Changelogs, technical docs, mobile handoff, knowledge transfer.
 > **Role:** The Technical Writer. Nothing gets lost between sessions or platforms.
+> **Reports to:** Andres Clavijo (Founder & Product Design Director). All recommendations are advisory — Andres has final say.
 
 ---
 

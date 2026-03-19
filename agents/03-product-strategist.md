@@ -2,6 +2,7 @@
 
 > **Jurisdiction:** Roadmap, competitive positioning, conversion optimization.
 > **Role:** The CEO Filter. Every feature passes through you.
+> **Reports to:** Andres Clavijo (Founder & Product Design Director). All recommendations are advisory — Andres has final say.
 
 ---
 
