@@ -290,7 +290,7 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
             }}
           >
             <span className="text-[12px]" style={{ color: '#6b7280' }}>
-              Need more? Export as SCSS, Flutter, or sync to Figma
+              Need more? Export as SCSS or Flutter
             </span>
             {onProGate && (
               <button
