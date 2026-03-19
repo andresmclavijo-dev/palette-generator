@@ -341,7 +341,7 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#E8E8E8' }}>
+      <div className="flex w-screen overflow-hidden" style={{ height: '100dvh', backgroundColor: '#E5E5E5' }}>
         {/* Skip link */}
         <a
           href="#main-canvas"
@@ -359,7 +359,7 @@ export default function DesktopStudio() {
           style={{
             width: dockW,
             transition: 'width 200ms ease',
-            padding: '76px 7px 10px 7px',
+            padding: '16px 4px 16px 7px',
           }}
         >
           <nav
@@ -454,17 +454,19 @@ export default function DesktopStudio() {
         <div
           className="relative flex-1 min-w-0 overflow-hidden"
           style={{
-            margin: '12px 12px 12px 0',
-            borderRadius: 24,
+            margin: '16px 16px 16px 0',
+            borderRadius: 28,
+            border: '1px solid rgba(0,0,0,0.06)',
+            boxShadow: '0 2px 40px rgba(0,0,0,0.04)',
           }}
         >
           {/* ─── Floating Header Pill ─── */}
           <header
             className="absolute z-30 flex items-center justify-between"
             style={{
-              top: 20,
-              left: 12,
-              right: 12,
+              top: 16,
+              left: 16,
+              right: 16,
               height: 46,
               borderRadius: 9999,
               backgroundColor: 'rgba(255,255,255,0.9)',
@@ -830,7 +832,7 @@ export default function DesktopStudio() {
           {/* Spacebar hint — show when no panel open and not in preview */}
           {!activeTool && !aiOpen && !exportOpen && (
             <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full"
+              className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{
                 backgroundColor: 'rgba(26,26,46,0.75)',
                 backdropFilter: 'blur(8px)',
