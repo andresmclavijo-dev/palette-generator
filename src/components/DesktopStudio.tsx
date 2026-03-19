@@ -74,16 +74,12 @@ export default function DesktopStudio() {
   const [viewMode, setViewMode] = useState<ViewMode>('colors')
   const [validateOn, setValidateOn] = useState(false)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
-  const [aiPanelOpen, setAiPanelOpen] = useState(false)
-  const [extractOpen, setExtractOpen] = useState(false)
-  const [harmonyOpen, setHarmonyOpen] = useState(false)
-  const [exportOpen, setExportOpen] = useState(false)
-  const [aiOpen, setAiOpen] = useState(false)
-  const [proModalOpen, setProModalOpen] = useState(false)
-  const [signInOpen, setSignInOpen] = useState(false)
-  const [savedOpen, setSavedOpen] = useState(false)
-  const [saveNameOpen, setSaveNameOpen] = useState(false)
-  // previewOpen removed — preview is now activeTool === 'preview'
+  // Unified dialog state — only one dialog open at a time
+  type DialogType = 'ai-popover' | 'extract' | 'harmony' | 'export' | 'ai-full' | 'pro' | 'sign-in' | 'saved' | 'save-name' | 'shortcuts' | null
+  const [activeDialog, setActiveDialog] = useState<DialogType>(null)
+  const openDialog = useCallback((type: DialogType) => setActiveDialog(type), [])
+  const closeDialog = useCallback(() => setActiveDialog(null), [])
+
   const [shareCopied, setShareCopied] = useState(false)
   const [aiRemaining, setAiRemaining] = useState(getAiRemaining)
   const [shadesOpen, setShadesOpen] = useState<string | null>(null)
@@ -93,7 +89,6 @@ export default function DesktopStudio() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [imageUploading, setImageUploading] = useState(false)
-  const [shortcutsOpen, setShortcutsOpen] = useState(false)
 
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
 
@@ -121,7 +116,7 @@ export default function DesktopStudio() {
 
   // Auto-close Pro modal when user becomes Pro
   useEffect(() => {
-    if (isPro) setProModalOpen(false)
+    if (isPro) setActiveDialog(d => d === 'pro' ? null : d)
   }, [isPro])
 
   // After OAuth redirect: pending checkout
@@ -176,8 +171,8 @@ export default function DesktopStudio() {
   const openProModal = useCallback((feature?: string, source?: string) => {
     if (feature) analytics.track('pro_gate_hit', { feature, source: source ?? 'toolbar' })
     analytics.track('pro_modal_opened')
-    setProModalOpen(true)
-  }, [])
+    openDialog('pro')
+  }, [openDialog])
 
   const triggerGenerate = useCallback((method: 'spacebar' | 'button' | 'ai' = 'button') => {
     generate()
@@ -201,28 +196,26 @@ export default function DesktopStudio() {
       if (e.key === '1' && section === 'studio') setViewMode('colors')
       if (e.key === '2' && section === 'studio') setViewMode('preview')
       if (e.key === 'Escape') {
-        setExportOpen(false); setAiOpen(false); setProModalOpen(false)
-        setSignInOpen(false); setSavedOpen(false); setSaveNameOpen(false)
-        setHarmonyOpen(false); setValidateOn(false); setAiPanelOpen(false)
-        setExtractOpen(false); setShadesOpen(null); setInfoOpen(null)
-        setEditingId(null); setShortcutsOpen(false)
+        closeDialog()
+        setValidateOn(false); setShadesOpen(null); setInfoOpen(null)
+        setEditingId(null)
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [triggerGenerate, undo, redo, section])
+  }, [triggerGenerate, undo, redo, section, closeDialog])
 
   // Click outside harmony dropdown
   useEffect(() => {
-    if (!harmonyOpen) return
+    if (activeDialog !== 'harmony') return
     const handler = (e: MouseEvent) => {
       if (harmonyRef.current && !harmonyRef.current.contains(e.target as Node)) {
-        setHarmonyOpen(false)
+        closeDialog()
       }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [harmonyOpen])
+  }, [activeDialog, closeDialog])
 
   // Handlers
   const handleShare = async () => {
@@ -236,8 +229,8 @@ export default function DesktopStudio() {
 
   const handleSave = () => {
     if (!isPro) { openProModal('save_limit', 'toolbar'); return }
-    if (!user) { setSignInOpen(true); return }
-    setSaveNameOpen(true)
+    if (!user) { openDialog('sign-in'); return }
+    openDialog('save-name')
   }
 
   const defaultPaletteName = (() => {
@@ -246,7 +239,7 @@ export default function DesktopStudio() {
   })()
 
   const handleSaveConfirm = async (name: string) => {
-    setSaveNameOpen(false)
+    closeDialog()
     if (!user) return
     try {
       const { supabase } = await import('../lib/supabase')
@@ -284,7 +277,7 @@ export default function DesktopStudio() {
     try {
       const colors = await extractColorsFromFile(file)
       setSwatches(colors.slice(0, count).map(h => makeSwatch(h)))
-      setExtractOpen(false)
+      closeDialog()
     } catch {
       showToast('Failed to extract colors')
     } finally {
@@ -324,7 +317,7 @@ export default function DesktopStudio() {
 
   const handleHarmonySelect = (mode: HarmonyMode) => {
     setHarmonyMode(mode)
-    setHarmonyOpen(false)
+    closeDialog()
     triggerGenerate('button')
   }
 
@@ -502,10 +495,10 @@ export default function DesktopStudio() {
                     }}
                   >
                     <button
-                      onClick={() => setHarmonyOpen(o => !o)}
+                      onClick={() => activeDialog === 'harmony' ? closeDialog() : openDialog('harmony')}
                       className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
                       style={{ height: 36, padding: '0 12px', borderRadius: 8, color: BRAND_DARK }}
-                      aria-expanded={harmonyOpen}
+                      aria-expanded={activeDialog === 'harmony'}
                       aria-haspopup="listbox"
                     >
                       <Shuffle size={16} strokeWidth={1.5} style={{ color: '#6B7280' }} />
@@ -515,7 +508,7 @@ export default function DesktopStudio() {
                       </svg>
                     </button>
 
-                    {harmonyOpen && (
+                    {activeDialog === 'harmony' && (
                       <div
                         className="absolute top-full left-0 mt-2 bg-white overflow-hidden"
                         style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 220, zIndex: 80 }}
@@ -633,7 +626,7 @@ export default function DesktopStudio() {
                   {/* AI */}
                   <DarkTooltip label="AI palette" position="bottom">
                     <button
-                      onClick={() => setAiPanelOpen(o => !o)}
+                      onClick={() => activeDialog === 'ai-popover' ? closeDialog() : openDialog('ai-popover')}
                       className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
                       style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
                       aria-label="AI palette"
@@ -656,7 +649,7 @@ export default function DesktopStudio() {
                     <button
                       onClick={() => {
                         if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
-                        setExtractOpen(o => !o)
+                        activeDialog === 'extract' ? closeDialog() : openDialog('extract')
                       }}
                       className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
                       style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
@@ -704,7 +697,7 @@ export default function DesktopStudio() {
                   {/* Export */}
                   <DarkTooltip label="Export" position="bottom">
                     <button
-                      onClick={() => setExportOpen(o => !o)}
+                      onClick={() => activeDialog === 'export' ? closeDialog() : openDialog('export')}
                       className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Export palette"
@@ -719,7 +712,7 @@ export default function DesktopStudio() {
                   {/* Go Pro */}
                   {!isPro && (
                     <button
-                      onClick={() => openProModal(undefined, 'action_bar')}
+                      onClick={() => { openProModal(undefined, 'action_bar') }}
                       className="text-[12px] font-semibold transition-all hover:opacity-80"
                       style={{ height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: BRAND_VIOLET, color: '#ffffff' }}
                     >
@@ -732,7 +725,7 @@ export default function DesktopStudio() {
                     <UserMenu email={user.email} isPro={isPro} onSignOut={signOut} onManage={handleManageSubscription} />
                   ) : (
                     <button
-                      onClick={() => setSignInOpen(true)}
+                      onClick={() => openDialog('sign-in')}
                       className="text-[13px] font-medium transition-all hover:bg-black/[0.04]"
                       style={{ height: 36, padding: '0 14px', borderRadius: 8, color: BRAND_DARK, border: '1px solid rgba(0,0,0,0.1)' }}
                     >
@@ -930,7 +923,7 @@ export default function DesktopStudio() {
                   isPro={isPro}
                   onClose={() => setViewMode('colors')}
                   onGenerate={() => triggerGenerate('button')}
-                  onExport={() => setExportOpen(true)}
+                  onExport={() => openDialog('export')}
                   onUndo={undo}
                   onRedo={redo}
                   onProGate={openProModal}
@@ -940,26 +933,26 @@ export default function DesktopStudio() {
               )}
 
               {/* ─── Floating Panels (AI, Extract) ─── */}
-              {aiPanelOpen && (
+              {activeDialog === 'ai-popover' && (
                 <AiFloatingPanel
-                  onClose={() => setAiPanelOpen(false)}
-                  onOpenFull={() => { setAiOpen(true); setAiPanelOpen(false) }}
+                  onClose={closeDialog}
+                  onOpenFull={() => openDialog('ai-full')}
                   isPro={isPro}
                   aiRemaining={aiRemaining}
                 />
               )}
 
-              {extractOpen && (
+              {activeDialog === 'extract' && (
                 <ExtractDialog
                   uploading={imageUploading}
                   onFile={handleImageUpload}
-                  onClose={() => setExtractOpen(false)}
+                  onClose={closeDialog}
                   fileInputRef={fileInputRef}
                 />
               )}
 
               {/* Bottom bar — color count + spacebar hint */}
-              {viewMode === 'colors' && !aiOpen && !exportOpen && (
+              {viewMode === 'colors' && activeDialog !== 'ai-full' && activeDialog !== 'export' && (
                 <div
                   className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
                   style={{ gap: 6, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '4px 6px' }}
@@ -1011,22 +1004,22 @@ export default function DesktopStudio() {
                   <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
                   <div className="relative">
                     <button
-                      onClick={() => setShortcutsOpen(o => !o)}
+                      onClick={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
                       className="flex items-center justify-center transition-all hover:bg-white/10"
                       style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
                       aria-label="Keyboard shortcuts"
-                      aria-expanded={shortcutsOpen}
+                      aria-expanded={activeDialog === 'shortcuts'}
                     >
                       <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }} aria-hidden="true">?</span>
                     </button>
-                    {shortcutsOpen && (
+                    {activeDialog === 'shortcuts' && (
                       <div
                         className="absolute bottom-full mb-2 right-0 bg-white overflow-hidden"
-                        style={{ borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.14)', minWidth: 200, padding: '10px 0' }}
+                        style={{ borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid #f3f4f6', width: 220, padding: 16 }}
                         role="dialog"
                         aria-label="Keyboard shortcuts"
                       >
-                        <p className="text-[11px] font-semibold m-0 px-3 pb-1.5" style={{ color: '#9CA3AF' }}>Keyboard shortcuts</p>
+                        <p className="text-[12px] font-medium m-0 mb-2" style={{ color: BRAND_VIOLET }}>Keyboard shortcuts</p>
                         {[
                           { key: 'Space', desc: 'Generate palette' },
                           { key: '⌘ Z', desc: 'Undo' },
@@ -1035,9 +1028,9 @@ export default function DesktopStudio() {
                           { key: '2', desc: 'Preview view' },
                           { key: 'Esc', desc: 'Close panel' },
                         ].map(s => (
-                          <div key={s.key} className="flex items-center justify-between px-3 py-1">
+                          <div key={s.key} className="flex items-center justify-between py-2">
                             <span className="text-[12px]" style={{ color: '#374151' }}>{s.desc}</span>
-                            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>{s.key}</kbd>
+                            <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-md" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>{s.key}</kbd>
                           </div>
                         ))}
                       </div>
@@ -1056,7 +1049,7 @@ export default function DesktopStudio() {
               isPro={isPro}
               onLoad={hexes => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio') }}
               onProGate={openProModal}
-              onSignIn={() => setSignInOpen(true)}
+              onSignIn={() => openDialog('sign-in')}
             />
           )}
 
@@ -1076,8 +1069,8 @@ export default function DesktopStudio() {
 
         {/* ─── Modals (full-screen, above everything) ─── */}
         <AiPrompt
-          open={aiOpen}
-          onClose={() => setAiOpen(false)}
+          open={activeDialog === 'ai-full'}
+          onClose={closeDialog}
           onPalette={handleAiPalette}
           onFallback={triggerGenerate}
           onProGate={openProModal}
@@ -1086,25 +1079,25 @@ export default function DesktopStudio() {
           colorCount={count}
         />
 
-        {exportOpen && (
-          <ExportPanel hexes={swatches.map(s => s.hex)} onClose={() => setExportOpen(false)} onProGate={() => openProModal()} />
+        {activeDialog === 'export' && (
+          <ExportPanel hexes={swatches.map(s => s.hex)} onClose={closeDialog} onProGate={() => openProModal()} />
         )}
 
-        <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onGoogleSignIn={signInWithGoogle} />
-        <ProUpgradeModal open={proModalOpen} onClose={() => setProModalOpen(false)} />
+        <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
+        <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} />
         <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
 
         <SaveNameModal
-          open={saveNameOpen}
+          open={activeDialog === 'save-name'}
           defaultName={defaultPaletteName}
           onConfirm={handleSaveConfirm}
-          onClose={() => setSaveNameOpen(false)}
+          onClose={closeDialog}
         />
 
         {user && (
           <SavedPalettesPanel
-            open={savedOpen}
-            onClose={() => setSavedOpen(false)}
+            open={activeDialog === 'saved'}
+            onClose={closeDialog}
             userId={user.id}
             onLoad={hexes => setSwatches(hexes.map(h => makeSwatch(h)))}
             isPro={isPro}
@@ -2062,21 +2055,48 @@ function AiFloatingPanel({
   const [prompt, setPrompt] = useState('')
 
   return (
-    <FloatingPanel title="AI palette" width={320} onClose={onClose}>
+    <div
+      className="absolute z-30 bg-white"
+      style={{
+        borderRadius: 12,
+        top: 60,
+        left: 12,
+        width: 320,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+        border: '1px solid #f3f4f6',
+        padding: 16,
+      }}
+      role="dialog"
+      aria-label="AI palette"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[14px] font-bold m-0" style={{ color: BRAND_DARK }}>AI palette</h2>
+        <button
+          onClick={onClose}
+          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Close AI palette"
+        >
+          <X size={16} />
+        </button>
+      </div>
       <div className="flex flex-col gap-3">
         <div className="flex gap-2">
+          <label htmlFor="ai-prompt" className="sr-only">AI prompt</label>
           <input
+            id="ai-prompt"
             autoFocus
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && prompt.trim()) onOpenFull() }}
             placeholder="Describe a mood or theme…"
-            className="flex-1 h-10 px-3 rounded-xl border border-gray-200 text-[13px] outline-none focus:border-[#6C47FF] transition-all"
+            className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-[13px] outline-none transition-all"
             style={{ color: BRAND_DARK }}
+            onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb' }}
           />
           <button
             onClick={onOpenFull}
-            className="h-10 px-4 rounded-xl text-white text-[13px] font-semibold transition-all hover:opacity-90"
+            className="h-9 px-4 rounded-lg text-white text-sm font-medium transition-all hover:opacity-90"
             style={{ backgroundColor: BRAND_VIOLET }}
           >
             Generate
@@ -2089,19 +2109,19 @@ function AiFloatingPanel({
             <button
               key={chip}
               onClick={() => { setPrompt(chip); onOpenFull() }}
-              className="px-2.5 py-1 rounded-full text-[11px] font-medium transition-all hover:bg-gray-100"
-              style={{ backgroundColor: '#f3f4f6', color: '#374151' }}
+              className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
+              style={{ borderRadius: 6, backgroundColor: '#f3f4f6', color: '#374151' }}
             >
               {chip}
             </button>
           ))}
         </div>
 
-        <p className="text-[11px] opacity-50 m-0" style={{ color: BRAND_DARK }}>
+        <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
           {isPro ? '✦ Unlimited prompts' : `${aiRemaining}/day free · Unlimited with Pro`}
         </p>
       </div>
-    </FloatingPanel>
+    </div>
   )
 }
 
@@ -2115,6 +2135,11 @@ function ExtractDialog({
   fileInputRef: React.RefObject<HTMLInputElement | null>
 }) {
   const [dragOver, setDragOver] = useState(false)
+  const [entering, setEntering] = useState(true)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setEntering(false))
+  }, [])
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -2124,46 +2149,56 @@ function ExtractDialog({
   }
 
   return (
-    <>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 z-40"
-        style={{ backgroundColor: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
-        onClick={onClose}
-      />
-      <div
-        className="absolute z-50 bg-white rounded-2xl overflow-hidden"
+        className="absolute inset-0"
         style={{
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 440,
-          boxShadow: '0 16px 48px rgba(0,0,0,0.16)',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          transition: 'opacity 150ms ease-out',
+          opacity: entering ? 0 : 1,
         }}
+      />
+
+      {/* Modal card */}
+      <div
+        className="relative w-full max-w-lg bg-white shadow-2xl"
+        style={{
+          borderRadius: 16,
+          padding: 24,
+          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+          transform: entering ? 'scale(0.95)' : 'scale(1)',
+          opacity: entering ? 0 : 1,
+        }}
+        onClick={e => e.stopPropagation()}
         role="dialog"
         aria-label="Extract colors from image"
+        aria-modal="true"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="text-[16px] font-bold m-0" style={{ color: BRAND_DARK }}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 m-0">
             Extract from image
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
             aria-label="Close"
           >
-            <X size={16} style={{ color: '#6b7280' }} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Drop zone */}
         <div
-          className="mx-5 my-4 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center gap-3 border-2 border-dashed transition-all cursor-pointer"
           style={{
             height: 180,
-            borderColor: dragOver ? BRAND_VIOLET : '#d1d5db',
-            backgroundColor: dragOver ? '#F3F0FF' : '#fafafa',
+            borderRadius: 12,
+            borderColor: dragOver ? `${BRAND_VIOLET}66` : '#e5e7eb',
+            backgroundColor: dragOver ? `${BRAND_VIOLET}08` : '#f9fafb',
           }}
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
@@ -2171,27 +2206,25 @@ function ExtractDialog({
           onClick={() => fileInputRef.current?.click()}
         >
           {uploading ? (
-            <p className="text-[14px] font-medium" style={{ color: '#6b7280' }}>Analyzing…</p>
+            <p className="text-sm font-medium m-0" style={{ color: '#6b7280' }}>Analyzing…</p>
           ) : (
             <>
               <Image size={32} style={{ color: '#d1d5db' }} />
-              <p className="text-[14px] font-medium m-0" style={{ color: '#374151' }}>
+              <p className="text-sm font-medium m-0" style={{ color: '#374151' }}>
                 Drop image here
               </p>
-              <p className="text-[12px] m-0" style={{ color: '#9ca3af' }}>
+              <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
                 or click to browse · PNG, JPG, WebP
               </p>
             </>
           )}
         </div>
 
-        <div className="px-5 pb-4">
-          <p className="text-[11px] m-0" style={{ color: '#9ca3af' }}>
-            Colors are extracted using k-means clustering
-          </p>
-        </div>
+        <p className="text-xs mt-3 m-0" style={{ color: '#9ca3af' }}>
+          Colors are extracted using k-means clustering
+        </p>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -2646,44 +2679,6 @@ function MobileAppMockup({ c }: { c: (i: number) => string }) {
           </div>
         </div>
       ))}
-    </div>
-  )
-}
-
-// ─── Floating Panel Wrapper ──────────────────────────────────
-function FloatingPanel({
-  title, width, onClose, children,
-}: {
-  title: string
-  width: number
-  onClose: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <div
-      className="absolute z-30 bg-white overflow-hidden"
-      style={{
-        borderRadius: 12,
-        top: 60,
-        left: 12,
-        width,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        padding: 14,
-      }}
-      role="dialog"
-      aria-label={title}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[14px] font-bold m-0" style={{ color: BRAND_DARK }}>{title}</h2>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-100 transition-all"
-          aria-label={`Close ${title}`}
-        >
-          <X size={14} style={{ color: '#6b7280' }} />
-        </button>
-      </div>
-      {children}
     </div>
   )
 }

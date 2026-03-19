@@ -119,32 +119,27 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={onClose}
-    >
-      {/* Overlay */}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      {/* Backdrop */}
       <div
         className="absolute inset-0"
         style={{
           backgroundColor: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
+          transition: 'opacity 150ms ease-out',
+          opacity: entering ? 0 : 1,
         }}
       />
 
-      {/* Modal */}
+      {/* Modal card */}
       <div
-        className="relative flex flex-col"
+        className="relative flex flex-col w-full max-w-lg bg-white shadow-2xl"
         style={{
-          width: 520,
           maxHeight: '80vh',
-          borderRadius: 24,
-          backgroundColor: '#fff',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.15)',
-          border: '1px solid rgba(0,0,0,0.06)',
+          borderRadius: 16,
           padding: 24,
-          transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
           transform: entering ? 'scale(0.95)' : 'scale(1)',
           opacity: entering ? 0 : 1,
         }}
@@ -154,25 +149,24 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
         aria-modal="true"
       >
         {/* Header */}
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-[18px] font-bold m-0" style={{ color: BRAND_DARK }}>Export palette</h2>
-            <p className="text-[13px] m-0 mt-1" style={{ color: '#6b7280' }}>Copy your palette in any format</p>
+            <h2 className="text-lg font-semibold text-gray-900 m-0">Export palette</h2>
+            <p className="text-sm text-gray-500 mt-0.5 m-0">Copy your palette in any format</p>
           </div>
           <button
             onClick={onClose}
-            className="flex items-center justify-center transition-all hover:bg-gray-100"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: 8, flexShrink: 0 }}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
             aria-label="Close"
           >
-            <X size={20} strokeWidth={1.5} style={{ color: '#6b7280' }} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Format switcher */}
         <div
           className="flex"
-          style={{ backgroundColor: '#f3f4f6', borderRadius: 10, padding: 3, gap: 3, marginBottom: 16 }}
+          style={{ backgroundColor: '#f3f4f6', borderRadius: 8, padding: 3, gap: 3, marginBottom: 16 }}
         >
           {FORMATS.map(f => (
             <button
@@ -184,7 +178,7 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
               className="flex items-center justify-center gap-1.5 transition-all"
               style={{
                 flex: 1,
-                padding: '8px 16px',
+                height: 36,
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: format === f.id ? 600 : 500,
@@ -199,8 +193,8 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
               {f.label}
               {f.pro && !isPro && (
                 <span
-                  className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: BRAND_VIOLET, marginLeft: 2 }}
+                  className="text-[9px] font-bold text-white px-1.5 py-0.5"
+                  style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET, marginLeft: 2 }}
                 >
                   PRO
                 </span>
@@ -214,14 +208,14 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
           <div
             className="overflow-y-auto"
             style={{
-              backgroundColor: BRAND_DARK,
-              borderRadius: 16,
+              backgroundColor: '#111827',
+              borderRadius: 12,
               padding: 16,
               maxHeight: 300,
             }}
           >
             <pre
-              className="m-0 text-[13px] leading-relaxed whitespace-pre overflow-x-auto"
+              className="m-0 text-sm leading-relaxed whitespace-pre overflow-x-auto"
               style={{ fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', monospace", color: '#e2e8f0' }}
             >
               {content}
@@ -284,9 +278,9 @@ export default function ExportPanel({ hexes, onClose, onProGate }: ExportPanelPr
           <div
             className="flex items-center justify-between"
             style={{
-              backgroundColor: '#f9fafb',
-              borderRadius: 12,
-              padding: '12px 16px',
+              borderTop: '1px solid #f3f4f6',
+              paddingTop: 16,
+              marginTop: 4,
             }}
           >
             <span className="text-[12px]" style={{ color: '#6b7280' }}>

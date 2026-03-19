@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BRAND_BLUE as BRAND } from '../../lib/tokens'
+import { X } from 'lucide-react'
+import { BRAND_VIOLET } from '../../lib/tokens'
 
 interface SaveNameModalProps {
   open: boolean
@@ -10,13 +11,15 @@ interface SaveNameModalProps {
 
 export default function SaveNameModal({ open, defaultName, onConfirm, onClose }: SaveNameModalProps) {
   const [name, setName] = useState(defaultName)
+  const [entering, setEntering] = useState(true)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (open) {
       setName(defaultName)
-      // Focus + select after render
+      setEntering(true)
       requestAnimationFrame(() => {
+        setEntering(false)
         inputRef.current?.focus()
         inputRef.current?.select()
       })
@@ -31,39 +34,88 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      {/* Backdrop */}
       <div
-        className="relative w-[90vw] max-w-sm bg-white rounded-2xl shadow-xl p-5"
+        className="absolute inset-0"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          transition: 'opacity 150ms ease-out',
+          opacity: entering ? 0 : 1,
+        }}
+      />
+
+      {/* Modal card */}
+      <div
+        className="relative w-full max-w-md bg-white shadow-2xl"
+        style={{
+          borderRadius: 16,
+          padding: 24,
+          transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+          transform: entering ? 'scale(0.95)' : 'scale(1)',
+          opacity: entering ? 0 : 1,
+        }}
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-label="Save palette"
+        aria-modal="true"
       >
-        <div className="text-[16px] font-semibold text-gray-800 mb-1">Save Palette</div>
-        <p className="text-[12px] text-gray-400 mb-4">Give your palette a name</p>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 m-0">Save Palette</h2>
+            <p className="text-sm text-gray-500 mt-0.5 m-0">Give your palette a name</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
+          <label htmlFor="palette-name" className="sr-only">Palette name</label>
           <input
+            id="palette-name"
             ref={inputRef}
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Palette name"
             maxLength={60}
-            className="w-full h-10 px-3 rounded-xl border border-gray-200 text-[14px] text-gray-800 placeholder-gray-300 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all"
+            className="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm text-gray-800 placeholder-gray-300 outline-none transition-all"
+            style={{
+              borderColor: undefined,
+            }}
+            onFocus={e => {
+              e.currentTarget.style.borderColor = BRAND_VIOLET
+              e.currentTarget.style.boxShadow = `0 0 0 3px rgba(108,71,255,0.15)`
+            }}
+            onBlur={e => {
+              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
             onKeyDown={e => { if (e.key === 'Escape') onClose() }}
           />
 
-          <div className="flex gap-2 mt-4">
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-10 rounded-full text-[13px] font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="px-4 h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-10 rounded-full text-[13px] font-semibold text-white hover:opacity-90 active:scale-95 transition-all"
-              style={{ backgroundColor: BRAND }}
+              className="px-4 h-9 rounded-lg text-white text-sm font-medium hover:opacity-90 transition-colors"
+              style={{ backgroundColor: BRAND_VIOLET }}
             >
               Save
             </button>
