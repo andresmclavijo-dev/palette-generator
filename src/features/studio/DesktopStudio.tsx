@@ -278,8 +278,21 @@ export default function DesktopStudio() {
   const handleAiPalette = (hexes: string[]) => {
     const max = isPro ? 8 : 5
     const clamped = hexes.slice(0, max)
+
+    // Save scroll position — dialog close + state update can cause focus
+    // restoration to scroll the page down to the SEO section below the fold
+    const scrollY = window.scrollY
+
     setSwatches(clamped.map(h => makeSwatch(h)))
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: clamped.length })
+
+    // Restore scroll position after React re-render + Radix focus restoration
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY })
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+    })
   }
 
   const handleImageUpload = async (file: File) => {
