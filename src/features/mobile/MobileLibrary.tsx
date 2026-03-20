@@ -74,7 +74,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
-        <p className="text-base leading-relaxed text-muted mb-6 max-w-[280px]">
+        <p className="text-[15px] text-muted-foreground text-center leading-relaxed max-w-[280px] mb-6">
           Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
         <Button
@@ -106,7 +106,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
         <h2 className="text-xl font-extrabold text-foreground mb-1">No saved palettes yet</h2>
-        <p className="text-base leading-relaxed text-muted mb-6">
+        <p className="text-[15px] text-muted-foreground text-center leading-relaxed mb-6">
           Generate a palette you love, then tap Save.
         </p>
         <Button onClick={() => onNavigate('studio')} className="h-12 rounded-xl px-8">
@@ -121,7 +121,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
       {/* Header */}
       <div className="px-4 pt-4 pb-2">
         <h2 className="text-[28px] font-extrabold text-foreground leading-tight">Library</h2>
-        <p className="text-[13px] text-muted">{palettes.length} palette{palettes.length !== 1 ? 's' : ''}</p>
+        <p className="text-[13px] text-muted-foreground">{palettes.length} palette{palettes.length !== 1 ? 's' : ''}</p>
       </div>
 
       {/* Cards */}
@@ -145,7 +145,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[14px] font-semibold text-foreground">{palette.name}</div>
-                  <div className="text-[11px] text-muted">
+                  <div className="text-[13px] text-muted-foreground">
                     {palette.colors.length} colors · {new Date(palette.created_at).toLocaleDateString()}
                   </div>
                 </div>

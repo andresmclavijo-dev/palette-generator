@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Download, Grid3X3, Info } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -11,6 +11,7 @@ import type { VisionMode } from '@/components/palette/VisionSimulator'
 import { VisionFilterDefs } from '@/components/palette/VisionSimulator'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MobileBottomSheet } from './MobileBottomSheet'
@@ -23,12 +24,12 @@ import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import type { MobileTab } from './MobileShell'
 
 // ─── Constants ───
-const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; icon: string }[] = [
-  { mode: 'random', label: 'Random', desc: 'No constraints — pure variety', icon: '🎲' },
-  { mode: 'analogous', label: 'Analogous', desc: 'Adjacent on the color wheel', icon: '🌈' },
-  { mode: 'monochromatic', label: 'Monochromatic', desc: 'One hue, varied lightness', icon: '🔵' },
-  { mode: 'complementary', label: 'Complementary', desc: 'Opposite colors for contrast', icon: '🔴' },
-  { mode: 'triadic', label: 'Triadic', desc: 'Three equally spaced hues', icon: '🔺' },
+const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; Icon: typeof Shuffle }[] = [
+  { mode: 'random', label: 'Random', desc: 'No constraints — pure variety', Icon: Shuffle },
+  { mode: 'analogous', label: 'Analogous', desc: 'Adjacent on the color wheel', Icon: Palette },
+  { mode: 'monochromatic', label: 'Monochromatic', desc: 'One hue, varied lightness', Icon: Circle },
+  { mode: 'complementary', label: 'Complementary', desc: 'Opposite colors for contrast', Icon: Contrast },
+  { mode: 'triadic', label: 'Triadic', desc: 'Three equally spaced hues', Icon: Triangle },
 ]
 
 const VISION_MODES: { mode: VisionMode; label: string; emoji: string; pro: boolean }[] = [
@@ -233,17 +234,17 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <span className="bg-white/95 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1.5 shadow-sm border border-white/50 mb-1">
-                      <span className="text-[10px] font-bold leading-none text-foreground">{badge.level}</span>
-                      <span className="text-[9px] leading-none text-muted-foreground">{badge.ratio.toFixed(1)}</span>
-                      {badge.pass && <span className="text-[9px] leading-none text-success">✓</span>}
-                    </span>
+                    <div className="bg-white shadow-sm rounded-full px-2 py-0.5 flex items-center gap-1 border border-black/5 mb-1">
+                      <span className="text-[10px] font-bold text-foreground">{badge.level}</span>
+                      <span className="text-[9px] font-medium text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                      {badge.pass && <span className="text-[8px] text-success font-bold">✓</span>}
+                    </div>
                     {/* Hex */}
-                    <span className="bg-white/95 backdrop-blur-md rounded-md px-1.5 py-0.5 shadow-sm border border-white/50">
-                      <span className="text-[10px] font-semibold font-mono leading-none text-foreground tracking-wide">
+                    <div className="bg-white shadow-sm rounded-md px-2 py-0.5 border border-black/5">
+                      <span className="text-[10px] font-semibold font-mono text-foreground tracking-wider">
                         {swatch.hex.toUpperCase().slice(0, 7)}
                       </span>
-                    </span>
+                    </div>
                   </button>
                 )
               })}
@@ -292,89 +293,110 @@ export function MobileStudio(_props: MobileStudioProps) {
             )}
 
             {/* Action tools row */}
-            <div className="flex items-center justify-center gap-3 px-4 pt-3 pb-2">
+            <div className="flex justify-center gap-2 px-3 pt-3 pb-2">
               {/* AI */}
               <button
                 onClick={() => setActiveSheet('ai')}
-                className="relative flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                style={{ minWidth: 48, minHeight: 44 }}
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="AI palette"
               >
-                <Sparkles size={20} className="text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">AI</span>
+                <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
                 {!isPro && (
-                  <span className="absolute top-0.5 right-1 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-0.5 text-[8px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
                     {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
                   </span>
                 )}
+                <span className="text-[10px] font-medium text-muted-foreground">AI</span>
               </button>
               {/* Extract */}
               <button
                 onClick={() => openProModal('image_extraction', 'mobile_tools')}
-                className="relative flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                style={{ minWidth: 48, minHeight: 44 }}
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Extract palette from image"
               >
-                <ImagePlus size={20} className="text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Extract</span>
+                <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
                 {!isPro && (
-                  <span className="absolute top-0 right-0.5">
+                  <span className="absolute -top-1 -right-0.5">
                     <Badge variant="pro" className="text-[7px] px-1 py-0">PRO</Badge>
                   </span>
                 )}
+                <span className="text-[10px] font-medium text-muted-foreground">Extract</span>
               </button>
               {/* Save */}
               <button
                 onClick={handleSave}
-                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                style={{ minWidth: 48, minHeight: 44 }}
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Save palette"
               >
-                <Heart size={20} className="text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Save</span>
+                <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-medium text-muted-foreground">Save</span>
               </button>
               {/* Share */}
               <button
                 onClick={handleShare}
-                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                style={{ minWidth: 48, minHeight: 44 }}
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Share palette link"
               >
-                <Link2 size={20} className="text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Share</span>
+                <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-medium text-muted-foreground">Share</span>
               </button>
               {/* Export */}
               <button
                 onClick={() => setActiveSheet('export')}
-                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                style={{ minWidth: 48, minHeight: 44 }}
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Export palette"
               >
-                <Download size={20} className="text-muted-foreground" />
-                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Export</span>
+                <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-medium text-muted-foreground">Export</span>
               </button>
             </div>
           </>
         ) : (
           /* Preview view */
-          <div className="flex-1 overflow-auto px-3 pb-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div
+            className="flex-1 overflow-auto px-3 pt-1 pb-4"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              filter: visionFilter,
+            }}
+          >
             <div className="flex flex-col gap-3">
               {[
-                { title: 'Landing Page', height: 190, free: true },
-                { title: 'Dashboard', height: 150, free: false },
-                { title: 'Mobile App', height: 150, free: false },
+                { title: 'Landing Page', height: 200, free: true },
+                { title: 'Dashboard', height: 180, free: false },
+                { title: 'Mobile App', height: 180, free: false },
               ].map(({ title, height, free }) => (
                 <div
                   key={title}
-                  className="rounded-[20px] overflow-hidden shadow-sm relative"
-                  style={{
-                    height,
-                    background: `linear-gradient(135deg, ${swatches[0]?.hex || '#6C47FF'} 0%, ${swatches[Math.min(2, swatches.length - 1)]?.hex || '#4ECDC4'} 50%, ${swatches[Math.min(4, swatches.length - 1)]?.hex || '#FFE66D'} 100%)`,
-                  }}
+                  className="bg-card rounded-[20px] overflow-hidden shadow-sm border border-border/30"
                 >
-                  <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                    <span className="text-white text-[13px] font-bold drop-shadow-sm">{title}</span>
-                    <span className={`text-[9px] font-bold rounded-md px-2 py-0.5 ${free ? 'bg-success-bg text-success' : 'bg-primary/10 text-primary'}`}>
+                  {/* Gradient preview area */}
+                  <div
+                    className="relative"
+                    style={{
+                      height,
+                      background: `linear-gradient(135deg, ${swatches[0]?.hex || '#6C47FF'} 0%, ${swatches[Math.min(2, swatches.length - 1)]?.hex || '#4ECDC4'} 50%, ${swatches[Math.min(4, swatches.length - 1)]?.hex || '#FFE66D'} 100%)`,
+                    }}
+                  >
+                    {/* Wireframe overlay elements */}
+                    <div className="absolute top-4 left-4 right-4 flex gap-2">
+                      <div className="w-16 h-2 rounded-full bg-white/30" />
+                      <div className="flex-1" />
+                      <div className="w-8 h-2 rounded-full bg-white/20" />
+                      <div className="w-8 h-2 rounded-full bg-white/20" />
+                    </div>
+                    <div className="absolute bottom-4 left-4">
+                      <div className="w-32 h-3 rounded-full bg-white/30 mb-2" />
+                      <div className="w-20 h-2 rounded-full bg-white/20" />
+                    </div>
+                  </div>
+                  {/* Label bar */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-[14px] font-semibold text-foreground">{title}</span>
+                    <span className={cn(
+                      'text-[10px] font-bold px-2.5 py-1 rounded-md',
+                      free ? 'bg-success-bg text-success' : 'bg-primary/10 text-primary'
+                    )}>
                       {free ? 'FREE' : 'PRO'}
                     </span>
                   </div>
@@ -434,26 +456,36 @@ export function MobileStudio(_props: MobileStudioProps) {
         title="Color Harmony"
         subtitle="How colors relate to each other"
       >
-        <div className="flex flex-col gap-1.5 pb-4">
-          {HARMONY_OPTIONS.map(({ mode, label, desc, icon }) => {
+        <div className="flex flex-col gap-1 pb-4">
+          {HARMONY_OPTIONS.map(({ mode, label, desc, Icon }) => {
             const isActive = harmonyMode === mode
             return (
               <button
                 key={mode}
                 onClick={() => { setHarmonyMode(mode); closeSheet() }}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all ${
-                  isActive ? 'bg-surface' : ''
-                }`}
+                className={cn(
+                  'w-full flex items-center justify-between p-4 rounded-xl text-left transition-all',
+                  isActive ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface'
+                )}
                 aria-label={`${label}: ${desc}`}
                 aria-current={isActive ? 'true' : undefined}
               >
-                <span className="text-lg" aria-hidden="true">{icon}</span>
-                <div className="flex-1">
-                  <div className="text-[14px] font-semibold text-foreground">{label}</div>
-                  <div className="text-[12px] text-muted">{desc}</div>
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    'w-10 h-10 rounded-xl flex items-center justify-center',
+                    isActive ? 'bg-primary/10' : 'bg-surface'
+                  )}>
+                    <Icon size={20} className={cn(
+                      isActive ? 'text-primary' : 'text-muted-foreground'
+                    )} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <div className="text-[15px] font-semibold text-foreground">{label}</div>
+                    <div className="text-[13px] text-muted-foreground">{desc}</div>
+                  </div>
                 </div>
                 {isActive && (
-                  <Check size={16} className="text-primary shrink-0" aria-hidden="true" />
+                  <Check size={20} className="text-primary shrink-0" strokeWidth={2} aria-hidden="true" />
                 )}
               </button>
             )
@@ -489,7 +521,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[20px] font-bold font-mono text-foreground">{hex.toUpperCase()}</div>
-                  <div className="text-[13px] text-muted">{name}</div>
+                  <div className="text-[13px] text-muted-foreground">{name}</div>
                 </div>
                 <span className={`text-[11px] font-bold rounded-full px-2.5 py-1 ${badge.pass ? 'bg-success-bg text-success' : 'bg-destructive/10 text-destructive'}`}>
                   {badge.level} {badge.pass ? '✓' : '✗'}

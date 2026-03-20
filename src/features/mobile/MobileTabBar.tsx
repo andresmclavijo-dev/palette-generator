@@ -1,3 +1,5 @@
+import { Sparkles, Diamond, User } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { MobileTab } from './MobileShell'
 
 interface MobileTabBarProps {
@@ -5,10 +7,10 @@ interface MobileTabBarProps {
   onTabChange: (tab: MobileTab) => void
 }
 
-const tabs: { id: MobileTab; label: string; activeIcon: string; inactiveIcon: string }[] = [
-  { id: 'studio', label: 'Studio', activeIcon: '✦', inactiveIcon: '✧' },
-  { id: 'library', label: 'Library', activeIcon: '◆', inactiveIcon: '◇' },
-  { id: 'profile', label: 'Profile', activeIcon: '●', inactiveIcon: '○' },
+const tabs: { id: MobileTab; label: string; Icon: typeof Sparkles }[] = [
+  { id: 'studio', label: 'Studio', Icon: Sparkles },
+  { id: 'library', label: 'Library', Icon: Diamond },
+  { id: 'profile', label: 'Profile', Icon: User },
 ]
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
@@ -23,35 +25,29 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-around pt-2">
-        {tabs.map(({ id, label, activeIcon, inactiveIcon }) => {
+        {tabs.map(({ id, label, Icon }) => {
           const isActive = activeTab === id
           return (
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className="flex-1 flex flex-col items-center gap-0.5 py-1 transition-all duration-200"
+              className="flex-1 flex flex-col items-center gap-1 py-2 transition-all duration-200"
               style={{ minHeight: 44 }}
               aria-label={label}
               aria-current={isActive ? 'page' : undefined}
             >
-              <span
-                className="transition-all duration-200"
-                style={{
-                  fontSize: isActive ? 20 : 18,
-                  color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
-                  transform: isActive ? 'scale(1.1)' : 'scale(1)',
-                }}
-                aria-hidden="true"
-              >
-                {isActive ? activeIcon : inactiveIcon}
-              </span>
-              <span
-                className="text-[10px] transition-colors duration-200"
-                style={{
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
-                }}
-              >
+              <Icon
+                size={24}
+                className={cn(
+                  'transition-all duration-200',
+                  isActive ? 'text-primary' : 'text-muted-foreground'
+                )}
+                strokeWidth={isActive ? 2.5 : 1.5}
+              />
+              <span className={cn(
+                'text-[11px] tracking-tight',
+                isActive ? 'font-bold text-primary' : 'font-medium text-muted-foreground'
+              )}>
                 {label}
               </span>
             </button>

@@ -34,8 +34,8 @@ export function MobileBottomSheet({ open, onClose, title, subtitle, full, childr
 
         {(title || subtitle) && (
           <SheetHeader className="pb-3">
-            {title && <SheetTitle className="text-lg font-bold">{title}</SheetTitle>}
-            {subtitle && <SheetDescription>{subtitle}</SheetDescription>}
+            {title && <SheetTitle className="text-[17px] font-bold">{title}</SheetTitle>}
+            {subtitle && <SheetDescription className="text-[13px] text-muted-foreground leading-relaxed">{subtitle}</SheetDescription>}
           </SheetHeader>
         )}
 

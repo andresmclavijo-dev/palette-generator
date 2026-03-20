@@ -41,7 +41,7 @@ export function MobileProfile() {
           </div>
 
           <h2 className="text-xl font-extrabold text-foreground mb-1">Welcome to Paletta</h2>
-          <p className="text-[13px] text-muted mb-6 max-w-[260px]">
+          <p className="text-[15px] text-muted-foreground text-center leading-relaxed mb-6 max-w-[280px]">
             Sign in to save palettes, sync across devices, and unlock Pro features.
           </p>
 
@@ -93,7 +93,7 @@ export function MobileProfile() {
             <div className="text-[16px] font-bold text-foreground">
               {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
             </div>
-            <div className="text-[13px] text-muted">{user?.email}</div>
+            <div className="text-[13px] text-muted-foreground">{user?.email}</div>
           </div>
         </div>
 
