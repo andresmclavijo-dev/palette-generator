@@ -4,7 +4,7 @@ import { createCheckoutSession } from '@/lib/stripe'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import {
-  Dialog, DialogContent,
+  Dialog, DialogContent, DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -97,12 +97,9 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
             </Badge>
 
             {/* Headline */}
-            <h2
-              id="pro-modal-title"
-              className="text-2xl font-extrabold text-foreground tracking-tight leading-tight m-0"
-            >
+            <DialogTitle className="text-2xl font-extrabold text-foreground tracking-tight leading-tight m-0">
               Unlock the full toolkit
-            </h2>
+            </DialogTitle>
             <p className="text-[13px] text-muted-foreground m-0 mt-1.5 mb-6">
               Everything you need to ship palettes faster. Cancel anytime.
             </p>
