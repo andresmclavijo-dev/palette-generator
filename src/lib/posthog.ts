@@ -10,6 +10,7 @@ if (key) {
     capture_pageview: false,
     disable_session_recording: true,
     persistence: 'localStorage+cookie',
+    disable_surveys: true,
   })
 }
 

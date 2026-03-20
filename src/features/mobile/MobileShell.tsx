@@ -12,7 +12,7 @@ export function MobileShell() {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background">
-      <CookieConsent />
+      <CookieConsent compact />
       <div className="flex-1 overflow-hidden">
         {tab === 'studio' && <MobileStudio onNavigate={setTab} />}
         {tab === 'library' && <MobileLibrary onNavigate={setTab} />}

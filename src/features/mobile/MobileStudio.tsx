@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link, Download, Grid3X3, Info } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -233,18 +233,16 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <span
-                      className="text-[9px] font-bold rounded-full px-1.5 py-0.5 mb-1"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: badge.pass ? '#16A34A' : '#DC2626' }}
-                    >
-                      {badge.level} {badge.ratio.toFixed(1)} {badge.pass ? '✓' : ''}
+                    <span className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1 shadow-sm mb-1">
+                      <span className="text-[10px] font-bold text-foreground">{badge.level}</span>
+                      <span className="text-[9px] text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                      {badge.pass && <span className="text-[9px] text-success">✓</span>}
                     </span>
                     {/* Hex */}
-                    <span
-                      className="text-[9px] font-semibold font-mono rounded-full px-1.5 py-0.5"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#374151' }}
-                    >
-                      {swatch.hex.toUpperCase().slice(0, 7)}
+                    <span className="bg-white/90 backdrop-blur-sm rounded-md px-1.5 py-0.5 shadow-sm">
+                      <span className="text-[10px] font-semibold font-mono text-foreground tracking-wide">
+                        {swatch.hex.toUpperCase().slice(0, 7)}
+                      </span>
                     </span>
                   </button>
                 )
@@ -295,28 +293,66 @@ export function MobileStudio(_props: MobileStudioProps) {
 
             {/* Action tools row */}
             <div className="flex items-center justify-center gap-1 px-3 pt-2.5 pb-1">
-              {[
-                { icon: '✨', label: 'AI', action: () => setActiveSheet('ai'), badge: !isPro ? String(Math.max(0, AI_MAX_FREE - getAiUsageToday())) : undefined },
-                { icon: '💾', label: 'Save', action: handleSave },
-                { icon: '🔗', label: 'Share', action: handleShare },
-                { icon: '📦', label: 'Export', action: () => setActiveSheet('export') },
-              ].map(({ icon, label, action, badge }) => (
-                <button
-                  key={label}
-                  onClick={action}
-                  className="relative flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
-                  style={{ minWidth: 52, minHeight: 44 }}
-                  aria-label={label}
-                >
-                  <span className="text-[18px]" aria-hidden="true">{icon}</span>
-                  <span className="text-[9px] font-medium text-muted mt-0.5">{label}</span>
-                  {badge && (
-                    <span className="absolute top-0.5 right-1.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center">
-                      {badge}
-                    </span>
-                  )}
-                </button>
-              ))}
+              {/* AI */}
+              <button
+                onClick={() => setActiveSheet('ai')}
+                className="relative flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
+                style={{ minWidth: 48, minHeight: 44 }}
+                aria-label="AI palette"
+              >
+                <Sparkles size={20} className="text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">AI</span>
+                {!isPro && (
+                  <span className="absolute top-0.5 right-1 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center">
+                    {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
+                  </span>
+                )}
+              </button>
+              {/* Extract */}
+              <button
+                onClick={() => openProModal('image_extraction', 'mobile_tools')}
+                className="relative flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
+                style={{ minWidth: 48, minHeight: 44 }}
+                aria-label="Extract palette from image"
+              >
+                <ImagePlus size={20} className="text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Extract</span>
+                {!isPro && (
+                  <span className="absolute top-0 right-0.5">
+                    <Badge variant="pro" className="text-[7px] px-1 py-0">PRO</Badge>
+                  </span>
+                )}
+              </button>
+              {/* Save */}
+              <button
+                onClick={handleSave}
+                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
+                style={{ minWidth: 48, minHeight: 44 }}
+                aria-label="Save palette"
+              >
+                <Heart size={20} className="text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Save</span>
+              </button>
+              {/* Share */}
+              <button
+                onClick={handleShare}
+                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
+                style={{ minWidth: 48, minHeight: 44 }}
+                aria-label="Share palette link"
+              >
+                <Link size={20} className="text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Share</span>
+              </button>
+              {/* Export */}
+              <button
+                onClick={() => setActiveSheet('export')}
+                className="flex flex-col items-center px-3 py-1.5 rounded-xl transition-colors active:bg-surface"
+                style={{ minWidth: 48, minHeight: 44 }}
+                aria-label="Export palette"
+              >
+                <Download size={20} className="text-muted-foreground" />
+                <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Export</span>
+              </button>
             </div>
           </>
         ) : (
@@ -460,7 +496,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </span>
               </div>
 
-              {/* Action grid */}
+              {/* Action grid — 2×2 */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleCopyHex(hex)}
@@ -471,12 +507,30 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className="text-[13px] font-medium text-foreground">{copiedHex === hex ? 'Copied' : 'Copy hex'}</span>
                 </button>
                 <button
+                  onClick={() => { closeSheet(); openProModal('shade_scale', 'mobile_detail') }}
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface/50 transition-all active:scale-[0.98]"
+                  aria-label="Shade scale (Pro feature)"
+                >
+                  <Grid3X3 size={16} className="text-muted/50" />
+                  <span className="text-[13px] font-medium text-muted/60">Shades</span>
+                  <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>
+                </button>
+                <button
                   onClick={() => lockSwatch(activeSwatch.id)}
                   className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface transition-all active:scale-[0.98]"
                   aria-label={activeSwatch.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {activeSwatch.locked ? <Lock size={16} className="text-primary" /> : <Unlock size={16} className="text-muted-foreground" />}
                   <span className="text-[13px] font-medium text-foreground">{activeSwatch.locked ? 'Locked' : 'Lock color'}</span>
+                </button>
+                <button
+                  onClick={() => { closeSheet(); openProModal('color_info', 'mobile_detail') }}
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface/50 transition-all active:scale-[0.98]"
+                  aria-label="Color info (Pro feature)"
+                >
+                  <Info size={16} className="text-muted/50" />
+                  <span className="text-[13px] font-medium text-muted/60">Info</span>
+                  <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>
                 </button>
               </div>
             </div>
