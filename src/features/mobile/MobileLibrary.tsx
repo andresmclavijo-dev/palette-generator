@@ -74,7 +74,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
-        <p className="text-[15px] text-muted-foreground text-center leading-relaxed max-w-[280px] mb-6">
+        <p className="text-[15px] text-foreground/60 text-center leading-relaxed max-w-[280px] mb-6">
           Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
         <Button
@@ -106,7 +106,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
         <h2 className="text-xl font-extrabold text-foreground mb-1">No saved palettes yet</h2>
-        <p className="text-[15px] text-muted-foreground text-center leading-relaxed mb-6">
+        <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6">
           Generate a palette you love, then tap Save.
         </p>
         <Button onClick={() => onNavigate('studio')} className="h-12 rounded-xl px-8">

@@ -297,7 +297,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* AI */}
               <button
                 onClick={() => setActiveSheet('ai')}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="AI palette"
               >
                 <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -311,7 +311,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Extract */}
               <button
                 onClick={() => openProModal('image_extraction', 'mobile_tools')}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Extract palette from image"
               >
                 <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -325,7 +325,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Save */}
               <button
                 onClick={handleSave}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Save palette"
               >
                 <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -334,7 +334,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Share */}
               <button
                 onClick={handleShare}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Share palette link"
               >
                 <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -343,7 +343,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Export */}
               <button
                 onClick={() => setActiveSheet('export')}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/50 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Export palette"
               >
                 <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />

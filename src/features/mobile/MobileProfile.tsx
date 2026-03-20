@@ -41,7 +41,7 @@ export function MobileProfile() {
           </div>
 
           <h2 className="text-xl font-extrabold text-foreground mb-1">Welcome to Paletta</h2>
-          <p className="text-[15px] text-muted-foreground text-center leading-relaxed mb-6 max-w-[280px]">
+          <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6 max-w-[280px]">
             Sign in to save palettes, sync across devices, and unlock Pro features.
           </p>
 
