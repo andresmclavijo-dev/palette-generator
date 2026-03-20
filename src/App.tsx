@@ -29,7 +29,7 @@ import { showToast } from './utils/toast'
 import { usePro } from './hooks/usePro'
 import { useIsMobile } from './hooks/useIsMobile'
 // TODO: code-split with React.lazy() — only one of these renders at a time
-import MobileShell from './components/MobileShell'
+import { MobileShell } from './features/mobile'
 import DesktopStudio from './features/studio/DesktopStudio'
 
 import { useAuth } from './hooks/useAuth'
