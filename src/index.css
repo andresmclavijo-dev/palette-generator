@@ -204,19 +204,23 @@ body {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Pro modal — floating cards */
+/* Pro modal — floating cards container */
+.pro-float-container {
+  animation: proFloatUp 3s ease-in-out infinite alternate;
+}
+@keyframes proFloatUp {
+  from { transform: translateY(6px); }
+  to { transform: translateY(-6px); }
+}
+
+/* Pro modal — individual card tilt */
 .pro-float-card {
   transform: rotate(-6deg);
-  animation: proFloat 3s ease-in-out infinite alternate;
-}
-@keyframes proFloat {
-  from { transform: rotate(-6deg) translateY(6px); }
-  to { transform: rotate(-6deg) translateY(-6px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pro-modal-enter { animation: none; }
-  .pro-float-card { animation: none; transform: rotate(-6deg); }
+  .pro-float-container { animation: none; }
 }
 
 /* Mobile: hide swatch labels while empty-state overlay is active */

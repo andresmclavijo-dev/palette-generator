@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { createCheckoutSession } from '@/lib/stripe'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
+import {
+  Dialog, DialogContent,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 const PENDING_PLAN_KEY = 'paletta_pending_checkout'
-const PRIMARY = '#6C47FF'
 
 const PRO_FEATURES: { bold: string; rest: string }[] = [
   { bold: 'AI palette', rest: ' from text prompt' },
@@ -18,14 +22,16 @@ const PRO_FEATURES: { bold: string; rest: string }[] = [
 ]
 
 const SHADE_COLORS = [
-  '#F5F3FF', '#EDE9FE', '#DDD6FE', '#C4B5FD', '#A78BFA',
-  '#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6',
+  '#F5F3FF', '#DDD6FE', '#C4B5FD', '#A78BFA',
+  '#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6', '#4C1D95',
 ]
+
+const AI_PREVIEW_COLORS = ['#E07A5F', '#F2CC8F', '#81B29A', '#F4F1DE', '#3D405B']
 
 function CheckIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0" aria-hidden="true">
-      <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 8.5L6.5 12L13 4" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -40,38 +46,17 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
   const { user, signInWithGoogle } = useAuth()
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')
-  const modalRef = useRef<HTMLDivElement>(null)
 
-  const handleDismiss = useCallback(() => {
+  const handleDismiss = () => {
     analytics.track('pro_modal_dismissed')
     onClose()
-  }, [onClose])
+  }
 
-  // Escape to close
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleDismiss()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [open, handleDismiss])
-
-  // Focus trap
-  useEffect(() => {
-    if (!open) return
-    const prev = document.activeElement as HTMLElement | null
-    modalRef.current?.focus()
-    return () => { prev?.focus() }
-  }, [open])
-
-  if (!open) return null
-
-  const isMonthly = plan === 'monthly'
   const colors = paletteColors?.length ? paletteColors : ['#6C47FF', '#FF6B6B', '#4ECDC4', '#FFE66D', '#2D6A4F']
+  const isMonthly = plan === 'monthly'
 
   const handleSubscribe = async () => {
-    const price = plan === 'monthly' ? 5 : 45
+    const price = isMonthly ? 5 : 45
     analytics.track('pro_modal_subscribe_clicked', { plan, price })
     if (!user) {
       localStorage.setItem(PENDING_PLAN_KEY, plan)
@@ -95,283 +80,162 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-      onClick={handleDismiss}
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        }}
-      />
-
-      {/* Modal card — two column */}
-      <div
-        ref={modalRef}
-        tabIndex={-1}
-        className="relative flex w-full bg-white shadow-2xl outline-none pro-modal-enter"
-        style={{ maxWidth: 720, borderRadius: 16, overflow: 'hidden' }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="pro-modal-title"
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleDismiss() }}>
+      <DialogContent
+        className="max-w-[720px] p-0 overflow-hidden gap-0"
+        aria-describedby={undefined}
       >
-        {/* ─── Left Column ─── */}
-        <div className="flex-1 flex flex-col" style={{ padding: 32 }}>
-          {/* Badge */}
-          <span
-            className="inline-flex items-center self-start text-[10px] font-bold text-white uppercase"
-            style={{
-              padding: '4px 10px',
-              borderRadius: 6,
-              backgroundColor: PRIMARY,
-              letterSpacing: '0.08em',
-              marginBottom: 16,
-            }}
-          >
-            ✦ Paletta Pro
-          </span>
+        <div className="flex">
+          {/* ─── Left Column ─── */}
+          <div className="flex-1 flex flex-col p-8">
+            {/* Badge */}
+            <Badge
+              variant="pro"
+              className="w-fit text-[10px] tracking-wider uppercase px-2.5 py-1 font-bold mb-4"
+            >
+              ✦ Paletta Pro
+            </Badge>
 
-          {/* Headline */}
-          <h2
-            id="pro-modal-title"
-            className="m-0"
-            style={{ fontSize: 24, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em', lineHeight: 1.2 }}
-          >
-            Unlock the full toolkit
-          </h2>
-          <p className="m-0 mt-1" style={{ fontSize: 13, color: '#9CA3AF' }}>
-            Everything you need to ship palettes faster. Cancel anytime.
-          </p>
+            {/* Headline */}
+            <h2
+              id="pro-modal-title"
+              className="text-2xl font-extrabold text-foreground tracking-tight leading-tight m-0"
+            >
+              Unlock the full toolkit
+            </h2>
+            <p className="text-[13px] text-muted-foreground m-0 mt-1.5 mb-6">
+              Everything you need to ship palettes faster. Cancel anytime.
+            </p>
 
-          {/* Feature list */}
-          <div className="flex flex-col" style={{ gap: 10, marginTop: 20 }}>
-            {PRO_FEATURES.map(f => (
-              <div key={f.bold} className="flex items-center" style={{ gap: 10 }}>
-                <CheckIcon />
-                <span style={{ fontSize: 13.5, color: '#374151' }}>
-                  <strong>{f.bold}</strong>{f.rest}
-                </span>
-              </div>
-            ))}
-          </div>
+            {/* Feature list */}
+            <div className="flex flex-col gap-3 mb-6">
+              {PRO_FEATURES.map((f) => (
+                <div key={f.bold} className="flex items-center gap-2.5">
+                  <CheckIcon />
+                  <span className="text-[13.5px] text-foreground">
+                    <strong>{f.bold}</strong>{f.rest}
+                  </span>
+                </div>
+              ))}
+            </div>
 
-          {/* Spacer */}
-          <div style={{ flex: '1 1 0%', minHeight: 20 }} />
+            {/* Spacer */}
+            <div className="flex-1" />
 
-          {/* Pricing row */}
-          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-            {/* Segmented toggle */}
-            <div className="inline-flex" style={{ backgroundColor: '#f3f4f6', borderRadius: 8, padding: 3, gap: 3 }}>
-              <button
-                onClick={() => { setPlan('monthly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'monthly' }) }}
-                className="text-[13px] font-medium transition-all"
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 6,
-                  backgroundColor: isMonthly ? '#fff' : 'transparent',
-                  boxShadow: isMonthly ? '0 1px 3px rgba(0,0,0,0.08)' : undefined,
-                  color: isMonthly ? '#1a1a2e' : '#6B7280',
-                }}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => { setPlan('yearly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'yearly' }) }}
-                className="flex items-center gap-1.5 text-[13px] font-medium transition-all"
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 6,
-                  backgroundColor: !isMonthly ? '#fff' : 'transparent',
-                  boxShadow: !isMonthly ? '0 1px 3px rgba(0,0,0,0.08)' : undefined,
-                  color: !isMonthly ? '#1a1a2e' : '#6B7280',
-                }}
-              >
-                Yearly
-                <span
-                  className="text-[9px] font-bold px-1.5 py-0.5"
-                  style={{ borderRadius: 4, backgroundColor: '#DCFCE7', color: '#16A34A' }}
+            {/* Pricing toggle */}
+            <div className="mb-4">
+              <div className="inline-flex items-center bg-surface rounded-button p-0.5 gap-0.5">
+                <button
+                  onClick={() => { setPlan('monthly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'monthly' }) }}
+                  className={`px-4 h-9 rounded-button text-sm font-medium transition-colors ${
+                    isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted'
+                  }`}
                 >
-                  -25%
-                </span>
-              </button>
+                  Monthly
+                </button>
+                <button
+                  onClick={() => { setPlan('yearly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'yearly' }) }}
+                  className={`px-4 h-9 rounded-button text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    !isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted'
+                  }`}
+                >
+                  Yearly
+                  <span className="text-[9px] font-bold bg-success-bg text-success px-1.5 py-0.5 rounded-badge">
+                    −25%
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* Price */}
-            <div className="text-right">
-              <span style={{ fontSize: 26, fontWeight: 800, color: '#1a1a2e', lineHeight: 1 }}>
+            <div className="mb-4">
+              <span className="text-[26px] font-extrabold text-foreground">
                 {isMonthly ? '$5' : '$3.75'}
               </span>
-              <span className="text-[13px] font-medium ml-0.5" style={{ color: '#9CA3AF' }}>/mo</span>
+              <span className="text-[13px] text-muted-foreground">/mo</span>
               {!isMonthly && (
-                <p className="text-[11px] m-0 mt-0.5" style={{ color: '#9CA3AF' }}>Billed $45/yr</p>
+                <span className="text-[12px] text-muted-foreground ml-2">Billed $45/year</span>
               )}
+            </div>
+
+            {/* CTA */}
+            <Button
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="w-full h-11 text-sm font-semibold shadow-sm hover:shadow-md transition-all hover:-translate-y-px"
+            >
+              {loading ? 'Redirecting\u2026' : `Subscribe \u2014 ${isMonthly ? '$5/mo' : '$45/yr'}`}
+            </Button>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-[11px] text-muted">Launch pricing · Powered by Stripe</span>
+              <button
+                onClick={handleDismiss}
+                className="text-[11px] text-muted hover:text-muted-foreground transition-colors"
+              >
+                Not now
+              </button>
             </div>
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="w-full text-white text-[15px] font-semibold transition-all disabled:opacity-50"
-            style={{
-              height: 44,
-              borderRadius: 8,
-              backgroundColor: PRIMARY,
-            }}
-            onMouseEnter={e => {
-              if (!loading) {
-                e.currentTarget.style.transform = 'translateY(-1px)'
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(108,71,255,0.3)'
-                e.currentTarget.style.backgroundColor = '#5B38E0'
-              }
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
-              e.currentTarget.style.backgroundColor = PRIMARY
-            }}
+          {/* ─── Right Column ─── */}
+          <div
+            className="hidden md:flex w-[290px] relative overflow-hidden items-center justify-center"
+            style={{ background: 'linear-gradient(145deg, #F8F7FF 0%, #EDE9FE 50%, #F0EDFF 100%)' }}
           >
-            {loading ? 'Redirecting\u2026' : `Subscribe \u2014 ${isMonthly ? '$5/mo' : '$45/yr'}`}
-          </button>
-
-          {/* Footer */}
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-[12px]" style={{ color: '#D1D5DB' }}>Launch pricing · Stripe</span>
-            <button
-              onClick={handleDismiss}
-              className="text-[13px] font-medium transition-colors hover:text-gray-700"
-              style={{ color: '#9CA3AF' }}
-            >
-              Not now
-            </button>
-          </div>
-        </div>
-
-        {/* ─── Right Column ─── */}
-        <div
-          className="hidden md:flex flex-col relative overflow-hidden"
-          style={{
-            width: 290,
-            background: 'linear-gradient(145deg, #F8F7FF 0%, #EDE9FE 50%, #F0EDFF 100%)',
-          }}
-        >
-          {/* Close button */}
-          <button
-            onClick={handleDismiss}
-            className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center transition-colors"
-            style={{
-              borderRadius: 8,
-              backgroundColor: 'rgba(255,255,255,0.6)',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)' }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.6)' }}
-            aria-label="Close upgrade modal"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-
-          {/* Floating cards container */}
-          <div className="flex-1 flex items-center justify-center" style={{ padding: '40px 20px' }}>
-            <div className="relative" style={{ width: 220, height: 280 }}>
+            {/* Floating cards container */}
+            <div className="relative w-[220px] h-[280px] pro-float-container">
               {/* Card 1: Current palette */}
               <div
-                className="absolute pro-float-card"
-                style={{
-                  top: 0, left: 0,
-                  width: 200,
-                  backgroundColor: '#fff',
-                  borderRadius: 12,
-                  padding: 12,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                }}
+                className="absolute top-0 left-0 bg-card rounded-pill shadow p-3 w-[200px] pro-float-card"
               >
-                <div className="flex rounded-lg overflow-hidden" style={{ height: 32 }}>
+                <div className="flex rounded-button overflow-hidden h-8 mb-2">
                   {colors.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
                 </div>
-                <p className="m-0 mt-2 text-[10px] font-medium" style={{ color: '#9CA3AF' }}>
-                  Your palette · {colors.length} colors
-                </p>
+                <div className="text-[10px] text-muted">Your palette · {colors.length} colors</div>
               </div>
 
               {/* Card 2: Shade scale */}
               <div
-                className="absolute pro-float-card"
-                style={{
-                  top: 80, left: 32,
-                  width: 200,
-                  backgroundColor: '#fff',
-                  borderRadius: 12,
-                  padding: 12,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  animationDelay: '0.5s',
-                }}
+                className="absolute top-[100px] left-[32px] bg-card rounded-pill shadow p-3 w-[200px] pro-float-card"
+                style={{ animationDelay: '0.5s' }}
               >
-                <div className="flex rounded-lg overflow-hidden" style={{ height: 32 }}>
+                <div className="flex rounded-button overflow-hidden h-8 mb-2">
                   {SHADE_COLORS.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
                 </div>
-                <p className="m-0 mt-2 text-[10px] font-medium" style={{ color: '#9CA3AF' }}>
-                  Shade scale · 50–900
-                </p>
+                <div className="text-[10px] text-muted">Shade scale · 50–900</div>
               </div>
 
               {/* Card 3: AI prompt */}
               <div
-                className="absolute pro-float-card"
-                style={{
-                  top: 160, left: 8,
-                  width: 200,
-                  backgroundColor: '#fff',
-                  borderRadius: 12,
-                  padding: 12,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  animationDelay: '1s',
-                }}
+                className="absolute top-[200px] left-[8px] bg-card rounded-pill shadow p-3 w-[200px] pro-float-card"
+                style={{ animationDelay: '1s' }}
               >
-                <div
-                  className="rounded-lg text-[11px] italic"
-                  style={{
-                    padding: '8px 10px',
-                    backgroundColor: '#f9fafb',
-                    border: '1px solid #f3f4f6',
-                    color: '#9CA3AF',
-                  }}
-                >
-                  Warm Mediterranean café at sunset
+                <div className="text-[11px] italic text-muted-foreground mb-1">
+                  "Warm Mediterranean café at sunset"
                 </div>
-                <p className="m-0 mt-2 text-[10px] font-medium" style={{ color: '#9CA3AF' }}>
-                  AI palette · text prompt
-                </p>
+                <div className="flex rounded-button overflow-hidden h-6">
+                  {AI_PREVIEW_COLORS.map((c, i) => (
+                    <div key={i} className="flex-1" style={{ backgroundColor: c }} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Decorative dots */}
-          <div className="absolute" style={{ bottom: 16, left: 16 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            {/* Decorative dots */}
+            <div className="absolute bottom-4 left-4 grid grid-cols-4 gap-2">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 4, height: 4, borderRadius: '50%',
-                    backgroundColor: PRIMARY, opacity: 0.15,
-                  }}
-                />
+                <div key={i} className="w-1 h-1 rounded-full bg-primary/15" />
               ))}
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
