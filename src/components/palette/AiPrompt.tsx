@@ -59,6 +59,22 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
     }
   }, [open])
 
+  // Visual Viewport API — adjust dialog when mobile keyboard opens
+  useEffect(() => {
+    if (!open) return
+    const vv = window.visualViewport
+    if (!vv) return
+    const handleResize = () => {
+      const offset = window.innerHeight - vv.height
+      document.documentElement.style.setProperty('--kb-offset', `${offset}px`)
+    }
+    vv.addEventListener('resize', handleResize)
+    return () => {
+      vv.removeEventListener('resize', handleResize)
+      document.documentElement.style.setProperty('--kb-offset', '0px')
+    }
+  }, [open])
+
   const handleUpgradeOrGenerate = () => {
     if (exhausted) {
       analytics.track('pro_gate_hit', { feature: 'ai_palette', source: 'toolbar' })
@@ -152,7 +168,11 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md" aria-describedby={undefined}>
+      <DialogContent
+        className="max-w-md"
+        aria-describedby={undefined}
+        style={{ transform: 'translate(-50%, -50%) translateY(calc(var(--kb-offset, 0px) / -2))' }}
+      >
         <DialogHeader>
           <DialogTitle>AI palette</DialogTitle>
         </DialogHeader>

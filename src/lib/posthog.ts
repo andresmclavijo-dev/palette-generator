@@ -11,6 +11,7 @@ if (key) {
     disable_session_recording: true,
     persistence: 'localStorage+cookie',
     disable_surveys: true,
+    disable_external_dependency_loading: true,
   })
 }
 

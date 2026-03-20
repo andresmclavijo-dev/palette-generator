@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link, Download, Grid3X3, Info } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Download, Grid3X3, Info } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -233,14 +233,14 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <span className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1 shadow-sm mb-1">
-                      <span className="text-[10px] font-bold text-foreground">{badge.level}</span>
-                      <span className="text-[9px] text-muted-foreground">{badge.ratio.toFixed(1)}</span>
-                      {badge.pass && <span className="text-[9px] text-success">✓</span>}
+                    <span className="bg-white/95 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1.5 shadow-sm border border-white/50 mb-1">
+                      <span className="text-[10px] font-bold leading-none text-foreground">{badge.level}</span>
+                      <span className="text-[9px] leading-none text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                      {badge.pass && <span className="text-[9px] leading-none text-success">✓</span>}
                     </span>
                     {/* Hex */}
-                    <span className="bg-white/90 backdrop-blur-sm rounded-md px-1.5 py-0.5 shadow-sm">
-                      <span className="text-[10px] font-semibold font-mono text-foreground tracking-wide">
+                    <span className="bg-white/95 backdrop-blur-md rounded-md px-1.5 py-0.5 shadow-sm border border-white/50">
+                      <span className="text-[10px] font-semibold font-mono leading-none text-foreground tracking-wide">
                         {swatch.hex.toUpperCase().slice(0, 7)}
                       </span>
                     </span>
@@ -292,7 +292,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             )}
 
             {/* Action tools row */}
-            <div className="flex items-center justify-center gap-1 px-3 pt-2.5 pb-1">
+            <div className="flex items-center justify-center gap-3 px-4 pt-3 pb-2">
               {/* AI */}
               <button
                 onClick={() => setActiveSheet('ai')}
@@ -340,7 +340,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 style={{ minWidth: 48, minHeight: 44 }}
                 aria-label="Share palette link"
               >
-                <Link size={20} className="text-muted-foreground" />
+                <Link2 size={20} className="text-muted-foreground" />
                 <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Share</span>
               </button>
               {/* Export */}
