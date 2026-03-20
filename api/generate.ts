@@ -15,6 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing prompt or colorCount' })
   }
 
+  if (prompt.length > 500) {
+    return res.status(400).json({ error: 'Prompt too long (max 500 characters)' })
+  }
+
   // IP rate limiting for non-Pro users
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
     || (req.headers['x-real-ip'] as string)
@@ -31,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ipRateLimit.set(ip, { count: currentCount + 1, date: today })
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY || process.env.VITE_ANTHROPIC_API_KEY
+  const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     return res.status(500).json({ error: 'AI unavailable' })
   }

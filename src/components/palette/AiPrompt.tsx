@@ -79,11 +79,8 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       onUsageChange?.()
     }
 
-    const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-
     setLoading(true)
     try {
-      // Try server-side API route first (has IP rate limiting)
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,41 +95,16 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
         return
       }
 
-      let hexes: string[]
-
-      if (res.ok) {
-        const data = await res.json()
-        hexes = data.colors
-      } else if (apiKey) {
-        // Fallback to direct API call if server route fails
-        const directRes = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true',
-          },
-          body: JSON.stringify({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 150,
-            temperature: 0,
-            messages: [{ role: 'user', content: `You are a color palette API. Return ONLY a JSON array of hex strings, nothing else.\n\nSTRICT RULES:\n- Return exactly ${colorCount} hex colors\n- Every color MUST visually match: "${prompt.trim()}"\n- "dark" = ALL hex values must have lightness below 35%. Examples: #1a1a2e, #0d1117, #2d1b69\n- "pastel" = ALL colors soft, desaturated, light (lightness above 75%)\n- "neon" = ALL colors vibrant, fully saturated, electric\n- "warm" = reds, oranges, yellows only\n- "cool" = blues, teals, purples only\n- NEVER include colors that contradict the description\n- Output raw JSON array only — no text, no markdown, no explanation\n\nDESCRIPTION: "${prompt.trim()}"\nOUTPUT: ["#hex1","#hex2",...${colorCount} items]` }],
-          }),
-        })
-
-        if (!directRes.ok) throw new Error('API error')
-        const directData = await directRes.json()
-        const text = directData.content?.[0]?.text || ''
-        const match = text.match(/\[.*\]/)
-        if (!match) throw new Error('No JSON array in response')
-        hexes = JSON.parse(match[0])
-      } else {
-        throw new Error('No API available')
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Something went wrong' }))
+        throw new Error(errorData.error || 'Couldn\'t generate palette')
       }
 
+      const data = await res.json()
+      let hexes: string[] = data.colors
+
       if (!Array.isArray(hexes) || hexes.length < 3 || !hexes.every((h: string) => /^#[0-9a-fA-F]{6}$/.test(h))) {
-        throw new Error('Invalid hex array')
+        throw new Error('Invalid palette response')
       }
 
       // Post-processing: enforce keyword constraints with chroma-js
@@ -165,10 +137,12 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
       onPalette(hexes.slice(0, colorCount))
       setPrompt('')
       onClose()
-    } catch {
+    } catch (err) {
       onFallback()
       onClose()
-      onError?.('AI is currently over capacity. Try again in a moment!')
+      onError?.(err instanceof Error && err.message !== 'Invalid palette response'
+        ? err.message
+        : 'Couldn\'t generate palette. Try again.')
     } finally {
       setLoading(false)
     }
