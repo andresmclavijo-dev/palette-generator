@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useAuth } from '../../hooks/useAuth'
-import { createCheckoutSession } from '../../lib/stripe'
-import { showToast } from '../../utils/toast'
-import { analytics } from '../../lib/posthog'
+import { useAuth } from '@/hooks/useAuth'
+import { createCheckoutSession } from '@/lib/stripe'
+import { showToast } from '@/utils/toast'
+import { analytics } from '@/lib/posthog'
 
 const PENDING_PLAN_KEY = 'paletta_pending_checkout'
 const PRIMARY = '#6C47FF'
@@ -36,7 +36,7 @@ interface ProUpgradeModalProps {
   paletteColors?: string[]
 }
 
-export default function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModalProps) {
+export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModalProps) {
   const { user, signInWithGoogle } = useAuth()
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly')

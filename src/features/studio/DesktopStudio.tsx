@@ -5,47 +5,48 @@ import {
   Share2, Download, Grid3X3,
   Plus, Minus,
 } from 'lucide-react'
-import { usePaletteStore } from '../store/paletteStore'
-import { usePro } from '../hooks/usePro'
-import { useAuth } from '../hooks/useAuth'
-import { VisionFilterDefs } from './palette/VisionSimulator'
-import type { VisionMode } from './palette/VisionSimulator'
-import AiPrompt, { getAiRemaining } from './palette/AiPrompt'
-import ExportPanel from './palette/ExportPanel'
-import ProUpgradeModal from './ui/ProUpgradeModal'
-import SignInModal from './ui/SignInModal'
-import PaymentSuccessModal from './ui/PaymentSuccessModal'
-import SavedPalettesPanel from './ui/SavedPalettesPanel'
-import SaveNameModal from './ui/SaveNameModal'
+import { usePaletteStore } from '@/store/paletteStore'
+import { usePro } from '@/hooks/usePro'
+import { useAuth } from '@/hooks/useAuth'
+import { VisionFilterDefs } from '@/components/palette/VisionSimulator'
+import type { VisionMode } from '@/components/palette/VisionSimulator'
+import AiPrompt, { getAiRemaining } from '@/components/palette/AiPrompt'
+import ExportPanel from '@/components/palette/ExportPanel'
+import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
+import SignInModal from '@/components/ui/SignInModal'
+import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
+import SavedPalettesPanel from '@/components/ui/SavedPalettesPanel'
+import SaveNameModal from '@/components/ui/SaveNameModal'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import CookieConsent from './CookieConsent'
+import CookieConsent from '@/components/CookieConsent'
 import {
   readableOn, getColorName, getContrastBadge,
   makeSwatch,
   encodePalette, decodePalette, parseHex,
-} from '../lib/colorEngine'
-import { extractColorsFromFile } from '../lib/kMeans'
-import { BRAND_VIOLET, BRAND_DARK } from '../lib/tokens'
-import { showToast } from '../utils/toast'
-import { analytics } from '../lib/posthog'
-import { createCheckoutSession, createPortalSession } from '../lib/stripe'
-import SEOContent from './SEOContent'
+} from '@/lib/colorEngine'
+import { extractColorsFromFile } from '@/lib/kMeans'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { showToast } from '@/utils/toast'
+import { analytics } from '@/lib/posthog'
+import { createCheckoutSession, createPortalSession } from '@/lib/stripe'
+import SEOContent from '@/components/SEOContent'
 
-// Extracted sub-components
-import { DarkTooltip } from './studio/DarkTooltip'
-import { Dock } from './studio/Dock'
-import { ExtractDialog } from './studio/ExtractDialog'
-import { ShadesSpecimen } from './studio/ShadesSpecimen'
-import { ColorInfoPopover } from './studio/ColorInfoPopover'
-import { LibrarySection } from './studio/LibrarySection'
-import { ProfileSection } from './studio/ProfileSection'
-import { PreviewMode } from './studio/PreviewMode'
-import { UserMenu } from './studio/UserMenu'
+// Studio sub-components
+import { DarkTooltip } from './DarkTooltip'
+import { Dock } from './Dock'
+import { ExtractDialog } from './ExtractDialog'
+import { ShadesSpecimen } from './ShadesSpecimen'
+import { ColorInfoPopover } from './ColorInfoPopover'
+import { PreviewMode } from './PreviewMode'
+import { UserMenu } from './UserMenu'
+// Cross-feature imports
+import { LibraryView } from '@/features/library/LibraryView'
+import { ProfileView } from '@/features/profile/ProfileView'
 
 // ─── Types ───────────────────────────────────────────────────
 type SectionId = 'studio' | 'library' | 'profile'
@@ -250,7 +251,7 @@ export default function DesktopStudio() {
     closeDialog()
     if (!user) return
     try {
-      const { supabase } = await import('../lib/supabase')
+      const { supabase } = await import('@/lib/supabase')
       const colors = swatches.map(s => s.hex).filter(Boolean)
       if (colors.length === 0) { showToast('Nothing to save'); return }
       const { data: existing } = await supabase
@@ -895,7 +896,7 @@ export default function DesktopStudio() {
 
           {/* ═══ LIBRARY SECTION ═══ */}
           {section === 'library' && (
-            <LibrarySection
+            <LibraryView
               isSignedIn={isSignedIn}
               userId={user?.id}
               isPro={isPro}
@@ -907,7 +908,7 @@ export default function DesktopStudio() {
 
           {/* ═══ PROFILE SECTION ═══ */}
           {section === 'profile' && (
-            <ProfileSection
+            <ProfileView
               user={user}
               isSignedIn={isSignedIn}
               isPro={isPro}

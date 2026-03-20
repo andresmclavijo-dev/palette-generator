@@ -3,9 +3,9 @@ import { Copy, Check } from 'lucide-react'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
-import { readableOn, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
-import { BRAND_VIOLET } from '../../lib/tokens'
-import { showToast } from '../../utils/toast'
+import { readableOn, generateShades, TAILWIND_SHADE_LABELS } from '@/lib/colorEngine'
+import { BRAND_VIOLET } from '@/lib/tokens'
+import { showToast } from '@/utils/toast'
 
 function shadeContrastRatio(bg: string, fg: string): number {
   try {

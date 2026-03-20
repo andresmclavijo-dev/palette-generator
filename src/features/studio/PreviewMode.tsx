@@ -4,9 +4,9 @@ import {
   Undo2, Redo2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { readableOn } from '../../lib/colorEngine'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
-import { analytics } from '../../lib/posthog'
+import { readableOn } from '@/lib/colorEngine'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { analytics } from '@/lib/posthog'
 import { DarkTooltip } from './DarkTooltip'
 
 export function PreviewMode({

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getColorName, getColorInfo } from '../../lib/colorEngine'
-import { BRAND_DARK } from '../../lib/tokens'
+import { getColorName, getColorInfo } from '@/lib/colorEngine'
+import { BRAND_DARK } from '@/lib/tokens'
 
 function InfoRow({ label, value, copied, onClick }: { label: string; value: string; copied: boolean; onClick: () => void }) {
   return (

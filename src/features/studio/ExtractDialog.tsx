@@ -3,7 +3,7 @@ import { Image } from 'lucide-react'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
-import { BRAND_VIOLET } from '../../lib/tokens'
+import { BRAND_VIOLET } from '@/lib/tokens'
 
 export function ExtractDialog({
   open, uploading, onFile, onClose, fileInputRef,

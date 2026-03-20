@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Sparkles, Eye, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 
-export function ProfileSection({
+export function ProfileView({
   user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription,
 }: {
   user: { id: string; email?: string | null; user_metadata?: { full_name?: string; avatar_url?: string } } | null

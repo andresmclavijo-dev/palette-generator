@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 
 export function UserMenu({
   email, isPro, onSignOut, onManage,

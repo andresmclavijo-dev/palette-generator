@@ -3,7 +3,7 @@ import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
   MoreHorizontal, ExternalLink,
 } from 'lucide-react'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 
 type SectionId = 'studio' | 'library' | 'profile'

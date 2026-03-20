@@ -18,7 +18,7 @@ import { showToast } from '../utils/toast'
 import { createCheckoutSession, createPortalSession } from '../lib/stripe'
 // EmptyStateOverlay removed — mobile uses inline first-visit hint
 import ExportPanel from './palette/ExportPanel'
-import ProUpgradeModal from './ui/ProUpgradeModal'
+import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
 import SignInModal from './ui/SignInModal'
 import SaveNameModal from './ui/SaveNameModal'
 import PaymentSuccessModal from './ui/PaymentSuccessModal'

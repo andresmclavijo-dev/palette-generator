@@ -26,10 +26,14 @@ You ensure Paletta's frontend is fast, maintainable, and scalable. You own React
 
 ### Component Structure
 - **Atomic components** live in `src/components/ui/` (shadcn primitives: Button, Dialog, Input, Badge)
-- **Feature components** live in `src/components/` (ExportModal, SaveDialog, AIDialog, ShadeScale)
-- **Layout components:** DesktopStudio.tsx (desktop) and MobileShell.tsx (mobile)
+- **Feature modules** live in `src/features/` — one folder per section:
+  - `features/studio/` — DesktopStudio orchestrator + sub-components (Dock, PreviewMode, etc.)
+  - `features/library/` — LibraryView (saved palettes)
+  - `features/profile/` — ProfileView (account + subscription)
+  - `features/pro/` — ProUpgradeModal (shared across sections)
+- **Shared components** live in `src/components/` (CookieConsent, SEOContent, MobileShell, palette/*)
 - **Hooks** live in `src/hooks/` (useAuth, usePro, useIsMobile)
-- **Store** lives in `src/store.ts` (Zustand)
+- **Store** lives in `src/store/` (Zustand)
 
 ### Component Decomposition Targets
 DesktopStudio.tsx (~1,400+ lines) should decompose into:
@@ -118,3 +122,20 @@ DesktopStudio.tsx (~1,400+ lines) should decompose into:
 - Preview mockups: not lazy-loaded
 - Inline styles: many components still use style={{}} for colors/sizes
 - No TypeScript strict mode
+
+---
+
+## Section Isolation Rule
+
+Each feature owns ONE section folder. Cross-section edits require explicit approval from Andres.
+
+| Feature scope | Editable files | Off-limits |
+|---------------|---------------|------------|
+| Studio work | `features/studio/*` | `features/library/*`, `features/profile/*` |
+| Library work | `features/library/*` | `features/studio/*`, `features/profile/*` |
+| Profile work | `features/profile/*` | `features/studio/*`, `features/library/*` |
+| Pro modal | `features/pro/*` | — (shared across sections) |
+| Design system | `components/ui/*` | Feature-specific files |
+| Shared logic | `hooks/*`, `lib/*`, `store/*` | Feature-specific files |
+
+If a task requires changes in MULTIPLE feature folders, STOP and confirm with Andres before proceeding.

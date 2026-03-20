@@ -5,10 +5,10 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
-import { showToast } from '../../utils/toast'
+import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { showToast } from '@/utils/toast'
 
-export function LibrarySection({
+export function LibraryView({
   isSignedIn, userId, isPro, onLoad, onProGate, onSignIn,
 }: {
   isSignedIn: boolean
@@ -27,7 +27,7 @@ export function LibrarySection({
     setLoading(true)
     ;(async () => {
       try {
-        const { supabase } = await import('../../lib/supabase')
+        const { supabase } = await import('@/lib/supabase')
         const { data } = await supabase
           .from('saved_palettes')
           .select('id, name, colors, created_at')
@@ -42,7 +42,7 @@ export function LibrarySection({
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
-    const { supabase } = await import('../../lib/supabase')
+    const { supabase } = await import('@/lib/supabase')
     await supabase.from('saved_palettes').delete().eq('id', deleteTarget.id)
     setPalettes(p => p.filter(x => x.id !== deleteTarget.id))
     setDeleteTarget(null)
