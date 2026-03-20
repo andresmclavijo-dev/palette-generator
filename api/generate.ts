@@ -1,12 +1,55 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-// In-memory IP rate limiter (resets on cold start — good enough for abuse prevention)
-const ipRateLimit = new Map<string, { count: number; date: string }>()
+// ─── Per-minute rate limiter (abuse prevention) ───
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT = 15
+const RATE_WINDOW = 60 * 1000
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+
+  // Clean up expired entries when map gets large
+  if (rateLimitMap.size > 10000) {
+    for (const [key, val] of rateLimitMap) {
+      if (now > val.resetTime) rateLimitMap.delete(key)
+    }
+  }
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW })
+    return { allowed: true, remaining: RATE_LIMIT - 1 }
+  }
+
+  if (entry.count >= RATE_LIMIT) {
+    return { allowed: false, remaining: 0 }
+  }
+
+  entry.count++
+  return { allowed: true, remaining: RATE_LIMIT - entry.count }
+}
+
+// ─── Daily free-tier limiter ───
+const ipDailyLimit = new Map<string, { count: number; date: string }>()
 const FREE_DAILY_LIMIT = 3
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // Resolve client IP
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+    || req.socket?.remoteAddress
+    || 'unknown'
+
+  // Per-minute rate limiting (all users)
+  const { allowed, remaining } = checkRateLimit(ip)
+  res.setHeader('X-RateLimit-Limit', RATE_LIMIT.toString())
+  res.setHeader('X-RateLimit-Remaining', remaining.toString())
+
+  if (!allowed) {
+    return res.status(429).json({ error: 'Slow down — too many requests. Try again in a minute.' })
   }
 
   const { prompt, colorCount, isPro } = req.body ?? {}
@@ -19,20 +62,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Prompt too long (max 500 characters)' })
   }
 
-  // IP rate limiting for non-Pro users
-  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-    || (req.headers['x-real-ip'] as string)
-    || 'unknown'
-
+  // Daily free-tier limiting (non-Pro only)
   const today = new Date().toISOString().split('T')[0]
 
   if (!isPro) {
-    const record = ipRateLimit.get(ip)
+    const record = ipDailyLimit.get(ip)
     const currentCount = record?.date === today ? record.count : 0
     if (currentCount >= FREE_DAILY_LIMIT) {
       return res.status(429).json({ error: 'Daily AI limit reached. Upgrade to Pro for unlimited.' })
     }
-    ipRateLimit.set(ip, { count: currentCount + 1, date: today })
+    ipDailyLimit.set(ip, { count: currentCount + 1, date: today })
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
