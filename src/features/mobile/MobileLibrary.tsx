@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link2, Trash2 } from 'lucide-react'
+import { Link2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePaletteStore } from '@/store/paletteStore'
 import { makeSwatch } from '@/lib/colorEngine'
@@ -156,7 +156,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
                     className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
                     aria-label={`Copy share link for ${palette.name}`}
                   >
-                    <Link2 size={16} className="text-muted-foreground" strokeWidth={1.5} />
+                    <Link2 size={14} className="text-muted-foreground" strokeWidth={2} />
                   </button>
                   {deletingId === palette.id ? (
                     <>
@@ -181,7 +181,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
                       className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
                       aria-label={`Delete ${palette.name}`}
                     >
-                      <Trash2 size={16} className="text-muted-foreground" strokeWidth={1.5} />
+                      <X size={14} className="text-muted-foreground" strokeWidth={2} />
                     </button>
                   )}
                 </div>
