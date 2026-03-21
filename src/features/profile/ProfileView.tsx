@@ -94,8 +94,8 @@ export function ProfileView({
                 <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1 bg-primary rounded-badge">PRO</span>
               )}
             </div>
-            {user?.email && <span className="text-[13px] block truncate mt-0.5 text-muted">{user.email}</span>}
-            {!isPro && <span className="text-[12px] block mt-0.5 text-border">Free plan</span>}
+            {user?.email && <span className="text-[13px] block truncate mt-0.5 text-muted-foreground">{user.email}</span>}
+            {!isPro && <span className="text-[12px] block mt-0.5 text-muted-foreground">Free plan</span>}
           </div>
         </div>
 
@@ -121,7 +121,7 @@ export function ProfileView({
           >
             <span className="text-[15px] font-semibold text-foreground">Account</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
-              className="text-muted"
+              className="text-muted-foreground"
               style={{ transform: accountOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -142,7 +142,7 @@ export function ProfileView({
         <div className="overflow-hidden rounded-pill border border-border-light">
           <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-surface transition-colors" style={{ minHeight: 52 }}>
             <span className="text-[15px] font-semibold text-foreground">Support</span>
-            <span className="text-[12px] text-muted">hello@usepaletta.io</span>
+            <span className="text-[12px] text-muted-foreground">hello@usepaletta.io</span>
           </a>
         </div>
       </div>

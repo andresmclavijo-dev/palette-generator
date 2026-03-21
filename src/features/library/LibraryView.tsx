@@ -104,7 +104,7 @@ export function LibraryView({
   if (loading) {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[13px]" style={{ color: 'hsl(var(--muted))' }}>Loading...</span>
+        <span className="text-[13px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Loading...</span>
       </div>
     )
   }
@@ -116,7 +116,7 @@ export function LibraryView({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Library</h2>
-            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted))' }}>Your saved palettes</p>
+            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Your saved palettes</p>
           </div>
           <span className="text-[12px]" style={{ color: 'hsl(var(--muted))' }}>{slotsText}</span>
         </div>

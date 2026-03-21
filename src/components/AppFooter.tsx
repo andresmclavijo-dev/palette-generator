@@ -12,28 +12,28 @@ export default function AppFooter() {
       <nav className="flex items-center gap-3" aria-label="Legal">
         <Link
           to="/privacy-policy"
-          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted-foreground"
         >
           Privacy Policy
         </Link>
         <span className="text-[10px] text-border" aria-hidden="true">&middot;</span>
         <Link
           to="/cookie-policy"
-          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted-foreground"
         >
           Cookie Policy
         </Link>
         <span className="text-[10px] text-border" aria-hidden="true">&middot;</span>
         <Link
           to="/terms-of-service"
-          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted-foreground"
         >
           Terms of Service
         </Link>
         <span className="text-[10px] text-border" aria-hidden="true">&middot;</span>
         <a
           href="mailto:hello@usepaletta.io"
-          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted"
+          className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted-foreground"
         >
           Contact
         </a>
@@ -44,7 +44,7 @@ export default function AppFooter() {
         href="https://andresclavijo.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted"
+        className="text-[10px] font-normal no-underline transition-colors hover:underline text-muted-foreground"
       >
         Made by Andres Clavijo
       </a>

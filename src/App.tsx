@@ -197,9 +197,16 @@ export default function App() {
     } catch { /* silent */ }
   }
 
-  const handleSave = () => {
-    if (!isPro) { openProModal('save_limit', 'toolbar'); return }
+  const handleSave = async () => {
     if (!user) { setSignInOpen(true); return }
+    if (!isPro) {
+      const { supabase } = await import('./lib/supabase')
+      const { count: savedCount } = await supabase
+        .from('saved_palettes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      if ((savedCount ?? 0) >= 3) { openProModal('save_limit', 'toolbar'); return }
+    }
     setSaveNameOpen(true)
   }
 
