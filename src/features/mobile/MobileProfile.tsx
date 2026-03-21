@@ -104,7 +104,7 @@ export function MobileProfile() {
           >
             Contact
           </a>
-          <p className="text-[11px] text-muted mt-3">
+          <p className="text-[11px] text-muted-foreground mt-3">
             Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
           </p>
         </div>
@@ -233,7 +233,7 @@ export function MobileProfile() {
         >
           Contact
         </a>
-        <p className="text-[11px] text-muted mt-3">
+        <p className="text-[11px] text-muted-foreground mt-3">
           Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
         </p>
       </div>

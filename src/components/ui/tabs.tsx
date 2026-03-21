@@ -30,7 +30,7 @@ const TabsTrigger = React.forwardRef<
       "inline-flex items-center justify-center rounded-button px-4 h-[var(--button-md)] text-sm font-medium transition-colors",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       "data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      "data-[state=inactive]:text-muted",
+      "data-[state=inactive]:text-muted-foreground",
       "disabled:pointer-events-none disabled:opacity-50",
       className
     )}

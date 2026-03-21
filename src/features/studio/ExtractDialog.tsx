@@ -52,14 +52,14 @@ export function ExtractDialog({
               <p className="text-sm font-medium m-0" style={{ color: 'hsl(var(--foreground))' }}>
                 Drop image here
               </p>
-              <p className="text-xs m-0" style={{ color: 'hsl(var(--muted))' }}>
+              <p className="text-xs m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 or click to browse · PNG, JPG, WebP
               </p>
             </>
           )}
         </div>
 
-        <p className="text-xs mt-3 m-0" style={{ color: 'hsl(var(--muted))' }}>
+        <p className="text-xs mt-3 m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Colors are extracted using k-means clustering
         </p>
       </DialogContent>

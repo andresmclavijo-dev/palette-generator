@@ -125,7 +125,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                 <button
                   onClick={() => { setPlan('monthly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'monthly' }) }}
                   className={`px-4 h-9 rounded-button text-sm font-medium transition-colors ${
-                    isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted'
+                    isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   Monthly
@@ -133,7 +133,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                 <button
                   onClick={() => { setPlan('yearly'); analytics.track('pro_modal_plan_toggle', { selected_plan: 'yearly' }) }}
                   className={`px-4 h-9 rounded-button text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                    !isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted'
+                    !isMonthly ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   Yearly
@@ -166,10 +166,10 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
 
             {/* Footer */}
             <div className="flex items-center justify-between mt-3">
-              <span className="text-[11px] text-muted">Launch pricing · Powered by Stripe</span>
+              <span className="text-[11px] text-muted-foreground">Launch pricing · Powered by Stripe</span>
               <button
                 onClick={handleDismiss}
-                className="text-[11px] text-muted hover:text-muted-foreground transition-colors"
+                className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
               >
                 Maybe later
               </button>
@@ -192,7 +192,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
                 </div>
-                <div className="text-[10px] text-muted">Your palette · {colors.length} colors</div>
+                <div className="text-[10px] text-muted-foreground">Your palette · {colors.length} colors</div>
               </div>
 
               {/* Card 2: Shade scale */}
@@ -205,7 +205,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
                 </div>
-                <div className="text-[10px] text-muted">Shade scale · 50–900</div>
+                <div className="text-[10px] text-muted-foreground">Shade scale · 50–900</div>
               </div>
 
               {/* Card 3: AI prompt */}

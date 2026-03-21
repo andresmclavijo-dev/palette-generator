@@ -434,7 +434,7 @@ export default function DesktopStudio() {
                         aria-label="Harmony mode"
                       >
                         Harmony: {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-                        <ChevronDown size={14} className="text-muted" />
+                        <ChevronDown size={14} className="text-muted-foreground" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-[220px]">
@@ -453,7 +453,7 @@ export default function DesktopStudio() {
                             </span>
                             {harmonyMode === h.mode && <Check size={14} className="text-primary" />}
                           </div>
-                          <span className="text-[11px] text-muted">{h.desc}</span>
+                          <span className="text-[11px] text-muted-foreground">{h.desc}</span>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -674,7 +674,7 @@ export default function DesktopStudio() {
                           fontWeight: isActive ? 600 : 400,
                           backgroundColor: isActive ? 'hsl(var(--card))' : 'transparent',
                           boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
-                          color: needsPro ? 'hsl(var(--muted))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                          color: needsPro ? 'hsl(var(--muted-foreground))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                           opacity: needsPro ? 0.6 : 1,
                         }}
                         role="radio"

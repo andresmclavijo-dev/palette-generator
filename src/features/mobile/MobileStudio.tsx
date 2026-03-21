@@ -179,7 +179,7 @@ export function MobileStudio(_props: MobileStudioProps) {
           aria-label={`Harmony: ${harmonyMode}. Tap to change.`}
         >
           Harmony: {HARMONY_OPTIONS.find(h => h.mode === harmonyMode)?.label}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="ml-0.5 text-muted" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="ml-0.5 text-muted-foreground" aria-hidden="true">
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
@@ -209,7 +209,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             key={mode}
             onClick={() => setViewMode(mode)}
             className={`flex-1 py-1.5 text-[13px] font-medium rounded-button transition-all ${
-              viewMode === mode ? 'bg-card shadow-sm text-foreground' : 'text-muted'
+              viewMode === mode ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
             }`}
           >
             {mode === 'colors' ? 'Colors' : 'Preview'}
@@ -588,7 +588,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                   aria-label={isPro ? "View shade scale" : "Shade scale (Pro feature)"}
                 >
                   <Grid3X3 size={16} className={isPro ? "text-muted-foreground" : "text-muted/50"} />
-                  <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted/60")}>Shades</span>
+                  <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted-foreground/60")}>Shades</span>
                   {!isPro && <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>}
                 </button>
                 <button

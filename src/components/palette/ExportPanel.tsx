@@ -141,7 +141,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                 fontWeight: format === f.id ? 600 : 500,
                 backgroundColor: format === f.id ? 'hsl(var(--card))' : 'transparent',
                 boxShadow: format === f.id ? '0 1px 3px rgba(0,0,0,0.1)' : undefined,
-                color: f.pro && !isPro ? 'hsl(var(--muted))' : format === f.id ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                color: f.pro && !isPro ? 'hsl(var(--muted-foreground))' : format === f.id ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 border: 'none',
                 cursor: 'pointer',
               }}
@@ -203,7 +203,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
         {/* Naming toggle — only for CSS/Tailwind */}
         {format !== 'svg' && (
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[11px] font-medium" style={{ color: 'hsl(var(--muted))' }}>Variable names:</span>
+            <span className="text-[11px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>Variable names:</span>
             <div className="flex" style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 6, padding: 2, gap: 2 }}>
               {(['default', 'smart'] as NamingMode[]).map(mode => (
                 <button
@@ -217,7 +217,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                     fontWeight: naming === mode ? 600 : 500,
                     backgroundColor: naming === mode ? 'hsl(var(--card))' : 'transparent',
                     boxShadow: naming === mode ? '0 1px 2px rgba(0,0,0,0.08)' : undefined,
-                    color: naming === mode ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
+                    color: naming === mode ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                     border: 'none',
                     cursor: 'pointer',
                     textTransform: 'capitalize',

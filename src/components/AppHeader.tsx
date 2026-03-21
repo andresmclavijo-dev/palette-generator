@@ -189,7 +189,7 @@ export default function AppHeader({
               {avatarOpen && (
                 <div className="absolute right-0 top-11 w-48 bg-card rounded-xl shadow-lg border border-border-light py-1.5 z-50">
                   <div className="px-4 py-1.5">
-                    <span className="text-[11px] text-muted break-all">{userEmail}</span>
+                    <span className="text-[11px] text-muted-foreground break-all">{userEmail}</span>
                   </div>
                   <div className="mx-2 my-1 h-px bg-border-light" />
                   {isPro && onManageSubscription && (

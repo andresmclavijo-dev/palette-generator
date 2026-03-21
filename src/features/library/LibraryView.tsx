@@ -118,14 +118,14 @@ export function LibraryView({
             <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Library</h2>
             <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Your saved palettes</p>
           </div>
-          <span className="text-[12px]" style={{ color: 'hsl(var(--muted))' }}>{slotsText}</span>
+          <span className="text-[12px]" style={{ color: 'hsl(var(--muted-foreground))' }}>{slotsText}</span>
         </div>
 
         {palettes.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Heart size={32} style={{ color: 'hsl(var(--border))' }} />
             <p className="text-[15px] font-medium mt-4" style={{ color: 'hsl(var(--muted-foreground))' }}>No saved palettes yet</p>
-            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted))' }}>Use the heart icon in Studio to save palettes here</p>
+            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Use the heart icon in Studio to save palettes here</p>
           </div>
         ) : (
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>

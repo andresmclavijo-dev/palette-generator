@@ -242,7 +242,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
           </div>
 
           {/* Usage counter */}
-          <p className="text-xs m-0" style={{ color: 'hsl(var(--muted))' }}>
+          <p className="text-xs m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>
             {isPro ? '✦ Unlimited prompts' : exhausted ? 'No AI generations left today' : `${remaining}/day free · Unlimited with Pro`}
           </p>
         </div>
