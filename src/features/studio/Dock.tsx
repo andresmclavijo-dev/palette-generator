@@ -183,7 +183,7 @@ function DockItem({
             fontWeight: 500,
           }),
         }}
-        onMouseOver={(e) => { if (primary) e.currentTarget.style.backgroundColor = '#7C5AFF' }}
+        onMouseOver={(e) => { if (primary) e.currentTarget.style.backgroundColor = 'hsl(var(--brand-violet-hover))' }}
         onMouseOut={(e) => { if (primary) e.currentTarget.style.backgroundColor = BRAND_VIOLET }}
         aria-label={label}
       >
@@ -207,7 +207,7 @@ function DockItem({
             </span>
           )}
           {isCollapsed && proBadge && (
-            <Badge variant="pro" className="absolute -top-1 -right-1 text-[7px] px-1 py-0 pointer-events-none border border-white">PRO</Badge>
+            <Badge variant="pro" className="absolute -top-1 -right-1 text-[10px] px-1 py-0 pointer-events-none border border-white">PRO</Badge>
           )}
         </span>
         {expanded && (
@@ -215,7 +215,7 @@ function DockItem({
             <span className="text-[14px] whitespace-nowrap">{label}</span>
             {badge && (
               <span
-                className="text-[8px] font-bold text-white flex items-center justify-center"
+                className="text-[10px] font-bold text-white flex items-center justify-center"
                 style={{ marginLeft: 'auto', minWidth: 18, height: 18, borderRadius: 4, backgroundColor: BRAND_VIOLET, padding: '0 5px' }}
               >
                 {badge}
@@ -313,7 +313,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
               role="menuitem"
             >
               {l.label}
-              <ExternalLink size={10} className="opacity-40 ml-auto" />
+              <ExternalLink size={14} className="opacity-40 ml-auto" />
             </a>
           ))}
 

@@ -108,8 +108,29 @@ export function MobileStudio(_props: MobileStudioProps) {
     return names.slice(0, 3).join(' · ') || 'Untitled'
   }, [swatches])
 
+  const [savedCount, setSavedCount] = useState<number | null>(null)
+
+  // Fetch saved palette count for free-tier gate
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase')
+        const { count } = await supabase
+          .from('saved_palettes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+        setSavedCount(count ?? 0)
+      } catch { /* silent */ }
+    })()
+  }, [user])
+
   const handleSave = () => {
     if (!user) { setActiveSheet('sign-in'); return }
+    if (!isPro && (savedCount ?? 0) >= 3) {
+      openProModal('save_limit', 'mobile_studio')
+      return
+    }
     setSaveNameOpen(true)
   }
 
@@ -186,7 +207,7 @@ export function MobileStudio(_props: MobileStudioProps) {
 
         <button
           onClick={handleToggleValidate}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-button text-[13px] font-medium transition-all ${
             validateOn
               ? 'bg-primary text-primary-foreground'
               : 'border border-border text-muted-foreground'
@@ -310,7 +331,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* AI */}
               <button
                 onClick={() => setActiveSheet('ai')}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="AI palette"
               >
                 <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -327,7 +348,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                   if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
                   setActiveSheet('extract')
                 }}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Extract palette from image"
               >
                 <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -341,7 +362,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Save */}
               <button
                 onClick={handleSave}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Save palette"
               >
                 <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -350,7 +371,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Share */}
               <button
                 onClick={handleShare}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Share palette link"
               >
                 <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -359,7 +380,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Export */}
               <button
                 onClick={() => setActiveSheet('export')}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Export palette"
               >
                 <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -565,7 +586,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleCopyHex(hex)}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
                   aria-label={`Copy ${hex}`}
                 >
                   {copiedHex === hex ? <Check size={16} className="text-success" /> : <Copy size={16} className="text-muted-foreground" />}
@@ -582,7 +603,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                     }
                   }}
                   className={cn(
-                    "flex items-center gap-2.5 px-3 py-3 rounded-xl transition-all active:scale-[0.98]",
+                    "flex items-center gap-2.5 px-3 py-3 rounded-button transition-all active:scale-[0.98]",
                     isPro ? "bg-surface" : "bg-surface/50"
                   )}
                   aria-label={isPro ? "View shade scale" : "Shade scale (Pro feature)"}
@@ -593,7 +614,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </button>
                 <button
                   onClick={() => lockSwatch(activeSwatch.id)}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
                   aria-label={activeSwatch.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {activeSwatch.locked ? <Lock size={16} className="text-primary" /> : <Unlock size={16} className="text-muted-foreground" />}
@@ -604,7 +625,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                     const info = getColorInfo(hex)
                     showToast(`RGB: ${info.rgb} · HSL: ${info.hsl}`)
                   }}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
                   aria-label="Color info"
                 >
                   <Info size={16} className="text-muted-foreground" />

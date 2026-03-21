@@ -143,7 +143,7 @@ export default function ToolsSheet({
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Extract palette from any photo</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
@@ -168,7 +168,7 @@ export default function ToolsSheet({
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">Check color blindness accessibility</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               style={{ transform: visionExpanded ? 'rotate(90deg)' : undefined, transition: 'transform 150ms' }}
             >
               <polyline points="9 18 15 12 9 6"/>
@@ -218,7 +218,7 @@ export default function ToolsSheet({
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">See palette in realistic UI mockups</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
@@ -237,7 +237,7 @@ export default function ToolsSheet({
               </div>
               <p className="text-[12px] text-gray-500 mt-0.5">3 free prompts per day</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>

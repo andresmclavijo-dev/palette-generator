@@ -130,15 +130,14 @@ export function LibraryView({
         ) : (
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {palettes.map(p => (
-              <div
+              <button
                 key={p.id}
-                className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
-                style={{ borderRadius: 16, border: '1px solid rgba(0,0,0,0.06)' }}
+                className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md text-left w-full rounded-card"
+                style={{ border: '1px solid rgba(0,0,0,0.06)' }}
                 onClick={() => onLoad(p.colors, p.name)}
-                role="button"
                 aria-label={`Load palette: ${p.name || 'Untitled'}`}
               >
-                <div className="flex h-14 overflow-hidden" style={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+                <div className="flex h-14 overflow-hidden rounded-t-card">
                   {p.colors.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
@@ -165,7 +164,7 @@ export function LibraryView({
                     </button>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -176,7 +175,7 @@ export function LibraryView({
             size="lg"
             onClick={() => onProGate('save_limit', 'library')}
             className="w-full mt-4 text-[13px] font-semibold"
-            style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
+            style={{ background: `linear-gradient(135deg, ${BRAND_VIOLET}, hsl(var(--brand-violet-hover)))` }}
           >
             Go Pro for unlimited saves
           </Button>

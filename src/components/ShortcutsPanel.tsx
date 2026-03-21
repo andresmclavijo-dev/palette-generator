@@ -84,7 +84,7 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
         ))}
       </div>
 
-      <p className="text-xs mt-3" style={{ color: 'hsl(var(--muted))' }}>
+      <p className="text-xs mt-3" style={{ color: 'hsl(var(--muted-foreground))' }}>
         Click a swatch to lock &middot; Click hex to copy &middot; Double-click hex to edit &middot; Drag to reorder
       </p>
     </div>

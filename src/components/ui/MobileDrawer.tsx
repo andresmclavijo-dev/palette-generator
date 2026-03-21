@@ -219,7 +219,7 @@ export default function MobileDrawer({
                 <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
               )}
             </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               style={{ transform: visionExpanded ? 'rotate(90deg)' : undefined, transition: 'transform 150ms' }}
             >
               <polyline points="9 18 15 12 9 6"/>

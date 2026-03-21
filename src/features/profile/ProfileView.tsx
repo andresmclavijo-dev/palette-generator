@@ -52,7 +52,7 @@ export function ProfileView({
           ].map((f, i) => {
             const Icon = f.icon
             return (
-              <div key={f.title} className={`flex items-center justify-between px-4 ${i > 0 ? 'border-t border-border-light' : ''}`} style={{ minHeight: 52 }}>
+              <div key={f.title} className={`flex items-center justify-between px-4 ${i > 0 ? 'border-t border-border-light' : ''}`} style={{ minHeight: 48 }}>
                 <div className="flex items-center gap-3">
                   <Icon size={20} className="text-primary" />
                   <span className="text-[14px] font-semibold text-foreground">{f.title}</span>
@@ -118,7 +118,7 @@ export function ProfileView({
           <button
             onClick={() => setAccountOpen(o => !o)}
             className="w-full flex items-center justify-between px-4 hover:bg-surface transition-colors"
-            style={{ minHeight: 52 }}
+            style={{ minHeight: 48 }}
             aria-label="Account"
             aria-expanded={accountOpen}
           >
@@ -131,11 +131,11 @@ export function ProfileView({
           </button>
           <div className="border-t border-border-light overflow-hidden transition-all duration-200" style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}>
             {isPro && (
-              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-foreground" style={{ minHeight: 52 }} aria-label="Manage subscription">
+              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-foreground" style={{ minHeight: 48 }} aria-label="Manage subscription">
                 Manage subscription
               </button>
             )}
-            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-destructive" style={{ minHeight: 52 }} aria-label="Sign out">
+            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-destructive" style={{ minHeight: 48 }} aria-label="Sign out">
               Sign out
             </button>
           </div>
@@ -143,7 +143,7 @@ export function ProfileView({
 
         {/* Support */}
         <div className="overflow-hidden rounded-pill border border-border-light">
-          <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-surface transition-colors" style={{ minHeight: 52 }}>
+          <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-surface transition-colors" style={{ minHeight: 48 }}>
             <span className="text-[15px] font-semibold text-foreground">Support</span>
             <span className="text-[12px] text-muted-foreground">hello@usepaletta.io</span>
           </a>

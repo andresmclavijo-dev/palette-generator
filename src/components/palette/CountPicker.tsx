@@ -49,7 +49,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
                 }
               `}
               style={{
-                color: active ? 'hsl(var(--surface-warm))' : locked ? 'hsl(var(--muted))' : 'hsl(var(--foreground))',
+                color: active ? 'hsl(var(--surface-warm))' : locked ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))',
               }}
               aria-label={locked ? `${n} colors — Pro` : `${n} colors`}
             >

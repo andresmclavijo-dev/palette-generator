@@ -15,7 +15,7 @@ const MODES: { value: VisionMode; label: string; desc: string; free: boolean }[]
   { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness',   free: false },
 ]
 
-const PRIMARY = '#6C47FF'
+import { BRAND_VIOLET } from '../../lib/tokens'
 
 interface VisionSimulatorProps {
   mode: VisionMode
@@ -84,7 +84,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           className={`flex items-center gap-1.5 h-10 px-4 rounded-full text-[14px] font-medium transition-all duration-150 ${
             mode !== 'normal'
               ? 'bg-blue-50 text-blue-600'
-              : 'hover:bg-surface-secondary text-[#444444]'
+              : 'hover:bg-surface-secondary text-muted-foreground'
           }`}
           aria-label="Accessibility vision simulation"
           aria-haspopup="listbox"
@@ -111,11 +111,11 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           ref={dropRef}
           role="listbox"
           aria-label="Vision simulation modes"
-          className="bg-white overflow-hidden"
+          className="bg-card overflow-hidden"
           style={{
             position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999,
             width: 300, borderRadius: 12,
-            border: '1px solid #E5E7EB',
+            border: '1px solid hsl(var(--border-light))',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
@@ -132,15 +132,15 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
                 style={{
                   padding: '12px 16px',
                   background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
-                  borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F9FAFB' }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
               >
                 <div className="flex items-center justify-between">
                   <span
                     className="text-[14px] font-bold"
-                    style={{ color: isActive ? PRIMARY : '#1a1a2e' }}
+                    style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
                   >
                     {m.label}
                   </span>
@@ -149,13 +149,13 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
                       <Badge variant="pro">PRO</Badge>
                     )}
                     {isActive && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
                   </div>
                 </div>
-                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: '#6B7280' }}>{m.desc}</p>
+                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{m.desc}</p>
               </button>
             )
           })}

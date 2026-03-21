@@ -147,7 +147,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                 cursor: 'pointer',
               }}
             >
-              {f.pro && !isPro && <Lock size={12} strokeWidth={2} />}
+              {f.pro && !isPro && <Lock size={14} strokeWidth={2} />}
               {f.label}
               {f.pro && !isPro && (
                 <Badge variant="pro" className="ml-0.5">PRO</Badge>
