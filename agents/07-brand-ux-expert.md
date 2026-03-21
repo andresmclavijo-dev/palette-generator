@@ -85,6 +85,11 @@
 - **Structure:** `[What happened]` + `[What to do]`
 - **Never expose:** Stack traces, error codes, technical jargon
 - **Never blame the user:** "Something went wrong" not "You entered an invalid value"
+- **Examples:**
+  - ✅ "Couldn't load your palettes. Pull down to refresh."
+  - ✅ "AI is taking longer than usual. Try again in a moment."
+  - ❌ "Error: 429 Too Many Requests"
+  - ❌ "Failed to fetch from /api/generate"
 
 ### Pro Gate Copy
 - **Lead with what they GET, not what's blocked**
@@ -92,11 +97,16 @@
   - ❌ "You've reached the free limit"
 - **Pattern:** `[Verb] + [specific feature] + "with Pro"`
 - **CTA:** "Go Pro" (short), "Upgrade to Pro" (full), never "Buy", "Purchase", or "Subscribe"
+- **Pricing mention:** Only in the Pro modal, never on gate messages
 
-### Aria Labels
+### Aria Labels & Accessibility Text
 - **Every interactive element needs an aria-label**
 - **Pattern:** `[Action]: [Object]` or `[Object] ([state])`
-- **Dynamic states:** Include state in label (`aria-label="Locked"` / `aria-label="Unlocked"`)
+  - ✅ `aria-label="Copy hex code"` · `aria-label="Lock color"` · `aria-label="Generate new palette"`
+  - ❌ `aria-label="button"` · `aria-label="click"` · `aria-label="icon"`
+- **Dynamic states:** Include state in label
+  - ✅ `aria-label="Locked"` / `aria-label="Unlocked"`
+  - ✅ `aria-label="3 of 5 free AI prompts remaining"`
 
 ---
 
@@ -104,18 +114,18 @@
 
 Run this after every new screen, layout change, or deploy:
 
-| # | Check |
-|---|-------|
-| 1 | Wordmark visible on primary screen (Studio) |
-| 2 | Favicon correct in browser tab |
-| 3 | Page title follows: `Paletta — [Page Name]` |
-| 4 | OG image present and branded |
-| 5 | Brand violet used for primary CTAs only |
-| 6 | No orphan screens — every dead-end has a CTA back |
-| 7 | Legal links accessible on both mobile and desktop |
-| 8 | Empty states mention brand personality |
-| 9 | Toast consistency — max 3 words, past tense verb |
-| 10 | Pro badges consistent — same size, color, position |
+| # | Check | Where |
+|---|-------|-------|
+| 1 | **Wordmark visible** on primary screen | Studio header (mobile), dock/header (desktop) |
+| 2 | **Favicon correct** in browser tab | All pages |
+| 3 | **Page title** follows pattern: `Paletta — [Page Name]` | `<title>` tag or react-helmet |
+| 4 | **OG image** present and branded | `<meta property="og:image">` |
+| 5 | **Brand violet** used for primary CTAs only | All interactive elements |
+| 6 | **No orphan screens** — every dead-end has a CTA back | 404, empty states, error states |
+| 7 | **Legal links accessible** on both mobile and desktop | Footer (desktop), Profile tab (mobile) |
+| 8 | **Empty states mention brand personality** | Library, first visit, search no results |
+| 9 | **Toast consistency** — max 3 words, past tense verb | All user actions |
+| 10 | **Pro badges consistent** — same size, color, position | All gated features |
 
 ---
 
@@ -130,7 +140,7 @@ Run this after every new screen, layout change, or deploy:
 ### Product Hunt (M28)
 - **Tagline (60 chars max):** "AI color palettes with accessibility built in"
 - **Description tone:** Direct, feature-focused, no hype
-- **Gallery:** 5 images — desktop + mobile + accessibility lens + export + AI prompt
+- **Gallery:** 5 images showing desktop + mobile + accessibility lens + export + AI prompt
 - **Maker comment tone:** Authentic, personal — Andres as solo designer-builder
 
 ### App Store (Future)
@@ -139,50 +149,77 @@ Run this after every new screen, layout change, or deploy:
 - **Keywords:** color palette, accessibility, WCAG, tailwind, design tokens, AI
 
 ### Social / Marketing
+- **Handle:** @usepaletta (if available) or @palettaapp
+- **Bio pattern:** "[Tagline]. Built by @andresmclavijo"
 - **Screenshot style:** Device frames (iPhone 15, MacBook) on warm neutral (#EEEEEC) background
 - **Never use:** Stock photos, generic color wheels, "AI" in a gimmicky way
 
 ---
 
-## 5. Naming Conventions (Features & UI)
+## 5. Content Hierarchy for Key Screens
+
+### Pro Upgrade Modal
+1. **Headline:** What Pro unlocks (aspiration)
+2. **Feature list:** Specific benefits, not abstractions
+3. **Pricing:** Clear, no hidden terms
+4. **CTA:** "Go Pro" (primary) · "Maybe later" (ghost/text)
+5. **Trust:** "Cancel anytime" small text below CTA
+
+### Onboarding / First Visit
+1. **Hero:** One sentence that says what Paletta does
+2. **Action:** Generate button is obvious and prominent
+3. **Discovery:** Subtle hints about features (keyboard shortcuts, AI)
+4. **No walls:** Never block the first generate with sign-up
+
+### Empty States
+1. **Illustration:** Icon in tinted container (brand color at 10% opacity)
+2. **Headline:** Inviting, references the action they'll take
+3. **Subtext:** One sentence explaining the value
+4. **CTA:** Full-width button to get started
+
+---
+
+## 6. Naming Conventions (Features & UI)
 
 | Internal name | User-facing name | Never call it |
 |---------------|-----------------|---------------|
 | Shade scale | Shades | Shade generator, tint/shade |
-| Vision simulation | Accessibility lens | Color blindness filter |
+| Vision simulation | Accessibility lens / Vision check | Color blindness filter |
 | AI prompt | AI palette | AI generator, chatbot |
 | Export panel | Export | Download, save as |
 | Harmony mode | Color harmony | Color scheme, palette type |
-| Pro upgrade modal | (headline-driven) | Paywall, upsell |
+| Color detail sheet | (no title needed, context-obvious) | Color info modal |
+| Pro upgrade modal | (headline-driven, varies) | Paywall, upsell |
 
 ---
 
-## 6. Content Hierarchy for Key Screens
+## 7. Auto-Trigger Situations
 
-### Pro Upgrade Modal
-1. Headline: What Pro unlocks (aspiration)
-2. Feature list: Specific benefits, not abstractions
-3. Pricing: Clear, no hidden terms
-4. CTA: "Go Pro" (primary) · "Maybe later" (ghost)
-5. Trust: "Cancel anytime" small text below CTA
-
-### Empty States
-1. Icon in tinted container (brand color at 10% opacity)
-2. Headline: Inviting, references the action
-3. Subtext: One sentence explaining value
-4. CTA: Full-width button to get started
+This agent activates when Claude Code touches any of:
+- Button labels, toast messages, error messages
+- Empty state copy or illustrations
+- Modal titles, descriptions, CTAs
+- Aria-labels and screen reader text
+- Page titles, meta descriptions, OG tags
+- Pro gate messaging
+- Any new screen or major layout change
+- Marketing copy, Product Hunt content, App Store text
+- Brand asset decisions (logo, favicon, colors)
+- Naming a new feature or renaming an existing one
 
 ---
 
-## 7. Anti-Patterns (catch and fix)
+## 8. Anti-Patterns (things to catch and fix)
 
-- ❌ "paleta" (one t) or "Palletta" (double l) anywhere
-- ❌ Generic empty states ("No items found")
-- ❌ Technical language in user messages ("Error: 500")
-- ❌ Brand violet on non-interactive elements
-- ❌ Missing aria-labels
-- ❌ Button labels: "Submit", "OK", "Continue"
+- ❌ Generic empty state with no brand personality ("No items found")
+- ❌ Technical language in user-facing messages ("Error: 500")
+- ❌ Inconsistent Pro badge styling across screens
+- ❌ Missing aria-labels on interactive elements
+- ❌ Brand violet used for non-interactive decoration
+- ❌ "paleta" (one t) or "Palletta" (double l) anywhere in codebase
+- ❌ Button labels using "Submit", "OK", or "Continue"
 - ❌ Toast messages longer than 3 words
-- ❌ Empty screen with no recovery CTA
-- ❌ Default Vite/React favicon
+- ❌ Empty screen with no CTA to recover from
+- ❌ Legal pages inaccessible on any platform (mobile/desktop)
 - ❌ Missing wordmark on primary screens
+- ❌ Favicon showing default Vite/React icon
