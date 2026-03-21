@@ -39,15 +39,19 @@ export function Dock({
           padding: expanded ? '14px 12px' : '12px 8px',
         }}
       >
-        {/* Dock logo */}
-        <div
-          className="flex items-center shrink-0"
+        {/* Dock logo — navigates to Studio */}
+        <button
+          onClick={() => onSectionChange('studio')}
+          className="flex items-center shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-pill"
           style={{
             justifyContent: expanded ? 'flex-start' : 'center',
             padding: expanded ? '2px 6px 0' : '2px 0 0',
             marginBottom: expanded ? 14 : 10,
             gap: 10,
+            background: 'none',
+            border: 'none',
           }}
+          aria-label="Go to Studio"
         >
           <img
             src="/logo.svg"
@@ -66,7 +70,7 @@ export function Dock({
           {expanded && (
             <span className="text-[15px] font-medium font-brand text-foreground">Paletta</span>
           )}
-        </div>
+        </button>
 
         {/* Section navigation */}
         <div className="flex flex-col" style={{ gap: expanded ? 4 : 6 }}>
@@ -270,7 +274,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
   if (expanded) {
     return (
-      <div className="flex flex-col gap-1" style={{ marginBottom: 8 }}>
+      <div className="mt-4 pt-4 border-t border-border flex flex-col gap-1" style={{ marginBottom: 8 }}>
         {links.map(l => (
           <a
             key={l.href}
