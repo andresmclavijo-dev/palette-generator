@@ -111,15 +111,17 @@ Key rules (quick reference):
 - useMemo on expensive calculations (contrast ratios)
 - Conditional rendering (not display:none) for inactive views
 
-## UX Writer (auto-loaded for copy changes)
+## Brand & UX Expert (auto-loaded for copy and brand changes)
 
-Read `agents/07-ux-writer.md` before writing any user-facing text. This includes button labels, toast messages, error messages, empty states, tooltips, aria-labels, and Pro conversion copy.
+Read `agents/07-brand-ux-expert.md` before writing any user-facing text or making brand-related decisions. This includes button labels, toast messages, error messages, empty states, tooltips, aria-labels, Pro conversion copy, brand naming, and visual identity standards.
 
 Key rules:
 - Strong verbs only (Save, Generate, Export — never Submit, OK, Continue)
 - Toasts: max 3 words + icon
 - Errors: [what happened] + [what to do], never technical
 - Pro gates: lead with what they GET, not what's missing
+- Brand name: "Paletta" (capital P, double t) — "paletta" lowercase in wordmarks only
+- CTA copy: "Go Pro" or "Upgrade to Pro" — never "Buy", "Purchase", "Subscribe"
 
 ## Micro-interactions Designer (auto-loaded for interactive elements)
 
@@ -137,7 +139,7 @@ Key rules:
 | Trigger | Agents loaded |
 |---------|---------------|
 | Writing UI components | Design System Architect + Frontend Expert |
-| Writing user-facing text | UX Writer |
+| Writing user-facing text | Brand & UX Expert |
 | Adding interactive elements | Micro-interactions Designer |
 | Touching API routes, Supabase, Stripe | Backend Expert |
 | After deploy (audit) | QA Specialist |

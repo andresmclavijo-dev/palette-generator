@@ -209,7 +209,7 @@ Claude Haiku costs ~$0.25 per 1M input tokens. At 3 free AI prompts/day:
 | Product Strategist | Roadmap, priorities, conversion | `03-product-strategist.md` |
 | Documentation Specialist | Changelogs, handoff, knowledge | `04-documentation-specialist.md` |
 | Frontend Expert | React patterns, state, performance | `05-frontend-expert.md` |
-| UX Writer | All user-facing text | `07-ux-writer.md` |
+| Brand & UX Expert | Brand identity, UX writing, voice, visual brand standards | `07-brand-ux-expert.md` |
 | Micro-interactions Designer | Animations, transitions, feedback | `08-microinteractions-designer.md` |
 
 ---
