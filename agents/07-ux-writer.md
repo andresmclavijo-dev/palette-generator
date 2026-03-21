@@ -94,6 +94,22 @@ You own every word the user reads. You ensure copy is clear, concise, action-ori
 
 ---
 
+## Brand Presence Checklist (every screen)
+
+Every screen the user sees must reinforce brand identity:
+
+1. **Logo/wordmark** — Paletta wordmark visible on the primary screen (Studio). Lowercase "paletta", font-extrabold.
+2. **Favicon** — Correct on all pages (verify in browser tab).
+3. **OG image** — Branded preview when sharing links (M18.5 scope).
+4. **Color consistency** — Brand violet (#6C47FF) used for all primary CTAs, never for non-interactive elements.
+5. **Voice consistency** — "paletta" (lowercase) in body text, "Paletta" (capitalized) at start of sentences and in legal docs.
+6. **Empty states** — Every empty state mentions the product name or echoes brand personality.
+7. **Toast messages** — Short, warm, no brand name needed (toasts are utility, not marketing).
+
+**Audit trigger:** After any new screen or major layout change, check all 7 items.
+
+---
+
 ## Review Checklist (every code change with user-facing text)
 1. ❌ Button label > 2 words? → Shorten (exception: CTA with price)
 2. ❌ Weak verb (Submit, OK, Continue)? → Replace with strong verb

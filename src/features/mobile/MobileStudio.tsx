@@ -4,7 +4,7 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  readableOn, getColorName, getContrastBadge, makeSwatch,
+  readableOn, getColorName, getContrastBadge, getColorInfo, makeSwatch,
 } from '@/lib/colorEngine'
 import type { HarmonyMode } from '@/lib/colorEngine'
 import type { VisionMode } from '@/components/palette/VisionSimulator'
@@ -164,8 +164,15 @@ export function MobileStudio(_props: MobileStudioProps) {
   // ─── Render ───
   return (
     <div className="flex flex-col h-full">
+      {/* Paletta header */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <span className="text-[15px] font-extrabold tracking-tight text-foreground">
+          paletta
+        </span>
+      </div>
+
       {/* Header row */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1.5">
+      <div className="flex items-center justify-between px-4 pb-1.5">
         <button
           onClick={() => setActiveSheet('harmony')}
           className="flex items-center gap-1 text-[15px] font-bold tracking-tight text-foreground"
@@ -564,13 +571,24 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className="text-[13px] font-medium text-foreground">{copiedHex === hex ? 'Copied' : 'Copy hex'}</span>
                 </button>
                 <button
-                  onClick={() => { closeSheet(); openProModal('shade_scale', 'mobile_detail') }}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface/50 transition-all active:scale-[0.98]"
-                  aria-label="Shade scale (Pro feature)"
+                  onClick={() => {
+                    if (isPro) {
+                      closeSheet()
+                      showToast('Shades coming soon')
+                    } else {
+                      closeSheet()
+                      openProModal('shade_scale', 'mobile_detail')
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-2.5 px-3 py-3 rounded-xl transition-all active:scale-[0.98]",
+                    isPro ? "bg-surface" : "bg-surface/50"
+                  )}
+                  aria-label={isPro ? "View shade scale" : "Shade scale (Pro feature)"}
                 >
-                  <Grid3X3 size={16} className="text-muted/50" />
-                  <span className="text-[13px] font-medium text-muted/60">Shades</span>
-                  <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>
+                  <Grid3X3 size={16} className={isPro ? "text-muted-foreground" : "text-muted/50"} />
+                  <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted/60")}>Shades</span>
+                  {!isPro && <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>}
                 </button>
                 <button
                   onClick={() => lockSwatch(activeSwatch.id)}
@@ -581,13 +599,15 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className="text-[13px] font-medium text-foreground">{activeSwatch.locked ? 'Locked' : 'Lock color'}</span>
                 </button>
                 <button
-                  onClick={() => { closeSheet(); openProModal('color_info', 'mobile_detail') }}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface/50 transition-all active:scale-[0.98]"
-                  aria-label="Color info (Pro feature)"
+                  onClick={() => {
+                    const info = getColorInfo(hex)
+                    showToast(`RGB: ${info.rgb} · HSL: ${info.hsl}`)
+                  }}
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-xl bg-surface transition-all active:scale-[0.98]"
+                  aria-label="Color info"
                 >
-                  <Info size={16} className="text-muted/50" />
-                  <span className="text-[13px] font-medium text-muted/60">Info</span>
-                  <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>
+                  <Info size={16} className="text-muted-foreground" />
+                  <span className="text-[13px] font-medium text-foreground">Info</span>
                 </button>
               </div>
             </div>

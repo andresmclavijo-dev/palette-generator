@@ -79,11 +79,12 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
           Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
         <Button
+          size="lg"
           onClick={async () => {
             const { error } = await signInWithGoogle()
             if (error) showToast('Sign-in failed')
           }}
-          className="h-12 rounded-xl px-8 shadow-lg"
+          className="shadow-lg"
           style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.25)' }}
         >
           Sign in to get started
@@ -110,7 +111,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6">
           Generate a palette you love, then tap Save.
         </p>
-        <Button onClick={() => onNavigate('studio')} className="h-12 rounded-xl px-8">
+        <Button size="lg" onClick={() => onNavigate('studio')}>
           Go to Studio
         </Button>
       </div>
@@ -151,38 +152,42 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
                   </div>
                 </div>
                 <div className="flex gap-1.5" onClick={e => e.stopPropagation()}>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
                     onClick={() => handleShare(palette)}
-                    className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
                     aria-label={`Copy share link for ${palette.name}`}
                   >
-                    <Link2 size={14} className="text-muted-foreground" strokeWidth={2} />
-                  </button>
+                    <Link2 size={16} className="text-muted-foreground" strokeWidth={2} />
+                  </Button>
                   {deletingId === palette.id ? (
                     <>
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setDeletingId(null)}
-                        className="h-9 px-3 rounded-lg bg-surface border border-border/40 text-[13px] font-medium text-muted-foreground"
                         aria-label="Cancel delete"
                       >
                         Cancel
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
                         onClick={() => { handleDelete(palette.id); setDeletingId(null) }}
-                        className="h-9 px-3 rounded-lg bg-destructive text-white text-[13px] font-semibold"
                         aria-label={`Confirm delete ${palette.name}`}
                       >
                         Delete
-                      </button>
+                      </Button>
                     </>
                   ) : (
-                    <button
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
                       onClick={() => setDeletingId(palette.id)}
-                      className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
                       aria-label={`Delete ${palette.name}`}
                     >
-                      <X size={14} className="text-muted-foreground" strokeWidth={2} />
-                    </button>
+                      <X size={16} className="text-muted-foreground" strokeWidth={2} />
+                    </Button>
                   )}
                 </div>
               </div>

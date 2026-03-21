@@ -1,4 +1,4 @@
-import { Sparkles, Diamond, User } from 'lucide-react'
+import { Sparkles, Bookmark, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MobileTab } from './MobileShell'
 
@@ -9,7 +9,7 @@ interface MobileTabBarProps {
 
 const tabs: { id: MobileTab; label: string; Icon: typeof Sparkles }[] = [
   { id: 'studio', label: 'Studio', Icon: Sparkles },
-  { id: 'library', label: 'Library', Icon: Diamond },
+  { id: 'library', label: 'Library', Icon: Bookmark },
   { id: 'profile', label: 'Profile', Icon: User },
 ]
 
