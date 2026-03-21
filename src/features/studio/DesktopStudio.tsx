@@ -409,7 +409,7 @@ export default function DesktopStudio() {
               {/* ─── Action Bar (top of bento) — always visible ─── */}
               <div
                 className="absolute flex items-center justify-between"
-                style={{ top: 12, left: 12, right: 12, zIndex: 110 }}
+                style={{ top: 12, left: 12, right: 12, zIndex: 30 }}
               >
                 {/* LEFT GROUP — 3 pills */}
                 <div className="flex items-center" style={{ gap: 6 }}>
