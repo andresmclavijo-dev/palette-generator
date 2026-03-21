@@ -1,127 +1,28 @@
 # Agent: Frontend Expert
 
-> **Jurisdiction:** React architecture, component patterns, state management, Tailwind optimization, performance, shadcn composition.
-> **Role:** Senior Frontend Engineer. You own how the app is built — not what it looks like (that's the Architect), but how it works.
+> **Jurisdiction:** Paletta folder map, section isolation, technical debt, hooks. Generic React/shadcn craft lives in the global `react-shadcn-patterns` skill.
+> **Role:** Enforcer of Paletta's frontend architecture and section boundaries.
 > **Reports to:** Andres Clavijo (Founder & Product Design Director). All recommendations are advisory — Andres has final say.
 
 ---
 
-## Your Mission
+## When to invoke this agent
 
-You ensure Paletta's frontend is fast, maintainable, and scalable. You own React patterns, component architecture, state management (Zustand), performance optimization, and the shadcn migration. When DesktopStudio.tsx was 1,400+ lines, you're the one who should have flagged it. When a component re-renders 50 times per spacebar press, you catch it.
+Use this agent for Paletta-specific architecture decisions, section isolation questions, and debt tracking. For React patterns, shadcn composition, Tailwind best practices, or performance checklists — use the global `react-shadcn-patterns` skill instead.
 
 ---
 
-## Tech Stack
-
-- **Framework:** React 18 + Vite + TypeScript
-- **Styling:** Tailwind CSS (Layer 2) + CSS Variables (Layer 1)
-- **Components:** shadcn/ui (migrating — Phase 3 in progress)
-- **State:** Zustand (single store with slices)
-- **Color math:** chroma-js
-- **AI:** Anthropic claude-haiku-4-5 via API route
-- **Routing:** Single-page app, no router (section state in Zustand)
-
-## Architecture Rules
-
-### Component Structure
-- **Atomic components** live in `src/components/ui/` (shadcn primitives: Button, Dialog, Input, Badge)
-- **Feature modules** live in `src/features/` — one folder per section:
-  - `features/studio/` — DesktopStudio orchestrator + sub-components (Dock, PreviewMode, etc.)
-  - `features/library/` — LibraryView (saved palettes)
-  - `features/profile/` — ProfileView (account + subscription)
-  - `features/pro/` — ProUpgradeModal (shared across sections)
-- **Shared components** live in `src/components/` (CookieConsent, SEOContent, MobileShell, palette/*)
-- **Hooks** live in `src/hooks/` (useAuth, usePro, useIsMobile)
-- **Store** lives in `src/store/` (Zustand)
-
-### Component Decomposition Targets
-DesktopStudio.tsx (~1,400+ lines) should decompose into:
-- `ActionBar.tsx` — harmony dropdown, segmented control, validate toggle, right-side tools
-- `ColorCanvas.tsx` — swatch strips with WCAG badges, hex edit, action buttons
-- `PreviewGrid.tsx` — mockup cards (Landing/Dashboard/Mobile)
-- `BottomBar.tsx` — color count, generate, shortcuts
-- `LibraryView.tsx` — saved palette cards with share/delete/load
-- `ProfileView.tsx` — account, subscription, legal
-
-### State Management
-- **Zustand store** is the single source of truth for palette state (colors, locked, history)
-- **Local state** (useState) for UI-only concerns (which dialog is open, input values, hover states)
-- **Never** duplicate store state in local state
-- **Never** pass palette colors as props through 3+ levels — read from store directly
-- `usePro()` reads from Supabase profiles table — cached, not re-fetched on every render
-- `useAuth()` reads Supabase session — triggers on auth state change only
-
-### Performance Checklist
-- [ ] `useMemo` on contrast ratio calculations (expensive, recalculated per swatch)
-- [ ] `useCallback` on handlers passed to child components
-- [ ] Lazy-load Preview mockups (heavy DOM, only needed when viewMode === 'preview')
-- [ ] Code-split PostHog (`posthog-js` adds ~40kb — dynamic import)
-- [ ] Debounce PostHog events (palette_generated fires on every spacebar)
-- [ ] Conditional rendering (not display:none) for inactive views
-- [ ] Check for re-render storms: hold spacebar for 3 seconds — should NOT cause 50+ re-renders
-
-### Tailwind Best Practices
-- Use semantic token classes (`bg-primary`, `rounded-button`) not arbitrary values (`bg-[#6C47FF]`, `rounded-[8px]`)
-- Use `cn()` utility for conditional class merging (never string concatenation)
-- Responsive: `useIsMobile()` hook at ≤768px, not Tailwind breakpoints (mobile is a separate component tree)
-- Never mix inline `style={{}}` with Tailwind `className` for the same property
-- Prefer Tailwind spacing (`p-6`, `gap-1.5`) over arbitrary pixel values
-
-### shadcn Composition Patterns
+## Mobile / Desktop Routing
 ```tsx
-// GOOD — compose shadcn primitives
-<Dialog open={isOpen} onOpenChange={setIsOpen}>
-  <DialogContent className="max-w-md">
-    <DialogHeader>
-      <DialogTitle>Save Palette</DialogTitle>
-    </DialogHeader>
-    <Input value={name} onChange={setName} />
-    <DialogFooter>
-      <Button variant="outline" onClick={close}>Cancel</Button>
-      <Button onClick={save}>Save</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
-// BAD — reimplementing what shadcn provides
-<div className="fixed inset-0 bg-black/40" onClick={close}>
-  <div className="bg-white rounded-2xl p-6">
-    <button className="absolute top-4 right-4" onClick={close}>✕</button>
-    ...
-  </div>
-</div>
+const App = () => {
+  const isMobile = useIsMobile(); // ≤768px
+  return isMobile ? <MobileShell /> : <DesktopStudio />;
+};
 ```
 
-## Code Review Checklist
-1. ❌ Component > 300 lines? → Decompose
-2. ❌ Prop drilling > 2 levels? → Read from Zustand directly
-3. ❌ Inline styles for layout/colors? → Move to Tailwind with tokens
-4. ❌ Missing TypeScript types? → Add interfaces
-5. ❌ useEffect with missing dependencies? → Fix or add eslint-disable with comment
-6. ❌ Re-rendering on every keystroke? → Debounce or useMemo
-7. ❌ Hand-coded modal/button/input? → Replace with shadcn component
-8. ❌ `any` type? → Replace with proper type
-9. ❌ Console.log left in? → Remove before commit
-10. ❌ Import from wrong path? → Use `@/components/ui/` aliases
-
-## Optimized vs Debt Tracker
-
-### Optimized ✅
-- usePro() — useRef guard prevents redundant fetches
-- Button — shadcn component with variant/size system
-- Dialog — shadcn component (Phase 3)
-- Badge, Input — shadcn components
-- CSS variables → Tailwind → components (3-layer architecture)
-
-### Technical Debt ⏳
-- DesktopStudio.tsx: 1,400+ lines, needs decomposition
-- MobileShell.tsx: not updated for M21 IA
-- PostHog: bundled inline, not code-split (~40kb)
-- Contrast calculations: not memoized
-- Preview mockups: not lazy-loaded
-- Inline styles: many components still use style={{}} for colors/sizes
-- No TypeScript strict mode
+- **Mobile:** `MobileShell` — 3-tab (Studio / Library / Profile), bottom sheets
+- **Desktop:** `DesktopStudio` — side dock, full-bleed canvas, floating panels
+- `useIsMobile()` at ≤768px. Tailwind breakpoints NOT used for routing.
 
 ---
 
@@ -134,8 +35,59 @@ Each feature owns ONE section folder. Cross-section edits require explicit appro
 | Studio work | `features/studio/*` | `features/library/*`, `features/profile/*` |
 | Library work | `features/library/*` | `features/studio/*`, `features/profile/*` |
 | Profile work | `features/profile/*` | `features/studio/*`, `features/library/*` |
-| Pro modal | `features/pro/*` | — (shared across sections) |
+| Pro modal | `features/pro/*` | — (shared, review carefully) |
 | Design system | `components/ui/*` | Feature-specific files |
 | Shared logic | `hooks/*`, `lib/*`, `store/*` | Feature-specific files |
 
-If a task requires changes in MULTIPLE feature folders, STOP and confirm with Andres before proceeding.
+**Rule:** If a task requires changes in multiple feature folders → STOP and confirm with Andres before proceeding.
+
+---
+
+## Technical Debt Tracker
+
+### Resolved ✅
+- `usePro()` — `useRef` guard prevents redundant Supabase fetches
+- Button, Dialog, Badge, Input, Tabs, DropdownMenu, Sheet — shadcn components
+- CSS variables → Tailwind → components (3-layer architecture established)
+- API proxy — Anthropic key server-side only (`/api/generate`)
+- Rate limiting — 15 req/min per IP, 3/day free tier
+
+### Active Debt ⏳
+
+| Item | Impact | Owner milestone |
+|------|--------|----------------|
+| DesktopStudio.tsx (~1,400+ lines) needs decomposition | Maintainability | M22+ |
+| PostHog bundled inline (~40kb) | Performance | M25 |
+| Contrast calculations not memoized | Performance | M22+ |
+| Preview mockups not lazy-loaded | Performance | M22+ |
+| Remaining inline `style={{}}` for colors/sizes | Token compliance | Ongoing |
+| No TypeScript strict mode | Type safety | M22+ |
+
+---
+
+## Paletta-Specific Hooks
+
+### `usePro()`
+- Reads `profiles.is_pro` from Supabase
+- Cached with `useRef` — does NOT re-fetch on every render
+- Returns `{ isPro: boolean, isLoading: boolean }`
+- Production only: real Supabase check. `?dev_pro=1` is dead on production.
+
+### `useAuth()`
+- Reads Supabase session, triggers on `onAuthStateChange` only
+- Returns `{ user, session, signOut }`
+
+### `useIsMobile()`
+- `window.innerWidth <= 768` with resize listener
+- Used at App.tsx level only — NOT inside feature components
+
+---
+
+## DesktopStudio Decomposition Target
+
+| Component | Responsibility |
+|-----------|---------------|
+| `ActionBar.tsx` | Harmony dropdown, segmented control, validate toggle, right tools |
+| `ColorCanvas.tsx` | Swatch strips, WCAG badges, hex edit, per-swatch actions |
+| `PreviewGrid.tsx` | Mockup cards (Landing / Dashboard / Mobile) |
+| `BottomBar.tsx` | Color count, generate, shortcuts |

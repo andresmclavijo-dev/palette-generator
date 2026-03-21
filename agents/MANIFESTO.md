@@ -202,15 +202,16 @@ Claude Haiku costs ~$0.25 per 1M input tokens. At 3 free AI prompts/day:
 
 ## 7. Agent Jurisdictions
 
-| Agent | Jurisdiction | File |
-|-------|-------------|------|
-| Design System Architect | Layer 1 + 2 + component specs | `01-design-system-architect.md` |
-| QA & Accessibility | Testing, regressions, WCAG | `02-qa-specialist.md` |
-| Product Strategist | Roadmap, priorities, conversion | `03-product-strategist.md` |
-| Documentation Specialist | Changelogs, handoff, knowledge | `04-documentation-specialist.md` |
-| Frontend Expert | React patterns, state, performance | `05-frontend-expert.md` |
-| Brand & UX Expert | Brand identity, UX writing, voice, visual brand standards | `07-brand-ux-expert.md` |
-| Micro-interactions Designer | Animations, transitions, feedback | `08-microinteractions-designer.md` |
+| Agent | Jurisdiction | File | Global skill |
+|-------|-------------|------|--------------|
+| Design System Architect | Layer 1 + 2 + component specs | `01-design-system-architect.md` | — |
+| QA & Accessibility | Testing, regressions, WCAG | `02-qa-specialist.md` | — |
+| Product Strategist | Roadmap, priorities, conversion | `03-product-strategist.md` | — |
+| Documentation Specialist | Changelogs, handoff, knowledge | `04-documentation-specialist.md` | — |
+| Frontend Expert | Paletta folder map, debt, section isolation | `05-frontend-expert.md` | `react-shadcn-patterns` |
+| Backend Infrastructure | Supabase, Stripe, Vercel, Cloudflare | `06-backend-infrastructure.md` | — |
+| Brand & UX Expert | Brand rules, locked copy, feature names | `07-brand-ux-expert.md` | `ux-writing` |
+| Micro-interactions Designer | Paletta motion patterns, optimistic healing | `08-microinteractions-designer.md` | `micro-interactions` |
 
 ---
 
