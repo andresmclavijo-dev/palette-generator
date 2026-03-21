@@ -93,7 +93,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
               variant="pro"
               className="w-fit text-[10px] tracking-wider uppercase px-2.5 py-1 font-bold mb-4"
             >
-              ✦ Paletta Pro
+              ✦ <span className="font-brand">Paletta</span> Pro
             </Badge>
 
             {/* Headline */}

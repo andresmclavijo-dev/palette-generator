@@ -19,7 +19,7 @@ export function ProfileView({
   if (!isSignedIn) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-        <h2 className="text-[28px] font-bold" style={{ color: BRAND_DARK }}>Welcome to Paletta</h2>
+        <h2 className="text-[28px] font-bold" style={{ color: BRAND_DARK }}>Welcome to <span className="font-brand">Paletta</span></h2>
         <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: '#6B7280' }}>
           The color palette generator built for accessibility
         </p>

@@ -6,6 +6,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+        mono: ['var(--font-mono)'],
+        brand: ['var(--font-brand)'],
+      },
       colors: {
         // Legacy tokens (existing — will be migrated in Phase 3)
         'brand-violet': '#6C47FF',

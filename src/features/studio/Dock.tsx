@@ -3,7 +3,7 @@ import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
   MoreHorizontal, ExternalLink,
 } from 'lucide-react'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 
 type SectionId = 'studio' | 'library' | 'profile'
@@ -62,7 +62,7 @@ export function Dock({
             P
           </div>
           {expanded && (
-            <span className="text-[15px] font-bold" style={{ color: BRAND_DARK }}>Paletta</span>
+            <span className="text-[15px] font-medium font-brand text-foreground">Paletta</span>
           )}
         </div>
 
@@ -288,7 +288,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
           </a>
         ))}
         <p className="text-[10px] m-0" style={{ color: '#d1d5db', padding: '4px 14px 0' }}>
-          Built with Paletta
+          Built with <span className="font-brand">Paletta</span>
         </p>
       </div>
     )
@@ -354,7 +354,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
           <div className="border-t border-gray-100 my-1" />
           <div className="px-4 py-1">
-            <p className="text-[10px] m-0" style={{ color: '#d1d5db' }}>Built with Paletta</p>
+            <p className="text-[10px] m-0" style={{ color: '#d1d5db' }}>Built with <span className="font-brand">Paletta</span></p>
           </div>
         </div>
       )}

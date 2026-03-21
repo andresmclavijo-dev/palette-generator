@@ -166,7 +166,7 @@ export function MobileStudio(_props: MobileStudioProps) {
     <div className="flex flex-col h-full">
       {/* Paletta header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <span className="text-[15px] font-extrabold tracking-tight text-foreground">
+        <span className="text-[15px] font-medium tracking-tight text-foreground font-brand">
           Paletta
         </span>
       </div>
