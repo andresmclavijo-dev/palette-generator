@@ -46,17 +46,12 @@ export function MobileProfile() {
       <div className="flex flex-col h-full">
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           {/* Logo mark */}
-          <div
-            className="flex items-center justify-center rounded-[22px] bg-primary mb-4"
-            style={{ width: 96, height: 96 }}
-          >
-            <span
-              className="text-white font-mono"
-              style={{ fontSize: 48, fontWeight: 700, lineHeight: 1 }}
-            >
-              P
-            </span>
-          </div>
+          <img
+            src="/logo.svg"
+            alt="Paletta"
+            className="mb-4 overflow-hidden"
+            style={{ width: 96, height: 96, borderRadius: 16, objectFit: 'contain' }}
+          />
 
           <h2 className="text-xl font-extrabold text-foreground mb-1">Welcome to <span className="font-brand">Paletta</span></h2>
           <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6 max-w-[280px]">

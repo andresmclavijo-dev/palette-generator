@@ -49,17 +49,17 @@ export function Dock({
             gap: 10,
           }}
         >
-          <div
-            className="flex items-center justify-center rounded-[10px] bg-primary shrink-0"
-            style={{ width: 36, height: 36 }}
-          >
-            <span
-              className="text-white font-mono"
-              style={{ fontSize: 18, fontWeight: 700, lineHeight: 1 }}
-            >
-              P
-            </span>
-          </div>
+          <img
+            src="/logo.svg"
+            alt="Paletta"
+            className="shrink-0 overflow-hidden"
+            style={{
+              width: expanded ? 40 : 48,
+              height: expanded ? 40 : 48,
+              borderRadius: 12,
+              objectFit: 'contain',
+            }}
+          />
           {expanded && (
             <span className="text-[15px] font-medium font-brand text-foreground">Paletta</span>
           )}
