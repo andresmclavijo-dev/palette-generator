@@ -52,12 +52,15 @@ export function Dock({
           <img
             src="/logo.svg"
             alt="Paletta"
-            className="shrink-0 overflow-hidden"
+            className="shrink-0"
             style={{
               width: expanded ? 40 : 48,
               height: expanded ? 40 : 48,
               borderRadius: 12,
               objectFit: 'contain',
+              border: 'none',
+              outline: 'none',
+              boxShadow: 'none',
             }}
           />
           {expanded && (
