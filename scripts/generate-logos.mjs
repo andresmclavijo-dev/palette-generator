@@ -10,7 +10,6 @@ const logoSvg = readFileSync(resolve(publicDir, 'logo.svg'))
 
 // Generate favicon and app icon PNGs from master SVG
 const sizes = [
-  { size: 16, name: 'favicon-16.png' },
   { size: 32, name: 'favicon-32.png' },
   { size: 180, name: 'apple-touch-icon.png' },
   { size: 192, name: 'icon-192.png' },
@@ -54,6 +53,13 @@ await sharp({
   .toFile(resolve(publicDir, 'og-logo.png'))
 
 console.log('Generated: og-logo.png (1200x630)')
+
+// Generate 48x48 PNG then rename to .ico (single-frame ICO)
+await sharp(logoSvg, { density: 300 })
+  .resize(48, 48)
+  .png()
+  .toFile(resolve(publicDir, 'favicon.ico'))
+console.log('Generated: favicon.ico (48x48)')
 
 // Copy logo.svg as favicon.svg
 const { copyFileSync } = await import('fs')
