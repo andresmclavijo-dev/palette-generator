@@ -159,7 +159,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
             <Button
               onClick={handleSubscribe}
               disabled={loading}
-              className="w-full h-11 text-sm font-semibold shadow-sm hover:shadow-md transition-all hover:-translate-y-px"
+              className="w-full h-11 text-sm shadow-sm hover:shadow-md transition-all hover:-translate-y-px"
             >
               {loading ? 'Redirecting\u2026' : `Go Pro \u2014 ${isMonthly ? '$5/mo' : '$45/yr'}`}
             </Button>

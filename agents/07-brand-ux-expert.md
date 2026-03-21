@@ -10,7 +10,7 @@
 
 ### Name
 - **Product name:** Paletta (capital P, double t, single l)
-- **In UI wordmarks:** "paletta" (all lowercase) — mobile header, compact contexts
+- **In UI wordmarks:** "Paletta" (capital P) — consistent everywhere, mobile and desktop
 - **In sentences, docs, legal:** "Paletta" (capitalized first letter)
 - **In metadata (OG, title tag, App Store):** "Paletta — AI Color Palette Generator"
 - **NEVER:** "Paleta" (one t), "palletta" (double l), "PALETTA" (all caps in running text), "Palette" (generic noun)

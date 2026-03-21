@@ -15,7 +15,6 @@ export function ProfileView({
   onManageSubscription: () => void
 }) {
   const [accountOpen, setAccountOpen] = useState(false)
-  const [legalOpen, setLegalOpen] = useState(false)
 
   if (!isSignedIn) {
     return (
@@ -28,7 +27,7 @@ export function ProfileView({
           variant="default"
           size="lg"
           onClick={() => onSignIn()}
-          className="text-[16px] font-bold px-8 gap-2.5 mb-8"
+          className="text-[16px] px-8 gap-2.5 mb-8"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#8fa8ff"/>
@@ -94,7 +93,7 @@ export function ProfileView({
             variant="default"
             size="lg"
             onClick={onProGate}
-            className="w-full mb-5 flex items-center justify-between px-5 text-[14px] font-semibold"
+            className="w-full mb-5 flex items-center justify-between px-5 text-[14px]"
           >
             <span>Upgrade to Pro</span>
             <span className="text-[13px] opacity-80">$5/mo</span>
@@ -123,26 +122,6 @@ export function ProfileView({
             <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-gray-50 transition-colors" style={{ color: '#EF4444', minHeight: 52 }}>
               Sign out
             </button>
-          </div>
-        </div>
-
-        {/* Legal accordion */}
-        <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
-          <button
-            onClick={() => setLegalOpen(o => !o)}
-            className="w-full flex items-center justify-between px-4 hover:bg-gray-50 transition-colors"
-            style={{ minHeight: 52 }}
-          >
-            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Legal</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
-              style={{ transform: legalOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
-          <div className="border-t border-gray-100 flex flex-col overflow-hidden transition-all duration-200" style={{ maxHeight: legalOpen ? 300 : 0, opacity: legalOpen ? 1 : 0 }}>
-            <a href="/privacy-policy" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center" style={{ color: BRAND_DARK, minHeight: 52 }}>Privacy Policy</a>
-            <a href="/terms-of-service" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center border-t border-gray-100" style={{ color: BRAND_DARK, minHeight: 52 }}>Terms of Service</a>
-            <a href="/cookie-policy" className="px-4 text-[14px] font-medium no-underline hover:bg-gray-50 flex items-center border-t border-gray-100" style={{ color: BRAND_DARK, minHeight: 52 }}>Cookie Policy</a>
           </div>
         </div>
 

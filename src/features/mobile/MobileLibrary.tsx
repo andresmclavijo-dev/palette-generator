@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Bookmark, Link2, X } from 'lucide-react'
+import { Heart, Link2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePaletteStore } from '@/store/paletteStore'
 import { makeSwatch } from '@/lib/colorEngine'
@@ -74,7 +74,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-          <Bookmark size={28} className="text-primary" strokeWidth={1.5} />
+          <Heart size={28} className="text-primary" strokeWidth={1.5} />
         </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed max-w-[280px] mb-6">
@@ -109,7 +109,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-          <Bookmark size={28} className="text-primary" strokeWidth={1.5} />
+          <Heart size={28} className="text-primary" strokeWidth={1.5} />
         </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">No saved palettes yet</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6">

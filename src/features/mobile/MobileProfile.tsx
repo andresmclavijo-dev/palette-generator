@@ -207,7 +207,7 @@ export function MobileProfile() {
             await signOut()
             showToast('Signed out')
           }}
-          className="w-full text-destructive hover:text-destructive"
+          className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
         >
           Sign Out
         </Button>
