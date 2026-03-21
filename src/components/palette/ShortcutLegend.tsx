@@ -43,7 +43,7 @@ export default function ShortcutLegend() {
               <span className="text-white/40 text-[10px] font-mono tracking-wider">{label}</span>
               <div className="flex gap-1">
                 {keys.map(k => (
-                  <kbd key={k} className="px-1.5 py-0.5 rounded bg-white/10 text-white/60 text-[9px] font-mono">
+                  <kbd key={k} className="px-1.5 py-0.5 rounded bg-white/10 text-white/60 text-[10px] font-mono">
                     {k}
                   </kbd>
                 ))}

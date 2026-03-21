@@ -333,7 +333,7 @@ export default function App() {
               <span aria-hidden="true">✨</span> AI Palette
               {!isPro && (
                 <span aria-hidden="true" className="contents">
-                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
                   <span className="text-[14px] ml-0.5" style={{ color: '#666666' }}>free/day</span>

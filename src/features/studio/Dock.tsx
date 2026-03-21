@@ -4,6 +4,7 @@ import {
   MoreHorizontal, ExternalLink,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 
@@ -157,7 +158,11 @@ function DockItem({
         onClick={onClick}
         onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`flex items-center transition-all duration-150 ease-in-out${pulse ? ' dock-pulse' : ''}`}
+        className={cn(
+          'flex items-center transition-colors duration-150 ease-in-out',
+          !primary && !active && 'text-muted-foreground hover:bg-surface hover:text-foreground',
+          pulse && 'dock-pulse'
+        )}
         style={{
           width: isCollapsed ? 48 : '100%',
           height: 48,
@@ -166,28 +171,20 @@ function DockItem({
           padding: expanded ? '0 14px' : '0',
           gap: expanded ? 12 : 0,
           justifyContent: expanded ? 'flex-start' : 'center',
-          backgroundColor: primary
-            ? BRAND_VIOLET
-            : active
-              ? 'rgba(108,71,255,0.08)'
-              : 'transparent',
-          color: primary ? '#ffffff' : active ? BRAND_VIOLET : 'hsl(var(--muted-foreground))',
-          fontWeight: active || primary ? 600 : 500,
+          ...(primary ? {
+            backgroundColor: BRAND_VIOLET,
+            color: '#ffffff',
+            fontWeight: 600,
+          } : active ? {
+            backgroundColor: 'rgba(108,71,255,0.08)',
+            color: BRAND_VIOLET,
+            fontWeight: 600,
+          } : {
+            fontWeight: 500,
+          }),
         }}
-        onMouseOver={(e) => {
-          if (primary) (e.currentTarget.style.backgroundColor = '#7C5AFF')
-          else if (!active) {
-            e.currentTarget.style.backgroundColor = 'hsl(var(--surface))'
-            e.currentTarget.style.color = 'hsl(var(--foreground))'
-          }
-        }}
-        onMouseOut={(e) => {
-          if (primary) (e.currentTarget.style.backgroundColor = BRAND_VIOLET)
-          else if (!active) {
-            e.currentTarget.style.backgroundColor = 'transparent'
-            e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
-          }
-        }}
+        onMouseOver={(e) => { if (primary) e.currentTarget.style.backgroundColor = '#7C5AFF' }}
+        onMouseOut={(e) => { if (primary) e.currentTarget.style.backgroundColor = BRAND_VIOLET }}
         aria-label={label}
       >
         <span className="shrink-0 relative" style={{ strokeWidth: primary || active ? 2 : 1.5 }}>

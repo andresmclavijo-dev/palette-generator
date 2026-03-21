@@ -148,7 +148,7 @@ export function LibraryView({
                     <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
                     <span className="text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
-                  <div className="flex items-center" style={{ gap: 2 }}>
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
                       className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"

@@ -20,6 +20,9 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-success-title"
         className="relative max-w-sm w-[90vw] bg-white rounded-2xl shadow-xl overflow-hidden p-6"
         onClick={e => e.stopPropagation()}
       >
@@ -41,7 +44,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 className="text-2xl font-extrabold text-gray-900">You're now a Pro!</h2>
+          <h2 id="payment-success-title" className="text-2xl font-extrabold text-gray-900">You're now a Pro!</h2>
           <p className="text-sm text-gray-500 mt-2">Sign in with Google to access all Pro features</p>
         </div>
 

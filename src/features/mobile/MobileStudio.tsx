@@ -243,17 +243,17 @@ export function MobileStudio(_props: MobileStudioProps) {
                     )}
                     {/* WCAG badge */}
                     <div className="bg-white shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
-                      <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[8px]' : 'text-[10px]')}>{badge.level}</span>
+                      <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>
                       {swatches.length <= 6 && (
-                        <span className="text-[9px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
+                        <span className="text-[10px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
                       )}
-                      {badge.pass && <span className="text-[8px] text-success font-bold leading-none">✓</span>}
+                      {badge.pass && <span className="text-[10px] text-success font-bold leading-none">✓</span>}
                     </div>
                     {/* Hex */}
                     <div className="bg-white shadow-sm rounded-md px-1.5 py-0.5 border border-black/5 max-w-[calc(100%-8px)]">
                       <span className={cn(
                         'font-semibold font-mono text-foreground leading-none truncate block',
-                        swatches.length > 6 ? 'text-[8px] tracking-normal' : 'text-[10px] tracking-wider'
+                        swatches.length > 6 ? 'text-[10px] tracking-normal' : 'text-[10px] tracking-wider'
                       )}>
                         {swatch.hex.toUpperCase().slice(0, 7)}
                       </span>
@@ -290,7 +290,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                     >
                       <span aria-hidden="true">{emoji}</span>
                       {label}
-                      {isLocked && <Badge variant="pro" className="text-[7px] px-1 py-0">PRO</Badge>}
+                      {isLocked && <Badge variant="pro" className="text-[10px] px-1 py-0">PRO</Badge>}
                     </button>
                   )
                 })}
@@ -310,12 +310,12 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* AI */}
               <button
                 onClick={() => setActiveSheet('ai')}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="AI palette"
               >
                 <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
                 {!isPro && (
-                  <span className="absolute -top-1 -right-0.5 text-[8px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
+                  <span className="absolute -top-1 -right-0.5 text-[10px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
                     {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
                   </span>
                 )}
@@ -327,13 +327,13 @@ export function MobileStudio(_props: MobileStudioProps) {
                   if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
                   setActiveSheet('extract')
                 }}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Extract palette from image"
               >
                 <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
                 {!isPro && (
                   <span className="absolute -top-1 -right-0.5">
-                    <Badge variant="pro" className="text-[7px] px-1 py-0">PRO</Badge>
+                    <Badge variant="pro" className="text-[10px] px-1 py-0">PRO</Badge>
                   </span>
                 )}
                 <span className="text-[10px] font-medium text-muted-foreground">Extract</span>
@@ -341,7 +341,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Save */}
               <button
                 onClick={handleSave}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Save palette"
               >
                 <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -350,7 +350,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Share */}
               <button
                 onClick={handleShare}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Share palette link"
               >
                 <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -359,7 +359,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               {/* Export */}
               <button
                 onClick={() => setActiveSheet('export')}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
+                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
                 aria-label="Export palette"
               >
                 <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
@@ -444,7 +444,7 @@ export function MobileStudio(_props: MobileStudioProps) {
         <button
           onClick={() => { if (count > 3) setCount(count - 1) }}
           disabled={count <= 3}
-          className="flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-95"
+          className="flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
           style={{ width: 36, height: 36 }}
           aria-label="Remove color"
         >
@@ -457,7 +457,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             if (count < (isPro ? 8 : 5)) setCount(count + 1)
           }}
           disabled={isPro ? count >= 8 : false}
-          className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-95"
+          className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
           style={{ width: 36, height: 36 }}
           aria-label={!isPro && count >= 5 ? 'Upgrade to Pro for more colors' : 'Add color'}
         >
@@ -589,7 +589,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 >
                   <Grid3X3 size={16} className={isPro ? "text-muted-foreground" : "text-muted/50"} />
                   <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted-foreground/60")}>Shades</span>
-                  {!isPro && <Badge variant="pro" className="text-[7px] px-1 py-0 ml-auto">PRO</Badge>}
+                  {!isPro && <Badge variant="pro" className="text-[10px] px-1 py-0 ml-auto">PRO</Badge>}
                 </button>
                 <button
                   onClick={() => lockSwatch(activeSwatch.id)}

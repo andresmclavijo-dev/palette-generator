@@ -200,7 +200,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
         {format !== 'svg' && (
           <div className="flex items-center gap-3 mb-4">
             <span className="text-[11px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>Variable names:</span>
-            <div className="flex" style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 6, padding: 2, gap: 2 }}>
+            <div className="flex" style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 6, padding: 2, gap: 6 }}>
               {(['default', 'smart'] as NamingMode[]).map(mode => (
                 <button
                   key={mode}

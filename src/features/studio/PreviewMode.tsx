@@ -247,7 +247,7 @@ function MockupCard({
           <Badge variant="pro">{badge}</Badge>
         ) : (
           <span
-            className="text-[9px] font-bold px-1.5 py-0.5"
+            className="text-[10px] font-bold px-1.5 py-0.5"
             style={{
               borderRadius: 4,
               backgroundColor: '#e5e7eb',

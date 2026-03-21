@@ -137,7 +137,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                   }`}
                 >
                   Yearly
-                  <span className="text-[9px] font-bold bg-success-bg text-success px-1.5 py-0.5 rounded-badge">
+                  <span className="text-[10px] font-bold bg-success-bg text-success px-1.5 py-0.5 rounded-badge">
                     −25%
                   </span>
                 </button>

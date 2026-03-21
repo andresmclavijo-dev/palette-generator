@@ -13,6 +13,9 @@ export default function SignInModal({ open, onClose, onGoogleSignIn }: SignInMod
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sign-in-title"
         className="relative w-[340px] max-w-[90vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
@@ -27,7 +30,7 @@ export default function SignInModal({ open, onClose, onGoogleSignIn }: SignInMod
         </button>
 
         <div className="px-6 pt-8 pb-4 text-center">
-          <h2 className="text-[20px] font-bold text-gray-900">Sign in to Paletta</h2>
+          <h2 id="sign-in-title" className="text-[20px] font-bold text-gray-900">Sign in to Paletta</h2>
           <p className="text-[13px] text-gray-500 mt-2">Save palettes, access Pro features, sync across devices</p>
         </div>
 

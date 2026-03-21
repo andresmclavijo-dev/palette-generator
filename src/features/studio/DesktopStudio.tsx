@@ -479,7 +479,7 @@ export default function DesktopStudio() {
                   {/* Pill 3: Validate toggle */}
                   <button
                     onClick={() => setValidateOn(v => !v)}
-                    className="flex items-center transition-all"
+                    className="flex items-center transition-all hover:bg-black/[0.06]"
                     style={{
                       height: 36,
                       padding: '0 12px',
@@ -528,6 +528,7 @@ export default function DesktopStudio() {
                   role="toolbar"
                   aria-label="Palette actions"
                 >
+                  {/* Action bar tooltips use position="bottom" — bar sits at viewport top edge, "top" would clip */}
                   {/* AI */}
                   <DarkTooltip label="AI palette" position="bottom">
                     <button
@@ -540,7 +541,7 @@ export default function DesktopStudio() {
                       <span className="text-[12px] font-medium">AI</span>
                       {!isPro && (
                         <span
-                          className="text-[8px] font-bold text-white px-1.5 py-0.5"
+                          className="text-[10px] font-bold text-white px-1.5 py-0.5"
                           style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
                         >
                           {aiRemaining}
