@@ -11,7 +11,7 @@
 ### Name
 - **Product name:** Paletta (capital P, double t, single l)
 - **In UI wordmarks:** "Paletta" (capital P) — consistent everywhere, mobile and desktop
-- **In sentences, docs, legal:** "Paletta" (capitalized first letter)
+- **In sentences, docs, legal:** "Paletta" (capital P always)
 - **In metadata (OG, title tag, App Store):** "Paletta — AI Color Palette Generator"
 - **NEVER:** "Paleta" (one t), "palletta" (double l), "PALETTA" (all caps in running text), "Palette" (generic noun)
 - **Possessive:** "Paletta's" (not "Palettas")
@@ -23,7 +23,7 @@
 
 ### Logo
 - **Current:** Text-only wordmark. `font-extrabold`, system font stack (-apple-system, SF Pro Display)
-- **Mobile placement:** 15px, left-aligned in Studio header
+- **Mobile placement:** 15px, left-aligned in Studio header, capital P
 - **Desktop placement:** Dock footer or header area
 - **Sizing rule:** Logo height = button-sm (32px container) in navigation contexts
 - **Clear space:** Minimum 12px (1 spacing unit) on all sides
@@ -66,16 +66,20 @@
 - **Always use strong verbs:** Generate, Save, Export, Copy, Unlock, Sign in
 - **Never use:** Submit, OK, Continue, Click here, Press, Go
 - **Pattern for primary actions:** `[Verb]` or `[Verb] + [object]`
-  - "Generate" · "Save palette" · "Export as CSS" · "Copy hex"
+  - ✅ "Generate" · "Save palette" · "Export as CSS" · "Copy hex"
+  - ❌ "Submit" · "OK" · "Continue" · "Do it"
 - **Destructive buttons:** Always state the consequence
-  - "Delete palette" · "Sign out"
+  - ✅ "Delete palette" · "Sign out"
+  - ❌ "Delete" (delete what?) · "Remove" (vague)
 
 ### Toast Messages
 - **Max 3 words** + optional icon/emoji
 - **Format:** `[Past tense verb]!` or `[Noun] + [past tense verb]!`
-  - "Copied!" · "Saved!" · "Link copied!" · "Deleted"
+  - ✅ "Copied!" · "Saved!" · "Link copied!" · "Deleted"
+  - ❌ "Successfully copied to clipboard" · "Your palette has been saved"
 - **Error toasts:** `[What failed]. [What to do].`
-  - "Save failed. Try again." · "Network error. Check connection."
+  - ✅ "Save failed. Try again." · "Network error. Check connection."
+  - ❌ "Error 500: Internal Server Error"
 
 ### Error Messages
 - **Structure:** `[What happened]` + `[What to do]`
@@ -84,7 +88,8 @@
 
 ### Pro Gate Copy
 - **Lead with what they GET, not what's blocked**
-  - "Unlock 6, 7, and 8-color palettes"
+  - ✅ "Unlock 6, 7, and 8-color palettes"
+  - ❌ "You've reached the free limit"
 - **Pattern:** `[Verb] + [specific feature] + "with Pro"`
 - **CTA:** "Go Pro" (short), "Upgrade to Pro" (full), never "Buy", "Purchase", or "Subscribe"
 
@@ -171,13 +176,13 @@ Run this after every new screen, layout change, or deploy:
 
 ## 7. Anti-Patterns (catch and fix)
 
-- "paleta" (one t) or "Palletta" (double l) anywhere
-- Generic empty states ("No items found")
-- Technical language in user messages ("Error: 500")
-- Brand violet on non-interactive elements
-- Missing aria-labels
-- Button labels: "Submit", "OK", "Continue"
-- Toast messages longer than 3 words
-- Empty screen with no recovery CTA
-- Default Vite/React favicon
-- Missing wordmark on primary screens
+- ❌ "paleta" (one t) or "Palletta" (double l) anywhere
+- ❌ Generic empty states ("No items found")
+- ❌ Technical language in user messages ("Error: 500")
+- ❌ Brand violet on non-interactive elements
+- ❌ Missing aria-labels
+- ❌ Button labels: "Submit", "OK", "Continue"
+- ❌ Toast messages longer than 3 words
+- ❌ Empty screen with no recovery CTA
+- ❌ Default Vite/React favicon
+- ❌ Missing wordmark on primary screens
