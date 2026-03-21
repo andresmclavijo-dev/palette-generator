@@ -13,7 +13,7 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#FAFAF8' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: 'hsl(var(--surface-warm))' }} />}>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

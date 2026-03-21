@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { HarmonyMode } from '../../lib/colorEngine'
+import { BRAND_VIOLET } from '@/lib/tokens'
 
 const MODES: { value: HarmonyMode; label: string; desc: string }[] = [
   { value: 'random',        label: 'Random',        desc: 'No rules, pure exploration' },
@@ -10,7 +11,6 @@ const MODES: { value: HarmonyMode; label: string; desc: string }[] = [
   { value: 'triadic',       label: 'Triadic',       desc: 'Three evenly spaced colors' },
 ]
 
-const PRIMARY = '#6C47FF'
 
 interface HarmonyPickerProps {
   mode: HarmonyMode
@@ -71,12 +71,12 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
         ref={btnRef}
         onClick={handleToggle}
         className="flex items-center gap-1.5 h-10 px-4 rounded-full text-[14px] font-medium transition-all duration-150 hover:bg-surface-secondary"
-        style={{ color: '#444444' }}
+        style={{ color: 'hsl(var(--muted-foreground))' }}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Harmony: ${activeLabel}`}
       >
-        <span style={{ color: '#1a1a2e', fontWeight: 700 }}>Harmony:</span>
+        <span style={{ color: 'hsl(var(--foreground))', fontWeight: 700 }}>Harmony:</span>
         <span>{activeLabel}</span>
         <svg
           width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
@@ -96,7 +96,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           style={{
             position: 'fixed', top: dropPos.top, left: dropPos.left, zIndex: 9999,
             width: 300, borderRadius: 12,
-            border: '1px solid #E5E7EB',
+            border: '1px solid hsl(var(--border))',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
@@ -112,25 +112,25 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
                 style={{
                   padding: '12px 16px',
                   background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
-                  borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F9FAFB' }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
               >
                 <div className="flex items-center justify-between">
                   <span
                     className="text-[14px] font-bold"
-                    style={{ color: isActive ? PRIMARY : '#1a1a2e' }}
+                    style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
                   >
                     {m.label}
                   </span>
                   {isActive && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   )}
                 </div>
-                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: '#6B7280' }}>{m.desc}</p>
+                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{m.desc}</p>
               </button>
             )
           })}
@@ -155,23 +155,23 @@ export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
             style={{
               padding: '12px 16px',
               background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
-              borderTop: i > 0 ? '1px solid #F3F4F6' : undefined,
+              borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
             }}
           >
             <div className="flex items-center justify-between">
               <span
                 className="text-[14px] font-bold"
-                style={{ color: isActive ? PRIMARY : '#1a1a2e' }}
+                style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
               >
                 {m.label}
               </span>
               {isActive && (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
               )}
             </div>
-            <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: '#6B7280' }}>{m.desc}</p>
+            <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{m.desc}</p>
           </button>
         )
       })}

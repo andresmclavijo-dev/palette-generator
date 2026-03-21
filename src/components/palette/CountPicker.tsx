@@ -21,7 +21,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
     <Tooltip text="Number of colors in palette">
       <div
         className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
-        style={{ border: '1px solid #e8e8e8' }}
+        style={{ border: '1px solid hsl(var(--border))' }}
         onClick={e => e.stopPropagation()}
       >
         {counts.map(n => {
@@ -49,7 +49,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
                 }
               `}
               style={{
-                color: active ? '#FAFAF8' : locked ? '#bbbbbb' : '#1a1a2e',
+                color: active ? 'hsl(var(--surface-warm))' : locked ? 'hsl(var(--muted))' : 'hsl(var(--foreground))',
               }}
               aria-label={locked ? `${n} colors — Pro` : `${n} colors`}
             >

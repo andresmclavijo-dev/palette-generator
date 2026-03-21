@@ -32,6 +32,10 @@
     /* Feedback */
     --success: 142 76% 36%;
     --success-bg: 142 76% 92%;
+    --warning: 32 95% 44%;
+    --warning-bg: 48 96% 89%;
+    --error-bg: 0 94% 94%;
+    --info-bg: 244 100% 97%;
 
     /* Ring (focus state) */
     --ring: 252 100% 64%;

@@ -7,8 +7,7 @@ import {
   LandingMockup, DashboardMockup, MobileAppMockup,
   type MockupTab,
 } from '../ui/ProductMockups'
-
-const PRIMARY = '#6C47FF'
+import { BRAND_VIOLET } from '@/lib/tokens'
 
 interface PreviewModalProps {
   open: boolean
@@ -110,11 +109,11 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
           <div className="flex items-center gap-2.5">
             <span
               className="text-[10px] font-bold text-white uppercase px-2.5 py-1 rounded"
-              style={{ background: '#1a1a2e', letterSpacing: '0.05em' }}
+              style={{ background: 'hsl(var(--foreground))', letterSpacing: '0.05em' }}
             >
               Preview
             </span>
-            <span className="text-[13px] font-medium" style={{ color: '#9CA3AF' }}>
+            <span className="text-[13px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>
               Your palette in action
             </span>
           </div>
@@ -142,8 +141,8 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
                 style={{
                   minHeight: '44px',
                   ...(isActive
-                    ? { background: PRIMARY, color: '#fff' }
-                    : { background: 'rgba(108,71,255,0.06)', color: '#9CA3AF' }),
+                    ? { background: BRAND_VIOLET, color: '#fff' }
+                    : { background: 'rgba(108,71,255,0.06)', color: 'hsl(var(--muted-foreground))' }),
                 }}
               >
                 {tab}
@@ -179,14 +178,14 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
                     WebkitBackdropFilter: 'blur(8px)',
                   }}
                 >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
-                  <p className="text-[14px] font-bold" style={{ color: '#1a1a2e' }}>
+                  <p className="text-[14px] font-bold" style={{ color: 'hsl(var(--foreground))' }}>
                     Unlock with Pro
                   </p>
-                  <p className="text-[12px]" style={{ color: '#6B7280' }}>
+                  <p className="text-[12px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
                     Subscribe to see your colors in dashboards and mobile apps
                   </p>
                   <button
@@ -196,7 +195,7 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
                       onProGate()
                     }}
                     className="mt-1 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold transition-all hover:opacity-90 active:scale-95"
-                    style={{ background: PRIMARY, minHeight: '44px' }}
+                    style={{ background: BRAND_VIOLET, minHeight: '44px' }}
                   >
                     Go Pro &rarr;
                   </button>
@@ -208,7 +207,7 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
 
         {/* Caption */}
         <div className="shrink-0 py-3 text-center border-t border-gray-100">
-          <p className="text-[12px] font-medium" style={{ color: PRIMARY }}>
+          <p className="text-[12px] font-medium" style={{ color: BRAND_VIOLET }}>
             {TAB_CAPTIONS[activeTab]}
           </p>
         </div>

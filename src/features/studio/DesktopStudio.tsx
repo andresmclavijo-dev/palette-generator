@@ -375,7 +375,7 @@ export default function DesktopStudio() {
         {/* Skip link */}
         <a
           href="#main-canvas"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#6C47FF] focus:rounded-lg focus:border focus:border-[#6C47FF] focus:font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
         >
           Skip to main content
         </a>
@@ -445,7 +445,7 @@ export default function DesktopStudio() {
                           onClick={() => handleHarmonySelect(h.mode)}
                           className="flex-col items-start gap-0.5 py-2.5"
                           style={{
-                            backgroundColor: harmonyMode === h.mode ? '#F3F0FF' : undefined,
+                            backgroundColor: harmonyMode === h.mode ? 'hsl(var(--info-bg))' : undefined,
                           }}
                         >
                           <div className="flex items-center justify-between w-full">
@@ -502,8 +502,8 @@ export default function DesktopStudio() {
                         className="text-[10px] font-bold px-1.5 py-0.5"
                         style={{
                           borderRadius: 6,
-                          backgroundColor: a11yGrade === 'A' ? '#D1FAE5' : a11yGrade === 'B' ? '#FEF3C7' : '#FEE2E2',
-                          color: a11yGrade === 'A' ? '#16A34A' : a11yGrade === 'B' ? '#D97706' : '#DC2626',
+                          backgroundColor: a11yGrade === 'A' ? 'hsl(var(--success-bg))' : a11yGrade === 'B' ? 'hsl(var(--warning-bg))' : 'hsl(var(--error-bg))',
+                          color: a11yGrade === 'A' ? 'hsl(var(--success))' : a11yGrade === 'B' ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
                         }}
                       >
                         {a11yGrade}

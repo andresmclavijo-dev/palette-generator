@@ -111,7 +111,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
             left: 0,
             right: 0,
             zIndex: 200,
-            background: '#fff',
+            background: 'hsl(var(--card))',
             borderRadius: '16px 16px 0 0',
             boxShadow: '0 -4px 30px rgba(0,0,0,0.12)',
             paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 24px)',
@@ -128,21 +128,21 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
           <div style={{ padding: '8px 16px 24px' }}>
             {/* Header row — title + close */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <span style={{ fontSize: 14, fontWeight: 500, color: '#111' }}>Customize color</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'hsl(var(--foreground))' }}>Customize color</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onClose() }}
                 style={{
                   width: 32,
                   height: 32,
                   borderRadius: '50%',
-                  background: '#f0f0f0',
+                  background: 'hsl(var(--surface))',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 16,
-                  color: '#666',
+                  color: 'hsl(var(--muted-foreground))',
                 }}
                 aria-label="Close color editor"
               >×</button>

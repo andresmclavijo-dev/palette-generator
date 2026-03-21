@@ -76,7 +76,7 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
               setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)
             }}
             onBlur={e => {
-              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.borderColor = 'hsl(var(--border))'
               e.currentTarget.style.boxShadow = 'none'
             }}
           />

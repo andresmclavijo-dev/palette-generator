@@ -56,7 +56,7 @@ export default function ImagePalette({ onPalette, onProGate }: ImagePaletteProps
           onClick={handleClick}
           disabled={loading}
           className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium hover:bg-surface-secondary hover:text-gray-700 transition-all disabled:opacity-50"
-          style={{ color: '#444444' }}
+          style={{ color: 'hsl(var(--muted-foreground))' }}
           aria-label="Extract colors from image (Pro)"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

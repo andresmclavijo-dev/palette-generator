@@ -57,6 +57,16 @@ export default {
           DEFAULT: "hsl(var(--success))",
           bg: "hsl(var(--success-bg))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          bg: "hsl(var(--warning-bg))",
+        },
+        error: {
+          bg: "hsl(var(--error-bg))",
+        },
+        info: {
+          bg: "hsl(var(--info-bg))",
+        },
         ring: "hsl(var(--ring))",
       },
       fontSize: {

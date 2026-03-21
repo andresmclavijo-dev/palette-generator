@@ -61,7 +61,7 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
     >
       <h2
         className="text-sm font-semibold mb-3"
-        style={{ color: '#1a1a2e' }}
+        style={{ color: 'hsl(var(--foreground))' }}
       >
         Keyboard shortcuts
       </h2>
@@ -71,9 +71,9 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
           <div
             key={s.key}
             className="flex items-center justify-between py-1.5"
-            style={i < shortcuts.length - 1 ? { borderBottom: '1px solid #f3f4f6' } : undefined}
+            style={i < shortcuts.length - 1 ? { borderBottom: '1px solid hsl(var(--border-light))' } : undefined}
           >
-            <span className="text-sm font-normal" style={{ color: '#6B7280' }}>{s.label}</span>
+            <span className="text-sm font-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>{s.label}</span>
             <kbd
               className="inline-block px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-md font-mono text-xs text-center font-semibold"
               style={{ minWidth: 32 }}
@@ -84,7 +84,7 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
         ))}
       </div>
 
-      <p className="text-xs mt-3" style={{ color: '#9CA3AF' }}>
+      <p className="text-xs mt-3" style={{ color: 'hsl(var(--muted))' }}>
         Click a swatch to lock &middot; Click hex to copy &middot; Double-click hex to edit &middot; Drag to reorder
       </p>
     </div>

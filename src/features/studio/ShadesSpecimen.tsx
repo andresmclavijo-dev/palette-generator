@@ -48,7 +48,7 @@ export function ShadesSpecimen({ open, hex, onClose }: { open: boolean; hex: str
                 border: '1px solid rgba(0,0,0,0.06)',
               }}
             />
-            <span className="text-[13px] font-mono font-normal" style={{ color: '#6b7280' }}>
+            <span className="text-[13px] font-mono font-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>
               {hex.toUpperCase()}
             </span>
           </DialogTitle>

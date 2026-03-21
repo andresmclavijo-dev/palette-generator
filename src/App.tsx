@@ -286,7 +286,7 @@ export default function App() {
       {/* Skip link for keyboard navigation */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#6C47FF] focus:rounded-lg focus:border focus:border-[#6C47FF] focus:font-medium"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
       >
         Skip to main content
       </a>
@@ -327,7 +327,7 @@ export default function App() {
             <button
               onClick={() => setAiOpen(true)}
               className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
-              style={{ color: '#444444' }}
+              style={{ color: 'hsl(var(--muted-foreground))' }}
               aria-label="AI palette generation from text prompt"
             >
               <span aria-hidden="true">✨</span> AI Palette
@@ -336,7 +336,7 @@ export default function App() {
                   <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white leading-none" style={{ backgroundColor: BRAND_VIOLET }}>
                     {aiRemaining}
                   </span>
-                  <span className="text-[14px] ml-0.5" style={{ color: '#666666' }}>free/day</span>
+                  <span className="text-[14px] ml-0.5" style={{ color: 'hsl(var(--muted-foreground))' }}>free/day</span>
                 </span>
               )}
             </button>
@@ -347,9 +347,9 @@ export default function App() {
       {/* -- Instruction banner -- */}
       <div
         className="flex-none hidden sm:flex items-center justify-center w-full"
-        style={{ height: 32, background: '#FAFAF8', borderTop: '1px solid #e8e8e8', borderBottom: '1px solid #e8e8e8' }}
+        style={{ height: 32, background: 'hsl(var(--surface-warm))', borderTop: '1px solid hsl(var(--border))', borderBottom: '1px solid hsl(var(--border))' }}
       >
-        <span className="text-[11px] font-medium" style={{ color: '#555555' }}>
+        <span className="text-[11px] font-medium" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Drag to reorder
         </span>
       </div>
@@ -405,7 +405,7 @@ export default function App() {
       {/* -- Desktop bottom bar (Figma Footer 19:473) -- */}
       <div
         className="flex-none hidden sm:flex items-center justify-between relative"
-        style={{ height: 64, background: '#FFFFFF', borderTop: '0.5px solid #efefef', padding: '0 20px' }}
+        style={{ height: 64, background: 'hsl(var(--card))', borderTop: '0.5px solid hsl(var(--border-light))', padding: '0 20px' }}
       >
         {/* Left: Help / keyboard shortcuts */}
         <div className="relative z-10">
@@ -417,7 +417,7 @@ export default function App() {
                 else { setHelpOpen(true); setActivePanel(null) }
               }}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-transparent hover:bg-surface-secondary cursor-pointer"
-              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              style={{ border: '1px solid hsl(var(--border))', color: 'hsl(var(--foreground))' }}
               aria-label="Keyboard shortcuts"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -436,7 +436,7 @@ export default function App() {
               onClick={undo}
               disabled={historyIndex <= 0}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
-              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              style={{ border: '1px solid hsl(var(--border))', color: 'hsl(var(--foreground))' }}
               aria-label="Undo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -468,11 +468,11 @@ export default function App() {
                   paddingRight: 8,
                   paddingTop: 0,
                   paddingBottom: 0,
-                  background: '#9b82ff',
+                  background: 'hsl(var(--primary))',
                   borderRadius: 4,
                   fontSize: 10,
                   fontWeight: 600,
-                  color: '#ffffff',
+                  color: 'hsl(var(--card))',
                   lineHeight: 1,
                 }}
               >
@@ -488,7 +488,7 @@ export default function App() {
               onClick={redo}
               disabled={historyIndex >= history.length - 1}
               className="w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 bg-transparent hover:bg-surface-secondary cursor-pointer"
-              style={{ border: '1px solid #e8e8e8', color: '#1a1a2e' }}
+              style={{ border: '1px solid hsl(var(--border))', color: 'hsl(var(--foreground))' }}
               aria-label="Redo"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
