@@ -151,17 +151,17 @@ export function LibraryView({
                   <div className="flex items-center" style={{ gap: 2 }}>
                     <button
                       onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 transition-colors"
+                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
                       aria-label="Copy palette link"
                     >
-                      <Link2 size={14} strokeWidth={2} />
+                      <Link2 size={16} />
                     </button>
                     <button
                       onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
+                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
                       aria-label={`Delete ${p.name || 'Untitled'}`}
                     >
-                      <X size={14} strokeWidth={2} />
+                      <X size={16} />
                     </button>
                   </div>
                 </div>
