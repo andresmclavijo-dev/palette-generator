@@ -33,6 +33,10 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 const ipDailyLimit = new Map<string, { count: number; date: string }>()
 const FREE_DAILY_LIMIT = 3
 
+// ─── In-memory prompt cache (resets on cold start) ───
+const promptCache = new Map<string, { colors: string[]; timestamp: number }>()
+const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -60,6 +64,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (prompt.length > 500) {
     return res.status(400).json({ error: 'Prompt too long (max 500 characters)' })
+  }
+
+  // Check prompt cache (before daily limit so cached hits don't count)
+  const cacheKey = `${prompt.trim().toLowerCase()}::${colorCount}`
+  const cached = promptCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return res.status(200).json({ colors: cached.colors })
   }
 
   // Daily free-tier limiting (non-Pro only)
@@ -114,7 +125,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(502).json({ error: 'Invalid hex array from AI' })
     }
 
-    return res.status(200).json({ colors: colors.slice(0, colorCount) })
+    // Store in cache
+    const sliced = colors.slice(0, colorCount)
+    promptCache.set(cacheKey, { colors: sliced, timestamp: Date.now() })
+
+    return res.status(200).json({ colors: sliced })
   } catch {
     return res.status(502).json({ error: 'AI unavailable' })
   }
