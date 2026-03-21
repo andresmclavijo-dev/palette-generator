@@ -471,7 +471,8 @@ export function MobileStudio(_props: MobileStudioProps) {
 
         <Button
           onClick={triggerGenerate}
-          className="flex-1 h-12 rounded-[14px] text-[15px] font-bold shadow-lg"
+          size="lg"
+          className="flex-1 text-[15px] font-bold"
           style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
           aria-label="Generate new palette"
         >

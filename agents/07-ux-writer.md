@@ -110,6 +110,31 @@ Every screen the user sees must reinforce brand identity:
 
 ---
 
+## Brand Identity Rules
+
+### Name
+- **Product name:** Paletta (capital P, double t, single l)
+- **In UI wordmarks:** "paletta" (all lowercase) — used in mobile header and minimal contexts
+- **In sentences/docs:** "Paletta" (capitalized) — used in legal pages, marketing, metadata
+- **NEVER:** "Paleta" (one t), "palletta" (double l), "PALETTA" (all caps in body text)
+
+### Logo
+- **Current:** Text-only wordmark, `font-extrabold`, primary brand font
+- **Mobile:** 15px, left-aligned in Studio header
+- **Desktop:** Appears in dock or header area
+- **Future:** SVG logomark (before Product Hunt launch)
+
+### Color
+- **Brand violet:** #6C47FF — all primary CTAs, active states, Pro badges
+- **Never use brand violet for:** non-interactive decorative elements, body text backgrounds, error states
+
+### Voice in product
+- Encouraging during onboarding ("Your next masterpiece starts here")
+- Invisible during core task (toasts are utility: "Copied!", "Saved")
+- Honest at Pro gates ("Unlock shade scales with Pro")
+
+---
+
 ## Review Checklist (every code change with user-facing text)
 1. ❌ Button label > 2 words? → Shorten (exception: CTA with price)
 2. ❌ Weak verb (Submit, OK, Continue)? → Replace with strong verb

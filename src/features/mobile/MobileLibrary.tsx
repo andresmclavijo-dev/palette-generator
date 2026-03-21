@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link2, X } from 'lucide-react'
+import { Bookmark, Link2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePaletteStore } from '@/store/paletteStore'
 import { makeSwatch } from '@/lib/colorEngine'
@@ -73,7 +73,9 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-        <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+          <Bookmark size={28} className="text-primary" strokeWidth={1.5} />
+        </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed max-w-[280px] mb-6">
           Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
@@ -84,7 +86,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
             const { error } = await signInWithGoogle()
             if (error) showToast('Sign-in failed')
           }}
-          className="shadow-lg"
+          className="w-full max-w-[280px] shadow-lg"
           style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.25)' }}
         >
           Sign in to get started
@@ -106,12 +108,14 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   if (palettes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-        <span className="text-[48px] mb-4" aria-hidden="true">◇</span>
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+          <Bookmark size={28} className="text-primary" strokeWidth={1.5} />
+        </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">No saved palettes yet</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6">
           Generate a palette you love, then tap Save.
         </p>
-        <Button size="lg" onClick={() => onNavigate('studio')}>
+        <Button size="lg" onClick={() => onNavigate('studio')} className="w-full max-w-[280px]">
           Go to Studio
         </Button>
       </div>

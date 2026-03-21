@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { usePro } from '@/hooks/usePro'
 import { usePaletteStore } from '@/store/paletteStore'
@@ -63,12 +62,13 @@ export function MobileProfile() {
           </p>
 
           <Button
+            size="lg"
             onClick={async () => {
               analytics.track('sign_in_clicked', { source: 'mobile_profile' })
               const { error } = await signInWithGoogle()
               if (error) showToast('Sign-in failed')
             }}
-            className="h-[52px] rounded-[14px] px-8 text-[15px] font-bold shadow-lg w-full max-w-[280px]"
+            className="w-full max-w-[280px] text-[15px] font-bold shadow-lg"
             style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
           >
             Continue with Google
@@ -82,11 +82,33 @@ export function MobileProfile() {
           </button>
         </div>
 
-        {/* Legal links */}
-        <div className="flex items-center justify-center gap-4 pb-6">
-          <Link to="/privacy" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Privacy</Link>
-          <Link to="/terms" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Terms</Link>
-          <Link to="/cookies" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Cookies</Link>
+        {/* Legal */}
+        <div className="flex flex-col gap-2 mt-6 px-4 pb-6">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
+          {[
+            { label: 'Privacy Policy', href: '/privacy-policy' },
+            { label: 'Cookie Policy', href: '/cookie-policy' },
+            { label: 'Terms of Service', href: '/terms-of-service' },
+          ].map(link => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
+          <a
+            href="mailto:hello@usepaletta.io"
+            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Contact
+          </a>
+          <p className="text-[11px] text-muted mt-3">
+            Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
+          </p>
         </div>
 
         <ProUpgradeModal open={proOpen} onClose={() => setProOpen(false)} />
@@ -132,16 +154,18 @@ export function MobileProfile() {
             </div>
             <Button
               variant="outline"
+              size="default"
               onClick={handleManageSubscription}
-              className="w-full h-10 rounded-button text-[13px]"
+              className="w-full text-[13px]"
             >
               Manage subscription
             </Button>
           </div>
         ) : (
           <Button
+            size="lg"
             onClick={() => { analytics.track('pro_modal_opened', { source: 'mobile_profile' }); setProOpen(true) }}
-            className="w-full h-12 rounded-xl text-[15px] font-bold shadow-lg mb-4"
+            className="w-full text-[15px] font-bold shadow-lg mb-4"
             style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.25)' }}
           >
             Upgrade to Pro
@@ -175,22 +199,46 @@ export function MobileProfile() {
         </div>
 
         {/* Sign out */}
-        <button
+        <Button
+          variant="ghost"
+          size="default"
           onClick={async () => {
             await signOut()
             showToast('Signed out')
           }}
-          className="w-full text-center py-3 text-[14px] font-medium text-destructive transition-colors"
+          className="w-full text-destructive hover:text-destructive"
         >
           Sign Out
-        </button>
+        </Button>
       </div>
 
-      {/* Legal links */}
-      <div className="flex items-center justify-center gap-4 pb-6">
-        <Link to="/privacy" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Privacy</Link>
-        <Link to="/terms" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Terms</Link>
-        <Link to="/cookies" className="text-[11px] text-muted hover:text-muted-foreground transition-colors">Cookies</Link>
+      {/* Legal */}
+      <div className="flex flex-col gap-2 mt-6 px-4 pb-6">
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
+        {[
+          { label: 'Privacy Policy', href: '/privacy-policy' },
+          { label: 'Cookie Policy', href: '/cookie-policy' },
+          { label: 'Terms of Service', href: '/terms-of-service' },
+        ].map(link => (
+          <a
+            key={link.href}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {link.label}
+          </a>
+        ))}
+        <a
+          href="mailto:hello@usepaletta.io"
+          className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Contact
+        </a>
+        <p className="text-[11px] text-muted mt-3">
+          Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
+        </p>
       </div>
 
       <ProUpgradeModal open={proOpen} onClose={() => setProOpen(false)} />
