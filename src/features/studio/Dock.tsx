@@ -3,6 +3,7 @@ import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
   MoreHorizontal, ExternalLink,
 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 
@@ -111,20 +112,20 @@ export function Dock({
           <button
             onClick={onToggle}
             className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-            style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10 }}
+            style={{ height: 48, padding: '0 14px', gap: 8, borderRadius: 12 }}
             aria-label="Collapse dock"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={20} />
             <span>Collapse</span>
           </button>
         ) : (
           <DarkTooltip label="Expand" position="right">
             <button
               onClick={onToggle}
-              className="mx-auto w-10 h-10 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              className="mx-auto w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
               aria-label="Expand dock"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={20} />
             </button>
           </DarkTooltip>
         )}
@@ -209,21 +210,7 @@ function DockItem({
             </span>
           )}
           {isCollapsed && proBadge && (
-            <span
-              className="absolute flex items-center justify-center font-bold text-white leading-none pointer-events-none"
-              style={{
-                top: -4,
-                right: -4,
-                height: 14,
-                fontSize: 7,
-                padding: '0 4px',
-                borderRadius: 4,
-                backgroundColor: BRAND_VIOLET,
-                border: '1px solid #ffffff',
-              }}
-            >
-              PRO
-            </span>
+            <Badge variant="pro" className="absolute -top-1 -right-1 text-[7px] px-1 py-0 pointer-events-none border border-white">PRO</Badge>
           )}
         </span>
         {expanded && (
@@ -238,12 +225,7 @@ function DockItem({
               </span>
             )}
             {proBadge && (
-              <span
-                className="text-[8px] font-bold text-white"
-                style={{ marginLeft: 'auto', borderRadius: 4, backgroundColor: BRAND_VIOLET, padding: '2px 5px' }}
-              >
-                PRO
-              </span>
+              <Badge variant="pro" className="ml-auto">PRO</Badge>
             )}
           </>
         )}
@@ -301,7 +283,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
       <DarkTooltip label="More" position="right">
         <button
           onClick={() => setOpen(o => !o)}
-          className="w-10 h-10 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
           aria-label="Info and legal links"
           aria-expanded={open}
         >

@@ -37,7 +37,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon
-                size={24}
+                size={20}
                 className={cn(
                   'transition-all duration-200',
                   isActive ? 'text-primary' : 'text-muted-foreground'

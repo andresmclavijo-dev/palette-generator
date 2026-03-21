@@ -129,7 +129,7 @@ export function MobileProfile() {
             />
           ) : (
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground font-extrabold text-xl"
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground font-semibold text-xl"
             >
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>

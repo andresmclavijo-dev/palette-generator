@@ -4,6 +4,7 @@ import { getAiRemaining } from '../../components/palette/AiPrompt'
 import { HarmonyPickerList } from '../../components/palette/HarmonyPicker'
 import type { HarmonyMode } from '../../lib/colorEngine'
 import type { VisionMode } from '../../components/palette/VisionSimulator'
+import { Badge } from '@/components/ui/badge'
 
 const VISION_MODES: { value: VisionMode; label: string; desc: string }[] = [
   { value: 'normal',        label: 'Normal Vision',  desc: 'Default color rendering' },
@@ -255,17 +256,7 @@ export default function MobileDrawer({
                       </span>
                       <div className="flex items-center gap-2 shrink-0">
                         {needsPro && (
-                          <span
-                            className="text-[10px] font-bold"
-                            style={{
-                              background: 'rgba(108,71,255,0.1)',
-                              color: '#6C47FF',
-                              padding: '2px 8px',
-                              borderRadius: 99,
-                            }}
-                          >
-                            PRO
-                          </span>
+                          <Badge variant="pro">PRO</Badge>
                         )}
                         {isActive && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6C47FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -73,8 +73,8 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-          <Heart size={28} className="text-primary" strokeWidth={1.5} />
+        <div className="w-14 h-14 rounded-card bg-primary/10 flex items-center justify-center mb-4">
+          <Heart size={28} className="text-primary" />
         </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed max-w-[280px] mb-6">
@@ -108,8 +108,8 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   if (palettes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-          <Heart size={28} className="text-primary" strokeWidth={1.5} />
+        <div className="w-14 h-14 rounded-card bg-primary/10 flex items-center justify-center mb-4">
+          <Heart size={28} className="text-primary" />
         </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">No saved palettes yet</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed mb-6">
@@ -137,7 +137,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
             <button
               key={palette.id}
               onClick={() => handleLoad(palette)}
-              className="bg-card rounded-[18px] p-3.5 shadow-sm text-left transition-all active:scale-[0.98]"
+              className="bg-card rounded-card p-3.5 shadow-sm text-left transition-all active:scale-[0.98]"
               aria-label={`Load palette: ${palette.name}`}
             >
               {/* Color strip */}

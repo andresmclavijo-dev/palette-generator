@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { Badge } from '@/components/ui/badge'
+import { BRAND_DARK } from '@/lib/tokens'
 
 export function UserMenu({
   email, isPro, avatarUrl, onSignOut, onManage,
@@ -55,12 +56,7 @@ export function UserMenu({
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-[13px] font-semibold m-0" style={{ color: BRAND_DARK }}>{email}</p>
             {isPro && (
-              <span
-                className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
-                style={{ backgroundColor: BRAND_VIOLET }}
-              >
-                PRO
-              </span>
+              <Badge variant="pro" className="mt-1">PRO</Badge>
             )}
           </div>
           {isPro && (

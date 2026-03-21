@@ -82,8 +82,8 @@ export function LibraryView({
   if (!isSignedIn) {
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-        <div className="rounded-full flex items-center justify-center mb-5" style={{ width: 56, height: 56, backgroundColor: BRAND_VIOLET }}>
-          <Heart size={28} color="#ffffff" />
+        <div className="w-14 h-14 rounded-card bg-primary/10 flex items-center justify-center mb-5">
+          <Heart size={28} className="text-primary" />
         </div>
         <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Your collection starts here</h2>
         <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
@@ -133,12 +133,12 @@ export function LibraryView({
               <div
                 key={p.id}
                 className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
-                style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}
+                style={{ borderRadius: 16, border: '1px solid rgba(0,0,0,0.06)' }}
                 onClick={() => onLoad(p.colors, p.name)}
                 role="button"
                 aria-label={`Load palette: ${p.name || 'Untitled'}`}
               >
-                <div className="flex h-14 overflow-hidden" style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+                <div className="flex h-14 overflow-hidden" style={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
                   {p.colors.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}

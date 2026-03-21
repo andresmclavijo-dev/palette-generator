@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
+import { Badge } from '@/components/ui/badge'
 
 interface ToolTooltipProps {
   description: string
@@ -112,9 +113,7 @@ export default function ToolTooltip({ description, showProBadge, children, disab
               {description}
             </p>
             {showProBadge && (
-              <span className="inline-block mt-1.5 bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
-                PRO
-              </span>
+              <Badge variant="pro" className="mt-1.5">PRO</Badge>
             )}
           </div>
         </div>,

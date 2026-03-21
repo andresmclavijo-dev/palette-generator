@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { readableOn } from '@/lib/colorEngine'
 import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 import { analytics } from '@/lib/posthog'
+import { Badge } from '@/components/ui/badge'
 import { DarkTooltip } from './DarkTooltip'
 
 export function PreviewMode({
@@ -233,12 +234,7 @@ function MockupCard({
               <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>
                 {label} preview
               </span>
-              <span
-                className="text-[9px] font-bold px-2 py-0.5 text-white"
-                style={{ backgroundColor: BRAND_VIOLET, borderRadius: 4 }}
-              >
-                PRO
-              </span>
+              <Badge variant="pro">PRO</Badge>
             </div>
           </button>
         )}
@@ -247,16 +243,20 @@ function MockupCard({
       {/* Label */}
       <div className="flex items-center gap-2 px-3 py-2" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
         <span className="text-[12px] font-medium" style={{ color: BRAND_DARK }}>{label}</span>
-        <span
-          className="text-[9px] font-bold px-1.5 py-0.5"
-          style={{
-            borderRadius: 4,
-            backgroundColor: badgeStyle === 'pro' ? BRAND_VIOLET : '#e5e7eb',
-            color: badgeStyle === 'pro' ? '#ffffff' : '#374151',
-          }}
-        >
-          {badge}
-        </span>
+        {badgeStyle === 'pro' ? (
+          <Badge variant="pro">{badge}</Badge>
+        ) : (
+          <span
+            className="text-[9px] font-bold px-1.5 py-0.5"
+            style={{
+              borderRadius: 4,
+              backgroundColor: '#e5e7eb',
+              color: '#374151',
+            }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
     </div>
   )

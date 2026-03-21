@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sparkles, Eye, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 export function ProfileView({
   user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription,
@@ -56,7 +57,7 @@ export function ProfileView({
                   <Icon size={20} className="text-primary" />
                   <span className="text-[14px] font-semibold text-foreground">{f.title}</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-primary text-white rounded-badge">PRO</span>
+                <Badge variant="pro">PRO</Badge>
               </div>
             )
           })}
@@ -82,7 +83,7 @@ export function ProfileView({
             />
           ) : (
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground text-[20px] font-bold shrink-0"
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground text-[20px] font-semibold shrink-0"
             >
               {initial}
             </div>
@@ -91,7 +92,7 @@ export function ProfileView({
             <div className="flex items-center gap-2">
               <span className="text-[20px] font-bold truncate text-foreground">{name}</span>
               {isPro && (
-                <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1 bg-primary rounded-badge">PRO</span>
+                <Badge variant="pro" className="shrink-0">PRO</Badge>
               )}
             </div>
             {user?.email && <span className="text-[13px] block truncate mt-0.5 text-muted-foreground">{user.email}</span>}
@@ -118,6 +119,8 @@ export function ProfileView({
             onClick={() => setAccountOpen(o => !o)}
             className="w-full flex items-center justify-between px-4 hover:bg-surface transition-colors"
             style={{ minHeight: 52 }}
+            aria-label="Account"
+            aria-expanded={accountOpen}
           >
             <span className="text-[15px] font-semibold text-foreground">Account</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
@@ -128,11 +131,11 @@ export function ProfileView({
           </button>
           <div className="border-t border-border-light overflow-hidden transition-all duration-200" style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}>
             {isPro && (
-              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-foreground" style={{ minHeight: 52 }}>
+              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-foreground" style={{ minHeight: 52 }} aria-label="Manage subscription">
                 Manage subscription
               </button>
             )}
-            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-destructive" style={{ minHeight: 52 }}>
+            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-destructive" style={{ minHeight: 52 }} aria-label="Sign out">
               Sign out
             </button>
           </div>

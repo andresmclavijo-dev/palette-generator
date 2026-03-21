@@ -23,6 +23,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
 import {
   readableOn, getColorName, getContrastBadge,
@@ -561,12 +562,7 @@ export default function DesktopStudio() {
                     >
                       <Image size={16} strokeWidth={1.5} />
                       {!isPro && (
-                        <span
-                          className="text-[8px] font-bold text-white px-1.5 py-0.5"
-                          style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
-                        >
-                          PRO
-                        </span>
+                        <Badge variant="pro">PRO</Badge>
                       )}
                     </button>
                   </DarkTooltip>
@@ -582,7 +578,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Save palette"
                     >
-                      <Heart size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                      <Heart size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
                     </button>
                   </DarkTooltip>
 
@@ -594,7 +590,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Share palette link"
                     >
-                      {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />}
+                      {shareCopied ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} /> : <Share2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />}
                     </button>
                   </DarkTooltip>
 
@@ -606,7 +602,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Export palette"
                     >
-                      <Download size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                      <Download size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
                     </button>
                   </DarkTooltip>
 
@@ -670,7 +666,7 @@ export default function DesktopStudio() {
                         }}
                         className="text-[11px] transition-all"
                         style={{
-                          height: 30, padding: '0 10px', borderRadius: 6,
+                          height: 32, padding: '0 10px', borderRadius: 8,
                           fontWeight: isActive ? 600 : 400,
                           backgroundColor: isActive ? 'hsl(var(--card))' : 'transparent',
                           boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
@@ -683,7 +679,7 @@ export default function DesktopStudio() {
                       >
                         {v.label.replace(' Vision', '')}
                         {needsPro && (
-                          <span className="ml-1 text-[8px] font-bold text-white px-1 py-0.5" style={{ borderRadius: 4, backgroundColor: BRAND_VIOLET }}>PRO</span>
+                          <Badge variant="pro" className="ml-1">PRO</Badge>
                         )}
                       </button>
                     )
@@ -761,8 +757,8 @@ export default function DesktopStudio() {
                                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                                 >
                                   {isCopied
-                                    ? <Check size={20} strokeWidth={1.5} style={{ color: textColor }} />
-                                    : <Copy size={20} strokeWidth={1.5} style={{ color: textColor }} />}
+                                    ? <Check size={16} strokeWidth={1.5} style={{ color: textColor }} />
+                                    : <Copy size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                 </button>
                               </DarkTooltip>
                               <DarkTooltip label="Color details" position="right">
@@ -777,7 +773,7 @@ export default function DesktopStudio() {
                                   aria-label="Color info"
                                   aria-expanded={showInfo}
                                 >
-                                  <Info size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                  <Info size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
                               <DarkTooltip label="Shade scale" position="right">
@@ -788,7 +784,7 @@ export default function DesktopStudio() {
                                   aria-label="View shade scale"
                                   aria-expanded={showShades}
                                 >
-                                  <Grid3X3 size={20} strokeWidth={1.5} style={{ color: textColor }} />
+                                  <Grid3X3 size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
                               <DarkTooltip label={s.locked ? 'Unlock' : 'Lock'} position="right">
@@ -799,8 +795,8 @@ export default function DesktopStudio() {
                                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                                 >
                                   {s.locked
-                                    ? <Lock size={20} strokeWidth={1.5} style={{ color: textColor }} />
-                                    : <Unlock size={20} strokeWidth={1.5} style={{ color: textColor }} />}
+                                    ? <Lock size={16} strokeWidth={1.5} style={{ color: textColor }} />
+                                    : <Unlock size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                 </button>
                               </DarkTooltip>
                             </div>

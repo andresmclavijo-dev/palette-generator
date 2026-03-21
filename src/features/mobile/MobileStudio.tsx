@@ -211,6 +211,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             className={`flex-1 py-1.5 text-[13px] font-medium rounded-button transition-all ${
               viewMode === mode ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
             }`}
+            aria-label={mode === 'colors' ? 'Colors' : 'Preview'}
           >
             {mode === 'colors' ? 'Colors' : 'Preview'}
           </button>
@@ -424,12 +425,11 @@ export function MobileStudio(_props: MobileStudioProps) {
                         <div className="text-[14px] font-semibold text-foreground">{mock.title}</div>
                         <div className="text-[11px] text-muted-foreground">{mock.desc}</div>
                       </div>
-                      <span className={cn(
-                        'text-[10px] font-bold px-2.5 py-1 rounded-md',
-                        mock.free ? 'bg-success-bg text-success' : 'bg-primary/10 text-primary'
-                      )}>
-                        {mock.free ? 'FREE' : 'PRO'}
-                      </span>
+                      {mock.free ? (
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-success-bg text-success">FREE</span>
+                      ) : (
+                        <Badge variant="pro">PRO</Badge>
+                      )}
                     </div>
                   </div>
                 ))
@@ -444,8 +444,8 @@ export function MobileStudio(_props: MobileStudioProps) {
         <button
           onClick={() => { if (count > 3) setCount(count - 1) }}
           disabled={count <= 3}
-          className="flex items-center justify-center border border-border rounded-[10px] disabled:opacity-30 transition-all active:scale-95"
-          style={{ width: 38, height: 38 }}
+          className="flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-95"
+          style={{ width: 36, height: 36 }}
           aria-label="Remove color"
         >
           <Minus size={16} className="text-foreground" />
@@ -457,8 +457,8 @@ export function MobileStudio(_props: MobileStudioProps) {
             if (count < (isPro ? 8 : 5)) setCount(count + 1)
           }}
           disabled={isPro ? count >= 8 : false}
-          className="relative flex items-center justify-center border border-border rounded-[10px] disabled:opacity-30 transition-all active:scale-95"
-          style={{ width: 38, height: 38 }}
+          className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-95"
+          style={{ width: 36, height: 36 }}
           aria-label={!isPro && count >= 5 ? 'Upgrade to Pro for more colors' : 'Add color'}
         >
           <Plus size={16} className="text-foreground" />

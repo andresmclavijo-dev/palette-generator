@@ -4,6 +4,7 @@ import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS }
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
+import { Badge } from '@/components/ui/badge'
 import { BRAND_VIOLET } from '../../lib/tokens'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -149,12 +150,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
               {f.pro && !isPro && <Lock size={12} strokeWidth={2} />}
               {f.label}
               {f.pro && !isPro && (
-                <span
-                  className="text-[9px] font-bold text-white px-1.5 py-0.5"
-                  style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET, marginLeft: 2 }}
-                >
-                  PRO
-                </span>
+                <Badge variant="pro" className="ml-0.5">PRO</Badge>
               )}
             </button>
           ))}
