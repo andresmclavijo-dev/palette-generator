@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { usePro } from '@/hooks/usePro'
+import { usePaletteStore } from '@/store/paletteStore'
 import { createPortalSession } from '@/lib/stripe'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
@@ -12,7 +13,23 @@ import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
 export function MobileProfile() {
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const { isPro } = usePro()
+  const { swatches } = usePaletteStore()
   const [proOpen, setProOpen] = useState(false)
+  const [savedCount, setSavedCount] = useState(0)
+
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase')
+        const { count } = await supabase
+          .from('saved_palettes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+        setSavedCount(count ?? 0)
+      } catch { /* silent */ }
+    })()
+  }, [user])
 
   const handleManageSubscription = async () => {
     if (!user?.email) { showToast('Contact support'); return }
@@ -130,6 +147,32 @@ export function MobileProfile() {
             Upgrade to Pro
           </Button>
         )}
+
+        {/* Quick stats */}
+        <div className="bg-card border border-border/30 rounded-2xl p-4 mb-3">
+          <div className="text-[13px] font-semibold text-foreground mb-2">Quick stats</div>
+          <div className="flex justify-between">
+            <div className="text-center flex-1">
+              <div className="text-[20px] font-bold text-foreground">{savedCount}</div>
+              <div className="text-[11px] text-muted-foreground">Saved</div>
+            </div>
+            <div className="text-center flex-1">
+              <div className="text-[20px] font-bold text-foreground">{swatches.length}</div>
+              <div className="text-[11px] text-muted-foreground">Colors</div>
+            </div>
+            <div className="text-center flex-1">
+              <div className="text-[20px] font-bold text-primary">{isPro ? 'Pro' : 'Free'}</div>
+              <div className="text-[11px] text-muted-foreground">Plan</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop features note */}
+        <div className="bg-surface rounded-2xl p-4 mb-3 border border-border/20">
+          <p className="text-[13px] text-muted-foreground leading-relaxed">
+            Some features like Shade Scales and Image Extraction are optimized for desktop. Visit usepaletta.io on your computer for the full experience.
+          </p>
+        </div>
 
         {/* Sign out */}
         <button

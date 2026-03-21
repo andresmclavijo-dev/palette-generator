@@ -55,7 +55,7 @@ export function MobileStudio(_props: MobileStudioProps) {
 
   // ─── Sheet state (single-sheet rule) ───
   const [activeSheet, setActiveSheet] = useState<
-    'harmony' | 'color-detail' | 'ai' | 'export' | 'save' | 'pro' | 'sign-in' | null
+    'harmony' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
   >(null)
   const [viewMode, setViewMode] = useState<'colors' | 'preview'>('colors')
   const [activeColorIdx, setActiveColorIdx] = useState(0)
@@ -225,7 +225,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 return (
                   <button
                     key={swatch.id}
-                    className="flex-1 min-w-0 flex flex-col items-center justify-end relative"
+                    className="flex-1 min-w-0 flex flex-col items-center justify-end relative overflow-hidden"
                     style={{ backgroundColor: swatch.hex, paddingBottom: 12, minHeight: 44 }}
                     onClick={() => { setActiveColorIdx(i); setActiveSheet('color-detail') }}
                     aria-label={`${getColorName(swatch.hex)} ${swatch.hex}. Tap for details.`}
@@ -234,18 +234,18 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <div className="bg-white shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1">
-                      <span className={cn('font-bold text-foreground', swatches.length > 6 ? 'text-[8px]' : 'text-[10px]')}>{badge.level}</span>
+                    <div className="bg-white shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
+                      <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[8px]' : 'text-[10px]')}>{badge.level}</span>
                       {swatches.length <= 6 && (
-                        <span className="text-[9px] font-medium text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                        <span className="text-[9px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
                       )}
-                      {badge.pass && <span className="text-[8px] text-success font-bold">✓</span>}
+                      {badge.pass && <span className="text-[8px] text-success font-bold leading-none">✓</span>}
                     </div>
                     {/* Hex */}
-                    <div className="bg-white shadow-sm rounded-md px-1.5 py-0.5 border border-black/5">
+                    <div className="bg-white shadow-sm rounded-md px-1.5 py-0.5 border border-black/5 max-w-[calc(100%-8px)]">
                       <span className={cn(
-                        'font-semibold font-mono text-foreground tracking-wider',
-                        swatches.length > 6 ? 'text-[8px]' : 'text-[10px]'
+                        'font-semibold font-mono text-foreground leading-none truncate block',
+                        swatches.length > 6 ? 'text-[8px] tracking-normal' : 'text-[10px] tracking-wider'
                       )}>
                         {swatch.hex.toUpperCase().slice(0, 7)}
                       </span>
@@ -315,7 +315,10 @@ export function MobileStudio(_props: MobileStudioProps) {
               </button>
               {/* Extract */}
               <button
-                onClick={() => openProModal('image_extraction', 'mobile_tools')}
+                onClick={() => {
+                  if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
+                  setActiveSheet('extract')
+                }}
                 className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl bg-card border border-border/40 active:scale-95 transition-all duration-150 min-w-[56px]"
                 aria-label="Extract palette from image"
               >
@@ -366,49 +369,64 @@ export function MobileStudio(_props: MobileStudioProps) {
             }}
           >
             <div className="flex flex-col gap-3">
-              {[
-                { title: 'Landing Page', height: 200, free: true },
-                { title: 'Dashboard', height: 180, free: false },
-                { title: 'Mobile App', height: 180, free: false },
-              ].map(({ title, height, free }) => (
-                <div
-                  key={title}
-                  className="bg-card rounded-[20px] overflow-hidden shadow-sm border border-border/30"
-                >
-                  {/* Gradient preview area */}
+              {(() => {
+                const c1 = swatches[0]?.hex || '#6C47FF'
+                const c2 = swatches[Math.min(1, swatches.length - 1)]?.hex || '#FF6B6B'
+                const c3 = swatches[Math.min(2, swatches.length - 1)]?.hex || '#4ECDC4'
+                const mocks = [
+                  { title: 'Landing Page', desc: 'Hero section with CTA', height: 200, free: true, gradient: `linear-gradient(145deg, ${c1}22, ${c2}22, ${c3}22)` },
+                  { title: 'Dashboard', desc: 'Analytics sidebar layout', height: 180, free: false, gradient: `linear-gradient(145deg, ${c1}33, ${c3}33)` },
+                  { title: 'Mobile App', desc: 'iOS app interface', height: 180, free: false, gradient: `linear-gradient(145deg, ${c2}22, ${c3}22)` },
+                ]
+                return mocks.map((mock, idx) => (
                   <div
-                    className="relative"
-                    style={{
-                      height,
-                      background: `linear-gradient(145deg, ${swatches[0]?.hex || '#6C47FF'}, ${swatches[Math.floor(swatches.length / 2)]?.hex || '#4ECDC4'}, ${swatches[swatches.length - 1]?.hex || '#FFE66D'})`,
-                    }}
+                    key={mock.title}
+                    className="bg-card rounded-[20px] overflow-hidden shadow-sm border border-border/30"
                   >
-                    {/* Wireframe overlay — fake nav bar */}
-                    <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
-                      <div className="w-16 h-2.5 rounded-full bg-white/30" />
-                      <div className="flex-1" />
-                      <div className="w-8 h-2.5 rounded-full bg-white/20" />
-                      <div className="w-8 h-2.5 rounded-full bg-white/20" />
+                    <div
+                      className="relative"
+                      style={{ height: mock.height, background: mock.gradient }}
+                    >
+                      {/* Nav bar wireframe */}
+                      <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
+                        <div className="w-16 h-2.5 rounded-full" style={{ backgroundColor: `${c1}40` }} />
+                        <div className="flex-1" />
+                        <div className="w-8 h-2.5 rounded-full" style={{ backgroundColor: `${c2}30` }} />
+                        <div className="w-8 h-2.5 rounded-full" style={{ backgroundColor: `${c2}30` }} />
+                      </div>
+                      {/* Hero content wireframe */}
+                      <div className="absolute bottom-6 left-4 right-4">
+                        <div className="w-3/4 h-4 rounded-full mb-3" style={{ backgroundColor: `${c1}35` }} />
+                        <div className="w-1/2 h-2.5 rounded-full mb-4" style={{ backgroundColor: `${c2}25` }} />
+                        <div className="w-24 h-8 rounded-lg" style={{ backgroundColor: `${c1}30` }} />
+                      </div>
+                      {/* Dashboard sidebar hint */}
+                      {idx === 1 && (
+                        <div className="absolute top-0 left-0 w-16 h-full" style={{ backgroundColor: `${c1}15` }}>
+                          <div className="mt-12 ml-3 space-y-3">
+                            <div className="w-8 h-1.5 rounded-full" style={{ backgroundColor: `${c1}30` }} />
+                            <div className="w-6 h-1.5 rounded-full" style={{ backgroundColor: `${c1}20` }} />
+                            <div className="w-7 h-1.5 rounded-full" style={{ backgroundColor: `${c1}20` }} />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    {/* Wireframe overlay — fake hero content */}
-                    <div className="absolute bottom-6 left-4 right-4">
-                      <div className="w-3/4 h-4 rounded-full bg-white/30 mb-3" />
-                      <div className="w-1/2 h-2.5 rounded-full bg-white/20 mb-4" />
-                      <div className="w-24 h-8 rounded-lg bg-white/25" />
+                    {/* Label bar */}
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <div>
+                        <div className="text-[14px] font-semibold text-foreground">{mock.title}</div>
+                        <div className="text-[11px] text-muted-foreground">{mock.desc}</div>
+                      </div>
+                      <span className={cn(
+                        'text-[10px] font-bold px-2.5 py-1 rounded-md',
+                        mock.free ? 'bg-success-bg text-success' : 'bg-primary/10 text-primary'
+                      )}>
+                        {mock.free ? 'FREE' : 'PRO'}
+                      </span>
                     </div>
                   </div>
-                  {/* Label bar */}
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <span className="text-[14px] font-semibold text-foreground">{title}</span>
-                    <span className={cn(
-                      'text-[10px] font-bold px-2.5 py-1 rounded-md',
-                      free ? 'bg-success-bg text-success' : 'bg-primary/10 text-primary'
-                    )}>
-                      {free ? 'FREE' : 'PRO'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              })()}
             </div>
           </div>
         )}
@@ -575,6 +593,20 @@ export function MobileStudio(_props: MobileStudioProps) {
             </div>
           )
         })()}
+      </MobileBottomSheet>
+
+      {/* Extract placeholder sheet */}
+      <MobileBottomSheet
+        open={activeSheet === 'extract'}
+        onClose={closeSheet}
+        title="Image Extraction"
+        subtitle="Extract a palette from any photo"
+      >
+        <div className="text-center py-8">
+          <ImagePlus size={40} className="mx-auto text-muted-foreground mb-4" strokeWidth={1} />
+          <p className="text-[15px] text-foreground font-semibold mb-1">Coming soon</p>
+          <p className="text-[13px] text-muted-foreground">Image extraction is being optimized for mobile. Use desktop for now.</p>
+        </div>
       </MobileBottomSheet>
 
       {/* AI dialog (reuse existing) */}
