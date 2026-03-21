@@ -33,7 +33,7 @@ export function Dock({
         className="flex-1 flex flex-col"
         style={{
           borderRadius: 16,
-          backgroundColor: '#ffffff',
+          backgroundColor: 'hsl(var(--card))',
           boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
           border: '1px solid rgba(0,0,0,0.04)',
           padding: expanded ? '14px 12px' : '12px 8px',
@@ -107,7 +107,7 @@ export function Dock({
           <button
             onClick={onToggle}
             className="flex items-center w-full text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-            style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10, color: '#9ca3af' }}
+            style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10, color: 'hsl(var(--muted))' }}
             aria-label="Collapse dock"
           >
             <ChevronLeft size={16} />
@@ -118,7 +118,7 @@ export function Dock({
             <button
               onClick={onToggle}
               className="mx-auto flex items-center justify-center transition-all"
-              style={{ width: 40, height: 40, flexShrink: 0, padding: 0, borderRadius: 10, color: '#9ca3af' }}
+              style={{ width: 40, height: 40, flexShrink: 0, padding: 0, borderRadius: 10, color: 'hsl(var(--muted))' }}
               aria-label="Expand dock"
             >
               <ChevronRight size={16} />
@@ -284,12 +284,12 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] transition-all hover:underline"
-            style={{ color: '#9ca3af', textDecoration: 'none', padding: '0 14px' }}
+            style={{ color: 'hsl(var(--muted))', textDecoration: 'none', padding: '0 14px' }}
           >
             {l.label}
           </a>
         ))}
-        <p className="text-[10px] m-0" style={{ color: '#d1d5db', padding: '4px 14px 0' }}>
+        <p className="text-[10px] m-0" style={{ color: 'hsl(var(--border))', padding: '4px 14px 0' }}>
           Built with <span className="font-brand">Paletta</span>
         </p>
       </div>
@@ -301,7 +301,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
       <button
         onClick={() => setOpen(o => !o)}
         className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-        style={{ color: '#9ca3af' }}
+        style={{ color: 'hsl(var(--muted))' }}
         aria-label="Info and legal links"
         aria-expanded={open}
       >
@@ -329,7 +329,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 text-[12px] font-medium transition-all hover:bg-gray-50"
-              style={{ color: '#374151', textDecoration: 'none' }}
+              style={{ color: 'hsl(var(--foreground))', textDecoration: 'none' }}
               role="menuitem"
             >
               {l.label}
@@ -340,13 +340,13 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
           <div className="border-t border-gray-100 my-1" />
 
           <div className="px-4 py-1.5">
-            <p className="text-[10px] font-semibold m-0 mb-1" style={{ color: '#9ca3af' }}>Shortcuts</p>
+            <p className="text-[10px] font-semibold m-0 mb-1" style={{ color: 'hsl(var(--muted))' }}>Shortcuts</p>
             {shortcuts.map(s => (
               <div key={s.key} className="flex items-center justify-between py-0.5">
-                <span className="text-[11px]" style={{ color: '#6b7280' }}>{s.desc}</span>
+                <span className="text-[11px]" style={{ color: 'hsl(var(--muted-foreground))' }}>{s.desc}</span>
                 <kbd
                   className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}
+                  style={{ backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--muted-foreground))' }}
                 >
                   {s.key}
                 </kbd>
@@ -356,7 +356,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
           <div className="border-t border-gray-100 my-1" />
           <div className="px-4 py-1">
-            <p className="text-[10px] m-0" style={{ color: '#d1d5db' }}>Built with <span className="font-brand">Paletta</span></p>
+            <p className="text-[10px] m-0" style={{ color: 'hsl(var(--border))' }}>Built with <span className="font-brand">Paletta</span></p>
           </div>
         </div>
       )}

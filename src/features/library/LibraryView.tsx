@@ -86,7 +86,7 @@ export function LibraryView({
           <Heart size={28} color="#ffffff" />
         </div>
         <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Your collection starts here</h2>
-        <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: '#6B7280' }}>
+        <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Save your favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
         <Button
@@ -104,7 +104,7 @@ export function LibraryView({
   if (loading) {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[13px]" style={{ color: '#9CA3AF' }}>Loading...</span>
+        <span className="text-[13px]" style={{ color: 'hsl(var(--muted))' }}>Loading...</span>
       </div>
     )
   }
@@ -116,16 +116,16 @@ export function LibraryView({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Library</h2>
-            <p className="text-[13px] mt-1" style={{ color: '#9CA3AF' }}>Your saved palettes</p>
+            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted))' }}>Your saved palettes</p>
           </div>
-          <span className="text-[12px]" style={{ color: '#9CA3AF' }}>{slotsText}</span>
+          <span className="text-[12px]" style={{ color: 'hsl(var(--muted))' }}>{slotsText}</span>
         </div>
 
         {palettes.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
-            <Heart size={32} style={{ color: '#d1d5db' }} />
-            <p className="text-[15px] font-medium mt-4" style={{ color: '#6B7280' }}>No saved palettes yet</p>
-            <p className="text-[13px] mt-1" style={{ color: '#9CA3AF' }}>Use the heart icon in Studio to save palettes here</p>
+            <Heart size={32} style={{ color: 'hsl(var(--border))' }} />
+            <p className="text-[15px] font-medium mt-4" style={{ color: 'hsl(var(--muted-foreground))' }}>No saved palettes yet</p>
+            <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted))' }}>Use the heart icon in Studio to save palettes here</p>
           </div>
         ) : (
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
@@ -146,7 +146,7 @@ export function LibraryView({
                 <div className="flex items-center justify-between px-3 py-2">
                   <div>
                     <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
-                    <span className="text-[10px]" style={{ color: '#D1D5DB' }}>Saved {timeAgo(p.created_at)}</span>
+                    <span className="text-[10px]" style={{ color: 'hsl(var(--border))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
                   <div className="flex items-center" style={{ gap: 2 }}>
                     <button

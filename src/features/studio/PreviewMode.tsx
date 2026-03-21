@@ -31,7 +31,7 @@ export function PreviewMode({
   }, [])
 
   return (
-    <div className="absolute inset-0" style={{ backgroundColor: '#f9f9f8' }}>
+    <div className="absolute inset-0" style={{ backgroundColor: 'hsl(var(--surface-warm))' }}>
       {/* Scrollable content area */}
       <div className="absolute inset-0 overflow-y-auto">
         {/* ─ Mockup grid ─ */}
@@ -132,7 +132,7 @@ export function PreviewMode({
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Generate new palette"
             >
-              <Shuffle size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+              <Shuffle size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Undo" position="top">
@@ -142,7 +142,7 @@ export function PreviewMode({
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Undo"
             >
-              <Undo2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+              <Undo2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Redo" position="top">
@@ -152,7 +152,7 @@ export function PreviewMode({
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Redo"
             >
-              <Redo2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+              <Redo2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
         </div>

@@ -62,7 +62,7 @@ export function UserMenu({
           <button
             onClick={() => { onSignOut(); setOpen(false) }}
             className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-gray-50 transition-all"
-            style={{ color: '#dc2626' }}
+            style={{ color: 'hsl(var(--destructive))' }}
           >
             Sign out
           </button>

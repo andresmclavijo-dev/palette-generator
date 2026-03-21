@@ -194,9 +194,9 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
               placeholder={exhausted ? 'Upgrade to Pro for unlimited AI' : 'Describe a mood or theme\u2026'}
               disabled={exhausted}
               className="flex-1 h-9 px-3 rounded-button border border-border text-sm outline-none transition-all disabled:opacity-50"
-              style={{ color: '#1a1a2e' }}
+              style={{ color: 'hsl(var(--foreground))' }}
               onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,71,255,0.15)' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'hsl(var(--border))'; e.currentTarget.style.boxShadow = 'none' }}
             />
             {exhausted ? (
               <button
@@ -234,7 +234,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
                   inputRef.current?.focus()
                 }}
                 className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
-                style={{ borderRadius: 6, backgroundColor: '#f3f4f6', color: '#374151' }}
+                style={{ borderRadius: 6, backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--foreground))' }}
               >
                 {chip}
               </button>
@@ -242,7 +242,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
           </div>
 
           {/* Usage counter */}
-          <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
+          <p className="text-xs m-0" style={{ color: 'hsl(var(--muted))' }}>
             {isPro ? '✦ Unlimited prompts' : exhausted ? 'No AI generations left today' : `${remaining}/day free · Unlimited with Pro`}
           </p>
         </div>

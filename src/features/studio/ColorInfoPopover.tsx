@@ -11,7 +11,7 @@ function InfoRow({ label, value, copied, onClick }: { label: string; value: stri
       aria-label={`Copy ${label} value`}
     >
       <span className="text-[10px] font-bold tracking-wider opacity-40 w-7" style={{ color: BRAND_DARK }}>{label}</span>
-      <span className="text-[12px] font-mono" style={{ color: copied ? '#16a34a' : '#374151' }}>
+      <span className="text-[12px] font-mono" style={{ color: copied ? 'hsl(var(--success))' : 'hsl(var(--foreground))' }}>
         {copied ? 'Copied!' : value}
       </span>
     </button>

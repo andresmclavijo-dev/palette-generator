@@ -4,7 +4,7 @@ import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS }
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
-import { BRAND_VIOLET, BRAND_DARK } from '../../lib/tokens'
+import { BRAND_VIOLET } from '../../lib/tokens'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription,
@@ -123,7 +123,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
         {/* Format switcher */}
         <div
           className="flex"
-          style={{ backgroundColor: '#f3f4f6', borderRadius: 8, padding: 3, gap: 3, marginBottom: 16 }}
+          style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 8, padding: 3, gap: 3, marginBottom: 16 }}
         >
           {FORMATS.map(f => (
             <button
@@ -139,9 +139,9 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: format === f.id ? 600 : 500,
-                backgroundColor: format === f.id ? '#fff' : 'transparent',
+                backgroundColor: format === f.id ? 'hsl(var(--card))' : 'transparent',
                 boxShadow: format === f.id ? '0 1px 3px rgba(0,0,0,0.1)' : undefined,
-                color: f.pro && !isPro ? '#9ca3af' : format === f.id ? BRAND_DARK : '#6b7280',
+                color: f.pro && !isPro ? 'hsl(var(--muted))' : format === f.id ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                 border: 'none',
                 cursor: 'pointer',
               }}
@@ -160,7 +160,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
           ))}
         </div>
 
-        {/* Code block */}
+        {/* Code block — intentionally dark theme, not tokenized */}
         <div className="relative" style={{ marginBottom: 12 }}>
           <div
             className="overflow-y-auto"
@@ -203,8 +203,8 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
         {/* Naming toggle — only for CSS/Tailwind */}
         {format !== 'svg' && (
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-[11px] font-medium" style={{ color: '#9ca3af' }}>Variable names:</span>
-            <div className="flex" style={{ backgroundColor: '#f3f4f6', borderRadius: 6, padding: 2, gap: 2 }}>
+            <span className="text-[11px] font-medium" style={{ color: 'hsl(var(--muted))' }}>Variable names:</span>
+            <div className="flex" style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 6, padding: 2, gap: 2 }}>
               {(['default', 'smart'] as NamingMode[]).map(mode => (
                 <button
                   key={mode}
@@ -215,9 +215,9 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                     borderRadius: 4,
                     fontSize: 11,
                     fontWeight: naming === mode ? 600 : 500,
-                    backgroundColor: naming === mode ? '#fff' : 'transparent',
+                    backgroundColor: naming === mode ? 'hsl(var(--card))' : 'transparent',
                     boxShadow: naming === mode ? '0 1px 2px rgba(0,0,0,0.08)' : undefined,
-                    color: naming === mode ? BRAND_DARK : '#9ca3af',
+                    color: naming === mode ? 'hsl(var(--foreground))' : 'hsl(var(--muted))',
                     border: 'none',
                     cursor: 'pointer',
                     textTransform: 'capitalize',
@@ -235,12 +235,12 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
           <div
             className="flex items-center justify-between"
             style={{
-              borderTop: '1px solid #f3f4f6',
+              borderTop: '1px solid hsl(var(--border-light))',
               paddingTop: 16,
               marginTop: 4,
             }}
           >
-            <span className="text-[12px]" style={{ color: '#6b7280' }}>
+            <span className="text-[12px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
               Need more? Export as SCSS or Flutter
             </span>
             {onProGate && (

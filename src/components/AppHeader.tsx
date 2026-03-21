@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Tooltip from './ui/Tooltip'
-import { BRAND_DARK, BRAND_VIOLET } from '../lib/tokens'
 
 interface AppHeaderProps {
   isPro: boolean
@@ -71,17 +70,17 @@ export default function AppHeader({
 
   return (
     <header
-      className="flex-none flex items-center justify-between px-5 z-40 shrink-0"
-      style={{ height: 60, background: '#FFFFFF', borderBottom: '0.5px solid #efefef' }}
+      className="flex-none flex items-center justify-between px-5 z-40 shrink-0 bg-card border-b border-border"
+      style={{ height: 60 }}
     >
       {/* Left: Logo + tagline */}
       <div className="flex items-center shrink-0">
-        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight leading-none" style={{ color: BRAND_DARK }}>
+        <span className="text-[22px] sm:text-[24px] font-bold tracking-tight leading-none text-foreground">
           Paletta
         </span>
-        <div className="hidden md:flex items-center mx-2" style={{ width: '1px', height: '13px', backgroundColor: '#e0e0e0' }} />
-        <span className="hidden md:inline text-[14px] whitespace-nowrap" style={{ color: '#666666' }}>
-          Free color palette generator. <span className="font-medium" style={{ color: BRAND_VIOLET }}>Pro</span> adds AI, full shades & accessibility.
+        <div className="hidden md:flex items-center mx-2 bg-border" style={{ width: '1px', height: '13px' }} />
+        <span className="hidden md:inline text-[14px] whitespace-nowrap text-muted-foreground">
+          Free color palette generator. <span className="font-medium text-primary">Pro</span> adds AI, full shades & accessibility.
         </span>
       </div>
 
@@ -90,8 +89,7 @@ export default function AppHeader({
         {/* Mobile: Hamburger */}
         <button
           onClick={onDrawerOpen}
-          className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-secondary transition-all"
-          style={{ color: '#1a1a2e' }}
+          className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-secondary transition-all text-foreground"
           aria-label="Menu"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -105,10 +103,10 @@ export default function AppHeader({
           <Tooltip text={shareCopied ? 'Copied!' : 'Share'} position="bottom">
             <button
               onClick={onShare}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
               aria-label={shareCopied ? 'Copied!' : 'Share'}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
@@ -131,8 +129,8 @@ export default function AppHeader({
                 width="16" height="16" viewBox="0 0 24 24"
                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
                 style={{
-                  fill: heartPulse ? '#EF4444' : 'none',
-                  stroke: heartPulse ? '#EF4444' : '#6B7280',
+                  fill: heartPulse ? 'hsl(var(--destructive))' : 'none',
+                  stroke: heartPulse ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))',
                   transition: 'fill 300ms, stroke 300ms',
                 }}
               >
@@ -146,11 +144,11 @@ export default function AppHeader({
             <Tooltip text="My Palettes" position="bottom">
               <button
                 onClick={onSavedPalettes}
-                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
                 aria-label="My Palettes"
                 aria-haspopup="true"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
@@ -162,10 +160,10 @@ export default function AppHeader({
           <Tooltip text="Export" position="bottom">
             <button
               onClick={onExport}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0"
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
               aria-label="Export palette"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
@@ -178,8 +176,7 @@ export default function AppHeader({
             <div ref={avatarRef} className="relative">
               <button
                 onClick={() => setAvatarOpen(o => !o)}
-                className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0"
-                style={{ color: '#1a1a2e' }}
+                className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0 text-foreground"
                 aria-label="Account menu"
                 aria-haspopup="true"
                 aria-expanded={avatarOpen}
@@ -190,22 +187,22 @@ export default function AppHeader({
                 </svg>
               </button>
               {avatarOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
+                <div className="absolute right-0 top-11 w-48 bg-card rounded-xl shadow-lg border border-border-light py-1.5 z-50">
                   <div className="px-4 py-1.5">
-                    <span className="text-[11px] text-gray-400 break-all">{userEmail}</span>
+                    <span className="text-[11px] text-muted break-all">{userEmail}</span>
                   </div>
-                  <div className="mx-2 my-1 h-px bg-gray-100" />
+                  <div className="mx-2 my-1 h-px bg-border-light" />
                   {isPro && onManageSubscription && (
                     <button
                       onClick={() => { setAvatarOpen(false); onManageSubscription() }}
-                      className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                      className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-surface transition-colors font-medium"
                     >
                       Manage Subscription
                     </button>
                   )}
                   <button
                     onClick={() => { setAvatarOpen(false); onSignOut() }}
-                    className="w-full text-left px-4 py-2 text-[13px] text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                    className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-surface transition-colors font-medium"
                   >
                     Sign out
                   </button>
@@ -215,8 +212,7 @@ export default function AppHeader({
           ) : (
             <button
               onClick={onSignIn}
-              className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0"
-              style={{ color: '#1a1a2e' }}
+              className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0 text-foreground"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -229,7 +225,7 @@ export default function AppHeader({
           {!isPro && (
             <button
               onClick={onProGate}
-              className="flex items-center gap-3 px-4 h-10 rounded-full text-[14px] font-medium text-white transition-all bg-brand-violet hover:bg-brand-violet-hover active:scale-95 shrink-0"
+              className="flex items-center gap-3 px-4 h-10 rounded-full text-[14px] font-medium text-white transition-all bg-primary hover:bg-primary-hover active:scale-95 shrink-0"
             >
               Go Pro
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

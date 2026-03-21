@@ -61,9 +61,9 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
         }}
       >
         <div className="flex items-center justify-between gap-3">
-          <span style={{ fontSize: 12, color: '#1a1a2e' }}>
+          <span style={{ fontSize: 12, color: 'hsl(var(--foreground))' }}>
             We use{' '}
-            <Link to="/cookie-policy" style={{ color: '#6C47FF', textDecoration: 'underline' }}>cookies</Link>.
+            <Link to="/cookie-policy" style={{ color: 'hsl(var(--primary))', textDecoration: 'underline' }}>cookies</Link>.
           </span>
           <div className="flex items-center gap-2 shrink-0">
             <button
@@ -73,9 +73,9 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
                 fontSize: 12,
                 fontWeight: 600,
                 borderRadius: 8,
-                border: '1px solid #E5E7EB',
-                backgroundColor: '#ffffff',
-                color: '#1a1a2e',
+                border: '1px solid hsl(var(--border))',
+                backgroundColor: 'hsl(var(--card))',
+                color: 'hsl(var(--foreground))',
                 cursor: 'pointer',
                 minHeight: 32,
               }}
@@ -90,8 +90,8 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
                 fontWeight: 600,
                 borderRadius: 8,
                 border: 'none',
-                backgroundColor: '#6C47FF',
-                color: '#ffffff',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'white',
                 cursor: 'pointer',
                 minHeight: 32,
               }}
@@ -112,7 +112,7 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
       aria-label="Cookie consent"
       className="flex-none w-full"
       style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'hsl(var(--card))',
         borderBottom: '1px solid rgba(0,0,0,0.06)',
         padding: '10px 24px',
         transition: dismissing ? 'transform 300ms ease, opacity 300ms ease' : undefined,
@@ -130,11 +130,11 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
           justifyContent: 'space-between',
         }}
       >
-        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: '#374151' }}>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: 'hsl(var(--foreground))' }}>
           We use cookies for essential features and analytics.{' '}
           <Link
             to="/cookie-policy"
-            style={{ color: '#6C47FF', textDecoration: 'underline' }}
+            style={{ color: 'hsl(var(--primary))', textDecoration: 'underline' }}
           >
             Cookie Policy
           </Link>
@@ -149,7 +149,7 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
               borderRadius: 8,
               border: '1px solid rgba(0,0,0,0.1)',
               backgroundColor: 'transparent',
-              color: '#374151',
+              color: 'hsl(var(--foreground))',
               cursor: 'pointer',
               height: 36,
             }}
@@ -164,8 +164,8 @@ export default function CookieConsent({ compact }: CookieConsentProps) {
               fontWeight: 600,
               borderRadius: 8,
               border: 'none',
-              backgroundColor: '#6C47FF',
-              color: '#ffffff',
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'white',
               cursor: 'pointer',
               height: 36,
             }}

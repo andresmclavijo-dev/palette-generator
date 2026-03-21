@@ -36,8 +36,8 @@ export function ExtractDialog({
           style={{
             height: 180,
             borderRadius: 12,
-            borderColor: dragOver ? `${BRAND_VIOLET}66` : '#e5e7eb',
-            backgroundColor: dragOver ? `${BRAND_VIOLET}08` : '#f9fafb',
+            borderColor: dragOver ? `${BRAND_VIOLET}66` : 'hsl(var(--border))',
+            backgroundColor: dragOver ? `${BRAND_VIOLET}08` : 'hsl(var(--surface))',
           }}
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
@@ -45,21 +45,21 @@ export function ExtractDialog({
           onClick={() => fileInputRef.current?.click()}
         >
           {uploading ? (
-            <p className="text-sm font-medium m-0" style={{ color: '#6b7280' }}>Analyzing…</p>
+            <p className="text-sm font-medium m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>Analyzing…</p>
           ) : (
             <>
-              <Image size={32} style={{ color: '#d1d5db' }} />
-              <p className="text-sm font-medium m-0" style={{ color: '#374151' }}>
+              <Image size={32} style={{ color: 'hsl(var(--border))' }} />
+              <p className="text-sm font-medium m-0" style={{ color: 'hsl(var(--foreground))' }}>
                 Drop image here
               </p>
-              <p className="text-xs m-0" style={{ color: '#9ca3af' }}>
+              <p className="text-xs m-0" style={{ color: 'hsl(var(--muted))' }}>
                 or click to browse · PNG, JPG, WebP
               </p>
             </>
           )}
         </div>
 
-        <p className="text-xs mt-3 m-0" style={{ color: '#9ca3af' }}>
+        <p className="text-xs mt-3 m-0" style={{ color: 'hsl(var(--muted))' }}>
           Colors are extracted using k-means clustering
         </p>
       </DialogContent>

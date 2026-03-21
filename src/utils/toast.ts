@@ -13,8 +13,8 @@ export function showToast(message: string) {
     top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: #1a1a2e;
-    color: #fff;
+    background: hsl(var(--foreground));
+    color: white;
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 13px;

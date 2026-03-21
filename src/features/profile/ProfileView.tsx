@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Sparkles, Eye, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { BRAND_VIOLET } from '@/lib/tokens'
 
 export function ProfileView({
   user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription,
@@ -24,8 +24,8 @@ export function ProfileView({
           alt="Paletta"
           style={{ width: 96, height: 96, borderRadius: 16, marginBottom: 16 }}
         />
-        <h2 className="text-[28px] font-bold" style={{ color: BRAND_DARK }}>Welcome to <span className="font-brand">Paletta</span></h2>
-        <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: '#6B7280' }}>
+        <h2 className="text-[28px] font-bold text-foreground">Welcome to <span className="font-brand">Paletta</span></h2>
+        <p className="text-[14px] mt-2 mb-6 max-w-[320px] text-muted-foreground">
           The color palette generator built for accessibility
         </p>
         <Button
@@ -44,7 +44,7 @@ export function ProfileView({
         </Button>
 
         {/* Pro features */}
-        <div className="w-full max-w-[360px] overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="w-full max-w-[360px] overflow-hidden rounded-pill border border-border-light">
           {[
             { icon: Sparkles, title: 'Unlimited AI palettes' },
             { icon: Eye, title: 'All 5 vision simulations' },
@@ -52,12 +52,12 @@ export function ProfileView({
           ].map((f, i) => {
             const Icon = f.icon
             return (
-              <div key={f.title} className="flex items-center justify-between px-4" style={{ minHeight: 52, borderTop: i > 0 ? '1px solid #F3F4F6' : undefined }}>
+              <div key={f.title} className={`flex items-center justify-between px-4 ${i > 0 ? 'border-t border-border-light' : ''}`} style={{ minHeight: 52 }}>
                 <div className="flex items-center gap-3">
-                  <Icon size={20} style={{ color: BRAND_VIOLET }} />
-                  <span className="text-[14px] font-semibold" style={{ color: BRAND_DARK }}>{f.title}</span>
+                  <Icon size={20} className="text-primary" />
+                  <span className="text-[14px] font-semibold text-foreground">{f.title}</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5" style={{ backgroundColor: BRAND_VIOLET, color: '#ffffff', borderRadius: 6 }}>PRO</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-primary text-white rounded-badge">PRO</span>
               </div>
             )
           })}
@@ -82,13 +82,13 @@ export function ProfileView({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[20px] font-bold truncate" style={{ color: BRAND_DARK }}>{name}</span>
+              <span className="text-[20px] font-bold truncate text-foreground">{name}</span>
               {isPro && (
-                <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1" style={{ backgroundColor: BRAND_VIOLET, borderRadius: 6 }}>PRO</span>
+                <span className="shrink-0 text-[10px] font-bold text-white px-3 py-1 bg-primary rounded-badge">PRO</span>
               )}
             </div>
-            {user?.email && <span className="text-[13px] block truncate mt-0.5" style={{ color: '#9CA3AF' }}>{user.email}</span>}
-            {!isPro && <span className="text-[12px] block mt-0.5" style={{ color: '#D1D5DB' }}>Free plan</span>}
+            {user?.email && <span className="text-[13px] block truncate mt-0.5 text-muted">{user.email}</span>}
+            {!isPro && <span className="text-[12px] block mt-0.5 text-border">Free plan</span>}
           </div>
         </div>
 
@@ -106,35 +106,36 @@ export function ProfileView({
         )}
 
         {/* Account accordion */}
-        <div className="overflow-hidden mb-3" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="overflow-hidden mb-3 rounded-pill border border-border-light">
           <button
             onClick={() => setAccountOpen(o => !o)}
-            className="w-full flex items-center justify-between px-4 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between px-4 hover:bg-surface transition-colors"
             style={{ minHeight: 52 }}
           >
-            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Account</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
+            <span className="text-[15px] font-semibold text-foreground">Account</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
+              className="text-muted"
               style={{ transform: accountOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </button>
-          <div className="border-t border-gray-100 overflow-hidden transition-all duration-200" style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}>
+          <div className="border-t border-border-light overflow-hidden transition-all duration-200" style={{ maxHeight: accountOpen ? 200 : 0, opacity: accountOpen ? 1 : 0 }}>
             {isPro && (
-              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-gray-50 transition-colors" style={{ color: BRAND_DARK, minHeight: 52 }}>
+              <button onClick={onManageSubscription} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-foreground" style={{ minHeight: 52 }}>
                 Manage subscription
               </button>
             )}
-            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-gray-50 transition-colors" style={{ color: '#EF4444', minHeight: 52 }}>
+            <button onClick={onSignOut} className="w-full text-left px-4 text-[14px] font-medium hover:bg-surface transition-colors text-destructive" style={{ minHeight: 52 }}>
               Sign out
             </button>
           </div>
         </div>
 
         {/* Support */}
-        <div className="overflow-hidden" style={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
-          <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-gray-50 transition-colors" style={{ minHeight: 52 }}>
-            <span className="text-[15px] font-semibold" style={{ color: BRAND_DARK }}>Support</span>
-            <span className="text-[12px]" style={{ color: '#9CA3AF' }}>hello@usepaletta.io</span>
+        <div className="overflow-hidden rounded-pill border border-border-light">
+          <a href="mailto:hello@usepaletta.io" className="flex items-center justify-between px-4 no-underline hover:bg-surface transition-colors" style={{ minHeight: 52 }}>
+            <span className="text-[15px] font-semibold text-foreground">Support</span>
+            <span className="text-[12px] text-muted">hello@usepaletta.io</span>
           </a>
         </div>
       </div>

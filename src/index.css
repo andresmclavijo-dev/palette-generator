@@ -74,16 +74,16 @@ body {
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
   font-family: var(--font-sans);
-  color: #2C2C2A;
+  color: hsl(var(--foreground));
   font-size: 14px;
-  background-color: #EEEEEC;
+  background-color: hsl(var(--background));
 }
 
 #root {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #EEEEEC;
+  background-color: hsl(var(--background));
 }
 
 /* Mobile bottom sheet animation */

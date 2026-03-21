@@ -357,7 +357,7 @@ export default function DesktopStudio() {
   // ─── Render ────────────────────────────────────────────────
   return (
     <>
-      <div className="w-screen" style={{ backgroundColor: '#EEEEEC' }}>
+      <div className="w-screen" style={{ backgroundColor: 'hsl(var(--background))' }}>
       {/* App shell — fixed viewport height */}
       <div className="flex flex-col" style={{ height: '100dvh' }}>
       {/* Cookie banner — in normal flow, pushes app down */}
@@ -390,7 +390,7 @@ export default function DesktopStudio() {
           style={{
             margin: '12px 12px 12px 0',
             borderRadius: 24,
-            background: '#fff',
+            background: 'hsl(var(--card))',
             border: '1px solid rgba(0,0,0,0.06)',
             boxShadow: '0 20px 50px -12px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.05)',
           }}
@@ -482,7 +482,7 @@ export default function DesktopStudio() {
                       boxShadow: validateOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
                       border: validateOn ? 'none' : '1px solid rgba(0,0,0,0.04)',
                       gap: 6,
-                      color: validateOn ? '#ffffff' : '#6B7280',
+                      color: validateOn ? 'white' : 'hsl(var(--muted-foreground))',
                     }}
                     aria-pressed={validateOn}
                     aria-label="Toggle accessibility validation"
@@ -575,7 +575,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Save palette"
                     >
-                      <Heart size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+                      <Heart size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
                     </button>
                   </DarkTooltip>
 
@@ -587,7 +587,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Share palette link"
                     >
-                      {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: '#16a34a' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: '#374151' }} />}
+                      {shareCopied ? <Check size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} /> : <Share2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />}
                     </button>
                   </DarkTooltip>
 
@@ -599,7 +599,7 @@ export default function DesktopStudio() {
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Export palette"
                     >
-                      <Download size={20} strokeWidth={1.5} style={{ color: '#374151' }} />
+                      <Download size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
                     </button>
                   </DarkTooltip>
 
@@ -665,9 +665,9 @@ export default function DesktopStudio() {
                         style={{
                           height: 30, padding: '0 10px', borderRadius: 6,
                           fontWeight: isActive ? 600 : 400,
-                          backgroundColor: isActive ? '#ffffff' : 'transparent',
+                          backgroundColor: isActive ? 'hsl(var(--card))' : 'transparent',
                           boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
-                          color: needsPro ? '#9CA3AF' : isActive ? BRAND_DARK : '#6B7280',
+                          color: needsPro ? 'hsl(var(--muted))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
                           opacity: needsPro ? 0.6 : 1,
                         }}
                         role="radio"
@@ -881,7 +881,7 @@ export default function DesktopStudio() {
                     {activeDialog === 'shortcuts' && (
                       <div
                         className="absolute bottom-full mb-2 right-0 bg-white overflow-hidden"
-                        style={{ borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid #f3f4f6', width: 220, padding: 16 }}
+                        style={{ borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid hsl(var(--border-light))', width: 220, padding: 16 }}
                         role="dialog"
                         aria-label="Keyboard shortcuts"
                       >
@@ -895,8 +895,8 @@ export default function DesktopStudio() {
                           { key: 'Esc', desc: 'Close panel' },
                         ].map(s => (
                           <div key={s.key} className="flex items-center justify-between py-2">
-                            <span className="text-[12px]" style={{ color: '#374151' }}>{s.desc}</span>
-                            <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-md" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>{s.key}</kbd>
+                            <span className="text-[12px]" style={{ color: 'hsl(var(--foreground))' }}>{s.desc}</span>
+                            <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-md" style={{ backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--muted-foreground))' }}>{s.key}</kbd>
                           </div>
                         ))}
                       </div>

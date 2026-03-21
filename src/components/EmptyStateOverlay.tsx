@@ -46,21 +46,21 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
         }}
       >
         {/* Desktop */}
-        <p className="hidden md:block text-2xl font-semibold" style={{ color: '#1a1a2e' }}>
+        <p className="hidden md:block text-2xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
           Your next masterpiece starts with the{' '}
           <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-base align-baseline">
             Spacebar
           </kbd>
         </p>
-        <p className="hidden md:block text-sm mt-2" style={{ color: '#6B7280' }}>
+        <p className="hidden md:block text-sm mt-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Generate, lock, and export — all from your keyboard
         </p>
 
         {/* Mobile */}
-        <p className="md:hidden text-lg font-semibold" style={{ color: '#1a1a2e' }}>
+        <p className="md:hidden text-lg font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
           Your next masterpiece starts now
         </p>
-        <p className="md:hidden text-xs mt-1.5" style={{ color: '#6B7280' }}>
+        <p className="md:hidden text-xs mt-1.5" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Tap{' '}
           <kbd className="inline-block px-1.5 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-xs align-baseline">
             Generate
