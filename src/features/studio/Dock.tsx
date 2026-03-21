@@ -167,7 +167,7 @@ function DockItem({
             : active
               ? 'rgba(108,71,255,0.08)'
               : 'transparent',
-          color: primary ? '#ffffff' : active ? BRAND_VIOLET : '#374151',
+          color: primary ? '#ffffff' : active ? BRAND_VIOLET : 'hsl(var(--muted-foreground))',
           fontWeight: active || primary ? 600 : 500,
         }}
         onMouseOver={(e) => {
@@ -270,22 +270,19 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
   if (expanded) {
     return (
-      <div className="flex flex-col" style={{ gap: 4, marginBottom: 8 }}>
+      <div className="flex flex-col gap-1" style={{ marginBottom: 8 }}>
         {links.map(l => (
           <a
             key={l.href}
             href={l.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] transition-all hover:underline"
-            style={{ color: 'hsl(var(--muted))', textDecoration: 'none', padding: '0 14px' }}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            style={{ textDecoration: 'none', padding: '0 14px' }}
           >
             {l.label}
           </a>
         ))}
-        <p className="text-[10px] m-0" style={{ color: 'hsl(var(--border))', padding: '4px 14px 0' }}>
-          Built with <span className="font-brand">Paletta</span>
-        </p>
       </div>
     )
   }
@@ -331,10 +328,6 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
             </a>
           ))}
 
-          <div className="border-t border-gray-100 my-1" />
-          <div className="px-4 py-1">
-            <p className="text-[10px] m-0" style={{ color: 'hsl(var(--border))' }}>Built with <span className="font-brand">Paletta</span></p>
-          </div>
         </div>
       )}
     </div>
