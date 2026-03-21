@@ -17,8 +17,9 @@ export default function middleware(request: Request) {
   const html = `<!DOCTYPE html>
 <html>
 <head>
-  <title>Paletta — Color Palette</title>
-  <meta property="og:title" content="Paletta — Color Palette" />
+  <meta charset="utf-8" />
+  <title>Paletta &#8212; Color Palette</title>
+  <meta property="og:title" content="Paletta &#8212; Color Palette" />
   <meta property="og:description" content="AI-powered color palette generator with accessibility built in" />
   <meta property="og:image" content="${ogImageUrl}" />
   <meta property="og:image:width" content="1200" />
@@ -31,6 +32,6 @@ export default function middleware(request: Request) {
 </html>`
 
   return new Response(html, {
-    headers: { 'Content-Type': 'text/html' },
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
   })
 }
