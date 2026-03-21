@@ -83,12 +83,21 @@ export function MobileProfile() {
       <div className="flex-1 px-4 pt-6">
         {/* User info */}
         <div className="flex items-center gap-3.5 mb-6">
-          <div
-            className="flex items-center justify-center rounded-2xl bg-primary text-primary-foreground font-extrabold text-xl"
-            style={{ width: 56, height: 56 }}
-          >
-            {user?.email?.charAt(0).toUpperCase() || 'U'}
-          </div>
+          {user?.user_metadata?.avatar_url ? (
+            <img
+              src={user.user_metadata.avatar_url}
+              alt=""
+              className="w-14 h-14 rounded-2xl object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div
+              className="flex items-center justify-center rounded-2xl bg-primary text-primary-foreground font-extrabold text-xl"
+              style={{ width: 56, height: 56 }}
+            >
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          )}
           <div>
             <div className="text-[16px] font-bold text-foreground">
               {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}

@@ -27,6 +27,22 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
     }
   }, [open, defaultName])
 
+  // Visual Viewport API — adjust dialog when mobile keyboard opens
+  useEffect(() => {
+    if (!open) return
+    const vv = window.visualViewport
+    if (!vv) return
+    const handleResize = () => {
+      const offset = window.innerHeight - vv.height
+      document.documentElement.style.setProperty('--kb-offset', `${offset}px`)
+    }
+    vv.addEventListener('resize', handleResize)
+    return () => {
+      vv.removeEventListener('resize', handleResize)
+      document.documentElement.style.setProperty('--kb-offset', '0px')
+    }
+  }, [open])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onConfirm(name.trim() || defaultName)
@@ -34,7 +50,10 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent
+        className="max-w-md"
+        style={{ transform: 'translate(-50%, -50%) translateY(calc(var(--kb-offset, 0px) / -2))' }}
+      >
         <DialogHeader>
           <DialogTitle>Save Palette</DialogTitle>
           <DialogDescription>Give your palette a name</DialogDescription>
@@ -54,6 +73,7 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
             onFocus={e => {
               e.currentTarget.style.borderColor = BRAND_VIOLET
               e.currentTarget.style.boxShadow = `0 0 0 3px rgba(108,71,255,0.15)`
+              setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)
             }}
             onBlur={e => {
               e.currentTarget.style.borderColor = '#e5e7eb'

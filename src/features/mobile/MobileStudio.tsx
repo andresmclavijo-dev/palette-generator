@@ -225,7 +225,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 return (
                   <button
                     key={swatch.id}
-                    className="flex-1 flex flex-col items-center justify-end relative"
+                    className="flex-1 min-w-0 flex flex-col items-center justify-end relative"
                     style={{ backgroundColor: swatch.hex, paddingBottom: 12, minHeight: 44 }}
                     onClick={() => { setActiveColorIdx(i); setActiveSheet('color-detail') }}
                     aria-label={`${getColorName(swatch.hex)} ${swatch.hex}. Tap for details.`}
@@ -234,14 +234,19 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <div className="bg-white shadow-sm rounded-full px-2 py-0.5 flex items-center gap-1 border border-black/5 mb-1">
-                      <span className="text-[10px] font-bold text-foreground">{badge.level}</span>
-                      <span className="text-[9px] font-medium text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                    <div className="bg-white shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1">
+                      <span className={cn('font-bold text-foreground', swatches.length > 6 ? 'text-[8px]' : 'text-[10px]')}>{badge.level}</span>
+                      {swatches.length <= 6 && (
+                        <span className="text-[9px] font-medium text-muted-foreground">{badge.ratio.toFixed(1)}</span>
+                      )}
                       {badge.pass && <span className="text-[8px] text-success font-bold">✓</span>}
                     </div>
                     {/* Hex */}
-                    <div className="bg-white shadow-sm rounded-md px-2 py-0.5 border border-black/5">
-                      <span className="text-[10px] font-semibold font-mono text-foreground tracking-wider">
+                    <div className="bg-white shadow-sm rounded-md px-1.5 py-0.5 border border-black/5">
+                      <span className={cn(
+                        'font-semibold font-mono text-foreground tracking-wider',
+                        swatches.length > 6 ? 'text-[8px]' : 'text-[10px]'
+                      )}>
                         {swatch.hex.toUpperCase().slice(0, 7)}
                       </span>
                     </div>
@@ -375,19 +380,21 @@ export function MobileStudio(_props: MobileStudioProps) {
                     className="relative"
                     style={{
                       height,
-                      background: `linear-gradient(135deg, ${swatches[0]?.hex || '#6C47FF'} 0%, ${swatches[Math.min(2, swatches.length - 1)]?.hex || '#4ECDC4'} 50%, ${swatches[Math.min(4, swatches.length - 1)]?.hex || '#FFE66D'} 100%)`,
+                      background: `linear-gradient(145deg, ${swatches[0]?.hex || '#6C47FF'}, ${swatches[Math.floor(swatches.length / 2)]?.hex || '#4ECDC4'}, ${swatches[swatches.length - 1]?.hex || '#FFE66D'})`,
                     }}
                   >
-                    {/* Wireframe overlay elements */}
-                    <div className="absolute top-4 left-4 right-4 flex gap-2">
-                      <div className="w-16 h-2 rounded-full bg-white/30" />
+                    {/* Wireframe overlay — fake nav bar */}
+                    <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
+                      <div className="w-16 h-2.5 rounded-full bg-white/30" />
                       <div className="flex-1" />
-                      <div className="w-8 h-2 rounded-full bg-white/20" />
-                      <div className="w-8 h-2 rounded-full bg-white/20" />
+                      <div className="w-8 h-2.5 rounded-full bg-white/20" />
+                      <div className="w-8 h-2.5 rounded-full bg-white/20" />
                     </div>
-                    <div className="absolute bottom-4 left-4">
-                      <div className="w-32 h-3 rounded-full bg-white/30 mb-2" />
-                      <div className="w-20 h-2 rounded-full bg-white/20" />
+                    {/* Wireframe overlay — fake hero content */}
+                    <div className="absolute bottom-6 left-4 right-4">
+                      <div className="w-3/4 h-4 rounded-full bg-white/30 mb-3" />
+                      <div className="w-1/2 h-2.5 rounded-full bg-white/20 mb-4" />
+                      <div className="w-24 h-8 rounded-lg bg-white/25" />
                     </div>
                   </div>
                   {/* Label bar */}

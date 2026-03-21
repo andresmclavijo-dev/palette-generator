@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link2, Trash2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-// usePro available for future save-limit gating
 import { usePaletteStore } from '@/store/paletteStore'
 import { makeSwatch } from '@/lib/colorEngine'
 import { showToast } from '@/utils/toast'
@@ -24,6 +24,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   const { setSwatches } = usePaletteStore()
   const [palettes, setPalettes] = useState<SavedPalette[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const fetchPalettes = useCallback(async () => {
     if (!user) { setLoading(false); return }
@@ -152,18 +153,37 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
                 <div className="flex gap-1.5" onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => handleShare(palette)}
-                    className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted-foreground transition-colors active:bg-border"
-                    aria-label={`Share ${palette.name}`}
+                    className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
+                    aria-label={`Copy share link for ${palette.name}`}
                   >
-                    <span className="text-[14px]" aria-hidden="true">🔗</span>
+                    <Link2 size={16} className="text-muted-foreground" strokeWidth={1.5} />
                   </button>
-                  <button
-                    onClick={() => handleDelete(palette.id)}
-                    className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted-foreground transition-colors active:bg-border"
-                    aria-label={`Delete ${palette.name}`}
-                  >
-                    <span className="text-[14px]" aria-hidden="true">🗑</span>
-                  </button>
+                  {deletingId === palette.id ? (
+                    <>
+                      <button
+                        onClick={() => setDeletingId(null)}
+                        className="h-9 px-3 rounded-lg bg-surface border border-border/40 text-[13px] font-medium text-muted-foreground"
+                        aria-label="Cancel delete"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => { handleDelete(palette.id); setDeletingId(null) }}
+                        className="h-9 px-3 rounded-lg bg-destructive text-white text-[13px] font-semibold"
+                        aria-label={`Confirm delete ${palette.name}`}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setDeletingId(palette.id)}
+                      className="w-9 h-9 rounded-lg bg-surface border border-border/40 flex items-center justify-center transition-colors active:bg-border"
+                      aria-label={`Delete ${palette.name}`}
+                    >
+                      <Trash2 size={16} className="text-muted-foreground" strokeWidth={1.5} />
+                    </button>
+                  )}
                 </div>
               </div>
             </button>
