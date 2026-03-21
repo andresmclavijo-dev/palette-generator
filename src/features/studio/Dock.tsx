@@ -110,8 +110,8 @@ export function Dock({
         {expanded ? (
           <button
             onClick={onToggle}
-            className="flex items-center w-full text-[13px] font-medium transition-all hover:bg-black/[0.04]"
-            style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10, color: 'hsl(var(--muted))' }}
+            className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            style={{ height: 44, padding: '0 14px', gap: 8, borderRadius: 10 }}
             aria-label="Collapse dock"
           >
             <ChevronLeft size={16} />
@@ -121,8 +121,7 @@ export function Dock({
           <DarkTooltip label="Expand" position="right">
             <button
               onClick={onToggle}
-              className="mx-auto flex items-center justify-center transition-all"
-              style={{ width: 40, height: 40, flexShrink: 0, padding: 0, borderRadius: 10, color: 'hsl(var(--muted))' }}
+              className="mx-auto w-10 h-10 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
               aria-label="Expand dock"
             >
               <ChevronRight size={16} />
@@ -176,11 +175,17 @@ function DockItem({
         }}
         onMouseOver={(e) => {
           if (primary) (e.currentTarget.style.backgroundColor = '#7C5AFF')
-          else if (!active) (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')
+          else if (!active) {
+            e.currentTarget.style.backgroundColor = 'hsl(var(--surface))'
+            e.currentTarget.style.color = 'hsl(var(--foreground))'
+          }
         }}
         onMouseOut={(e) => {
           if (primary) (e.currentTarget.style.backgroundColor = BRAND_VIOLET)
-          else if (!active) (e.currentTarget.style.backgroundColor = 'transparent')
+          else if (!active) {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.color = 'hsl(var(--muted-foreground))'
+          }
         }}
         aria-label={label}
       >
@@ -293,15 +298,16 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
   return (
     <div ref={ref} className="relative flex justify-center py-1">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all hover:bg-gray-100"
-        style={{ color: 'hsl(var(--muted))' }}
-        aria-label="Info and legal links"
-        aria-expanded={open}
-      >
-        <MoreHorizontal size={20} />
-      </button>
+      <DarkTooltip label="More" position="right">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-10 h-10 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          aria-label="Info and legal links"
+          aria-expanded={open}
+        >
+          <MoreHorizontal size={20} />
+        </button>
+      </DarkTooltip>
 
       {open && (
         <div
