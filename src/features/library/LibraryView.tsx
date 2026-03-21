@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Heart, X, Link2 } from 'lucide-react'
+import { Heart, X, Link2, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 import { showToast } from '@/utils/toast'
+import ExportPanel from '@/components/palette/ExportPanel'
 
 export function LibraryView({
   isSignedIn, userId, isPro, onLoad, onProGate, onSignIn,
@@ -21,6 +22,7 @@ export function LibraryView({
   const [palettes, setPalettes] = useState<{ id: string; name: string; colors: string[]; created_at: string }[]>([])
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; colors: string[] } | null>(null)
+  const [exportColors, setExportColors] = useState<string[] | null>(null)
 
   useEffect(() => {
     if (!isSignedIn || !userId) return
@@ -156,6 +158,13 @@ export function LibraryView({
                       <Link2 size={16} />
                     </button>
                     <button
+                      onClick={e => { e.stopPropagation(); setExportColors(p.colors) }}
+                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+                      aria-label="Export palette"
+                    >
+                      <Download size={16} />
+                    </button>
+                    <button
                       onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
                       className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
                       aria-label={`Delete ${p.name || 'Untitled'}`}
@@ -182,6 +191,14 @@ export function LibraryView({
         )}
       </div>
     </div>
+
+    {/* Export panel */}
+    <ExportPanel
+      open={!!exportColors}
+      hexes={exportColors ?? []}
+      onClose={() => setExportColors(null)}
+      onProGate={() => { setExportColors(null); onProGate('export', 'library') }}
+    />
 
     {/* Delete confirmation modal */}
     <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
