@@ -8,6 +8,7 @@ import {
 import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 import { showToast } from '@/utils/toast'
 import ExportPanel from '@/components/palette/ExportPanel'
+import { DarkTooltip } from '@/features/studio/DarkTooltip'
 
 export function LibraryView({
   isSignedIn, userId, isPro, onLoad, onProGate, onSignIn,
@@ -132,11 +133,14 @@ export function LibraryView({
         ) : (
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {palettes.map(p => (
-              <button
+              <div
                 key={p.id}
                 className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md text-left w-full rounded-card"
                 style={{ border: '1px solid rgba(0,0,0,0.06)' }}
                 onClick={() => onLoad(p.colors, p.name)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onLoad(p.colors, p.name) } }}
                 aria-label={`Load palette: ${p.name || 'Untitled'}`}
               >
                 <div className="flex h-14 overflow-hidden rounded-t-card">
@@ -150,30 +154,36 @@ export function LibraryView({
                     <span className="text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
-                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-                      aria-label="Copy palette link"
-                    >
-                      <Link2 size={16} />
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); setExportColors(p.colors) }}
-                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-                      aria-label="Export palette"
-                    >
-                      <Download size={16} />
-                    </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
-                      className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
-                      aria-label={`Delete ${p.name || 'Untitled'}`}
-                    >
-                      <X size={16} />
-                    </button>
+                    <DarkTooltip label="Copy link" position="top">
+                      <button
+                        onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+                        aria-label="Copy palette link"
+                      >
+                        <Link2 size={16} />
+                      </button>
+                    </DarkTooltip>
+                    <DarkTooltip label="Export" position="top">
+                      <button
+                        onClick={e => { e.stopPropagation(); setExportColors(p.colors) }}
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+                        aria-label="Export palette"
+                      >
+                        <Download size={16} />
+                      </button>
+                    </DarkTooltip>
+                    <DarkTooltip label="Delete" position="top">
+                      <button
+                        onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+                        aria-label={`Delete ${p.name || 'Untitled'}`}
+                      >
+                        <X size={16} />
+                      </button>
+                    </DarkTooltip>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}
