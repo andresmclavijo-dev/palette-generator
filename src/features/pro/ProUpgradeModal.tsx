@@ -16,7 +16,7 @@ const PRO_FEATURES: { bold: string; rest: string }[] = [
   { bold: '6, 7 & 8', rest: ' color palettes' },
   { bold: 'Unlimited', rest: ' saved palettes' },
   { bold: 'Image \u2192', rest: ' palette extraction' },
-  { bold: 'Color blindness', rest: ' preview' },
+  { bold: 'Accessibility lens', rest: ' — vision simulation' },
   { bold: 'Full shade scales', rest: ' (50\u2013900)' },
   { bold: 'Export', rest: ' without watermark' },
 ]
@@ -161,7 +161,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
               disabled={loading}
               className="w-full h-11 text-sm font-semibold shadow-sm hover:shadow-md transition-all hover:-translate-y-px"
             >
-              {loading ? 'Redirecting\u2026' : `Subscribe \u2014 ${isMonthly ? '$5/mo' : '$45/yr'}`}
+              {loading ? 'Redirecting\u2026' : `Go Pro \u2014 ${isMonthly ? '$5/mo' : '$45/yr'}`}
             </Button>
 
             {/* Footer */}
@@ -171,7 +171,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
                 onClick={handleDismiss}
                 className="text-[11px] text-muted hover:text-muted-foreground transition-colors"
               >
-                Not now
+                Maybe later
               </button>
             </div>
           </div>

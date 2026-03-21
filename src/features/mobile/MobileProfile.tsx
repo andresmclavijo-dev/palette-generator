@@ -68,18 +68,19 @@ export function MobileProfile() {
               const { error } = await signInWithGoogle()
               if (error) showToast('Sign-in failed')
             }}
-            className="w-full max-w-[280px] text-[15px] font-bold shadow-lg"
+            className="w-full max-w-[280px] shadow-lg"
             style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
           >
             Continue with Google
           </Button>
 
-          <button
+          <Button
+            variant="link"
             onClick={() => { analytics.track('pro_modal_opened', { source: 'mobile_profile' }); setProOpen(true) }}
-            className="mt-4 text-[13px] font-medium text-primary transition-colors"
+            className="mt-4 text-[13px]"
           >
             See what's in Pro →
-          </button>
+          </Button>
         </div>
 
         {/* Legal */}
@@ -165,7 +166,7 @@ export function MobileProfile() {
           <Button
             size="lg"
             onClick={() => { analytics.track('pro_modal_opened', { source: 'mobile_profile' }); setProOpen(true) }}
-            className="w-full text-[15px] font-bold shadow-lg mb-4"
+            className="w-full mb-4"
             style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.25)' }}
           >
             Upgrade to Pro
