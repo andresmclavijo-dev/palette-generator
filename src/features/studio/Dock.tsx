@@ -50,16 +50,15 @@ export function Dock({
           }}
         >
           <div
-            className="flex items-center justify-center text-white font-bold shrink-0"
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              backgroundColor: BRAND_VIOLET,
-              fontSize: 16,
-            }}
+            className="flex items-center justify-center rounded-[10px] bg-primary shrink-0"
+            style={{ width: 36, height: 36 }}
           >
-            P
+            <span
+              className="text-white font-mono"
+              style={{ fontSize: 18, fontWeight: 700, lineHeight: 1 }}
+            >
+              P
+            </span>
           </div>
           {expanded && (
             <span className="text-[15px] font-medium font-brand text-foreground">Paletta</span>
