@@ -146,7 +146,7 @@ export function LibraryView({
                 <div className="flex items-center justify-between px-3 py-2">
                   <div>
                     <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
-                    <span className="text-[10px]" style={{ color: 'hsl(var(--border))' }}>Saved {timeAgo(p.created_at)}</span>
+                    <span className="text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
                   <div className="flex items-center" style={{ gap: 2 }}>
                     <button

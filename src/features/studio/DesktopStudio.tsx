@@ -620,7 +620,7 @@ export default function DesktopStudio() {
 
                   {/* Auth */}
                   {isSignedIn && user?.email ? (
-                    <UserMenu email={user.email} isPro={isPro} onSignOut={signOut} onManage={handleManageSubscription} />
+                    <UserMenu email={user.email} isPro={isPro} avatarUrl={user.user_metadata?.avatar_url} onSignOut={signOut} onManage={handleManageSubscription} />
                   ) : (
                     <Button
                       variant="outline"

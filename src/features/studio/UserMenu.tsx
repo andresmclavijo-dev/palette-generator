@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 
 export function UserMenu({
-  email, isPro, onSignOut, onManage,
+  email, isPro, avatarUrl, onSignOut, onManage,
 }: {
   email: string
   isPro: boolean
+  avatarUrl?: string
   onSignOut: () => void
   onManage: () => void
 }) {
@@ -24,15 +25,27 @@ export function UserMenu({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="rounded-full flex items-center justify-center text-[13px] font-bold text-white transition-all hover:ring-2 hover:ring-black/10"
-        style={{ width: 36, height: 36, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
-        aria-label="Account menu"
-        aria-expanded={open}
-      >
-        {initial}
-      </button>
+      {avatarUrl ? (
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="rounded-full overflow-hidden transition-all hover:ring-2 hover:ring-black/10"
+          style={{ width: 36, height: 36 }}
+          aria-label="Account menu"
+          aria-expanded={open}
+        >
+          <img src={avatarUrl} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="rounded-full flex items-center justify-center text-[13px] font-bold bg-primary text-primary-foreground transition-all hover:ring-2 hover:ring-black/10"
+          style={{ width: 36, height: 36 }}
+          aria-label="Account menu"
+          aria-expanded={open}
+        >
+          {initial}
+        </button>
+      )}
 
       {open && (
         <div

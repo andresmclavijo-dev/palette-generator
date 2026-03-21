@@ -124,13 +124,12 @@ export function MobileProfile() {
             <img
               src={user.user_metadata.avatar_url}
               alt=""
-              className="w-14 h-14 rounded-2xl object-cover"
+              className="w-12 h-12 rounded-full object-cover"
               referrerPolicy="no-referrer"
             />
           ) : (
             <div
-              className="flex items-center justify-center rounded-2xl bg-primary text-primary-foreground font-extrabold text-xl"
-              style={{ width: 56, height: 56 }}
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground font-extrabold text-xl"
             >
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>

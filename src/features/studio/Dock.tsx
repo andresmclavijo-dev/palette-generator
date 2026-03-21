@@ -268,12 +268,6 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
     { label: 'Cookie Policy', href: '/cookie-policy' },
   ]
 
-  const shortcuts = [
-    { key: 'Space', desc: 'Generate' },
-    { key: 'U', desc: 'Undo' },
-    { key: 'R', desc: 'Redo' },
-  ]
-
   if (expanded) {
     return (
       <div className="flex flex-col" style={{ gap: 4, marginBottom: 8 }}>
@@ -336,23 +330,6 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
               <ExternalLink size={10} className="opacity-40 ml-auto" />
             </a>
           ))}
-
-          <div className="border-t border-gray-100 my-1" />
-
-          <div className="px-4 py-1.5">
-            <p className="text-[10px] font-semibold m-0 mb-1" style={{ color: 'hsl(var(--muted))' }}>Shortcuts</p>
-            {shortcuts.map(s => (
-              <div key={s.key} className="flex items-center justify-between py-0.5">
-                <span className="text-[11px]" style={{ color: 'hsl(var(--muted-foreground))' }}>{s.desc}</span>
-                <kbd
-                  className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--muted-foreground))' }}
-                >
-                  {s.key}
-                </kbd>
-              </div>
-            ))}
-          </div>
 
           <div className="border-t border-gray-100 my-1" />
           <div className="px-4 py-1">

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Sparkles, Eye, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BRAND_VIOLET } from '@/lib/tokens'
 
 export function ProfileView({
   user, isSignedIn, isPro, onSignIn, onSignOut, onProGate, onManageSubscription,
@@ -74,12 +73,20 @@ export function ProfileView({
       <div className="max-w-[480px] mx-auto">
         {/* Avatar + info */}
         <div className="flex items-center gap-4 mb-6">
-          <div
-            className="rounded-full flex items-center justify-center text-white text-[20px] font-bold shrink-0"
-            style={{ width: 56, height: 56, background: `linear-gradient(135deg, ${BRAND_VIOLET}, #9b82ff)` }}
-          >
-            {initial}
-          </div>
+          {user?.user_metadata?.avatar_url ? (
+            <img
+              src={user.user_metadata.avatar_url}
+              alt=""
+              className="w-12 h-12 rounded-full object-cover shrink-0"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-primary text-primary-foreground text-[20px] font-bold shrink-0"
+            >
+              {initial}
+            </div>
+          )}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-[20px] font-bold truncate text-foreground">{name}</span>
