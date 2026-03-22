@@ -123,11 +123,14 @@ borderRadius: {
 
 1. ❌ Hardcoded hex? → Replace with token
 2. ❌ `bg-[#...]`? → Use semantic class (`bg-primary`)
-3. ❌ `style={{ color: '...' }}`? → Move to className
-4. ❌ Button height wrong? → Must be 48/36/32
-5. ❌ Button radius not 8px? → Fix to `rounded-button`
-6. ❌ Modal radius not 16px? → Fix to `rounded-card`
-7. ❌ Sibling gap not 6px? → Fix to `gap-1.5`
-8. ❌ Missing aria-label? → Add one
-9. ❌ Delete using violet? → Change to `bg-destructive`
-10. ❌ New color not tokenized? → Add to Layer 1 first
+3. ❌ `bg-white` or `bg-black`? → Use `bg-card` / `bg-background` / `bg-foreground`
+4. ❌ `text-white` or `text-black`? → Use `text-primary-foreground` / `text-foreground`
+5. ❌ `bg-gray-*`, `text-gray-*`, `border-gray-*`? → Use `bg-surface`, `text-muted-foreground`, `border-border`
+6. ❌ `style={{ color: '...' }}`? → Move to className
+7. ❌ Button height wrong? → Must be 48/36/32
+8. ❌ Button radius not 8px? → Fix to `rounded-button`
+9. ❌ Modal radius not 16px? → Fix to `rounded-card`
+10. ❌ Sibling gap not 6px? → Fix to `gap-1.5`
+11. ❌ Missing aria-label? → Add one
+12. ❌ Delete using violet? → Change to `bg-destructive`
+13. ❌ New color not tokenized? → Add to Layer 1 first
