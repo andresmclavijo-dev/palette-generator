@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -95,6 +95,8 @@ export function MobileStudio(_props: MobileStudioProps) {
       setTimeout(() => setCopiedHex(null), 1200)
     } catch { /* silent */ }
   }
+
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 
   const handleShare = async () => {
     const shareUrl = window.location.href
@@ -383,10 +385,13 @@ export function MobileStudio(_props: MobileStudioProps) {
               <button
                 onClick={handleShare}
                 className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label="Share palette link"
+                aria-label={canNativeShare ? "Share palette" : "Copy link"}
               >
-                <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                <span className="text-[10px] font-medium text-muted-foreground">Share</span>
+                {canNativeShare
+                  ? <Share2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                  : <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                }
+                <span className="text-[10px] font-medium text-muted-foreground">{canNativeShare ? 'Share' : 'Copy link'}</span>
               </button>
               {/* Export */}
               <button
