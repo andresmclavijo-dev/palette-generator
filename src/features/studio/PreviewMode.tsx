@@ -161,15 +161,14 @@ export function PreviewMode({
         <div className="flex-1" />
 
         {/* Generate + Export */}
-        <Button
-          variant="outline"
-          size="default"
+        <button
           onClick={onGenerate}
-          className="text-[13px] font-medium gap-1.5"
+          className="h-9 px-4 flex items-center gap-1.5 rounded-button bg-card border border-border text-foreground text-[13px] font-medium hover:bg-surface transition-colors active:scale-[0.98]"
+          aria-label="Generate new palette"
         >
           <Sparkles size={16} strokeWidth={1.5} />
           Generate
-        </Button>
+        </button>
         <Button
           variant="default"
           size="default"

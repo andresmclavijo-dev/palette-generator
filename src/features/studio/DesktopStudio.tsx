@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ChevronDown, Eye, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
@@ -527,14 +528,13 @@ export default function DesktopStudio() {
 
                 {/* RIGHT GROUP — single pill */}
                 <div
-                  className="flex items-center"
+                  className="flex items-center bg-card/95"
                   style={{
                     borderRadius: 12,
-                    backgroundColor: 'rgba(255,255,255,0.95)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                    border: '1px solid rgba(0,0,0,0.04)',
+                    border: '1px solid hsl(var(--border-light))',
                     padding: 4,
                     gap: 6,
                   }}
@@ -890,40 +890,10 @@ export default function DesktopStudio() {
                     <span className="text-[12px] font-medium text-white/70">generate</span>
                   </div>
                   <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
-                  <div className="relative">
-                    <button
-                      onClick={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
-                      className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
-                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
-                      aria-label="Keyboard shortcuts"
-                      aria-expanded={activeDialog === 'shortcuts'}
-                    >
-                      <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }} aria-hidden="true">?</span>
-                    </button>
-                    {activeDialog === 'shortcuts' && (
-                      <div
-                        className="absolute bottom-full mb-2 right-0 bg-card overflow-hidden"
-                        style={{ borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid hsl(var(--border-light))', width: 220, padding: 16 }}
-                        role="dialog"
-                        aria-label="Keyboard shortcuts"
-                      >
-                        <p className="text-[12px] font-medium m-0 mb-2" style={{ color: BRAND_VIOLET }}>Keyboard shortcuts</p>
-                        {[
-                          { key: 'Space', desc: 'Generate palette' },
-                          { key: '⌘ Z', desc: 'Undo' },
-                          { key: '⇧ ⌘ Z', desc: 'Redo' },
-                          { key: '1', desc: 'Colors view' },
-                          { key: '2', desc: 'Preview view' },
-                          { key: 'Esc', desc: 'Close panel' },
-                        ].map(s => (
-                          <div key={s.key} className="flex items-center justify-between py-2">
-                            <span className="text-[12px]" style={{ color: 'hsl(var(--foreground))' }}>{s.desc}</span>
-                            <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-md" style={{ backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--muted-foreground))' }}>{s.key}</kbd>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <ShortcutsPopover
+                    open={activeDialog === 'shortcuts'}
+                    onToggle={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
+                  />
                 </div>
               )}
             </>
@@ -1045,6 +1015,82 @@ export default function DesktopStudio() {
       {/* SEO content below fold — scrollable past the app viewport */}
       <SEOContent />
       </div>{/* close outer w-screen wrapper */}
+    </>
+  )
+}
+
+// ─── Shortcuts Popover (portal-rendered to escape overflow-hidden) ───
+const SHORTCUTS = [
+  { key: 'Space', desc: 'Generate palette' },
+  { key: '⌘ Z', desc: 'Undo' },
+  { key: '⇧ ⌘ Z', desc: 'Redo' },
+  { key: '1', desc: 'Colors view' },
+  { key: '2', desc: 'Preview view' },
+  { key: 'Esc', desc: 'Close panel' },
+]
+
+function ShortcutsPopover({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ bottom: 0, right: 0 })
+
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setPos({ bottom: window.innerHeight - rect.top + 8, right: window.innerWidth - rect.right })
+    }
+  }, [open])
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (btnRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      onToggle()
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open, onToggle])
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        onClick={onToggle}
+        className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
+        style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
+        aria-label="Keyboard shortcuts"
+        aria-expanded={open}
+      >
+        <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }} aria-hidden="true">?</span>
+      </button>
+      {open && createPortal(
+        <div
+          ref={panelRef}
+          className="fixed z-[200] bg-card"
+          style={{
+            bottom: pos.bottom,
+            right: pos.right,
+            borderRadius: 12,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+            border: '1px solid hsl(var(--border-light))',
+            width: 220,
+            padding: 16,
+          }}
+          role="dialog"
+          aria-label="Keyboard shortcuts"
+        >
+          <p className="text-[12px] font-medium m-0 mb-2" style={{ color: BRAND_VIOLET }}>Keyboard shortcuts</p>
+          {SHORTCUTS.map(s => (
+            <div key={s.key} className="flex items-center justify-between py-2">
+              <span className="text-[12px] text-foreground">{s.desc}</span>
+              <kbd className="text-[10px] font-mono px-2 py-0.5 rounded-md" style={{ backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--muted-foreground))' }}>{s.key}</kbd>
+            </div>
+          ))}
+        </div>,
+        document.body,
+      )}
     </>
   )
 }
