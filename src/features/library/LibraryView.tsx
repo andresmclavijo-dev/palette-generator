@@ -157,7 +157,7 @@ export function LibraryView({
                     <DarkTooltip label="Copy link" position="top">
                       <button
                         onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
-                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
                         aria-label="Copy palette link"
                       >
                         <Link2 size={16} />
@@ -166,7 +166,7 @@ export function LibraryView({
                     <DarkTooltip label="Export" position="top">
                       <button
                         onClick={e => { e.stopPropagation(); setExportColors(p.colors) }}
-                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
                         aria-label="Export palette"
                       >
                         <Download size={16} />
@@ -175,7 +175,7 @@ export function LibraryView({
                     <DarkTooltip label="Delete" position="top">
                       <button
                         onClick={e => { e.stopPropagation(); setDeleteTarget({ id: p.id, name: p.name, colors: p.colors }) }}
-                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+                        className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.98]"
                         aria-label={`Delete ${p.name || 'Untitled'}`}
                       >
                         <X size={16} />

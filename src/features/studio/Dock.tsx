@@ -123,7 +123,7 @@ export function Dock({
           <DarkTooltip label="Expand" position="right">
             <button
               onClick={onToggle}
-              className="mx-auto w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              className="mx-auto w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
               aria-label="Expand dock"
             >
               <ChevronRight size={20} />
@@ -280,7 +280,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
       <DarkTooltip label="More" position="right">
         <button
           onClick={() => setOpen(o => !o)}
-          className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
           aria-label="Info and legal links"
           aria-expanded={open}
         >

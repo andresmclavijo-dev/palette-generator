@@ -178,7 +178,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
           {/* Copy button in code block */}
           <button
             onClick={handleCopy}
-            className="absolute flex items-center justify-center transition-all"
+            className="absolute flex items-center justify-center transition-all active:scale-[0.98]"
             style={{
               top: 10, right: 10,
               width: 32, height: 32,

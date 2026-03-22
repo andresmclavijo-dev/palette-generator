@@ -107,7 +107,7 @@ export function PreviewMode({
             <button
               key={s.id}
               onClick={() => onLock(s.id)}
-              className="relative flex items-center justify-center transition-all hover:scale-105"
+              className="relative flex items-center justify-center transition-all active:scale-[0.98] hover:scale-105"
               style={{
                 width: 36, height: 36, padding: 0, borderRadius: 8,
                 backgroundColor: s.hex, border: '1px solid rgba(0,0,0,0.08)',
@@ -129,31 +129,31 @@ export function PreviewMode({
           <DarkTooltip label="Generate" position="top">
             <button
               onClick={onGenerate}
-              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Generate new palette"
             >
-              <Shuffle size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+              <Shuffle size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Undo" position="top">
             <button
               onClick={onUndo}
-              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Undo"
             >
-              <Undo2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+              <Undo2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
           <DarkTooltip label="Redo" position="top">
             <button
               onClick={onRedo}
-              className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+              className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
               style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
               aria-label="Redo"
             >
-              <Redo2 size={20} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+              <Redo2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
             </button>
           </DarkTooltip>
         </div>

@@ -89,7 +89,7 @@ export default function AppHeader({
         {/* Mobile: Hamburger */}
         <button
           onClick={onDrawerOpen}
-          className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-secondary transition-all text-foreground"
+          className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-secondary transition-all active:scale-[0.98] text-foreground"
           aria-label="Menu"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -103,7 +103,7 @@ export default function AppHeader({
           <Tooltip text={shareCopied ? 'Copied!' : 'Share'} position="bottom">
             <button
               onClick={onShare}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
               aria-label={shareCopied ? 'Copied!' : 'Share'}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -144,7 +144,7 @@ export default function AppHeader({
             <Tooltip text="My Palettes" position="bottom">
               <button
                 onClick={onSavedPalettes}
-                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
+                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
                 aria-label="My Palettes"
                 aria-haspopup="true"
               >
@@ -160,7 +160,7 @@ export default function AppHeader({
           <Tooltip text="Export" position="bottom">
             <button
               onClick={onExport}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 shrink-0 text-muted-foreground"
+              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
               aria-label="Export palette"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -575,7 +575,7 @@ export default function DesktopStudio() {
                   <DarkTooltip label="Save palette" position="bottom">
                     <button
                       onClick={handleSave}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Save palette"
                     >
@@ -587,7 +587,7 @@ export default function DesktopStudio() {
                   <DarkTooltip label="Share" position="bottom">
                     <button
                       onClick={handleShare}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Share palette link"
                     >
@@ -599,7 +599,7 @@ export default function DesktopStudio() {
                   <DarkTooltip label="Export" position="bottom">
                     <button
                       onClick={() => activeDialog === 'export' ? closeDialog() : openDialog('export')}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06]"
+                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Export palette"
                     >
@@ -753,7 +753,7 @@ export default function DesktopStudio() {
                               <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
                                 <button
                                   onClick={() => copyHex(s.id, s.hex)}
-                                  className="flex items-center justify-center transition-all"
+                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
                                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                                 >
@@ -769,7 +769,7 @@ export default function DesktopStudio() {
                                     if (infoOpen === s.id) { setInfoOpen(null); setInfoAnchorRect(null) }
                                     else { setInfoOpen(s.id); setInfoAnchorRect(rect) }
                                   }}
-                                  className="flex items-center justify-center transition-all"
+                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
                                   aria-label="Color info"
                                   aria-expanded={showInfo}
@@ -780,7 +780,7 @@ export default function DesktopStudio() {
                               <DarkTooltip label="Shade scale" position="right">
                                 <button
                                   onClick={() => { setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog() }}
-                                  className="flex items-center justify-center transition-all"
+                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
                                   aria-label="View shade scale"
                                   aria-expanded={showShades}
@@ -791,7 +791,7 @@ export default function DesktopStudio() {
                               <DarkTooltip label={s.locked ? 'Unlock' : 'Lock'} position="right">
                                 <button
                                   onClick={() => lockSwatch(s.id)}
-                                  className="flex items-center justify-center transition-all"
+                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
                                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                                 >
@@ -837,7 +837,7 @@ export default function DesktopStudio() {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => { if (count > 3) setCount(count - 1) }}
-                      className="flex items-center justify-center transition-all hover:bg-white/10"
+                      className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
                       style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
                       disabled={count <= 3}
                       aria-label="Remove color"
@@ -853,7 +853,7 @@ export default function DesktopStudio() {
                         if (liveCount >= liveMax) return
                         setCount(liveCount + 1)
                       }}
-                      className={`relative flex items-center justify-center transition-all ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-white/10' : ''}`}
+                      className={`relative flex items-center justify-center transition-all active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-white/10' : ''}`}
                       style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
                       disabled={isAtProMax}
                       aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
@@ -875,7 +875,7 @@ export default function DesktopStudio() {
                   <div className="relative">
                     <button
                       onClick={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
-                      className="flex items-center justify-center transition-all hover:bg-white/10"
+                      className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
                       style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
                       aria-label="Keyboard shortcuts"
                       aria-expanded={activeDialog === 'shortcuts'}

@@ -382,25 +382,25 @@ export default function ColorSwatch({
             onClick={e => e.stopPropagation()}
           >
             <Tooltip text="Copy hex">
-              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Copy hex">
+              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Copy hex">
                 {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="View shades" disabled={shadesOpen}>
-              <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="View shades">
+              <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="View shades">
                 <ShadesIcon size={16} />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="Color info" disabled={infoOpen}>
-              <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Color info">
+              <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Color info">
                 <InfoIcon size={16} />
               </button>
             </Tooltip>
             <div className="w-px h-5 bg-gray-200" />
             <Tooltip text="Edit color" disabled={pickerOpen}>
-              <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Edit color">
+              <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Edit color">
                 <EditIcon size={16} />
               </button>
             </Tooltip>
