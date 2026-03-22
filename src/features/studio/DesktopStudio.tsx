@@ -388,7 +388,7 @@ export default function DesktopStudio() {
         {/* Skip link */}
         <a
           href="#main-canvas"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
         >
           Skip to main content
         </a>
@@ -902,7 +902,7 @@ export default function DesktopStudio() {
                     </button>
                     {activeDialog === 'shortcuts' && (
                       <div
-                        className="absolute bottom-full mb-2 right-0 bg-white overflow-hidden"
+                        className="absolute bottom-full mb-2 right-0 bg-card overflow-hidden"
                         style={{ borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid hsl(var(--border-light))', width: 220, padding: 16 }}
                         role="dialog"
                         aria-label="Keyboard shortcuts"

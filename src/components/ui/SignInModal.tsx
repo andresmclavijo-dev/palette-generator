@@ -16,12 +16,12 @@ export default function SignInModal({ open, onClose, onGoogleSignIn }: SignInMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="sign-in-title"
-        className="relative w-[340px] max-w-[90vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-[340px] max-w-[90vw] bg-card rounded-2xl shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-all"
           aria-label="Close sign in"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -30,8 +30,8 @@ export default function SignInModal({ open, onClose, onGoogleSignIn }: SignInMod
         </button>
 
         <div className="px-6 pt-8 pb-4 text-center">
-          <h2 id="sign-in-title" className="text-[20px] font-bold text-gray-900">Sign in to Paletta</h2>
-          <p className="text-[13px] text-gray-500 mt-2">Save palettes, access Pro features, sync across devices</p>
+          <h2 id="sign-in-title" className="text-[20px] font-bold text-foreground">Sign in to Paletta</h2>
+          <p className="text-[13px] text-muted-foreground mt-2">Save palettes, access Pro features, sync across devices</p>
         </div>
 
         <div className="px-6 pb-6">

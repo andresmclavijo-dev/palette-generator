@@ -233,7 +233,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
                   setPrompt(chip)
                   inputRef.current?.focus()
                 }}
-                className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-gray-200"
+                className="px-2.5 py-1 text-xs font-medium transition-all hover:bg-border"
                 style={{ borderRadius: 6, backgroundColor: 'hsl(var(--border-light))', color: 'hsl(var(--foreground))' }}
               >
                 {chip}

@@ -49,7 +49,7 @@ export function ColorInfoPopover({ hex, anchorRect, onClose }: { hex: string; an
       {/* Click-outside overlay */}
       <div className="fixed inset-0 z-[79]" onClick={onClose} />
       <div
-        className="fixed z-[80] bg-white"
+        className="fixed z-[80] bg-card"
         style={{
           top,
           left,

@@ -39,7 +39,7 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
       <div
         className="flex flex-col items-center text-center px-5 py-4 md:px-10 md:py-6 max-w-[85vw] md:max-w-none"
         style={{
-          background: 'rgba(255, 255, 255, 0.92)',
+          background: 'hsl(var(--card) / 0.92)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           borderRadius: 16,
@@ -48,7 +48,7 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
         {/* Desktop */}
         <p className="hidden md:block text-2xl font-semibold" style={{ color: 'hsl(var(--foreground))' }}>
           Your next masterpiece starts with the{' '}
-          <kbd className="inline-block px-2 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-base align-baseline">
+          <kbd className="inline-block px-2 py-0.5 rounded-md bg-surface border border-border font-mono text-base align-baseline">
             Spacebar
           </kbd>
         </p>
@@ -62,7 +62,7 @@ export default function EmptyStateOverlay({ dismissed, method }: EmptyStateOverl
         </p>
         <p className="md:hidden text-xs mt-1.5" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Tap{' '}
-          <kbd className="inline-block px-1.5 py-0.5 rounded-md bg-gray-100 border border-gray-200 font-mono text-xs align-baseline">
+          <kbd className="inline-block px-1.5 py-0.5 rounded-md bg-surface border border-border font-mono text-xs align-baseline">
             Generate
           </kbd>
           {' '}to begin

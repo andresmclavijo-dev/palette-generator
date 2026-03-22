@@ -75,7 +75,7 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
           >
             <span className="text-sm font-normal" style={{ color: 'hsl(var(--muted-foreground))' }}>{s.label}</span>
             <kbd
-              className="inline-block px-2 py-0.5 bg-gray-100 border border-gray-200 rounded-md font-mono text-xs text-center font-semibold"
+              className="inline-block px-2 py-0.5 bg-surface border border-border rounded-md font-mono text-xs text-center font-semibold"
               style={{ minWidth: 32 }}
             >
               {s.key}

@@ -119,7 +119,7 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-colors"
             style={{ minWidth: '44px', minHeight: '44px' }}
             aria-label="Close preview"
           >

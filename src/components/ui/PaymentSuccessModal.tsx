@@ -29,7 +29,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Close"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -44,8 +44,8 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h2 id="payment-success-title" className="text-2xl font-extrabold text-gray-900">You're now a Pro!</h2>
-          <p className="text-sm text-gray-500 mt-2">Sign in with Google to access all Pro features</p>
+          <h2 id="payment-success-title" className="text-2xl font-extrabold text-foreground">You're now a Pro!</h2>
+          <p className="text-sm text-muted-foreground mt-2">Sign in with Google to access all Pro features</p>
         </div>
 
         {/* Divider */}
@@ -66,7 +66,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
           Sign in with Google
         </button>
 
-        <p className="text-center text-xs text-gray-400 mt-3">
+        <p className="text-center text-xs text-muted-foreground mt-3">
           Use the same email you used at checkout
         </p>
       </div>
