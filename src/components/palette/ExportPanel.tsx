@@ -159,7 +159,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
         {/* Code block — intentionally dark theme, not tokenized */}
         <div className="relative" style={{ marginBottom: 12 }}>
           <div
-            className="overflow-y-auto"
+            className="overflow-y-auto border border-border"
             style={{
               backgroundColor: '#111827',
               borderRadius: 12,

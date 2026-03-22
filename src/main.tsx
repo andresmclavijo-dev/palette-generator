@@ -5,6 +5,15 @@ import App from './App.tsx'
 import './index.css'
 import './lib/posthog'
 
+// Synchronous theme init — prevents flash of wrong theme on reload
+;(() => {
+  const stored = localStorage.getItem('paletta-theme') || 'system'
+  const resolved = stored === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : stored
+  document.documentElement.classList.toggle('dark', resolved === 'dark')
+})()
+
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const CookiePolicy = lazy(() => import('./pages/CookiePolicy'))
 const TermsOfService = lazy(() => import('./pages/TermsOfService'))

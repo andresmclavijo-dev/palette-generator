@@ -37,7 +37,7 @@ import { usePaletteStore } from './store/paletteStore'
 import { makeSwatch, decodePalette, encodePalette, getColorName } from './lib/colorEngine'
 import { extractColorsFromFile } from './lib/kMeans'
 import { createCheckoutSession, createPortalSession } from './lib/stripe'
-import { BRAND_VIOLET, BRAND_WARM } from './lib/tokens'
+import { BRAND_VIOLET } from './lib/tokens'
 import { analytics } from './lib/posthog'
 const FREE_COUNTS = [3, 4, 5]
 
@@ -292,12 +292,12 @@ export default function App() {
 
   return (
     <>
-    <div className="w-screen flex flex-col overflow-hidden" style={{ height: '100dvh', backgroundColor: BRAND_WARM }}>
+    <div className="w-screen flex flex-col overflow-hidden bg-background" style={{ height: '100dvh' }}>
 
       {/* Skip link for keyboard navigation */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
       >
         Skip to main content
       </a>
@@ -324,7 +324,7 @@ export default function App() {
 
       {/* -- Header Row 2: Harmony tabs + desktop tools -- */}
       <div
-        className="flex-none bg-white border-b border-gray-200 flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
+        className="flex-none bg-card border-b border-border flex items-center justify-between px-3 sm:px-4 z-30 shrink-0 overflow-x-auto overflow-y-hidden scrollbar-none"
         style={{ minHeight: '60px' }}
         onClick={e => e.stopPropagation()}
       >
@@ -337,7 +337,7 @@ export default function App() {
           <ToolTooltip description="Generate a palette from a text description">
             <button
               onClick={() => setAiOpen(true)}
-              className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-gray-700"
+              className="flex items-center gap-3 h-10 px-4 rounded-full text-[14px] font-medium transition-all hover:bg-surface-secondary hover:text-foreground"
               style={{ color: 'hsl(var(--muted-foreground))' }}
               aria-label="AI palette generation from text prompt"
             >
@@ -387,10 +387,10 @@ export default function App() {
         {visionMode !== 'normal' && (
           <button
             onClick={() => setVisionMode('normal')}
-            className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur shadow-md text-[12px] font-medium text-gray-700 hover:bg-white transition-all"
+            className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/90 backdrop-blur shadow-md text-[12px] font-medium text-muted-foreground hover:bg-card transition-all"
           >
             👁 {visionMode.charAt(0).toUpperCase() + visionMode.slice(1)}
-            <span className="text-gray-400 ml-1">✕</span>
+            <span className="text-muted ml-1">✕</span>
           </button>
         )}
 
@@ -520,14 +520,14 @@ export default function App() {
 
       {/* -- Mobile footer: Undo | Redo | Generate | Colors | Export -- */}
       <footer
-        className="fixed left-0 right-0 sm:hidden bg-white border-t border-gray-200 z-40 flex items-center justify-between px-2"
+        className="fixed left-0 right-0 sm:hidden bg-card border-t border-border z-40 flex items-center justify-between px-2"
         style={{ bottom: 'var(--cookie-bar-h, 0px)', minHeight: '64px', height: `calc(64px + max(env(safe-area-inset-bottom, 0px), 16px))`, paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
       >
         {/* Undo */}
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
           style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Undo"
         >
@@ -540,7 +540,7 @@ export default function App() {
         <button
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
           style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Redo"
         >
@@ -563,7 +563,7 @@ export default function App() {
         {/* Colors — cycle pill */}
         <button
           onClick={handleMobileCountCycle}
-          className="h-10 px-4 rounded-full bg-gray-100 text-[14px] font-semibold text-gray-700 active:bg-gray-200 transition-all shrink-0"
+          className="h-10 px-4 rounded-full bg-surface text-[14px] font-semibold text-foreground active:bg-border transition-all shrink-0"
           aria-label={`${count} colors, tap to change`}
         >
           {count}
@@ -572,7 +572,7 @@ export default function App() {
         {/* Export */}
         <button
           onClick={() => setExportOpen(o => !o)}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-all shrink-0"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface transition-all shrink-0"
           style={{ minWidth: '40px', minHeight: '40px' }}
           aria-label="Export"
         >

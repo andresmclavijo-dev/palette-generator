@@ -68,7 +68,7 @@ export default function MobileDrawer({
         style={{ opacity: visible ? 1 : 0 }}
       />
       <div
-        className="absolute top-0 right-0 bottom-0 w-[80vw] max-w-[320px] bg-white shadow-2xl overflow-y-auto"
+        className="absolute top-0 right-0 bottom-0 w-[80vw] max-w-[320px] bg-card shadow-2xl overflow-y-auto"
         style={{
           transform: visible ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 250ms ease-out',
@@ -77,10 +77,10 @@ export default function MobileDrawer({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <span className="text-[16px] font-semibold text-gray-800">Menu</span>
+          <span className="text-[16px] font-semibold text-foreground">Menu</span>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-all"
             aria-label="Close menu"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -92,7 +92,7 @@ export default function MobileDrawer({
         {/* Signed-in user info */}
         {isSignedIn && userEmail && (
           <div className="px-5 pb-2">
-            <span className="text-[12px] text-gray-400 break-all">{userEmail}</span>
+            <span className="text-[12px] text-muted-foreground break-all">{userEmail}</span>
           </div>
         )}
 
@@ -100,21 +100,21 @@ export default function MobileDrawer({
         <div className="px-3 py-1">
           <button
             onClick={() => handleRow(onSave)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-pink-50 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-gray-800">Save</span>
+            <span className="text-[14px] font-medium text-foreground">Save</span>
           </button>
 
           {/* Saved palettes — only when signed in */}
           {isSignedIn && (
             <button
               onClick={() => handleRow(onSavedPalettes)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
             >
               <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -122,13 +122,13 @@ export default function MobileDrawer({
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
               </div>
-              <span className="text-[14px] font-medium text-gray-800">My Palettes</span>
+              <span className="text-[14px] font-medium text-foreground">My Palettes</span>
             </button>
           )}
 
           <button
             onClick={() => handleRow(onShare)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
               {typeof navigator !== 'undefined' && typeof navigator.share === 'function' ? (
@@ -144,12 +144,12 @@ export default function MobileDrawer({
                 </svg>
               )}
             </div>
-            <span className="text-[14px] font-medium text-gray-800">{typeof navigator !== 'undefined' && typeof navigator.share === 'function' ? 'Share' : 'Copy link'}</span>
+            <span className="text-[14px] font-medium text-foreground">{typeof navigator !== 'undefined' && typeof navigator.share === 'function' ? 'Share' : 'Copy link'}</span>
           </button>
 
           <button
             onClick={() => handleRow(onExport)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -158,33 +158,33 @@ export default function MobileDrawer({
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-gray-800">Export</span>
+            <span className="text-[14px] font-medium text-foreground">Export</span>
           </button>
 
           {/* Sign In or Sign Out */}
           {!isSignedIn ? (
             <button
               onClick={() => handleRow(onSignIn)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
             >
               <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                 </svg>
               </div>
-              <span className="text-[14px] font-medium text-gray-800">Sign In</span>
+              <span className="text-[14px] font-medium text-foreground">Sign In</span>
             </button>
           ) : (
             <button
               onClick={() => handleRow(onSignOut)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
             >
               <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
               </div>
-              <span className="text-[14px] font-medium text-gray-800">Sign Out</span>
+              <span className="text-[14px] font-medium text-foreground">Sign Out</span>
             </button>
           )}
         </div>
@@ -194,7 +194,7 @@ export default function MobileDrawer({
 
         {/* Harmony section */}
         <div className="px-5 pt-2 pb-1">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Harmony</span>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Harmony</span>
         </div>
         <div className="px-3 py-1">
           {onHarmonyChange && (
@@ -207,13 +207,13 @@ export default function MobileDrawer({
 
         {/* Pro Tools section */}
         <div className="px-5 pt-2 pb-1">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tools</span>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tools</span>
         </div>
 
         <div className="px-3 py-1">
           <button
             onClick={() => setVisionExpanded(o => !o)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -221,7 +221,7 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex-1 flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Accessibility</span>
+              <span className="text-[14px] font-medium text-foreground">Accessibility</span>
               {visionMode !== 'normal' && (
                 <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
               )}
@@ -248,7 +248,7 @@ export default function MobileDrawer({
                       onVisionChange(m.value)
                       onClose()
                     }}
-                    className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100"
+                    className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-surface active:bg-surface"
                     style={{
                       padding: '12px 16px',
                       background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
@@ -282,7 +282,7 @@ export default function MobileDrawer({
 
           <button
             onClick={() => handleRow(onImagePalette)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -290,13 +290,13 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Image</span>
+              <span className="text-[14px] font-medium text-foreground">Image</span>
             </div>
           </button>
 
           <button
             onClick={() => handleRow(onPreview)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BRAND_VIOLET} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -306,23 +306,23 @@ export default function MobileDrawer({
               </svg>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">Preview</span>
+              <span className="text-[14px] font-medium text-foreground">Preview</span>
             </div>
           </button>
 
           <button
             onClick={() => handleRow(onAiPalette)}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
               <span className="text-[16px]">✨</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-medium text-gray-800">AI Palette</span>
+              <span className="text-[14px] font-medium text-foreground">AI Palette</span>
               {isPro ? (
-                <span className="text-[10px] text-gray-400">Unlimited</span>
+                <span className="text-[10px] text-muted-foreground">Unlimited</span>
               ) : (
-                <span className="text-[10px] text-gray-400">
+                <span className="text-[10px] text-muted-foreground">
                   {getAiRemaining()} generation{getAiRemaining() !== 1 ? 's' : ''} left
                 </span>
               )}
@@ -349,7 +349,7 @@ export default function MobileDrawer({
             <div className="px-3 py-1">
               <button
                 onClick={() => handleRow(onManageSubscription)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
               >
                 <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -357,7 +357,7 @@ export default function MobileDrawer({
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                   </svg>
                 </div>
-                <span className="text-[14px] font-medium text-gray-800">Manage Subscription</span>
+                <span className="text-[14px] font-medium text-foreground">Manage Subscription</span>
               </button>
             </div>
           </>
@@ -368,34 +368,34 @@ export default function MobileDrawer({
 
         {/* Legal section */}
         <div className="px-5 pt-2 pb-1">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Legal</span>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Legal</span>
         </div>
         <div className="px-5 pb-5 flex flex-col gap-2">
           <Link
             to="/privacy-policy"
             onClick={onClose}
-            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors no-underline"
           >
             Privacy Policy
           </Link>
           <Link
             to="/cookie-policy"
             onClick={onClose}
-            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors no-underline"
           >
             Cookie Policy
           </Link>
           <Link
             to="/terms-of-service"
             onClick={onClose}
-            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors no-underline"
           >
             Terms of Service
           </Link>
           <a
             href="mailto:hello@usepaletta.io"
             onClick={onClose}
-            className="text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+            className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors no-underline"
           >
             Contact
           </a>

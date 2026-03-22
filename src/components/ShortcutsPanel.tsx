@@ -50,7 +50,7 @@ export default function ShortcutsPanel({ open, onClose, triggerRef }: ShortcutsP
       ref={panelRef}
       role="dialog"
       aria-label="Keyboard shortcuts"
-      className="absolute bottom-12 left-0 z-[100] rounded-xl bg-white border border-gray-200 overflow-y-auto"
+      className="absolute bottom-12 left-0 z-[100] rounded-xl bg-card border border-border overflow-y-auto"
       style={{
         width: 280,
         maxHeight: 400,

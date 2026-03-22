@@ -58,6 +58,38 @@
     --button-md: 36px;
     --button-sm: 32px;
   }
+
+  .dark {
+    /* Surfaces */
+    --background: 240 6% 7%;
+    --card: 240 4% 12%;
+    --surface: 240 5% 15%;
+    --surface-warm: 240 6% 13%;
+
+    /* Text */
+    --foreground: 60 7% 95%;
+    --muted: 240 5% 34%;
+    --muted-foreground: 240 4% 65%;
+
+    /* Borders */
+    --border: 240 8% 20%;
+    --border-light: 240 4% 16%;
+
+    /* Feedback */
+    --success: 142 71% 45%;
+    --success-bg: 144 61% 20%;
+    --warning: 32 95% 54%;
+    --warning-bg: 32 40% 20%;
+    --error-bg: 0 50% 20%;
+    --info-bg: 244 40% 20%;
+  }
+}
+
+/* Smooth theme transition — respects reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    transition: background-color 200ms ease, color 200ms ease;
+  }
 }
 
 /* Focus rings for raw buttons without shadcn Button component */

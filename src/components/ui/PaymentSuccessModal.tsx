@@ -23,7 +23,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="payment-success-title"
-        className="relative max-w-sm w-[90vw] bg-white rounded-2xl shadow-xl overflow-hidden p-6"
+        className="relative max-w-sm w-[90vw] bg-card rounded-2xl shadow-xl overflow-hidden p-6"
         onClick={e => e.stopPropagation()}
       >
         {/* Close button */}

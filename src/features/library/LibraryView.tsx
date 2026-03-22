@@ -147,7 +147,7 @@ export function LibraryView({
             {palettes.map(p => (
               <div
                 key={p.id}
-                className="bg-white overflow-hidden cursor-pointer transition-shadow hover:shadow-md text-left w-full rounded-card"
+                className="bg-card overflow-hidden cursor-pointer transition-shadow hover:shadow-md text-left w-full rounded-card"
                 style={{ border: '1px solid rgba(0,0,0,0.06)' }}
                 onClick={() => onLoad(p.colors, p.name)}
                 role="button"

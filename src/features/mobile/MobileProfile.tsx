@@ -6,6 +6,7 @@ import { createPortalSession } from '@/lib/stripe'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
 import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
 
@@ -78,6 +79,12 @@ export function MobileProfile() {
           >
             See what's in Pro →
           </Button>
+        </div>
+
+        {/* Appearance */}
+        <div className="flex flex-col gap-2 mt-6 px-4">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Appearance</span>
+          <ThemeToggle />
         </div>
 
         {/* Legal */}
@@ -207,6 +214,12 @@ export function MobileProfile() {
         >
           Sign Out
         </Button>
+      </div>
+
+      {/* Appearance */}
+      <div className="flex flex-col gap-2 mt-6 px-4">
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Appearance</span>
+        <ThemeToggle />
       </div>
 
       {/* Legal */}

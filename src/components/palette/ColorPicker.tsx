@@ -122,7 +122,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         >
           {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-gray-200" />
+            <div className="w-10 h-1 rounded-full bg-border" />
           </div>
 
           <div style={{ padding: '8px 16px 24px' }}>
@@ -150,8 +150,8 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
             {/* Hex input row — input + copy on same line */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-gray-50 border border-gray-200">
-                <span className="text-[12px] text-gray-400 font-mono">#</span>
+              <div className="flex-1 flex items-center gap-1 px-3 h-10 rounded-lg bg-surface border border-border">
+                <span className="text-[12px] text-muted-foreground font-mono">#</span>
                 <input
                   value={hexDraft}
                   onChange={e => {
@@ -173,13 +173,13 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
                   }}
                   onClick={e => e.stopPropagation()}
                   maxLength={6}
-                  className="flex-1 min-w-0 bg-transparent text-[14px] font-mono uppercase text-gray-800 outline-none"
+                  className="flex-1 min-w-0 bg-transparent text-[14px] font-mono uppercase text-foreground outline-none"
                   aria-label="Hex color value"
                 />
               </div>
               <button
                 onClick={handleCopy}
-                className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 active:bg-gray-100 shrink-0"
+                className="w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center text-muted-foreground active:bg-surface shrink-0"
                 aria-label={copied ? 'Copied' : 'Copy hex code'}
               >
                 {copied
@@ -212,14 +212,14 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
   return (
     <div
       ref={pickerRef}
-      className="relative w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+      className="relative w-[280px] bg-card rounded-2xl shadow-xl border border-border overflow-hidden"
       onMouseDown={e => e.stopPropagation()}
       onClick={e => e.stopPropagation()}
     >
       {/* Close */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose() }}
-        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-surface hover:bg-border flex items-center justify-center text-muted-foreground transition-colors"
         aria-label="Close color picker"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -228,7 +228,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
       </button>
 
       {/* Preview */}
-      <div className="mx-4 mt-4 rounded-xl h-16 border border-gray-100" style={{ backgroundColor: color }} />
+      <div className="mx-4 mt-4 rounded-xl h-16 border border-border" style={{ backgroundColor: color }} />
 
       {/* react-colorful — works great on desktop */}
       <div className="mx-4 mt-3 react-colorful-wrapper">
@@ -237,8 +237,8 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
       {/* Hex input + copy */}
       <div className="flex items-center gap-2 mx-4 mt-3 mb-4">
-        <div className="flex-1 flex items-center gap-1 px-3 h-9 rounded-lg bg-gray-50 border border-gray-200">
-          <span className="text-[12px] text-gray-400 font-mono">#</span>
+        <div className="flex-1 flex items-center gap-1 px-3 h-9 rounded-lg bg-surface border border-border">
+          <span className="text-[12px] text-muted-foreground font-mono">#</span>
           <input
             value={hexDraft}
             onChange={e => {
@@ -266,7 +266,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
         </div>
         <button
           onClick={handleCopy}
-          className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
+          className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-muted-foreground hover:bg-border transition-colors shrink-0"
           aria-label={copied ? 'Copied' : 'Copy hex code'}
         >
           {copied

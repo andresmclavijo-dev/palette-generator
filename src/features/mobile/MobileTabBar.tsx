@@ -16,7 +16,7 @@ const tabs: { id: MobileTab; label: string; Icon: typeof Sparkles }[] = [
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   return (
     <nav
-      className="flex-none bg-white/90 border-t border-border/30"
+      className="flex-none bg-card/90 border-t border-border/30"
       style={{
         paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
         WebkitBackdropFilter: 'blur(20px)',

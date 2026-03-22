@@ -101,7 +101,7 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full h-full md:h-[min(92vh,720px)] md:w-[92vw] md:max-w-[1060px] bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
+        className="relative w-full h-full md:h-[min(92vh,720px)] md:w-[92vw] md:max-w-[1060px] bg-card md:rounded-2xl shadow-2xl overflow-hidden flex flex-col outline-none"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

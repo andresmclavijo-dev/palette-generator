@@ -20,7 +20,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
   return (
     <Tooltip text="Number of colors in palette">
       <div
-        className="flex items-center gap-2 rounded-full bg-white h-10 px-3"
+        className="flex items-center gap-2 rounded-full bg-card h-10 px-3"
         style={{ border: '1px solid hsl(var(--border))' }}
         onClick={e => e.stopPropagation()}
       >
@@ -45,7 +45,7 @@ export default function CountPicker({ count, onChange, onProGate, compact }: Cou
                 transition-all duration-150 cursor-pointer
                 ${active
                   ? 'bg-brand-violet text-brand-warm'
-                  : 'bg-white hover:bg-surface-secondary'
+                  : 'bg-card hover:bg-surface'
                 }
               `}
               style={{

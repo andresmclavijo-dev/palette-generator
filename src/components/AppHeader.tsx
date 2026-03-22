@@ -105,7 +105,7 @@ export default function AppHeader({
           <Tooltip text={shareCopied ? 'Copied!' : canNativeShare ? 'Share' : 'Copy link'} position="bottom">
             <button
               onClick={onShare}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
+              className="w-9 h-9 rounded-full bg-card hover:bg-surface flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
               aria-label={shareCopied ? 'Copied!' : canNativeShare ? 'Share palette' : 'Copy link'}
             >
               {canNativeShare
@@ -119,7 +119,7 @@ export default function AppHeader({
           <Tooltip text="Save" position="bottom">
             <button
               onClick={handleSaveClick}
-              className="w-9 h-9 rounded-full bg-white hover:bg-pink-50 flex items-center justify-center shrink-0"
+              className="w-9 h-9 rounded-full bg-card hover:bg-surface flex items-center justify-center shrink-0"
               style={{
                 transition: 'background 150ms, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)',
                 transform: heartPulse ? 'scale(1.2)' : 'scale(1)',
@@ -145,7 +145,7 @@ export default function AppHeader({
             <Tooltip text="My Palettes" position="bottom">
               <button
                 onClick={onSavedPalettes}
-                className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
+                className="w-9 h-9 rounded-full bg-card hover:bg-surface flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
                 aria-label="My Palettes"
                 aria-haspopup="true"
               >
@@ -161,7 +161,7 @@ export default function AppHeader({
           <Tooltip text="Export" position="bottom">
             <button
               onClick={onExport}
-              className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
+              className="w-9 h-9 rounded-full bg-card hover:bg-surface flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
               aria-label="Export palette"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -177,7 +177,7 @@ export default function AppHeader({
             <div ref={avatarRef} className="relative">
               <button
                 onClick={() => setAvatarOpen(o => !o)}
-                className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0 text-foreground"
+                className="flex items-center gap-3 h-10 px-4 rounded-full bg-card hover:bg-surface text-[14px] font-medium transition-all shrink-0 text-foreground"
                 aria-label="Account menu"
                 aria-haspopup="true"
                 aria-expanded={avatarOpen}
@@ -213,7 +213,7 @@ export default function AppHeader({
           ) : (
             <button
               onClick={onSignIn}
-              className="flex items-center gap-3 h-10 px-4 rounded-full bg-white hover:bg-surface-secondary text-[14px] font-medium transition-all shrink-0 text-foreground"
+              className="flex items-center gap-3 h-10 px-4 rounded-full bg-card hover:bg-surface text-[14px] font-medium transition-all shrink-0 text-foreground"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>

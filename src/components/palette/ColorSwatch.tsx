@@ -150,7 +150,7 @@ export default function ColorSwatch({
       onClick={e => e.stopPropagation()}
     >
       <PickerErrorBoundary fallback={
-        <div className="w-[280px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 text-center text-sm text-gray-500">
+        <div className="w-[280px] bg-card rounded-2xl shadow-xl border border-border p-6 text-center text-sm text-muted-foreground">
           Color picker unavailable
           <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-brand-blue text-xs font-medium">Close</button>
         </div>
@@ -168,7 +168,7 @@ export default function ColorSwatch({
   const pickerMobile = pickerOpen && IS_COARSE && (
     <PickerErrorBoundary fallback={
       <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => onPanelChange(null)}>
-        <div className="w-full bg-white rounded-t-2xl p-6 text-center text-sm text-gray-500" onClick={e => e.stopPropagation()}>
+        <div className="w-full bg-card rounded-t-2xl p-6 text-center text-sm text-muted-foreground" onClick={e => e.stopPropagation()}>
           Color picker unavailable
           <button onClick={() => onPanelChange(null)} className="block mx-auto mt-3 text-brand-blue text-xs font-medium">Close</button>
         </div>
@@ -190,15 +190,15 @@ export default function ColorSwatch({
         className="absolute z-50 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-24"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-56 bg-white rounded-xl shadow-xl border border-gray-200 p-4 text-[12px]">
+        <div className="w-56 bg-card rounded-xl shadow-xl border border-border p-4 text-[12px]">
           <div className="flex items-center justify-between mb-3">
-            <span className="font-semibold text-gray-800 text-[13px]">{colorName || 'Color'}</span>
-            <button onClick={() => onPanelChange(null)} className="text-gray-400 hover:text-gray-600 text-[14px]">✕</button>
+            <span className="font-semibold text-foreground text-[13px]">{colorName || 'Color'}</span>
+            <button onClick={() => onPanelChange(null)} className="text-muted-foreground hover:text-foreground text-[14px]">✕</button>
           </div>
-          <div className="space-y-1.5 text-gray-600 font-mono">
-            <div className="flex justify-between"><span className="text-gray-400 font-sans">HEX</span><span>{hex.toUpperCase()}</span></div>
-            <div className="flex justify-between"><span className="text-gray-400 font-sans">RGB</span><span>{info.rgb}</span></div>
-            <div className="flex justify-between"><span className="text-gray-400 font-sans">HSL</span><span>{info.hsl}</span></div>
+          <div className="space-y-1.5 text-foreground font-mono">
+            <div className="flex justify-between"><span className="text-muted-foreground font-sans">HEX</span><span>{hex.toUpperCase()}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground font-sans">RGB</span><span>{info.rgb}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground font-sans">HSL</span><span>{info.hsl}</span></div>
           </div>
         </div>
       </div>
@@ -375,32 +375,32 @@ export default function ColorSwatch({
 
           {/* Desktop hover action bar */}
           <div
-            className={`flex items-center bg-white rounded-full shadow-md overflow-hidden pointer-events-auto shrink-0
+            className={`flex items-center bg-card rounded-full shadow-md overflow-hidden pointer-events-auto shrink-0
               transition-all duration-150 ease-out opacity-0 translate-y-2 pointer-events-none
               ${barHoverClass}
             `}
             onClick={e => e.stopPropagation()}
           >
             <Tooltip text="Copy hex">
-              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Copy hex">
+              <button onClick={handleCopy} className="flex items-center justify-center w-12 h-12 text-muted-foreground hover:bg-surface active:bg-surface active:scale-[0.98] transition-colors" aria-label="Copy hex">
                 {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
               </button>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200" />
+            <div className="w-px h-5 bg-border" />
             <Tooltip text="View shades" disabled={shadesOpen}>
-              <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="View shades">
+              <button onClick={handleOpenShades} className="flex items-center justify-center w-12 h-12 text-muted-foreground hover:bg-surface active:bg-surface active:scale-[0.98] transition-colors" aria-label="View shades">
                 <ShadesIcon size={16} />
               </button>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200" />
+            <div className="w-px h-5 bg-border" />
             <Tooltip text="Color info" disabled={infoOpen}>
-              <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Color info">
+              <button onClick={handleToggleInfo} className="flex items-center justify-center w-12 h-12 text-muted-foreground hover:bg-surface active:bg-surface active:scale-[0.98] transition-colors" aria-label="Color info">
                 <InfoIcon size={16} />
               </button>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200" />
+            <div className="w-px h-5 bg-border" />
             <Tooltip text="Edit color" disabled={pickerOpen}>
-              <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-gray-600 hover:bg-gray-50 active:bg-gray-100 active:scale-[0.98] transition-colors" aria-label="Edit color">
+              <button onClick={handleOpenPicker} className="flex items-center justify-center w-12 h-12 text-muted-foreground hover:bg-surface active:bg-surface active:scale-[0.98] transition-colors" aria-label="Edit color">
                 <EditIcon size={16} />
               </button>
             </Tooltip>

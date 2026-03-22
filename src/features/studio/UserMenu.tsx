@@ -50,10 +50,10 @@ export function UserMenu({
 
       {open && (
         <div
-          className="absolute top-full right-0 mt-2 bg-white rounded-2xl overflow-hidden"
+          className="absolute top-full right-0 mt-2 bg-card rounded-2xl overflow-hidden"
           style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 200 }}
         >
-          <div className="px-4 py-3 border-b border-gray-100">
+          <div className="px-4 py-3 border-b border-border-light">
             <p className="text-[13px] font-semibold m-0" style={{ color: BRAND_DARK }}>{email}</p>
             {isPro && (
               <Badge variant="pro" className="mt-1">PRO</Badge>
@@ -62,7 +62,7 @@ export function UserMenu({
           {isPro && (
             <button
               onClick={() => { onManage(); setOpen(false) }}
-              className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-gray-50 transition-all"
+              className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-surface transition-all"
               style={{ color: BRAND_DARK }}
             >
               Manage subscription
@@ -70,7 +70,7 @@ export function UserMenu({
           )}
           <button
             onClick={() => { onSignOut(); setOpen(false) }}
-            className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-gray-50 transition-all"
+            className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-surface transition-all"
             style={{ color: 'hsl(var(--destructive))' }}
           >
             Sign out

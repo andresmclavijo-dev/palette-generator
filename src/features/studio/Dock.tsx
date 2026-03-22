@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type SectionId = 'studio' | 'library' | 'profile'
 
@@ -104,6 +105,11 @@ export function Dock({
           expanded={expanded}
           onClick={() => onSectionChange('profile')}
         />
+
+        {/* Theme toggle */}
+        <div className="flex justify-center" style={{ margin: expanded ? '8px 0' : '6px 0' }}>
+          <ThemeToggle compact />
+        </div>
 
         {/* Info / Legal links */}
         <DockInfoMenu expanded={expanded} />
@@ -290,7 +296,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
 
       {open && (
         <div
-          className="absolute z-50 bg-white rounded-xl overflow-hidden"
+          className="absolute z-50 bg-card rounded-xl overflow-hidden"
           style={{
             left: '100%',
             top: '50%',
@@ -308,7 +314,7 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 text-[12px] font-medium transition-all hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2 text-[12px] font-medium transition-all hover:bg-surface"
               style={{ color: 'hsl(var(--foreground))', textDecoration: 'none' }}
               role="menuitem"
             >

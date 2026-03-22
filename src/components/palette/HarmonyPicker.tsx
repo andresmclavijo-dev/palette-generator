@@ -92,7 +92,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           ref={dropRef}
           role="listbox"
           aria-label="Harmony modes"
-          className="bg-white overflow-hidden"
+          className="bg-card overflow-hidden"
           style={{
             position: 'fixed', top: dropPos.top, left: dropPos.left, zIndex: 9999,
             width: 300, borderRadius: 12,
@@ -151,7 +151,7 @@ export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
           <button
             key={m.value}
             onClick={() => onChange(m.value)}
-            className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100"
+            className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-surface active:bg-surface"
             style={{
               padding: '12px 16px',
               background: isActive ? 'rgba(108,71,255,0.08)' : undefined,

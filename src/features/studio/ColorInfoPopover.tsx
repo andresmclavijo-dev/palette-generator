@@ -6,7 +6,7 @@ function InfoRow({ label, value, copied, onClick }: { label: string; value: stri
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 w-full text-left transition-all hover:bg-gray-50 -mx-1 px-1 rounded"
+      className="flex items-center gap-2 w-full text-left transition-all hover:bg-surface -mx-1 px-1 rounded"
       style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px 4px' }}
       aria-label={`Copy ${label} value`}
     >

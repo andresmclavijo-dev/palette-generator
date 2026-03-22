@@ -79,7 +79,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
 
         {/* Sheet */}
         <div
-          className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl overflow-hidden flex flex-col"
+          className="absolute inset-x-0 bottom-0 bg-card rounded-t-2xl shadow-2xl overflow-hidden flex flex-col"
           style={{
             maxHeight: '85vh',
             transform: visible ? 'translateY(0)' : 'translateY(100%)',
@@ -89,20 +89,20 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
         >
           {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1 shrink-0">
-            <div className="w-10 h-1 rounded-full bg-gray-200" />
+            <div className="w-10 h-1 rounded-full bg-border" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-1 pb-3 border-b border-gray-100 shrink-0">
+          <div className="flex items-center justify-between px-5 pt-1 pb-3 border-b border-border-light shrink-0">
             <div>
-              <span className="text-[15px] font-semibold text-gray-800">Shades</span>
+              <span className="text-[15px] font-semibold text-foreground">Shades</span>
               {colorName && (
-                <span className="text-[12px] text-gray-400 ml-2">{colorName}</span>
+                <span className="text-[12px] text-muted-foreground ml-2">{colorName}</span>
               )}
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-500 transition-all"
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-all"
               aria-label="Close shades panel"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

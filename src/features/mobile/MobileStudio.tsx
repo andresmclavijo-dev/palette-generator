@@ -276,7 +276,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
                     {/* WCAG badge */}
-                    <div className="bg-white shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
+                    <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
                       <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>
                       {swatches.length <= 6 && (
                         <span className="text-[10px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
@@ -284,7 +284,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                       {badge.pass && <span className="text-[10px] text-success font-bold leading-none">✓</span>}
                     </div>
                     {/* Hex */}
-                    <div className="bg-white shadow-sm rounded-md px-1.5 py-0.5 border border-black/5 max-w-[calc(100%-8px)]">
+                    <div className="bg-card shadow-sm rounded-md px-1.5 py-0.5 border border-black/5 max-w-[calc(100%-8px)]">
                       <span className={cn(
                         'font-semibold font-mono text-foreground leading-none truncate block',
                         swatches.length > 6 ? 'text-[10px] tracking-normal' : 'text-[10px] tracking-wider'
@@ -300,7 +300,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             {/* Vision filter strip */}
             {validateOn && (
               <div
-                className="mx-3 mt-2 flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl bg-white/90 border border-border/30 px-2 py-2"
+                className="mx-3 mt-2 flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl bg-card/90 border border-border/30 px-2 py-2"
                 style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
               >
                 {VISION_MODES.map(({ mode, label, emoji, pro }) => {
