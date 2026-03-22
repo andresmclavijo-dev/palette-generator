@@ -32,7 +32,7 @@ import {
   encodePalette, decodePalette, parseHex,
 } from '@/lib/colorEngine'
 import { extractColorsFromFile } from '@/lib/kMeans'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { BRAND_VIOLET } from '@/lib/tokens'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { createCheckoutSession, createPortalSession } from '@/lib/stripe'
@@ -434,17 +434,16 @@ export default function DesktopStudio() {
                   >
                     <DropdownMenuTrigger asChild>
                       <button
-                        className="flex items-center gap-1.5 text-[13px] font-medium transition-all hover:bg-black/[0.06]"
+                        className="flex items-center gap-1.5 text-[13px] font-medium text-foreground transition-all hover:bg-surface/50"
                         style={{
                           height: 36,
                           padding: '0 12px',
                           borderRadius: 8,
-                          color: BRAND_DARK,
-                          backgroundColor: 'rgba(255,255,255,0.95)',
+                          backgroundColor: 'hsl(var(--card) / 0.95)',
                           backdropFilter: 'blur(12px)',
                           WebkitBackdropFilter: 'blur(12px)',
                           boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                          border: '1px solid rgba(0,0,0,0.04)',
+                          border: '1px solid hsl(var(--border-light))',
                         }}
                         aria-label="Harmony mode"
                       >
@@ -478,11 +477,11 @@ export default function DesktopStudio() {
                   <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
                     <TabsList
                       style={{
-                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        backgroundColor: 'hsl(var(--card) / 0.95)',
                         backdropFilter: 'blur(12px)',
                         WebkitBackdropFilter: 'blur(12px)',
                         boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        border: '1px solid rgba(0,0,0,0.04)',
+                        border: '1px solid hsl(var(--border-light))',
                       }}
                     >
                       <TabsTrigger value="colors">Colors</TabsTrigger>
@@ -493,16 +492,16 @@ export default function DesktopStudio() {
                   {/* Pill 3: Validate toggle */}
                   <button
                     onClick={() => setValidateOn(v => !v)}
-                    className="flex items-center transition-all hover:bg-black/[0.06]"
+                    className="flex items-center transition-all hover:bg-surface/50"
                     style={{
                       height: 36,
                       padding: '0 12px',
                       borderRadius: 8,
-                      backgroundColor: validateOn ? BRAND_VIOLET : 'rgba(255,255,255,0.95)',
+                      backgroundColor: validateOn ? BRAND_VIOLET : 'hsl(var(--card) / 0.95)',
                       backdropFilter: validateOn ? undefined : 'blur(12px)',
                       WebkitBackdropFilter: validateOn ? undefined : 'blur(12px)',
                       boxShadow: validateOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
-                      border: validateOn ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                      border: validateOn ? 'none' : '1px solid hsl(var(--border-light))',
                       gap: 6,
                       color: validateOn ? 'white' : 'hsl(var(--muted-foreground))',
                     }}
@@ -546,8 +545,8 @@ export default function DesktopStudio() {
                   <DarkTooltip label="AI palette" position="bottom">
                     <button
                       onClick={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
-                      className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
-                      style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
+                      className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
+                      style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
                       aria-label="AI palette"
                     >
                       <Star size={16} strokeWidth={1.5} />
@@ -570,8 +569,8 @@ export default function DesktopStudio() {
                         if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
                         activeDialog === 'extract' ? closeDialog() : openDialog('extract')
                       }}
-                      className="flex items-center gap-1 transition-all hover:bg-black/[0.06]"
-                      style={{ height: 36, padding: '0 10px', borderRadius: 8, color: BRAND_DARK }}
+                      className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
+                      style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
                       aria-label="Extract colors from image"
                     >
                       <Image size={16} strokeWidth={1.5} />
@@ -582,17 +581,17 @@ export default function DesktopStudio() {
                   </DarkTooltip>
 
                   {/* Divider */}
-                  <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.06)' }} />
+                  <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
 
                   {/* Save */}
                   <DarkTooltip label="Save palette" position="bottom">
                     <button
                       onClick={handleSave}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
+                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Save palette"
                     >
-                      <Heart size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                      <Heart size={16} strokeWidth={1.5} />
                     </button>
                   </DarkTooltip>
 
@@ -600,15 +599,15 @@ export default function DesktopStudio() {
                   <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="bottom">
                     <button
                       onClick={handleShare}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
+                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label={canNativeShare ? "Share palette" : "Copy link"}
                     >
                       {shareCopied
                         ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} />
                         : canNativeShare
-                          ? <Share2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
-                          : <Link2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                          ? <Share2 size={16} strokeWidth={1.5} />
+                          : <Link2 size={16} strokeWidth={1.5} />
                       }
                     </button>
                   </DarkTooltip>
@@ -617,16 +616,16 @@ export default function DesktopStudio() {
                   <DarkTooltip label="Export" position="bottom">
                     <button
                       onClick={() => activeDialog === 'export' ? closeDialog() : openDialog('export')}
-                      className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
+                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
                       aria-label="Export palette"
                     >
-                      <Download size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                      <Download size={16} strokeWidth={1.5} />
                     </button>
                   </DarkTooltip>
 
                   {/* Divider */}
-                  <div style={{ width: 1, height: 20, backgroundColor: 'rgba(0,0,0,0.08)' }} />
+                  <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
 
                   {/* Go Pro */}
                   {!isPro && (
