@@ -5,7 +5,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { BRAND_VIOLET } from '@/lib/tokens'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import ExportPanel from '@/components/palette/ExportPanel'
@@ -100,7 +100,7 @@ export function LibraryView({
         <div className="w-14 h-14 rounded-card bg-primary/10 flex items-center justify-center mb-5">
           <Heart size={28} className="text-primary" />
         </div>
-        <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Your collection starts here</h2>
+        <h2 className="text-[24px] font-bold text-foreground">Your collection starts here</h2>
         <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Save your favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
         </p>
@@ -130,7 +130,7 @@ export function LibraryView({
       <div className="max-w-[640px] mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[24px] font-bold" style={{ color: BRAND_DARK }}>Library</h2>
+            <h2 className="text-[24px] font-bold" style={{ color: 'hsl(var(--foreground))' }}>Library</h2>
             <p className="text-[13px] mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Your saved palettes</p>
           </div>
           <span className="text-[12px]" style={{ color: 'hsl(var(--muted-foreground))' }}>{slotsText}</span>
@@ -162,7 +162,7 @@ export function LibraryView({
                 </div>
                 <div className="flex items-center justify-between px-3 py-2">
                   <div>
-                    <span className="text-[13px] font-semibold block" style={{ color: BRAND_DARK }}>{p.name || 'Untitled'}</span>
+                    <span className="text-[13px] font-semibold block" style={{ color: 'hsl(var(--foreground))' }}>{p.name || 'Untitled'}</span>
                     <span className="text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">

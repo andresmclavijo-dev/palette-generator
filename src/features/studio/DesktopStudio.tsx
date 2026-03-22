@@ -462,7 +462,7 @@ export default function DesktopStudio() {
                           }}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-[13px] font-semibold" style={{ color: harmonyMode === h.mode ? BRAND_VIOLET : BRAND_DARK }}>
+                            <span className="text-[13px] font-semibold" style={{ color: harmonyMode === h.mode ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
                               {h.label}
                             </span>
                             {harmonyMode === h.mode && <Check size={14} className="text-primary" />}

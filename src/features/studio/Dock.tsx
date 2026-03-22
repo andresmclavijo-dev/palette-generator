@@ -108,7 +108,7 @@ export function Dock({
 
         {/* Theme toggle */}
         <div className="flex justify-center" style={{ margin: expanded ? '8px 0' : '6px 0' }}>
-          <ThemeToggle compact />
+          <ThemeToggle compact collapsed={!expanded} />
         </div>
 
         {/* Info / Legal links */}

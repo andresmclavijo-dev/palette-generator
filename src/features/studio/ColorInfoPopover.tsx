@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { getColorName, getColorInfo } from '@/lib/colorEngine'
-import { BRAND_DARK } from '@/lib/tokens'
 
 function InfoRow({ label, value, copied, onClick }: { label: string; value: string; copied: boolean; onClick: () => void }) {
   return (
@@ -10,7 +9,7 @@ function InfoRow({ label, value, copied, onClick }: { label: string; value: stri
       style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px 4px' }}
       aria-label={`Copy ${label} value`}
     >
-      <span className="text-[10px] font-bold tracking-wider opacity-40 w-7" style={{ color: BRAND_DARK }}>{label}</span>
+      <span className="text-[10px] font-bold tracking-wider opacity-40 w-7 text-muted-foreground">{label}</span>
       <span className="text-[12px] font-mono" style={{ color: copied ? 'hsl(var(--success))' : 'hsl(var(--foreground))' }}>
         {copied ? 'Copied!' : value}
       </span>
@@ -66,7 +65,7 @@ export function ColorInfoPopover({ hex, anchorRect, onClose }: { hex: string; an
       >
         <div style={{ height: 6, backgroundColor: hex }} />
         <div style={{ padding: '12px 16px' }}>
-          <p className="text-[15px] font-bold m-0" style={{ color: BRAND_DARK }}>{name}</p>
+          <p className="text-[15px] font-bold m-0 text-foreground">{name}</p>
           <div className="mt-2 flex flex-col gap-1">
             <InfoRow label="HEX" value={hex.toUpperCase()} copied={copied === 'HEX'} onClick={() => copyValue('HEX', hex.toUpperCase())} />
             <InfoRow label="RGB" value={rgb} copied={copied === 'RGB'} onClick={() => copyValue('RGB', rgb)} />
