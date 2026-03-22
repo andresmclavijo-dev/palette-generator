@@ -116,15 +116,15 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg" style={{ maxHeight: '80vh' }}>
-        <DialogHeader>
+        <DialogHeader className="mb-4">
           <DialogTitle>Export palette</DialogTitle>
           <DialogDescription>Copy your palette in any format</DialogDescription>
         </DialogHeader>
 
         {/* Format switcher */}
         <div
-          className="flex"
-          style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 8, padding: 3, gap: 3, marginBottom: 16 }}
+          className="flex mb-4"
+          style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 8, padding: 3, gap: 3 }}
         >
           {FORMATS.map(f => (
             <button
