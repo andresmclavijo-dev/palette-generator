@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Heart, X, Link2, Download } from 'lucide-react'
+import { Heart, X, Link2, Share2, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
 import { showToast } from '@/utils/toast'
+import { analytics } from '@/lib/posthog'
 import ExportPanel from '@/components/palette/ExportPanel'
 import { DarkTooltip } from '@/features/studio/DarkTooltip'
 
@@ -20,6 +21,7 @@ export function LibraryView({
   onProGate: (feature?: string, source?: string) => void
   onSignIn: () => void
 }) {
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
   const [palettes, setPalettes] = useState<{ id: string; name: string; colors: string[]; created_at: string }[]>([])
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; colors: string[] } | null>(null)
@@ -55,9 +57,19 @@ export function LibraryView({
   const handleShare = async (colors: string[]) => {
     const hex = colors.map(c => c.replace('#', '')).join('-')
     const url = `https://www.usepaletta.io/?p=${hex}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url })
+        analytics.track('palette_shared', { method: 'native', source: 'library' })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
     try {
       await navigator.clipboard.writeText(url)
       showToast('Link copied!')
+      analytics.track('palette_shared', { method: 'clipboard', source: 'library' })
     } catch { /* silent */ }
   }
 
@@ -154,13 +166,13 @@ export function LibraryView({
                     <span className="text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>Saved {timeAgo(p.created_at)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <DarkTooltip label="Copy link" position="top">
+                    <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="top">
                       <button
                         onClick={e => { e.stopPropagation(); handleShare(p.colors) }}
                         className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
-                        aria-label="Copy palette link"
+                        aria-label={canNativeShare ? "Share palette" : "Copy palette link"}
                       >
-                        <Link2 size={16} />
+                        {canNativeShare ? <Share2 size={16} /> : <Link2 size={16} />}
                       </button>
                     </DarkTooltip>
                     <DarkTooltip label="Export" position="top">

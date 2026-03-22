@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Share2, Link2 } from 'lucide-react'
 import Tooltip from './ui/Tooltip'
 
 interface AppHeaderProps {
@@ -32,6 +33,7 @@ export default function AppHeader({
   onDrawerOpen,
   onManageSubscription,
 }: AppHeaderProps) {
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [heartPulse, setHeartPulse] = useState(false)
   const avatarRef = useRef<HTMLDivElement>(null)
@@ -99,18 +101,17 @@ export default function AppHeader({
 
         {/* Desktop nav items — hidden on mobile to avoid Tooltip wrappers taking layout space */}
         <div className="hidden sm:flex items-center gap-4">
-          {/* Desktop: Share — icon-only */}
-          <Tooltip text={shareCopied ? 'Copied!' : 'Share'} position="bottom">
+          {/* Desktop: Share / Copy link — icon-only */}
+          <Tooltip text={shareCopied ? 'Copied!' : canNativeShare ? 'Share' : 'Copy link'} position="bottom">
             <button
               onClick={onShare}
               className="w-9 h-9 rounded-full bg-white hover:bg-surface-secondary flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
-              aria-label={shareCopied ? 'Copied!' : 'Share'}
+              aria-label={shareCopied ? 'Copied!' : canNativeShare ? 'Share palette' : 'Copy link'}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
+              {canNativeShare
+                ? <Share2 size={16} strokeWidth={2} aria-hidden="true" />
+                : <Link2 size={16} strokeWidth={2} aria-hidden="true" />
+              }
             </button>
           </Tooltip>
 

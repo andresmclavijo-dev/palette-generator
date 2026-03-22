@@ -97,9 +97,20 @@ export function MobileStudio(_props: MobileStudioProps) {
   }
 
   const handleShare = async () => {
+    const shareUrl = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url: shareUrl })
+        analytics.track('palette_shared', { method: 'native' })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
     try {
-      await navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(shareUrl)
       showToast('Link copied!')
+      analytics.track('palette_shared', { method: 'clipboard' })
     } catch { /* silent */ }
   }
 

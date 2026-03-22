@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ChevronDown, Eye, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
-  Share2, Download, Grid3X3,
+  Share2, Link2, Download, Grid3X3,
   Plus, Minus,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
@@ -228,12 +228,25 @@ export default function DesktopStudio() {
   }, [triggerGenerate, undo, redo, section, closeDialog])
 
   // Handlers
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
+
   const handleShare = async () => {
+    const shareUrl = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url: shareUrl })
+        analytics.track('palette_shared', { method: 'native' })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
     try {
-      await navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(shareUrl)
       setShareCopied(true)
       showToast('Link copied!')
       setTimeout(() => setShareCopied(false), 2000)
+      analytics.track('palette_shared', { method: 'clipboard' })
     } catch { /* silent */ }
   }
 
@@ -583,15 +596,20 @@ export default function DesktopStudio() {
                     </button>
                   </DarkTooltip>
 
-                  {/* Share */}
-                  <DarkTooltip label="Share" position="bottom">
+                  {/* Share / Copy link */}
+                  <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="bottom">
                     <button
                       onClick={handleShare}
                       className="flex items-center justify-center transition-all hover:bg-black/[0.06] active:scale-[0.98]"
                       style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-                      aria-label="Share palette link"
+                      aria-label={canNativeShare ? "Share palette" : "Copy link"}
                     >
-                      {shareCopied ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} /> : <Share2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />}
+                      {shareCopied
+                        ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} />
+                        : canNativeShare
+                          ? <Share2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                          : <Link2 size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--foreground))' }} />
+                      }
                     </button>
                   </DarkTooltip>
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Heart, Link2, X } from 'lucide-react'
+import { Heart, Link2, Share2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePaletteStore } from '@/store/paletteStore'
 import { makeSwatch } from '@/lib/colorEngine'
@@ -52,9 +52,19 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   const handleShare = async (palette: SavedPalette) => {
     const hex = palette.colors.map(c => c.replace('#', '')).join('-')
     const url = `${window.location.origin}?p=${hex}`
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url })
+        analytics.track('palette_shared', { method: 'native', source: 'library' })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
     try {
       await navigator.clipboard.writeText(url)
       showToast('Link copied!')
+      analytics.track('palette_shared', { method: 'clipboard', source: 'library' })
     } catch { /* silent */ }
   }
 
@@ -160,9 +170,12 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
                     variant="outline"
                     size="icon-sm"
                     onClick={() => handleShare(palette)}
-                    aria-label={`Copy share link for ${palette.name}`}
+                    aria-label={typeof navigator.share === 'function' ? `Share ${palette.name}` : `Copy share link for ${palette.name}`}
                   >
-                    <Link2 size={16} className="text-muted-foreground" strokeWidth={2} />
+                    {typeof navigator.share === 'function'
+                      ? <Share2 size={16} className="text-muted-foreground" strokeWidth={2} />
+                      : <Link2 size={16} className="text-muted-foreground" strokeWidth={2} />
+                    }
                   </Button>
                   {deletingId === palette.id ? (
                     <>

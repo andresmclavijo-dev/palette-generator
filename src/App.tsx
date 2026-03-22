@@ -164,11 +164,22 @@ export default function App() {
   }, [triggerGenerate, undo, redo])
 
   const handleShare = async () => {
+    const shareUrl = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url: shareUrl })
+        analytics.track('palette_shared', { method: 'native' })
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
     try {
-      await navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(shareUrl)
       setShareCopied(true)
       showToast('Link copied!')
       setTimeout(() => setShareCopied(false), 2000)
+      analytics.track('palette_shared', { method: 'clipboard' })
     } catch { /* silent */ }
   }
 
@@ -607,12 +618,7 @@ export default function App() {
         onClose={() => setDrawerOpen(false)}
         onSave={handleSave}
         onExport={() => setExportOpen(true)}
-        onShare={async () => {
-          try {
-            await navigator.clipboard.writeText(window.location.href)
-            showToast('Link copied!')
-          } catch { /* silent */ }
-        }}
+        onShare={handleShare}
         onSignIn={() => setSignInOpen(true)}
         onSignOut={signOut}
         onProGate={openProModal}
