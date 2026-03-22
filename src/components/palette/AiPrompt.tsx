@@ -193,7 +193,7 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
               }}
               placeholder={exhausted ? 'Upgrade to Pro for unlimited AI' : 'Describe a mood or theme\u2026'}
               disabled={exhausted}
-              className="flex-1 h-9 px-3 rounded-button border border-border text-sm outline-none transition-all disabled:opacity-50"
+              className="flex-1 h-9 px-3 rounded-button border border-border bg-card text-sm text-foreground outline-none transition-all disabled:opacity-50"
               style={{ color: 'hsl(var(--foreground))' }}
               onFocus={e => { e.currentTarget.style.borderColor = BRAND_VIOLET; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,71,255,0.15)' }}
               onBlur={e => { e.currentTarget.style.borderColor = 'hsl(var(--border))'; e.currentTarget.style.boxShadow = 'none' }}

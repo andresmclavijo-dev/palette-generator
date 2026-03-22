@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { BRAND_DARK } from '@/lib/tokens'
 
 export function UserMenu({
   email, isPro, avatarUrl, onSignOut, onManage,
@@ -54,7 +53,7 @@ export function UserMenu({
           style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 200 }}
         >
           <div className="px-4 py-3 border-b border-border-light">
-            <p className="text-[13px] font-semibold m-0" style={{ color: BRAND_DARK }}>{email}</p>
+            <p className="text-[13px] font-semibold m-0 text-foreground">{email}</p>
             {isPro && (
               <Badge variant="pro" className="mt-1">PRO</Badge>
             )}
@@ -62,8 +61,7 @@ export function UserMenu({
           {isPro && (
             <button
               onClick={() => { onManage(); setOpen(false) }}
-              className="w-full text-left px-4 py-2.5 text-[13px] hover:bg-surface transition-all"
-              style={{ color: BRAND_DARK }}
+              className="w-full text-left px-4 py-2.5 text-[13px] text-foreground hover:bg-surface transition-all"
             >
               Manage subscription
             </button>

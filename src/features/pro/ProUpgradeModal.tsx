@@ -178,8 +178,7 @@ export function ProUpgradeModal({ open, onClose, paletteColors }: ProUpgradeModa
 
           {/* ─── Right Column ─── */}
           <div
-            className="hidden md:flex w-[290px] relative overflow-hidden items-center justify-center"
-            style={{ background: 'linear-gradient(145deg, #F8F7FF 0%, #EDE9FE 50%, #F0EDFF 100%)' }}
+            className="hidden md:flex w-[290px] relative overflow-hidden items-center justify-center bg-surface"
           >
             {/* Floating cards container */}
             <div className="relative w-[220px] h-[280px] pro-float-container">

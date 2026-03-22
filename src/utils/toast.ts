@@ -14,7 +14,7 @@ export function showToast(message: string) {
     left: 50%;
     transform: translateX(-50%);
     background: hsl(var(--foreground));
-    color: white;
+    color: hsl(var(--card));
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 13px;

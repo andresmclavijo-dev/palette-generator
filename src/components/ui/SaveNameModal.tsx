@@ -69,7 +69,7 @@ export default function SaveNameModal({ open, defaultName, onConfirm, onClose }:
             onChange={e => setName(e.target.value)}
             placeholder="Palette name"
             maxLength={60}
-            className="w-full h-10 px-3 rounded-button border border-border text-sm text-foreground placeholder-muted outline-none transition-all"
+            className="w-full h-10 px-3 rounded-button border border-border bg-card text-sm text-foreground placeholder-muted outline-none transition-all"
             onFocus={e => {
               e.currentTarget.style.borderColor = BRAND_VIOLET
               e.currentTarget.style.boxShadow = `0 0 0 3px rgba(108,71,255,0.15)`
