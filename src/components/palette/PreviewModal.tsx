@@ -206,7 +206,7 @@ export default function PreviewModal({ open, onClose, onProGate }: PreviewModalP
         </div>
 
         {/* Caption */}
-        <div className="shrink-0 py-3 text-center border-t border-gray-100">
+        <div className="shrink-0 py-3 text-center border-t border-border-light">
           <p className="text-[12px] font-medium" style={{ color: BRAND_VIOLET }}>
             {TAB_CAPTIONS[activeTab]}
           </p>

@@ -246,7 +246,7 @@ export default function ToolsSheet({
 
       {/* Toast */}
       {toast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-gray-900/90 text-white text-[12px] font-medium whitespace-nowrap shadow-lg">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-lg bg-foreground/90 text-card text-[12px] font-medium whitespace-nowrap shadow-lg">
           {toast}
         </div>
       )}

@@ -39,7 +39,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
 
         {/* Header */}
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 rounded-full bg-success-bg flex items-center justify-center mx-auto mb-4">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
@@ -49,7 +49,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-100 my-5" />
+        <div className="border-t border-border-light my-5" />
 
         {/* Google Sign In */}
         <button

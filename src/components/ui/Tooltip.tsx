@@ -93,7 +93,7 @@ export default function Tooltip({ text, children, disabled, position = 'top' }: 
             zIndex: 9999,
           }}
         >
-          <div className="px-2.5 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-medium shadow-lg whitespace-nowrap pointer-events-none">
+          <div className="px-2.5 py-1.5 rounded-lg bg-foreground text-card text-xs font-medium shadow-lg whitespace-nowrap pointer-events-none">
             {text}
           </div>
         </div>,
