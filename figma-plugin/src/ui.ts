@@ -14,7 +14,10 @@ const prefixInput = document.getElementById('prefix-input') as HTMLInputElement
 const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement
 const applyBtn = document.getElementById('apply-btn') as HTMLButtonElement
 const variablesBtn = document.getElementById('variables-btn') as HTMLButtonElement
+const shadesBtn = document.getElementById('shades-btn') as HTMLButtonElement
 const extractBtn = document.getElementById('extract-btn') as HTMLButtonElement
+const aiPromptInput = document.getElementById('ai-prompt-input') as HTMLInputElement
+const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement
 const statusEl = document.getElementById('status')!
 
 // ── State ────────────────────────────────────────────────────────
@@ -56,6 +59,13 @@ function getWcagBadge(hex: string): { label: string; pass: boolean } {
 // ── Render palette swatches ──────────────────────────────────────
 function renderPalette() {
   paletteRow.innerHTML = ''
+
+  // Add wrap class for 6+ colors
+  if (colors.length > 5) {
+    paletteRow.classList.add('palette-row-wrap')
+  } else {
+    paletteRow.classList.remove('palette-row-wrap')
+  }
 
   colors.forEach((color, i) => {
     const swatch = document.createElement('button')
@@ -175,6 +185,39 @@ extractBtn.addEventListener('click', () => {
   send({ type: 'extract-from-selection' })
 })
 
+shadesBtn.addEventListener('click', () => {
+  if (colors.length === 0) {
+    showStatus('Generate a palette first', 'error')
+    return
+  }
+  send({
+    type: 'push-shade-variables',
+    colors,
+    prefix: prefixInput.value.trim(),
+  })
+})
+
+aiGenerateBtn.addEventListener('click', () => {
+  const prompt = aiPromptInput.value.trim()
+  if (!prompt) {
+    showStatus('Enter a prompt first', 'error')
+    return
+  }
+  send({
+    type: 'ai-generate',
+    prompt,
+    count: parseInt(countSelect.value),
+  })
+})
+
+// AI prompt: Enter to submit
+aiPromptInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    aiGenerateBtn.click()
+  }
+})
+
 // Keyboard: spacebar to generate
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' && document.activeElement === document.body) {
@@ -200,6 +243,21 @@ window.onmessage = (event: MessageEvent) => {
 
     case 'variables-pushed':
       showStatus(`Pushed ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
+      break
+
+    case 'shade-variables-pushed':
+      showStatus(`Pushed ${msg.count} shade variable${msg.count !== 1 ? 's' : ''}`, 'success')
+      break
+
+    case 'ai-loading':
+      aiGenerateBtn.disabled = msg.loading
+      if (msg.loading) {
+        aiGenerateBtn.classList.add('btn-loading')
+        aiGenerateBtn.textContent = '…'
+      } else {
+        aiGenerateBtn.classList.remove('btn-loading')
+        aiGenerateBtn.textContent = 'AI'
+      }
       break
 
     case 'colors-extracted': {

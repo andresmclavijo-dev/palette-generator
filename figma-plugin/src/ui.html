@@ -275,6 +275,30 @@
     .status-success { color: var(--color-success); }
     .status-error { color: var(--color-destructive); }
 
+    /* ── AI loading ───────────────────────────────────────────── */
+    .btn-loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .btn-loading {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    /* ── Swatch wrap for 6+ colors ───────────────────────────── */
+    .palette-row-wrap {
+      flex-wrap: wrap;
+    }
+
+    .palette-row-wrap .swatch {
+      min-width: 42px;
+    }
+
     /* ── Reduced motion ───────────────────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -330,6 +354,13 @@
       </div>
     </div>
 
+    <div class="control-row">
+      <input type="text" id="ai-prompt-input" placeholder="Describe a palette… (e.g. sunset over ocean)" aria-label="AI palette prompt" style="flex:1;">
+      <button class="btn btn-primary" id="ai-generate-btn" aria-label="Generate palette from AI prompt" style="min-width:48px;height:32px;padding:0 10px;font-size:11px;">
+        AI
+      </button>
+    </div>
+
     <button class="btn btn-primary btn-full" id="generate-btn" aria-label="Generate new palette">
       Generate
     </button>
@@ -340,6 +371,9 @@
       </button>
       <button class="btn btn-secondary" id="variables-btn" aria-label="Push colors as Figma variables">
         Variables
+      </button>
+      <button class="btn btn-secondary" id="shades-btn" aria-label="Push shade scale variables to Figma">
+        Shades
       </button>
       <button class="btn btn-secondary" id="extract-btn" aria-label="Extract colors from selected layers" disabled>
         Extract

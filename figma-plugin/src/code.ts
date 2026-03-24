@@ -4,14 +4,14 @@
  * Runs in Figma's main thread with access to the Figma Plugin API.
  * Communicates with the UI via figma.ui.postMessage / figma.ui.onmessage.
  */
-import { generateByMode, getColorName, hexToFigmaRGB, figmaRGBToHex, makePaletteColors } from './colorEngine'
+import { generateByMode, getColorName, hexToFigmaRGB, figmaRGBToHex, makePaletteColors, generateShadeScale } from './colorEngine'
 import type { UIMessage, PluginMessage, PaletteColor } from './types'
 
 // ── Plugin state ─────────────────────────────────────────────────
 let currentPalette: PaletteColor[] = []
 
 // ── Launch UI ────────────────────────────────────────────────────
-figma.showUI(__html__, { width: 360, height: 520, themeColors: true })
+figma.showUI(__html__, { width: 360, height: 560, themeColors: true })
 
 // ── Send message helper ──────────────────────────────────────────
 function send(msg: PluginMessage) {
@@ -38,7 +38,7 @@ figma.on('selectionchange', () => {
 })
 
 // ── Handle messages from UI ──────────────────────────────────────
-figma.ui.onmessage = (msg: UIMessage) => {
+figma.ui.onmessage = async (msg: UIMessage) => {
   switch (msg.type) {
     case 'ui-ready': {
       // Generate an initial palette on launch
@@ -144,6 +144,96 @@ figma.ui.onmessage = (msg: UIMessage) => {
       }
 
       send({ type: 'colors-extracted', colors })
+      break
+    }
+
+    case 'push-shade-variables': {
+      const prefix = msg.prefix || 'Paletta'
+      const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
+
+      // Find or create collection
+      const collections = figma.variables.getLocalVariableCollections()
+      let collection = collections.find(c => c.name === prefix)
+      if (!collection) {
+        collection = figma.variables.createVariableCollection(prefix)
+      }
+
+      const modeId = collection.modes[0].modeId
+      const existingVars = figma.variables.getLocalVariables('COLOR')
+
+      let pushed = 0
+      for (let i = 0; i < msg.colors.length; i++) {
+        const roleName = ROLES[i] || `color-${i + 1}`
+        const shades = generateShadeScale(msg.colors[i].hex)
+
+        // Push flat base variable for backward compatibility
+        const baseName = `${roleName}`
+        let baseVar = existingVars.find(v =>
+          v.name === baseName && v.variableCollectionId === collection!.id
+        )
+        if (!baseVar) {
+          baseVar = figma.variables.createVariable(baseName, collection, 'COLOR')
+        }
+        baseVar.setValueForMode(modeId, hexToRGBA(msg.colors[i].hex))
+        pushed++
+
+        // Push shade ramp: {role}/{shade}
+        for (const { shade, hex } of shades) {
+          const shadeName = `${roleName}/${shade}`
+          let shadeVar = existingVars.find(v =>
+            v.name === shadeName && v.variableCollectionId === collection!.id
+          )
+          if (!shadeVar) {
+            shadeVar = figma.variables.createVariable(shadeName, collection, 'COLOR')
+          }
+          shadeVar.setValueForMode(modeId, hexToRGBA(hex))
+          pushed++
+        }
+      }
+
+      send({ type: 'shade-variables-pushed', count: pushed })
+      figma.notify(`✓ Pushed ${pushed} shade variables to "${prefix}"`)
+      break
+    }
+
+    case 'ai-generate': {
+      send({ type: 'ai-loading', loading: true })
+
+      try {
+        const response = await figma.fetch('https://usepaletta.io/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: msg.prompt,
+            colorCount: msg.count,
+            isPro: true, // Plugin users treated as Pro
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error(`API ${response.status}`)
+        }
+
+        const data = await response.json() as { colors: string[] }
+        if (!data.colors || !Array.isArray(data.colors)) {
+          throw new Error('Invalid response')
+        }
+
+        currentPalette = data.colors.map(hex => ({
+          hex,
+          name: getColorName(hex),
+          locked: false,
+        }))
+        send({ type: 'ai-loading', loading: false })
+        send({ type: 'palette-generated', colors: currentPalette })
+      } catch {
+        // Fallback to local random generation
+        send({ type: 'ai-loading', loading: false })
+        const hexes = generateByMode('random', null, msg.count)
+        currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
+        send({ type: 'palette-generated', colors: currentPalette })
+        send({ type: 'error', message: 'AI unavailable — generated random palette instead' })
+      }
       break
     }
   }

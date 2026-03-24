@@ -127,6 +127,27 @@ export function figmaRGBToHex(r: number, g: number, b: number): string {
   return chroma(r * 255, g * 255, b * 255).hex()
 }
 
+// ── Shade scale generation ──────────────────────────────────────
+const SHADE_STEPS: { shade: number; mix: string; amount: number }[] = [
+  { shade: 50,  mix: '#ffffff', amount: 0.95 },
+  { shade: 100, mix: '#ffffff', amount: 0.85 },
+  { shade: 200, mix: '#ffffff', amount: 0.70 },
+  { shade: 300, mix: '#ffffff', amount: 0.50 },
+  { shade: 400, mix: '#ffffff', amount: 0.25 },
+  { shade: 500, mix: '#000000', amount: 0.00 }, // base
+  { shade: 600, mix: '#000000', amount: 0.15 },
+  { shade: 700, mix: '#000000', amount: 0.30 },
+  { shade: 800, mix: '#000000', amount: 0.50 },
+  { shade: 900, mix: '#000000', amount: 0.70 },
+]
+
+export function generateShadeScale(hex: string): { shade: number; hex: string }[] {
+  return SHADE_STEPS.map(({ shade, mix, amount }) => ({
+    shade,
+    hex: amount === 0 ? hex : chroma.mix(hex, mix, amount, 'lab').hex(),
+  }))
+}
+
 export function makePaletteColors(hexes: string[], lockedIndices: number[], previous: PaletteColor[]): PaletteColor[] {
   return hexes.map((hex, i) => {
     if (lockedIndices.includes(i) && previous[i]) {
