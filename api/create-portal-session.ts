@@ -36,8 +36,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ url: session.url })
   } catch (err) {
+    console.error('[API_ERROR]', {
+      route: '/api/create-portal-session',
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack?.slice(0, 500) : undefined,
+      timestamp: new Date().toISOString(),
+    })
     const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('create-portal-session error:', message)
     return res.status(500).json({ error: message })
   }
 }

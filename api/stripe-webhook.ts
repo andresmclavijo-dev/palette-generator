@@ -84,8 +84,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rawBody = await getRawBody(req)
     event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
+    console.error('[API_ERROR]', {
+      route: '/api/stripe-webhook',
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack?.slice(0, 500) : undefined,
+      context: 'signature_verification',
+      timestamp: new Date().toISOString(),
+    })
     const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('Webhook signature verification failed:', message)
     return res.status(400).json({ error: `Webhook Error: ${message}` })
   }
 

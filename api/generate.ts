@@ -129,6 +129,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
 
     if (!response.ok) {
+      console.error('[AI_FAILURE]', {
+        prompt: prompt?.slice(0, 100),
+        error: `Anthropic API returned ${response.status}`,
+        timestamp: new Date().toISOString(),
+      })
       return res.status(502).json({ error: 'API error' })
     }
 
@@ -136,11 +141,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const text = data.content?.[0]?.text || ''
     const match = text.match(/\[.*\]/)
     if (!match) {
+      console.error('[AI_FAILURE]', {
+        prompt: prompt?.slice(0, 100),
+        error: 'No JSON array in AI response',
+        rawText: text?.slice(0, 200),
+        timestamp: new Date().toISOString(),
+      })
       return res.status(502).json({ error: 'Invalid response from AI' })
     }
 
     const colors: string[] = JSON.parse(match[0])
     if (!Array.isArray(colors) || colors.length < 3 || !colors.every((h: string) => /^#[0-9a-fA-F]{6}$/.test(h))) {
+      console.error('[AI_FAILURE]', {
+        prompt: prompt?.slice(0, 100),
+        error: 'Invalid hex array from AI',
+        parsed: JSON.stringify(colors)?.slice(0, 200),
+        timestamp: new Date().toISOString(),
+      })
       return res.status(502).json({ error: 'Invalid hex array from AI' })
     }
 
@@ -149,7 +166,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     promptCache.set(cacheKey, { colors: sliced, timestamp: Date.now() })
 
     return res.status(200).json({ colors: sliced })
-  } catch {
+  } catch (error) {
+    console.error('[API_ERROR]', {
+      route: '/api/generate',
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack?.slice(0, 500) : undefined,
+      timestamp: new Date().toISOString(),
+    })
+    console.error('[AI_FAILURE]', {
+      prompt: prompt?.slice(0, 100),
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+    })
     return res.status(502).json({ error: 'AI unavailable' })
   }
 }
