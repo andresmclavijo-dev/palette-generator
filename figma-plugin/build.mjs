@@ -6,12 +6,13 @@ const watch = process.argv.includes('--watch')
 mkdirSync('dist', { recursive: true })
 
 // Build the sandbox code (runs in Figma's main thread)
+// Figma's sandbox runs in a limited environment — use cjs format, no strict mode
 const codeConfig = {
   entryPoints: ['src/code.ts'],
   bundle: true,
   outfile: 'dist/code.js',
-  target: 'es2020',
-  format: 'iife',
+  target: 'es2015',
+  format: 'cjs',
   minify: !watch,
 }
 
@@ -30,6 +31,11 @@ async function buildAll() {
     esbuild.build(codeConfig),
     esbuild.build(uiConfig),
   ])
+
+  // Strip "use strict" — Figma's sandbox doesn't support it
+  let code = readFileSync('dist/code.js', 'utf-8')
+  code = code.replace(/^"use strict";\s*/, '')
+  writeFileSync('dist/code.js', code)
 
   // Inline the JS bundle into the HTML shell
   const html = readFileSync('src/ui.html', 'utf-8')
