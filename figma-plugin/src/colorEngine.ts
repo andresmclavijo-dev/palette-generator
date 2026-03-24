@@ -89,6 +89,9 @@ function complementaryPalette(seed: string, count: number): string[] {
     chroma.hsl(h, s, Math.max(l - 0.15, 0.12)).hex(),
     chroma.hsl((h + 180) % 360, s, l).hex(),
     chroma.hsl((h + 180) % 360, s, Math.max(l - 0.12, 0.12)).hex(),
+    chroma.hsl((h + 180) % 360, s, Math.min(l + 0.15, 0.88)).hex(),
+    chroma.hsl(h, s * 0.7, Math.min(l + 0.25, 0.92)).hex(),
+    chroma.hsl((h + 180) % 360, s * 0.7, Math.max(l - 0.25, 0.12)).hex(),
   ]
   return all.slice(0, count)
 }
@@ -101,6 +104,9 @@ function triadicPalette(seed: string, count: number): string[] {
     chroma.hsl((h + 120) % 360, s, l).hex(),
     chroma.hsl((h + 240) % 360, s, l).hex(),
     chroma.hsl((h + 240) % 360, s, Math.max(l - 0.18, 0.12)).hex(),
+    chroma.hsl((h + 120) % 360, s, Math.max(l - 0.18, 0.12)).hex(),
+    chroma.hsl(h, s, Math.min(l + 0.18, 0.88)).hex(),
+    chroma.hsl((h + 120) % 360, s * 0.7, Math.min(l + 0.18, 0.88)).hex(),
   ]
   return all.slice(0, count)
 }

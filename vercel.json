@@ -38,7 +38,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://www.usepaletta.io"
+          "value": "*"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -46,7 +46,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
+          "value": "Content-Type, Authorization, x-plugin-source"
         }
       ]
     }

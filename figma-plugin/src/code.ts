@@ -42,7 +42,7 @@ figma.ui.onmessage = async (msg: UIMessage) => {
   switch (msg.type) {
     case 'ui-ready': {
       // Generate an initial palette on launch
-      const hexes = generateByMode('random', null, 5)
+      const hexes = generateByMode('random', null, msg.count || 5)
       currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
       send({ type: 'palette-generated', colors: currentPalette })
 
@@ -200,7 +200,7 @@ figma.ui.onmessage = async (msg: UIMessage) => {
       send({ type: 'ai-loading', loading: true })
 
       try {
-        const response = await figma.fetch('https://usepaletta.io/api/generate', {
+        const response = await figma.fetch('https://www.usepaletta.io/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -37,7 +37,26 @@ const FREE_DAILY_LIMIT = 3
 const promptCache = new Map<string, { colors: string[]; timestamp: number }>()
 const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
 
+// ─── CORS headers (Figma plugin sends Origin: null) ───
+const corsHeaders: Record<string, string> = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-plugin-source',
+}
+
+function setCors(res: VercelResponse): void {
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    res.setHeader(key, value)
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setCors(res)
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end()
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

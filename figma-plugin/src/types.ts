@@ -16,7 +16,7 @@ export type UIMessage =
   | { type: 'push-shade-variables'; colors: PaletteColor[]; prefix: string }
   | { type: 'ai-generate'; prompt: string; count: number }
   | { type: 'extract-from-selection' }
-  | { type: 'ui-ready' }
+  | { type: 'ui-ready'; count: number }
 
 // Messages from Plugin sandbox → UI
 export type PluginMessage =

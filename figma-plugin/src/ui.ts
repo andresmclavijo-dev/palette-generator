@@ -291,4 +291,4 @@ if (isDark) {
 }
 
 // ── Tell the sandbox we're ready ─────────────────────────────────
-send({ type: 'ui-ready' })
+send({ type: 'ui-ready', count: parseInt(countSelect.value) })
