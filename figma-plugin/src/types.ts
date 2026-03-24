@@ -8,6 +8,13 @@ export interface PaletteColor {
   locked: boolean
 }
 
+export interface SavedPalette {
+  id: string
+  name: string
+  colors: PaletteColor[]
+  date: string
+}
+
 // Messages from UI → Plugin sandbox
 export type UIMessage =
   | { type: 'generate'; mode: HarmonyMode; count: number; seedColor: string | null; lockedIndices: number[] }
@@ -18,6 +25,9 @@ export type UIMessage =
   | { type: 'set-onboarded' }
   | { type: 'notify'; message: string }
   | { type: 'ui-ready'; count: number }
+  | { type: 'save-palette'; name: string; colors: PaletteColor[] }
+  | { type: 'load-palettes' }
+  | { type: 'delete-palette'; id: string }
 
 // Messages from Plugin sandbox → UI
 export type PluginMessage =
@@ -27,5 +37,8 @@ export type PluginMessage =
   | { type: 'colors-extracted'; colors: string[] }
   | { type: 'selection-changed'; hasSelection: boolean; count: number }
   | { type: 'ai-loading'; loading: boolean }
-  | { type: 'init'; hasSeenOnboarding: boolean }
+  | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[] }
   | { type: 'error'; message: string }
+  | { type: 'palettes-loaded'; palettes: SavedPalette[] }
+  | { type: 'palette-saved'; palette: SavedPalette }
+  | { type: 'palette-deleted'; id: string }

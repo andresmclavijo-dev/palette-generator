@@ -1,540 +1,1013 @@
 /**
- * Paletta Figma Plugin — UI code
- *
- * Runs in Figma's iframe sandbox. Communicates with code.ts via postMessage.
+ * Paletta Figma Plugin — UI code (multi-screen architecture)
  */
-import type { UIMessage, PluginMessage, PaletteColor } from './types'
+import type { UIMessage, PluginMessage, PaletteColor, SavedPalette, HarmonyMode } from './types'
+
+// ── SVG Icons (Lucide-style, 20px, 1.5px stroke) ─────────────────
+function svg(inner: string, size = 20): string {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+}
+
+const ICONS = {
+  sparkles: svg('<path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/><path d="M20 4l.5 1.5L22 6l-1.5.5L20 8l-.5-1.5L18 6l1.5-.5z"/>'),
+  folder: svg('<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>'),
+  box: svg('<path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05"/><path d="M12 22.08V12"/>'),
+  code: svg('<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'),
+  checkCircle: svg('<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
+  image: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'),
+  chevronLeft: svg('<polyline points="15 18 9 12 15 6"/>'),
+  chevronRight: svg('<polyline points="9 18 15 12 9 6"/>', 14),
+  chevronDown: svg('<polyline points="6 9 12 15 18 9"/>'),
+  lock: svg('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>', 11),
+  heart: svg('<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>'),
+  eye: svg('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'),
+  share: svg('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>'),
+  x: svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'),
+  minus: svg('<line x1="5" y1="12" x2="19" y2="12"/>'),
+  plus: svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),
+  sun: svg('<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>', 16),
+  monitor: svg('<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>', 16),
+  moon: svg('<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>', 16),
+  shuffle: svg('<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>'),
+  circle: svg('<circle cx="12" cy="12" r="10"/>'),
+  contrast: svg('<circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/>'),
+  triangle: svg('<path d="M12 3l10 18H2z"/>'),
+  arc: svg('<path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2"/><path d="M12 2C6.48 2 2 6.48 2 12"/>'),
+  check: svg('<polyline points="20 6 9 17 4 12"/>', 16),
+  info: svg('<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>', 16),
+}
 
 // ── Constants ─────────────────────────────────────────────────────
 const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
-const ROLE_ABBREVS = ['prim.', 'sec.', 'acc.', 'surf.', 'mut.', 'high.', 'bord.', 'over.']
-const ROLE_ABBREVS_SHORT = ['p.', 's.', 'a.', 'sf.', 'm.', 'h.', 'b.', 'o.']
+const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: string }[] = [
+  { mode: 'random', icon: 'shuffle', title: 'Random', desc: 'No constraints — pure variety' },
+  { mode: 'analogous', icon: 'arc', title: 'Analogous', desc: 'Adjacent on the color wheel' },
+  { mode: 'monochromatic', icon: 'circle', title: 'Monochromatic', desc: 'One hue, varied lightness' },
+  { mode: 'complementary', icon: 'contrast', title: 'Complementary', desc: 'Opposite colors for contrast' },
+  { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced hues' },
+]
+const LENS_OPTIONS = [
+  { id: 'normal', title: 'Normal vision', desc: 'No simulation' },
+  { id: 'protanopia', title: 'Protanopia', desc: 'Red-blind — affects ~1.3% of men' },
+  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men' },
+  { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-blind — rare, ~0.01%' },
+  { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Total color blindness' },
+]
 
-// ── DOM refs ─────────────────────────────────────────────────────
-const mainView = document.getElementById('main-view')!
-const paletteRow = document.getElementById('palette-row')!
-const harmonySelect = document.getElementById('harmony-select') as HTMLSelectElement
-const countSelect = document.getElementById('count-select') as HTMLSelectElement
-const seedInput = document.getElementById('seed-input') as HTMLInputElement
-const prefixInput = document.getElementById('prefix-input') as HTMLInputElement
-const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement
-const extractBtn = document.getElementById('extract-btn') as HTMLButtonElement
-const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement
-const aiPromptInput = document.getElementById('ai-prompt-input') as HTMLInputElement
-const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement
-const statusEl = document.getElementById('status')!
+// ── State ─────────────────────────────────────────────────────────
+const state = {
+  screen: 'home',
+  palette: [] as PaletteColor[],
+  prefix: 'Paletta',
+  harmony: 'random' as HarmonyMode,
+  colorCount: 5,
+  lens: 'normal',
+  savedPalettes: [] as SavedPalette[],
+  hasSelection: false,
+  selectionCount: 0,
+  codeTab: 'css' as 'css' | 'tailwind',
+  proPlan: 'monthly' as 'monthly' | 'yearly',
+  themeMode: 'system' as 'light' | 'system' | 'dark',
+}
 
-// Scope picker
-const scopeRadios = document.querySelectorAll<HTMLInputElement>('input[name="scope"]')
-const shadeCheckboxContainer = document.getElementById('shade-checkbox')!
-const includeShadesCheckbox = document.getElementById('include-shades') as HTMLInputElement
-const ctaBtn = document.getElementById('cta-btn') as HTMLButtonElement
-
-// Confirmation panel
-const confirmPanel = document.getElementById('confirm-panel')!
-const confirmCloseBtn = document.getElementById('confirm-close-btn') as HTMLButtonElement
-const confirmCancelBtn = document.getElementById('confirm-cancel-btn') as HTMLButtonElement
-const confirmPushBtn = document.getElementById('confirm-push-btn') as HTMLButtonElement
-const confirmPrefixEl = document.getElementById('confirm-prefix')!
-const confirmListEl = document.getElementById('confirm-list')!
-
-// Onboarding
-const onboardingOverlay = document.getElementById('onboarding')!
-const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn') as HTMLButtonElement
-
-// ── State ────────────────────────────────────────────────────────
-let colors: PaletteColor[] = []
-let hasSelection = false
-let selectionCount = 0
-
-// ── Send message to plugin sandbox ───────────────────────────────
+// ── Send to plugin sandbox ────────────────────────────────────────
 function send(msg: UIMessage) {
   parent.postMessage({ pluginMessage: msg }, '*')
 }
 
-// ── WCAG contrast utilities ──────────────────────────────────────
+// ── WCAG utilities ────────────────────────────────────────────────
+function linearize(c: number): number {
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+}
 function luminance(hex: string): number {
   const rgb = [
     parseInt(hex.slice(1, 3), 16) / 255,
     parseInt(hex.slice(3, 5), 16) / 255,
     parseInt(hex.slice(5, 7), 16) / 255,
-  ].map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  ].map(linearize)
   return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
 }
-
 function contrastRatio(hex1: string, hex2: string): number {
   const l1 = luminance(hex1)
   const l2 = luminance(hex2)
-  const lighter = Math.max(l1, l2)
-  const darker = Math.min(l1, l2)
-  return (lighter + 0.05) / (darker + 0.05)
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
 }
-
-function getWcagBadge(hex: string): { label: string; pass: boolean } {
+function getWcagBadge(hex: string): { label: string; ratio: string; pass: boolean } {
   const onWhite = contrastRatio(hex, '#FFFFFF')
   const onBlack = contrastRatio(hex, '#000000')
   const best = Math.max(onWhite, onBlack)
-  if (best >= 7) return { label: 'AAA', pass: true }
-  if (best >= 4.5) return { label: 'AA', pass: true }
-  return { label: 'Fail', pass: false }
+  const ratio = best.toFixed(1)
+  if (best >= 7) return { label: 'AAA', ratio, pass: true }
+  if (best >= 4.5) return { label: 'AA', ratio, pass: true }
+  return { label: 'Fail', ratio, pass: false }
 }
-
 function isLightColor(hex: string): boolean {
-  const c = hex.replace('#', '')
-  const r = parseInt(c.substring(0, 2), 16) / 255
-  const g = parseInt(c.substring(2, 4), 16) / 255
-  const b = parseInt(c.substring(4, 6), 16) / 255
-  const lum = 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
-  return lum > 0.4
+  return luminance(hex) > 0.4
 }
 
-function linearize(c: number): number {
-  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+// ── Color blindness simulation ────────────────────────────────────
+const SIM_MATRICES: Record<string, number[]> = {
+  protanopia: [0.567, 0.433, 0, 0.558, 0.442, 0, 0, 0.242, 0.758],
+  deuteranopia: [0.625, 0.375, 0, 0.7, 0.3, 0, 0, 0.3, 0.7],
+  tritanopia: [0.95, 0.05, 0, 0, 0.433, 0.567, 0, 0.475, 0.525],
+  achromatopsia: [0.299, 0.587, 0.114, 0.299, 0.587, 0.114, 0.299, 0.587, 0.114],
+}
+function simulateColor(hex: string, lens: string): string {
+  if (lens === 'normal') return hex
+  const m = SIM_MATRICES[lens]
+  if (!m) return hex
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const nr = Math.min(1, Math.max(0, m[0] * r + m[1] * g + m[2] * b))
+  const ng = Math.min(1, Math.max(0, m[3] * r + m[4] * g + m[5] * b))
+  const nb = Math.min(1, Math.max(0, m[6] * r + m[7] * g + m[8] * b))
+  return '#' + [nr, ng, nb].map(c => Math.round(c * 255).toString(16).padStart(2, '0')).join('')
 }
 
-// ── Render palette swatches ──────────────────────────────────────
-function renderPalette() {
-  paletteRow.innerHTML = ''
-
-  const isCompact = colors.length > 5
-  paletteRow.classList.toggle('compact', isCompact)
-
-  colors.forEach((color, i) => {
-    const swatch = document.createElement('button')
-    swatch.className = 'swatch'
-    swatch.setAttribute('tabindex', '0')
-    swatch.setAttribute('data-locked', String(color.locked))
-    const roleAbbrev = isCompact
-      ? (ROLE_ABBREVS_SHORT[i] || `c${i + 1}`)
-      : (ROLE_ABBREVS[i] || `c${i + 1}`)
-    const roleFull = ROLES[i] || `color-${i + 1}`
-    swatch.title = `Click to lock/unlock this color. Locked colors stay when you regenerate.`
-    swatch.setAttribute('aria-label', `${roleFull} ${color.name} ${color.hex}${color.locked ? ', locked' : ''}`)
-    swatch.style.backgroundColor = color.hex
-
-    const textColor = isLightColor(color.hex) ? '#000000' : '#ffffff'
-
-    // Hex label
-    const hexLabel = document.createElement('span')
-    hexLabel.className = 'swatch-hex'
-    hexLabel.textContent = color.hex.toUpperCase()
-    hexLabel.style.color = textColor
-
-    // WCAG badge
-    const badge = getWcagBadge(color.hex)
-    const badgeEl = document.createElement('span')
-    badgeEl.className = `swatch-badge ${badge.pass ? 'swatch-badge-pass' : 'swatch-badge-fail'}`
-    badgeEl.textContent = badge.label
-
-    // Role abbreviation label
-    const roleLabel = document.createElement('span')
-    roleLabel.className = 'swatch-role'
-    roleLabel.textContent = roleAbbrev
-    roleLabel.style.color = textColor
-
-    // Lock icon
-    const lockIcon = document.createElement('span')
-    lockIcon.className = 'swatch-lock'
-    lockIcon.setAttribute('aria-label', color.locked ? 'Locked' : 'Unlocked')
-    lockIcon.title = color.locked ? 'This color is locked. It won\'t change when you regenerate.' : 'Click to lock this color'
-    lockIcon.innerHTML = color.locked
-      ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
-      : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 8 0"/></svg>'
-
-    swatch.appendChild(hexLabel)
-    swatch.appendChild(badgeEl)
-    swatch.appendChild(roleLabel)
-    swatch.appendChild(lockIcon)
-
-    swatch.addEventListener('click', () => {
-      colors[i] = { ...colors[i], locked: !colors[i].locked }
-      renderPalette()
-    })
-
-    paletteRow.appendChild(swatch)
-  })
-
-  updateCTA()
-}
-
-// ── Status messages ──────────────────────────────────────────────
-function showStatus(text: string, type: 'info' | 'success' | 'error' = 'info') {
-  statusEl.textContent = text
-  statusEl.className = `status${type === 'success' ? ' status-success' : type === 'error' ? ' status-error' : ''}`
-
-  if (type !== 'error') {
-    setTimeout(() => {
-      if (statusEl.textContent === text) statusEl.textContent = ''
-    }, 3000)
-  }
-}
-
-// ── Parse seed input ─────────────────────────────────────────────
-function parseSeed(): string | null {
-  const raw = seedInput.value.trim()
-  if (!raw) return null
-  const hex = raw.startsWith('#') ? raw : `#${raw}`
-  if (/^#[0-9a-fA-F]{6}$/.test(hex)) return hex
-  if (/^#[0-9a-fA-F]{3}$/.test(hex)) {
-    return `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
-  }
-  return null
-}
-
-// ── Scope picker ─────────────────────────────────────────────────
-function getSelectedScope(): string {
-  const checked = document.querySelector<HTMLInputElement>('input[name="scope"]:checked')
-  return checked?.value || 'variables'
-}
-
-function updateCTA() {
-  const scope = getSelectedScope()
-  const n = colors.length
-  const shades = includeShadesCheckbox.checked
-
-  // Show/hide shade checkbox with animation
-  shadeCheckboxContainer.classList.toggle('hidden', scope !== 'variables')
-
-  switch (scope) {
-    case 'variables':
-      if (shades) {
-        const total = n * 11 // N flat + N * 10 shades
-        ctaBtn.textContent = `Create ${total} variables`
-      } else {
-        ctaBtn.textContent = `Create ${n} variable${n !== 1 ? 's' : ''}`
-      }
-      ctaBtn.disabled = n === 0
-      break
-    case 'copy-css':
-      ctaBtn.textContent = 'Copy CSS variables'
-      ctaBtn.disabled = n === 0
-      break
-    case 'copy-tailwind':
-      ctaBtn.textContent = 'Copy Tailwind config'
-      ctaBtn.disabled = n === 0
-      break
-    case 'apply':
-      if (hasSelection) {
-        ctaBtn.textContent = `Apply to ${selectionCount} frame${selectionCount !== 1 ? 's' : ''}`
-        ctaBtn.disabled = false
-      } else {
-        ctaBtn.textContent = 'Select frames first'
-        ctaBtn.disabled = true
-      }
-      break
-  }
-}
-
-// Scope radio change
-scopeRadios.forEach(radio => {
-  radio.addEventListener('change', updateCTA)
-})
-
-// Shade checkbox change
-includeShadesCheckbox.addEventListener('change', updateCTA)
-
-// ── Clipboard helpers ────────────────────────────────────────────
+// ── Clipboard ─────────────────────────────────────────────────────
 function copyToClipboard(text: string): boolean {
-  const textarea = document.createElement('textarea')
-  textarea.value = text
-  textarea.style.position = 'fixed'
-  textarea.style.opacity = '0'
-  document.body.appendChild(textarea)
-  textarea.select()
+  const ta = document.createElement('textarea')
+  ta.value = text
+  ta.style.cssText = 'position:fixed;opacity:0'
+  document.body.appendChild(ta)
+  ta.select()
   let ok = false
-  try {
-    ok = document.execCommand('copy')
-  } catch {
-    ok = false
-  }
-  document.body.removeChild(textarea)
+  try { ok = document.execCommand('copy') } catch { ok = false }
+  document.body.removeChild(ta)
   return ok
 }
 
+// ── Code generators ───────────────────────────────────────────────
 function generateCSS(): string {
-  return colors.map((c, i) => {
+  const vars = state.palette.map((c, i) => {
     const role = ROLES[i] || `color-${i + 1}`
-    return `  --${role}: ${c.hex};`
+    return `  --color-${role}: ${c.hex};`
   }).join('\n')
+  return `:root {\n${vars}\n}`
 }
-
 function generateTailwind(): string {
-  const entries = colors.map((c, i) => {
+  const entries = state.palette.map((c, i) => {
     const role = ROLES[i] || `color-${i + 1}`
-    return `      '${role}': '${c.hex}',`
+    return `        ${role}: '${c.hex}',`
   }).join('\n')
-  return `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${entries}\n      },\n    },\n  },\n}`
+  return `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${entries}\n      }\n    }\n  }\n}`
 }
 
-// ── Confirmation panel ───────────────────────────────────────────
-function showConfirmPanel() {
-  const prefix = prefixInput.value.trim() || 'Paletta'
-  const shades = includeShadesCheckbox.checked
-  const n = colors.length
-  const total = shades ? n * 11 : n
+// ── Status toast ──────────────────────────────────────────────────
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+function showToast(msg: string) {
+  const el = document.getElementById('status-toast')!
+  el.textContent = msg
+  el.classList.add('show')
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
+}
 
-  confirmPrefixEl.textContent = prefix
-  confirmListEl.innerHTML = ''
+// ── Navigation ────────────────────────────────────────────────────
+function navigate(screen: string) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  const el = document.getElementById('screen-' + screen)
+  if (el) {
+    el.classList.add('active')
+    state.screen = screen
+  }
+  if (screen === 'studio') renderStudioScreen()
+  if (screen === 'library') renderLibraryScreen()
+  if (screen === 'vars') renderVarsScreen()
+  if (screen === 'code') renderCodeScreen()
+  if (screen === 'contrast') renderContrastScreen()
+}
 
-  colors.forEach((color, i) => {
-    const role = ROLES[i] || `color-${i + 1}`
-    const item = document.createElement('div')
-    item.className = 'confirm-item'
-    item.innerHTML = `
-      <span class="confirm-chip" style="background:${color.hex}"></span>
-      <span class="confirm-role">${role}</span>
-      <span class="confirm-hex">${color.hex}</span>
+function showProModal() {
+  renderProModal()
+  document.getElementById('pro-modal')!.classList.add('active')
+}
+function hideProModal() {
+  document.getElementById('pro-modal')!.classList.remove('active')
+}
+
+// ── Build static screens on init ──────────────────────────────────
+
+function buildHomeScreen() {
+  const el = document.getElementById('screen-home')!
+  el.innerHTML = `
+    <div class="scroll-area">
+      <div class="home-top">
+        <div class="logo-box">
+          <span class="logo-p">P</span>
+          <div class="logo-dots">
+            <span class="logo-dot" style="background:#6C47FF"></span>
+            <span class="logo-dot" style="background:#8B6FFF"></span>
+            <span class="logo-dot" style="background:#A897FF"></span>
+            <span class="logo-dot" style="background:#C4B5FD"></span>
+            <span class="logo-dot" style="background:#DDD6FE"></span>
+          </div>
+        </div>
+        <h1 class="home-welcome">Welcome to Paletta</h1>
+        <p class="home-desc">Color systems with built-in accessibility</p>
+      </div>
+      <div class="home-auth">
+        <button class="home-auth-btn" id="home-auth-btn" aria-label="Continue with Google" title="Sign in with your Google account">Continue with Google</button>
+        <button class="home-pro-link" id="home-pro-link" aria-label="See Pro features" title="View Pro features and pricing">See what's in Pro &rarr;</button>
+      </div>
+      <nav class="menu-list" id="home-menu" aria-label="Main navigation"></nav>
+    </div>
+    <footer class="home-footer">
+      <span class="footer-text">usepaletta.io &middot; v1.0</span>
+      <div class="theme-toggle" id="theme-toggle" role="radiogroup" aria-label="Theme"></div>
+    </footer>
+  `
+  // Menu items
+  const menuData = [
+    { screen: 'studio', icon: 'sparkles', title: 'Studio', desc: 'Generate color palettes' },
+    { screen: 'library', icon: 'folder', title: 'Library', desc: 'Your saved color systems' },
+    { screen: 'vars', icon: 'box', title: 'Create Variables', desc: 'Push to Figma tokens' },
+    { screen: 'code', icon: 'code', title: 'Copy Code', desc: 'CSS or Tailwind config' },
+    { screen: 'contrast', icon: 'checkCircle', title: 'Contrast Checker', desc: 'WCAG AA/AAA validation' },
+    { screen: 'extract', icon: 'image', title: 'Extract from Image', desc: 'Pull colors from images', pro: true },
+  ]
+  const menu = document.getElementById('home-menu')!
+  menuData.forEach(item => {
+    const btn = document.createElement('button')
+    btn.className = 'menu-item'
+    btn.setAttribute('aria-label', item.title)
+    btn.setAttribute('title', item.desc)
+    btn.innerHTML = `
+      <span class="menu-icon">${(ICONS as Record<string, string>)[item.icon]}</span>
+      <span class="menu-text">
+        <span class="menu-title">${item.title}</span>
+        <span class="menu-desc">${item.desc}</span>
+      </span>
+      ${item.pro ? '<span class="pro-badge">PRO</span>' : ''}
+      <span class="menu-chevron">${ICONS.chevronRight}</span>
     `
-    confirmListEl.appendChild(item)
-
-    if (shades) {
-      const note = document.createElement('div')
-      note.className = 'confirm-shade-note'
-      note.textContent = `+ ${role}/50 … ${role}/900 (10 shades)`
-      confirmListEl.appendChild(note)
-    }
+    btn.addEventListener('click', () => navigate(item.screen))
+    menu.appendChild(btn)
   })
 
-  confirmPushBtn.textContent = `Create ${total} variable${total !== 1 ? 's' : ''}`
-  confirmPanel.style.display = 'flex'
-}
-
-function hideConfirmPanel() {
-  confirmPanel.style.display = 'none'
-}
-
-function executePush() {
-  send({
-    type: 'push-variables',
-    colors,
-    prefix: prefixInput.value.trim() || 'Paletta',
-    includeShades: includeShadesCheckbox.checked,
-  })
-  hideConfirmPanel()
-}
-
-confirmCloseBtn.addEventListener('click', hideConfirmPanel)
-confirmCancelBtn.addEventListener('click', hideConfirmPanel)
-confirmPushBtn.addEventListener('click', executePush)
-
-// Escape closes confirmation panel
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    if (confirmPanel.style.display !== 'none') {
-      hideConfirmPanel()
-      e.preventDefault()
-    }
-  }
-})
-
-// ── CTA click handler ────────────────────────────────────────────
-ctaBtn.addEventListener('click', () => {
-  if (colors.length === 0) {
-    showStatus('Generate a palette first', 'error')
-    return
-  }
-
-  const scope = getSelectedScope()
-
-  switch (scope) {
-    case 'variables':
-      showConfirmPanel()
-      break
-
-    case 'copy-css': {
-      const css = `:root {\n${generateCSS()}\n}`
-      if (copyToClipboard(css)) {
-        send({ type: 'notify', message: '✓ Copied CSS variables' })
-        showStatus('Copied CSS variables', 'success')
-      } else {
-        showStatus('Failed to copy', 'error')
-      }
-      break
-    }
-
-    case 'copy-tailwind': {
-      const tw = generateTailwind()
-      if (copyToClipboard(tw)) {
-        send({ type: 'notify', message: '✓ Copied Tailwind config' })
-        showStatus('Copied Tailwind config', 'success')
-      } else {
-        showStatus('Failed to copy', 'error')
-      }
-      break
-    }
-
-    case 'apply':
-      if (!hasSelection) {
-        showStatus('Select frames to apply colors', 'error')
-        return
-      }
-      send({
-        type: 'apply-to-selection',
-        colors: colors.map(c => c.hex),
-      })
-      break
-  }
-})
-
-// ── Reset ────────────────────────────────────────────────────────
-function resetAll() {
-  aiPromptInput.value = ''
-  seedInput.value = ''
-  includeShadesCheckbox.checked = false
-
-  // Reset scope to variables
-  const variablesRadio = document.querySelector<HTMLInputElement>('input[name="scope"][value="variables"]')
-  if (variablesRadio) variablesRadio.checked = true
-
-  // Reset count to 5
-  countSelect.value = '5'
-
-  // Reset harmony to random
-  harmonySelect.value = 'random'
-
-  // Generate fresh random palette
-  send({
-    type: 'generate',
-    mode: 'random',
-    count: 5,
-    seedColor: null,
-    lockedIndices: [],
+  // Theme toggle
+  const toggle = document.getElementById('theme-toggle')!
+  const themes = [
+    { id: 'light', icon: ICONS.sun, label: 'Light theme' },
+    { id: 'system', icon: ICONS.monitor, label: 'System theme' },
+    { id: 'dark', icon: ICONS.moon, label: 'Dark theme' },
+  ]
+  themes.forEach(t => {
+    const btn = document.createElement('button')
+    btn.className = `theme-btn${t.id === state.themeMode ? ' active' : ''}`
+    btn.setAttribute('role', 'radio')
+    btn.setAttribute('aria-checked', String(t.id === state.themeMode))
+    btn.setAttribute('aria-label', t.label)
+    btn.setAttribute('title', t.label)
+    btn.dataset.theme = t.id
+    btn.innerHTML = t.icon
+    btn.addEventListener('click', () => setTheme(t.id as typeof state.themeMode))
+    toggle.appendChild(btn)
   })
 
-  updateCTA()
-  showStatus('Reset', 'info')
+  // Auth + Pro
+  document.getElementById('home-auth-btn')!.addEventListener('click', () => {
+    send({ type: 'notify', message: 'Sign in at usepaletta.io' })
+  })
+  document.getElementById('home-pro-link')!.addEventListener('click', showProModal)
 }
 
-resetBtn.addEventListener('click', resetAll)
-
-// ── Onboarding ───────────────────────────────────────────────────
-function showOnboarding() {
-  onboardingOverlay.style.display = 'flex'
+function buildExtractScreen() {
+  const el = document.getElementById('screen-extract')!
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="extract-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon">${ICONS.image}</div>
+      <h2 class="empty-title">Extract from Image</h2>
+      <p class="empty-body">Select a frame with an image fill, then extract its color palette.</p>
+      <button class="empty-cta" id="extract-pro-btn" aria-label="Go Pro to unlock" title="Upgrade to Pro to unlock image extraction">Go Pro to unlock</button>
+      <button class="btn-ghost" id="extract-later-btn" aria-label="Maybe later">Maybe later</button>
+    </div>
+  `
+  document.getElementById('extract-back')!.addEventListener('click', () => navigate('home'))
+  document.getElementById('extract-pro-btn')!.addEventListener('click', showProModal)
+  document.getElementById('extract-later-btn')!.addEventListener('click', () => navigate('home'))
 }
 
-function dismissOnboarding() {
-  onboardingOverlay.style.display = 'none'
-  send({ type: 'set-onboarded' })
+// ── Studio screen ─────────────────────────────────────────────────
+function renderStudioScreen() {
+  const el = document.getElementById('screen-studio')!
+  const harmonyLabel = HARMONY_OPTIONS.find(h => h.mode === state.harmony)?.title || 'Random'
+  const isCompact = state.palette.length > 5
+
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="studio-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+      <span class="header-center">Harmony: ${harmonyLabel}</span>
+      <div class="header-right">
+        <button class="header-action" id="studio-validate" aria-label="Accessibility lens" title="Preview palette under color blindness simulations">${ICONS.eye}</button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="color-bars${isCompact ? ' compact' : ''}" id="studio-bars"></div>
+      <div class="ai-row">
+        <input class="ai-input" id="studio-ai-input" type="text" placeholder="Describe a palette... (e.g. sunset warm)" aria-label="AI palette prompt" title="Describe the mood or theme for AI generation">
+        <button class="ai-btn" id="studio-ai-btn" aria-label="Generate with AI" title="Generate a palette from your text description using AI">AI</button>
+      </div>
+      <div class="accordion-group" id="studio-accordions"></div>
+    </div>
+    <div class="bottom-bar">
+      <div class="stepper">
+        <button class="stepper-btn" id="stepper-minus" aria-label="Decrease color count" title="Remove a color">${ICONS.minus}</button>
+        <span class="stepper-val" id="stepper-val">${state.colorCount}</span>
+        <button class="stepper-btn" id="stepper-plus" aria-label="Increase color count" title="Add a color">${ICONS.plus}</button>
+      </div>
+      <button class="btn-primary btn-full" id="studio-generate" aria-label="Generate palette" title="Generate a new palette. Only changes the preview — doesn't modify your Figma file.">Generate</button>
+      <button class="btn-icon" id="studio-save" aria-label="Save palette" title="Save this palette to your library">${ICONS.heart}</button>
+    </div>
+  `
+
+  renderStudioBars()
+  renderStudioAccordions()
+
+  // Events
+  document.getElementById('studio-back')!.addEventListener('click', () => navigate('home'))
+  document.getElementById('studio-validate')!.addEventListener('click', () => {
+    const acc = document.querySelector('[data-accordion="lens"]') as HTMLElement | null
+    if (acc) acc.classList.toggle('open')
+  })
+  document.getElementById('stepper-minus')!.addEventListener('click', () => {
+    if (state.colorCount > 3) { state.colorCount--; updateStepper(); generatePalette() }
+  })
+  document.getElementById('stepper-plus')!.addEventListener('click', () => {
+    if (state.colorCount < 8) { state.colorCount++; updateStepper(); generatePalette() }
+  })
+  document.getElementById('studio-generate')!.addEventListener('click', generatePalette)
+  document.getElementById('studio-save')!.addEventListener('click', () => {
+    if (state.palette.length === 0) { showToast('Generate a palette first'); return }
+    const name = state.palette.map(c => c.name).slice(0, 3).join(' \u00b7 ')
+    send({ type: 'save-palette', name, colors: state.palette })
+  })
+
+  // AI
+  const aiInput = document.getElementById('studio-ai-input') as HTMLInputElement
+  const aiBtn = document.getElementById('studio-ai-btn') as HTMLButtonElement
+  aiBtn.addEventListener('click', () => {
+    const prompt = aiInput.value.trim()
+    if (!prompt) { showToast('Enter a prompt first'); return }
+    send({ type: 'ai-generate', prompt, count: state.colorCount })
+  })
+  aiInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); aiBtn.click() }
+  })
 }
 
-onboardingDismissBtn.addEventListener('click', dismissOnboarding)
+function renderStudioBars() {
+  const container = document.getElementById('studio-bars')
+  if (!container) return
+  container.innerHTML = ''
+  state.palette.forEach((color, i) => {
+    const displayHex = simulateColor(color.hex, state.lens)
+    const textColor = isLightColor(displayHex) ? '#000000' : '#ffffff'
+    const badge = getWcagBadge(color.hex)
+    const bar = document.createElement('button')
+    bar.className = 'color-bar'
+    bar.setAttribute('tabindex', '0')
+    bar.setAttribute('data-locked', String(color.locked))
+    bar.setAttribute('aria-label', `${ROLES[i] || 'color'} ${color.hex}${color.locked ? ', locked' : ''}`)
+    bar.setAttribute('title', 'Click to lock/unlock this color. Locked colors stay when you regenerate.')
+    bar.style.backgroundColor = displayHex
+    bar.innerHTML = `
+      <span class="bar-lock" style="color:${textColor}">${ICONS.lock}</span>
+      <span class="bar-badge ${badge.pass ? 'bar-badge-pass' : 'bar-badge-fail'}">${badge.label} ${badge.ratio}</span>
+      <span class="bar-hex" style="color:${textColor}">${color.hex.toUpperCase()}</span>
+    `
+    bar.addEventListener('click', () => {
+      state.palette[i] = { ...state.palette[i], locked: !state.palette[i].locked }
+      renderStudioBars()
+    })
+    container.appendChild(bar)
+  })
+}
 
-// ── Event handlers ───────────────────────────────────────────────
-generateBtn.addEventListener('click', () => {
-  const lockedIndices = colors
+function renderStudioAccordions() {
+  const container = document.getElementById('studio-accordions')
+  if (!container) return
+  container.innerHTML = ''
+
+  // Harmony accordion
+  const harmonyAcc = createAccordion('harmony', 'Harmony')
+  const harmonyList = document.createElement('div')
+  harmonyList.className = 'accordion-list'
+  HARMONY_OPTIONS.forEach(opt => {
+    const row = document.createElement('button')
+    row.className = 'option-row'
+    row.dataset.selected = String(state.harmony === opt.mode)
+    row.setAttribute('aria-label', opt.title)
+    row.setAttribute('title', opt.desc)
+    row.innerHTML = `
+      <span class="option-icon">${(ICONS as Record<string, string>)[opt.icon]}</span>
+      <span class="option-text">
+        <span class="option-title">${opt.title}</span>
+        <span class="option-desc">${opt.desc}</span>
+      </span>
+      ${state.harmony === opt.mode ? `<span class="option-check">${ICONS.check}</span>` : ''}
+    `
+    row.addEventListener('click', () => {
+      state.harmony = opt.mode
+      harmonyAcc.classList.remove('open')
+      const label = document.querySelector('.header-center')
+      if (label) label.textContent = `Harmony: ${opt.title}`
+      renderStudioAccordions()
+      generatePalette()
+    })
+    harmonyList.appendChild(row)
+  })
+  harmonyAcc.querySelector('.accordion-content')!.appendChild(harmonyList)
+  container.appendChild(harmonyAcc)
+
+  // Lens accordion
+  const lensAcc = createAccordion('lens', 'Accessibility Lens')
+  const lensList = document.createElement('div')
+  lensList.className = 'accordion-list'
+  LENS_OPTIONS.forEach(opt => {
+    const row = document.createElement('button')
+    row.className = 'option-row'
+    row.dataset.selected = String(state.lens === opt.id)
+    row.setAttribute('aria-label', opt.title)
+    row.setAttribute('title', opt.desc)
+    row.innerHTML = `
+      <span class="option-icon">${ICONS.eye}</span>
+      <span class="option-text">
+        <span class="option-title">${opt.title}</span>
+        <span class="option-desc">${opt.desc}</span>
+      </span>
+      ${state.lens === opt.id ? `<span class="option-check">${ICONS.check}</span>` : ''}
+    `
+    row.addEventListener('click', () => {
+      state.lens = opt.id
+      lensAcc.classList.remove('open')
+      renderStudioBars()
+      renderStudioAccordions()
+    })
+    lensList.appendChild(row)
+  })
+  lensAcc.querySelector('.accordion-content')!.appendChild(lensList)
+  container.appendChild(lensAcc)
+
+  // Contrast accordion
+  const contrastAcc = createAccordion('contrast', 'Contrast')
+  const contrastList = document.createElement('div')
+  contrastList.className = 'accordion-list'
+  state.palette.forEach((color, i) => {
+    const badge = getWcagBadge(color.hex)
+    const role = ROLES[i] || `color-${i + 1}`
+    const row = document.createElement('div')
+    row.className = 'card-row'
+    row.innerHTML = `
+      <span class="card-square" style="background:${color.hex}"></span>
+      <span class="card-label">${role}</span>
+      <span class="card-value">${badge.ratio}:1</span>
+      <span class="card-badge ${badge.pass ? 'card-badge-pass' : 'card-badge-fail'}">${badge.label}</span>
+    `
+    contrastList.appendChild(row)
+  })
+  contrastAcc.querySelector('.accordion-content')!.appendChild(contrastList)
+  container.appendChild(contrastAcc)
+}
+
+function createAccordion(id: string, title: string): HTMLElement {
+  const acc = document.createElement('div')
+  acc.className = 'accordion'
+  acc.dataset.accordion = id
+  acc.innerHTML = `
+    <button class="accordion-header" aria-expanded="false" aria-label="${title}">
+      <span>${title}</span>
+      <span class="accordion-chevron">${ICONS.chevronDown}</span>
+    </button>
+    <div class="accordion-content"></div>
+  `
+  const header = acc.querySelector('.accordion-header')!
+  header.addEventListener('click', () => {
+    acc.classList.toggle('open')
+    header.setAttribute('aria-expanded', String(acc.classList.contains('open')))
+  })
+  return acc
+}
+
+function updateStepper() {
+  const val = document.getElementById('stepper-val')
+  const minus = document.getElementById('stepper-minus') as HTMLButtonElement | null
+  const plus = document.getElementById('stepper-plus') as HTMLButtonElement | null
+  if (val) val.textContent = String(state.colorCount)
+  if (minus) minus.disabled = state.colorCount <= 3
+  if (plus) plus.disabled = state.colorCount >= 8
+}
+
+function generatePalette() {
+  const lockedIndices = state.palette
     .map((c, i) => c.locked ? i : -1)
     .filter(i => i >= 0)
-
   send({
     type: 'generate',
-    mode: harmonySelect.value as UIMessage & { type: 'generate' } extends { mode: infer M } ? M : never,
-    count: parseInt(countSelect.value),
-    seedColor: parseSeed(),
+    mode: state.harmony,
+    count: state.colorCount,
+    seedColor: null,
     lockedIndices,
   })
-})
+}
 
-extractBtn.addEventListener('click', () => {
-  if (!hasSelection) {
-    showStatus('Select a frame with an image fill', 'error')
+// ── Library screen ────────────────────────────────────────────────
+function renderLibraryScreen() {
+  const el = document.getElementById('screen-library')!
+  if (state.savedPalettes.length === 0) {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="lib-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.heart}</div>
+        <h2 class="empty-title">Your collection starts here</h2>
+        <p class="empty-body">Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.</p>
+        <button class="empty-cta" id="lib-studio-btn" aria-label="Go to Studio" title="Go to Studio to generate your first palette">Go to Studio</button>
+      </div>
+    `
+    el.querySelector('#lib-back')!.addEventListener('click', () => navigate('home'))
+    el.querySelector('#lib-studio-btn')!.addEventListener('click', () => navigate('studio'))
     return
   }
-  send({ type: 'extract-from-selection' })
-})
 
-aiGenerateBtn.addEventListener('click', () => {
-  const prompt = aiPromptInput.value.trim()
-  if (!prompt) {
-    showStatus('Enter a prompt first', 'error')
-    return
-  }
-  send({
-    type: 'ai-generate',
-    prompt,
-    count: parseInt(countSelect.value),
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="lib-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <h2 class="section-title">Library</h2>
+      <p class="section-subtitle">${state.savedPalettes.length} palette${state.savedPalettes.length !== 1 ? 's' : ''}</p>
+      <div class="section-pad" style="display:flex;flex-direction:column;gap:10px;padding-bottom:16px;" id="lib-list"></div>
+    </div>
+  `
+  el.querySelector('#lib-back')!.addEventListener('click', () => navigate('home'))
+  const list = document.getElementById('lib-list')!
+
+  state.savedPalettes.forEach(p => {
+    const card = document.createElement('div')
+    card.className = 'palette-card'
+    card.setAttribute('tabindex', '0')
+    card.setAttribute('aria-label', `Load palette: ${p.name}`)
+    card.setAttribute('title', `Click to load this palette into Studio`)
+    const barHTML = p.colors.map(c => `<div class="palette-bar-segment" style="background:${c.hex}"></div>`).join('')
+    card.innerHTML = `
+      <div class="palette-bar">${barHTML}</div>
+      <div class="palette-info">
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+          <span class="palette-name">${p.name}</span>
+          <span class="palette-meta">${p.colors.length} colors &middot; ${p.date}</span>
+        </div>
+        <button class="palette-action palette-action-delete" data-delete="${p.id}" aria-label="Delete palette" title="Delete this palette">${ICONS.x}</button>
+      </div>
+    `
+    card.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-delete]')) return
+      state.palette = p.colors.map(c => ({ ...c }))
+      state.colorCount = p.colors.length
+      navigate('studio')
+    })
+    const delBtn = card.querySelector('[data-delete]')
+    if (delBtn) {
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        send({ type: 'delete-palette', id: p.id })
+      })
+    }
+    list.appendChild(card)
   })
-})
+}
 
-aiPromptInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    aiGenerateBtn.click()
+// ── Variables screen ──────────────────────────────────────────────
+function renderVarsScreen() {
+  const el = document.getElementById('screen-vars')!
+  if (state.palette.length === 0) {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="vars-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.box}</div>
+        <h2 class="empty-title">No palette yet</h2>
+        <p class="empty-body">Generate a palette in Studio first, then come back to create Figma Variables.</p>
+        <button class="empty-cta" id="vars-studio-btn" aria-label="Go to Studio">Go to Studio</button>
+      </div>
+    `
+    el.querySelector('#vars-back')!.addEventListener('click', () => navigate('home'))
+    el.querySelector('#vars-studio-btn')!.addEventListener('click', () => navigate('studio'))
+    return
   }
-})
 
-// Keyboard: spacebar to generate
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' && document.activeElement === document.body) {
-    e.preventDefault()
-    generateBtn.click()
+  const n = state.palette.length
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="vars-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <h2 class="section-title">Create Figma Variables</h2>
+      <div class="prefix-row">
+        <span class="prefix-label">Collection:</span>
+        <input class="prefix-input" id="vars-prefix" type="text" value="${state.prefix}" aria-label="Variable collection name" title="Collection name for Figma Variables">
+      </div>
+      <div class="section-pad" style="display:flex;flex-direction:column;gap:4px;" id="vars-list"></div>
+      <div class="section-pad" style="padding-top:10px;">
+        <label class="checkbox-card" id="vars-shade-card" title="Generate a full 10-step shade scale (50, 100, 200...900) for each color.">
+          <input type="checkbox" id="vars-shades" aria-label="Include shade scales">
+          <div>
+            <div class="checkbox-label">Include shade scales (50-900)</div>
+            <div class="checkbox-sub" id="vars-shade-sub">${n} &times; 10 = ${n * 10} extra variables</div>
+          </div>
+        </label>
+      </div>
+      <div class="info-note">${ICONS.info} Existing variables with these names will be updated.</div>
+    </div>
+    <div class="bottom-bar" style="flex-direction:column;gap:8px;">
+      <button class="btn-primary btn-wide" id="vars-cta" aria-label="Create variables" title="Create Figma Variables in your file. You can undo with Cmd+Z.">Create ${n} variables</button>
+      <span class="hint-text">Undo with &#8984;Z</span>
+    </div>
+  `
+
+  // Render color rows
+  const list = document.getElementById('vars-list')!
+  state.palette.forEach((color, i) => {
+    const role = ROLES[i] || `color-${i + 1}`
+    const row = document.createElement('div')
+    row.className = 'card-row'
+    row.innerHTML = `
+      <span class="card-square" style="background:${color.hex}"></span>
+      <span class="card-label">${role}</span>
+      <span class="card-value">${color.hex}</span>
+    `
+    list.appendChild(row)
+  })
+
+  // Events
+  el.querySelector('#vars-back')!.addEventListener('click', () => navigate('home'))
+  const prefixInput = document.getElementById('vars-prefix') as HTMLInputElement
+  prefixInput.addEventListener('input', () => { state.prefix = prefixInput.value.trim() || 'Paletta' })
+  const shadesCheckbox = document.getElementById('vars-shades') as HTMLInputElement
+  const cta = document.getElementById('vars-cta') as HTMLButtonElement
+  const updateVarsCTA = () => {
+    const shades = shadesCheckbox.checked
+    const total = shades ? n * 11 : n
+    cta.textContent = `Create ${total} variable${total !== 1 ? 's' : ''}`
+    const sub = document.getElementById('vars-shade-sub')
+    if (sub) sub.textContent = `${n} \u00d7 10 = ${n * 10} extra variables`
   }
-})
+  shadesCheckbox.addEventListener('change', updateVarsCTA)
+  cta.addEventListener('click', () => {
+    send({
+      type: 'push-variables',
+      colors: state.palette,
+      prefix: state.prefix,
+      includeShades: shadesCheckbox.checked,
+    })
+    cta.classList.add('btn-success')
+    const total = shadesCheckbox.checked ? n * 11 : n
+    cta.textContent = `Created ${total} variables`
+    setTimeout(() => {
+      cta.classList.remove('btn-success')
+      updateVarsCTA()
+    }, 2000)
+  })
+}
 
-// ── Handle messages from plugin sandbox ──────────────────────────
+// ── Code screen ───────────────────────────────────────────────────
+function renderCodeScreen() {
+  const el = document.getElementById('screen-code')!
+  if (state.palette.length === 0) {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="code-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.code}</div>
+        <h2 class="empty-title">No palette yet</h2>
+        <p class="empty-body">Generate a palette in Studio first, then copy it as code.</p>
+        <button class="empty-cta" id="code-studio-btn" aria-label="Go to Studio">Go to Studio</button>
+      </div>
+    `
+    el.querySelector('#code-back')!.addEventListener('click', () => navigate('home'))
+    el.querySelector('#code-studio-btn')!.addEventListener('click', () => navigate('studio'))
+    return
+  }
+
+  const code = state.codeTab === 'css' ? generateCSS() : generateTailwind()
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="code-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <h2 class="section-title">Copy Code</h2>
+      <div class="seg-control" id="code-tabs">
+        <button class="seg-btn${state.codeTab === 'css' ? ' active' : ''}" data-tab="css" aria-label="CSS" title="Show CSS custom properties">CSS</button>
+        <button class="seg-btn${state.codeTab === 'tailwind' ? ' active' : ''}" data-tab="tailwind" aria-label="Tailwind" title="Show Tailwind config">Tailwind</button>
+      </div>
+      <pre class="code-block" id="code-block">${escapeHTML(code)}</pre>
+    </div>
+    <div class="bottom-bar" style="flex-direction:column;gap:8px;">
+      <button class="btn-primary btn-wide" id="code-copy" aria-label="Copy to clipboard" title="Copy the code to your clipboard">Copy ${state.codeTab === 'css' ? 'CSS' : 'Tailwind'}</button>
+    </div>
+  `
+
+  el.querySelector('#code-back')!.addEventListener('click', () => navigate('home'))
+  document.querySelectorAll('#code-tabs .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.codeTab = (btn as HTMLElement).dataset.tab as 'css' | 'tailwind'
+      renderCodeScreen()
+    })
+  })
+  document.getElementById('code-copy')!.addEventListener('click', () => {
+    const text = state.codeTab === 'css' ? generateCSS() : generateTailwind()
+    const copyBtn = document.getElementById('code-copy') as HTMLButtonElement
+    if (copyToClipboard(text)) {
+      send({ type: 'notify', message: `Copied ${state.codeTab === 'css' ? 'CSS' : 'Tailwind'} config` })
+      copyBtn.classList.add('btn-success')
+      copyBtn.textContent = 'Copied!'
+      setTimeout(() => {
+        copyBtn.classList.remove('btn-success')
+        copyBtn.textContent = `Copy ${state.codeTab === 'css' ? 'CSS' : 'Tailwind'}`
+      }, 2000)
+    } else {
+      showToast('Failed to copy')
+    }
+  })
+}
+
+// ── Contrast screen ───────────────────────────────────────────────
+function renderContrastScreen() {
+  const el = document.getElementById('screen-contrast')!
+  if (state.palette.length === 0) {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="contrast-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.checkCircle}</div>
+        <h2 class="empty-title">No palette yet</h2>
+        <p class="empty-body">Generate a palette in Studio first, then check contrast.</p>
+        <button class="empty-cta" id="contrast-studio-btn" aria-label="Go to Studio">Go to Studio</button>
+      </div>
+    `
+    el.querySelector('#contrast-back')!.addEventListener('click', () => navigate('home'))
+    el.querySelector('#contrast-studio-btn')!.addEventListener('click', () => navigate('studio'))
+    return
+  }
+
+  // Build pairs: each color vs white and black
+  type Pair = { hex: string; bg: string; bgLabel: string; role: string; ratio: number; label: string; pass: boolean }
+  const pairs: Pair[] = []
+  state.palette.forEach((color, i) => {
+    const role = ROLES[i] || `color-${i + 1}`
+    const onWhite = contrastRatio(color.hex, '#FFFFFF')
+    const onBlack = contrastRatio(color.hex, '#000000')
+    pairs.push({
+      hex: color.hex, bg: '#FFFFFF', bgLabel: 'white', role,
+      ratio: onWhite,
+      label: onWhite >= 7 ? 'AAA' : onWhite >= 4.5 ? 'AA' : 'Fail',
+      pass: onWhite >= 4.5,
+    })
+    pairs.push({
+      hex: color.hex, bg: '#000000', bgLabel: 'black', role,
+      ratio: onBlack,
+      label: onBlack >= 7 ? 'AAA' : onBlack >= 4.5 ? 'AA' : 'Fail',
+      pass: onBlack >= 4.5,
+    })
+  })
+  const passCount = pairs.filter(p => p.pass).length
+
+  el.innerHTML = `
+    <div class="header-bar">
+      <div class="header-left">
+        <button class="back-btn" id="contrast-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <h2 class="section-title">Contrast Checker</h2>
+      <p class="section-subtitle">${passCount}/${pairs.length} pairs pass AA</p>
+      <div class="section-pad" style="display:flex;flex-direction:column;gap:6px;padding-bottom:16px;" id="contrast-list"></div>
+    </div>
+  `
+
+  el.querySelector('#contrast-back')!.addEventListener('click', () => navigate('home'))
+  const list = document.getElementById('contrast-list')!
+  pairs.forEach(p => {
+    const row = document.createElement('div')
+    row.className = 'contrast-pair'
+    row.innerHTML = `
+      <span class="card-square" style="background:${p.hex}"></span>
+      <span class="contrast-on">on</span>
+      <span class="card-square" style="background:${p.bg}"></span>
+      <span class="contrast-label">${p.role} on ${p.bgLabel}</span>
+      <span class="contrast-ratio">${p.ratio.toFixed(1)}</span>
+      <span class="card-badge ${p.pass ? 'card-badge-pass' : 'card-badge-fail'}">${p.label}</span>
+    `
+    list.appendChild(row)
+  })
+}
+
+// ── Pro modal ─────────────────────────────────────────────────────
+function renderProModal() {
+  const el = document.getElementById('pro-modal')!
+  const isYearly = state.proPlan === 'yearly'
+  const price = isYearly ? '$3.75' : '$5'
+  const period = '/mo'
+  const features = [
+    '<strong>AI palette</strong> from text prompt',
+    '<strong>6, 7 &amp; 8</strong> color palettes',
+    '<strong>Unlimited</strong> saved palettes',
+    'Image &rarr; palette <strong>extraction</strong>',
+    '<strong>Accessibility lens</strong> — vision sim',
+    'Full <strong>shade scales</strong> (50-900)',
+    'Export <strong>without watermark</strong>',
+  ]
+
+  el.innerHTML = `
+    <button class="pro-close" id="pro-close" aria-label="Close" title="Close">${ICONS.x}</button>
+    <div class="pro-content">
+      <span class="pro-tag">+PALETTA PRO</span>
+      <h2 class="pro-headline">Unlock the full toolkit</h2>
+      <p class="pro-sub">Everything you need to ship palettes faster. Cancel anytime.</p>
+      <div class="pro-features">
+        ${features.map(f => `<div class="pro-feature">${ICONS.check} <span>${f}</span></div>`).join('')}
+      </div>
+      <div class="seg-control" style="margin:4px 0;width:100%;" id="pro-plan-toggle">
+        <button class="seg-btn${!isYearly ? ' active' : ''}" data-plan="monthly" aria-label="Monthly plan">Monthly</button>
+        <button class="seg-btn${isYearly ? ' active' : ''}" data-plan="yearly" aria-label="Yearly plan">Yearly <span class="yearly-badge">-25%</span></button>
+      </div>
+      <div class="pro-price-row">
+        <span class="pro-price">${price}</span>
+        <span class="pro-period">${period}</span>
+      </div>
+      <button class="btn-primary btn-large btn-wide" id="pro-cta" aria-label="Go Pro" title="Subscribe to Paletta Pro">Go Pro &mdash; ${price}${period}</button>
+    </div>
+    <div class="pro-footer">
+      <span>Launch pricing &middot; Powered by Stripe</span>
+      <button class="btn-ghost" id="pro-later" aria-label="Maybe later">Maybe later</button>
+    </div>
+  `
+
+  el.querySelector('#pro-close')!.addEventListener('click', hideProModal)
+  el.querySelector('#pro-later')!.addEventListener('click', hideProModal)
+  el.querySelector('#pro-cta')!.addEventListener('click', () => {
+    send({ type: 'notify', message: 'Visit usepaletta.io to subscribe' })
+  })
+  document.querySelectorAll('#pro-plan-toggle .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.proPlan = (btn as HTMLElement).dataset.plan as 'monthly' | 'yearly'
+      renderProModal()
+    })
+  })
+}
+
+// ── Theme management ──────────────────────────────────────────────
+function setTheme(mode: 'light' | 'system' | 'dark') {
+  state.themeMode = mode
+  const html = document.documentElement
+  if (mode === 'light') {
+    html.classList.remove('figma-dark')
+  } else if (mode === 'dark') {
+    html.classList.add('figma-dark')
+  } else {
+    // System: detect from Figma or OS
+    const isDark = html.dataset.figmaTheme === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches
+    html.classList.toggle('figma-dark', isDark)
+  }
+  // Update toggle buttons
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    const isActive = (btn as HTMLElement).dataset.theme === mode
+    btn.classList.toggle('active', isActive)
+    btn.setAttribute('aria-checked', String(isActive))
+  })
+}
+
+// ── HTML escape ───────────────────────────────────────────────────
+function escapeHTML(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+// ── Handle messages from plugin sandbox ───────────────────────────
 window.onmessage = (event: MessageEvent) => {
   const msg = event.data.pluginMessage as PluginMessage
   if (!msg) return
 
   switch (msg.type) {
     case 'init':
+      state.savedPalettes = msg.palettes || []
       if (!msg.hasSeenOnboarding) {
-        showOnboarding()
+        send({ type: 'set-onboarded' })
       }
       break
 
     case 'palette-generated':
-      colors = msg.colors
-      renderPalette()
-      break
-
-    case 'colors-applied':
-      showStatus(`Applied to ${msg.count} layer${msg.count !== 1 ? 's' : ''}`, 'success')
-      break
-
-    case 'variables-pushed':
-      showStatus(`Created ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
-      break
-
-    case 'ai-loading':
-      aiGenerateBtn.disabled = msg.loading
-      if (msg.loading) {
-        aiGenerateBtn.classList.add('btn-loading')
-        aiGenerateBtn.textContent = '…'
-      } else {
-        aiGenerateBtn.classList.remove('btn-loading')
-        aiGenerateBtn.textContent = 'AI'
+      state.palette = msg.colors
+      if (state.screen === 'studio') {
+        renderStudioBars()
+        renderStudioAccordions()
       }
       break
 
+    case 'colors-applied':
+      showToast(`Applied to ${msg.count} layer${msg.count !== 1 ? 's' : ''}`)
+      break
+
+    case 'variables-pushed':
+      // Handled by the CTA button success state in renderVarsScreen
+      break
+
     case 'colors-extracted': {
-      colors = msg.colors.map(hex => ({
-        hex,
-        name: hex,
-        locked: false,
-      }))
-      renderPalette()
-      showStatus(`Extracted ${msg.colors.length} color${msg.colors.length !== 1 ? 's' : ''}`, 'success')
+      state.palette = msg.colors.map(hex => ({ hex, name: hex, locked: false }))
+      state.colorCount = msg.colors.length
+      navigate('studio')
+      showToast(`Extracted ${msg.colors.length} colors`)
       break
     }
 
     case 'selection-changed':
-      hasSelection = msg.hasSelection
-      selectionCount = msg.count
-      updateCTA()
+      state.hasSelection = msg.hasSelection
+      state.selectionCount = msg.count
+      break
+
+    case 'ai-loading': {
+      const aiBtn = document.getElementById('studio-ai-btn') as HTMLButtonElement | null
+      if (aiBtn) {
+        aiBtn.disabled = msg.loading
+        if (msg.loading) {
+          aiBtn.classList.add('loading')
+          aiBtn.textContent = '\u2026'
+        } else {
+          aiBtn.classList.remove('loading')
+          aiBtn.textContent = 'AI'
+        }
+      }
+      break
+    }
+
+    case 'palettes-loaded':
+      state.savedPalettes = msg.palettes
+      if (state.screen === 'library') renderLibraryScreen()
+      break
+
+    case 'palette-saved':
+      state.savedPalettes.unshift(msg.palette)
+      showToast('Saved!')
+      break
+
+    case 'palette-deleted':
+      state.savedPalettes = state.savedPalettes.filter(p => p.id !== msg.id)
+      if (state.screen === 'library') renderLibraryScreen()
       break
 
     case 'error':
-      showStatus(msg.message, 'error')
+      showToast(msg.message)
       break
   }
 }
 
-// ── Figma dark theme detection ───────────────────────────────────
-const isDark = document.documentElement.dataset.figmaTheme === 'dark' ||
-  window.matchMedia('(prefers-color-scheme: dark)').matches
-if (isDark) {
-  document.documentElement.classList.add('figma-dark')
-}
+// ── Keyboard navigation ───────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const proModal = document.getElementById('pro-modal')!
+    if (proModal.classList.contains('active')) {
+      hideProModal()
+      e.preventDefault()
+      return
+    }
+    if (state.screen !== 'home') {
+      navigate('home')
+      e.preventDefault()
+    }
+  }
+  if (e.code === 'Space' && document.activeElement === document.body && state.screen === 'studio') {
+    e.preventDefault()
+    generatePalette()
+  }
+})
 
-// ── Tell the sandbox we're ready ─────────────────────────────────
-send({ type: 'ui-ready', count: parseInt(countSelect.value) })
+// ── Init ──────────────────────────────────────────────────────────
+buildHomeScreen()
+buildExtractScreen()
+setTheme('system')
+send({ type: 'ui-ready', count: state.colorCount })
