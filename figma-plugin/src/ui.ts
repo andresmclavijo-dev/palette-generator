@@ -8,6 +8,7 @@ import type { UIMessage, PluginMessage, PaletteColor } from './types'
 // ── Constants ─────────────────────────────────────────────────────
 const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
 const ROLE_ABBREVS = ['prim.', 'sec.', 'acc.', 'surf.', 'mut.', 'high.', 'bord.', 'over.']
+const ROLE_ABBREVS_SHORT = ['p.', 's.', 'a.', 'sf.', 'm.', 'h.', 'b.', 'o.']
 
 // ── DOM refs ─────────────────────────────────────────────────────
 const mainView = document.getElementById('main-view')!
@@ -95,19 +96,19 @@ function linearize(c: number): number {
 function renderPalette() {
   paletteRow.innerHTML = ''
 
-  if (colors.length > 5) {
-    paletteRow.classList.add('palette-row-wrap')
-  } else {
-    paletteRow.classList.remove('palette-row-wrap')
-  }
+  const isCompact = colors.length > 5
+  paletteRow.classList.toggle('compact', isCompact)
 
   colors.forEach((color, i) => {
     const swatch = document.createElement('button')
     swatch.className = 'swatch'
     swatch.setAttribute('tabindex', '0')
     swatch.setAttribute('data-locked', String(color.locked))
-    const roleAbbrev = ROLE_ABBREVS[i] || `c${i + 1}`
+    const roleAbbrev = isCompact
+      ? (ROLE_ABBREVS_SHORT[i] || `c${i + 1}`)
+      : (ROLE_ABBREVS[i] || `c${i + 1}`)
     const roleFull = ROLES[i] || `color-${i + 1}`
+    swatch.title = `Click to lock/unlock this color. Locked colors stay when you regenerate.`
     swatch.setAttribute('aria-label', `${roleFull} ${color.name} ${color.hex}${color.locked ? ', locked' : ''}`)
     swatch.style.backgroundColor = color.hex
 
@@ -135,6 +136,7 @@ function renderPalette() {
     const lockIcon = document.createElement('span')
     lockIcon.className = 'swatch-lock'
     lockIcon.setAttribute('aria-label', color.locked ? 'Locked' : 'Unlocked')
+    lockIcon.title = color.locked ? 'This color is locked. It won\'t change when you regenerate.' : 'Click to lock this color'
     lockIcon.innerHTML = color.locked
       ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
       : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 8 0"/></svg>'

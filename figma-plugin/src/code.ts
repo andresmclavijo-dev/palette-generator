@@ -11,7 +11,7 @@ import type { UIMessage, PluginMessage, PaletteColor } from './types'
 let currentPalette: PaletteColor[] = []
 
 // ── Launch UI ────────────────────────────────────────────────────
-figma.showUI(__html__, { width: 360, height: 620, themeColors: true })
+figma.showUI(__html__, { width: 480, height: 720, themeColors: true })
 
 // ── Send message helper ──────────────────────────────────────────
 function send(msg: PluginMessage) {
