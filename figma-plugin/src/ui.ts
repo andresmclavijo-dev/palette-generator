@@ -5,24 +5,46 @@
  */
 import type { UIMessage, PluginMessage, PaletteColor } from './types'
 
+// ── Constants ─────────────────────────────────────────────────────
+const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
+const ROLE_ABBREVS = ['prim.', 'sec.', 'acc.', 'surf.', 'mut.', 'high.', 'bord.', 'over.']
+
 // ── DOM refs ─────────────────────────────────────────────────────
+const mainView = document.getElementById('main-view')!
 const paletteRow = document.getElementById('palette-row')!
 const harmonySelect = document.getElementById('harmony-select') as HTMLSelectElement
 const countSelect = document.getElementById('count-select') as HTMLSelectElement
 const seedInput = document.getElementById('seed-input') as HTMLInputElement
 const prefixInput = document.getElementById('prefix-input') as HTMLInputElement
 const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement
-const applyBtn = document.getElementById('apply-btn') as HTMLButtonElement
-const variablesBtn = document.getElementById('variables-btn') as HTMLButtonElement
-const shadesBtn = document.getElementById('shades-btn') as HTMLButtonElement
 const extractBtn = document.getElementById('extract-btn') as HTMLButtonElement
+const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement
 const aiPromptInput = document.getElementById('ai-prompt-input') as HTMLInputElement
 const aiGenerateBtn = document.getElementById('ai-generate-btn') as HTMLButtonElement
 const statusEl = document.getElementById('status')!
 
+// Scope picker
+const scopeRadios = document.querySelectorAll<HTMLInputElement>('input[name="scope"]')
+const shadeCheckboxContainer = document.getElementById('shade-checkbox')!
+const includeShadesCheckbox = document.getElementById('include-shades') as HTMLInputElement
+const ctaBtn = document.getElementById('cta-btn') as HTMLButtonElement
+
+// Confirmation panel
+const confirmPanel = document.getElementById('confirm-panel')!
+const confirmCloseBtn = document.getElementById('confirm-close-btn') as HTMLButtonElement
+const confirmCancelBtn = document.getElementById('confirm-cancel-btn') as HTMLButtonElement
+const confirmPushBtn = document.getElementById('confirm-push-btn') as HTMLButtonElement
+const confirmPrefixEl = document.getElementById('confirm-prefix')!
+const confirmListEl = document.getElementById('confirm-list')!
+
+// Onboarding
+const onboardingOverlay = document.getElementById('onboarding')!
+const onboardingDismissBtn = document.getElementById('onboarding-dismiss-btn') as HTMLButtonElement
+
 // ── State ────────────────────────────────────────────────────────
 let colors: PaletteColor[] = []
 let hasSelection = false
+let selectionCount = 0
 
 // ── Send message to plugin sandbox ───────────────────────────────
 function send(msg: UIMessage) {
@@ -56,11 +78,23 @@ function getWcagBadge(hex: string): { label: string; pass: boolean } {
   return { label: 'Fail', pass: false }
 }
 
+function isLightColor(hex: string): boolean {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16) / 255
+  const g = parseInt(c.substring(2, 4), 16) / 255
+  const b = parseInt(c.substring(4, 6), 16) / 255
+  const lum = 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
+  return lum > 0.4
+}
+
+function linearize(c: number): number {
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+}
+
 // ── Render palette swatches ──────────────────────────────────────
 function renderPalette() {
   paletteRow.innerHTML = ''
 
-  // Add wrap class for 6+ colors
   if (colors.length > 5) {
     paletteRow.classList.add('palette-row-wrap')
   } else {
@@ -70,38 +104,46 @@ function renderPalette() {
   colors.forEach((color, i) => {
     const swatch = document.createElement('button')
     swatch.className = 'swatch'
-    swatch.setAttribute('role', 'button')
     swatch.setAttribute('tabindex', '0')
     swatch.setAttribute('data-locked', String(color.locked))
-    swatch.setAttribute('aria-label', `${color.name} ${color.hex}${color.locked ? ', locked' : ''}`)
+    const roleAbbrev = ROLE_ABBREVS[i] || `c${i + 1}`
+    const roleFull = ROLES[i] || `color-${i + 1}`
+    swatch.setAttribute('aria-label', `${roleFull} ${color.name} ${color.hex}${color.locked ? ', locked' : ''}`)
     swatch.style.backgroundColor = color.hex
 
-    // Text color for readability
     const textColor = isLightColor(color.hex) ? '#000000' : '#ffffff'
 
+    // Hex label
     const hexLabel = document.createElement('span')
     hexLabel.className = 'swatch-hex'
     hexLabel.textContent = color.hex.toUpperCase()
     hexLabel.style.color = textColor
 
-    // WCAG contrast badge
+    // WCAG badge
     const badge = getWcagBadge(color.hex)
     const badgeEl = document.createElement('span')
     badgeEl.className = `swatch-badge ${badge.pass ? 'swatch-badge-pass' : 'swatch-badge-fail'}`
     badgeEl.textContent = badge.label
 
+    // Role abbreviation label
+    const roleLabel = document.createElement('span')
+    roleLabel.className = 'swatch-role'
+    roleLabel.textContent = roleAbbrev
+    roleLabel.style.color = textColor
+
     // Lock icon
     const lockIcon = document.createElement('span')
     lockIcon.className = 'swatch-lock'
+    lockIcon.setAttribute('aria-label', color.locked ? 'Locked' : 'Unlocked')
     lockIcon.innerHTML = color.locked
       ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
       : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 8 0"/></svg>'
 
     swatch.appendChild(hexLabel)
     swatch.appendChild(badgeEl)
+    swatch.appendChild(roleLabel)
     swatch.appendChild(lockIcon)
 
-    // Toggle lock on click
     swatch.addEventListener('click', () => {
       colors[i] = { ...colors[i], locked: !colors[i].locked }
       renderPalette()
@@ -109,22 +151,8 @@ function renderPalette() {
 
     paletteRow.appendChild(swatch)
   })
-}
 
-// ── Simple luminance check ───────────────────────────────────────
-function isLightColor(hex: string): boolean {
-  const c = hex.replace('#', '')
-  const r = parseInt(c.substring(0, 2), 16) / 255
-  const g = parseInt(c.substring(2, 4), 16) / 255
-  const b = parseInt(c.substring(4, 6), 16) / 255
-
-  // Relative luminance (sRGB)
-  const lum = 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
-  return lum > 0.4
-}
-
-function linearize(c: number): number {
-  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  updateCTA()
 }
 
 // ── Status messages ──────────────────────────────────────────────
@@ -151,6 +179,244 @@ function parseSeed(): string | null {
   return null
 }
 
+// ── Scope picker ─────────────────────────────────────────────────
+function getSelectedScope(): string {
+  const checked = document.querySelector<HTMLInputElement>('input[name="scope"]:checked')
+  return checked?.value || 'variables'
+}
+
+function updateCTA() {
+  const scope = getSelectedScope()
+  const n = colors.length
+  const shades = includeShadesCheckbox.checked
+
+  // Show/hide shade checkbox
+  shadeCheckboxContainer.style.display = scope === 'variables' ? 'block' : 'none'
+
+  switch (scope) {
+    case 'variables':
+      if (shades) {
+        const total = n * 11 // N flat + N * 10 shades
+        ctaBtn.textContent = `Push ${total} variables`
+      } else {
+        ctaBtn.textContent = `Push ${n} variable${n !== 1 ? 's' : ''}`
+      }
+      ctaBtn.disabled = n === 0
+      break
+    case 'copy-css':
+      ctaBtn.textContent = 'Copy CSS variables'
+      ctaBtn.disabled = n === 0
+      break
+    case 'copy-tailwind':
+      ctaBtn.textContent = 'Copy Tailwind config'
+      ctaBtn.disabled = n === 0
+      break
+    case 'apply':
+      if (hasSelection) {
+        ctaBtn.textContent = `Apply to ${selectionCount} frame${selectionCount !== 1 ? 's' : ''}`
+        ctaBtn.disabled = false
+      } else {
+        ctaBtn.textContent = 'Select frames first'
+        ctaBtn.disabled = true
+      }
+      break
+  }
+}
+
+// Scope radio change
+scopeRadios.forEach(radio => {
+  radio.addEventListener('change', updateCTA)
+})
+
+// Shade checkbox change
+includeShadesCheckbox.addEventListener('change', updateCTA)
+
+// ── Clipboard helpers ────────────────────────────────────────────
+function copyToClipboard(text: string): boolean {
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.style.position = 'fixed'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.select()
+  let ok = false
+  try {
+    ok = document.execCommand('copy')
+  } catch {
+    ok = false
+  }
+  document.body.removeChild(textarea)
+  return ok
+}
+
+function generateCSS(): string {
+  return colors.map((c, i) => {
+    const role = ROLES[i] || `color-${i + 1}`
+    return `  --${role}: ${c.hex};`
+  }).join('\n')
+}
+
+function generateTailwind(): string {
+  const entries = colors.map((c, i) => {
+    const role = ROLES[i] || `color-${i + 1}`
+    return `      '${role}': '${c.hex}',`
+  }).join('\n')
+  return `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${entries}\n      },\n    },\n  },\n}`
+}
+
+// ── Confirmation panel ───────────────────────────────────────────
+function showConfirmPanel() {
+  const prefix = prefixInput.value.trim() || 'Paletta'
+  const shades = includeShadesCheckbox.checked
+  const n = colors.length
+  const total = shades ? n * 11 : n
+
+  confirmPrefixEl.textContent = prefix
+  confirmListEl.innerHTML = ''
+
+  colors.forEach((color, i) => {
+    const role = ROLES[i] || `color-${i + 1}`
+    const item = document.createElement('div')
+    item.className = 'confirm-item'
+    item.innerHTML = `
+      <span class="confirm-chip" style="background:${color.hex}"></span>
+      <span class="confirm-role">${role}</span>
+      <span class="confirm-hex">${color.hex}</span>
+    `
+    confirmListEl.appendChild(item)
+
+    if (shades) {
+      const note = document.createElement('div')
+      note.className = 'confirm-shade-note'
+      note.textContent = `+ ${role}/50 … ${role}/900 (10 shades)`
+      confirmListEl.appendChild(note)
+    }
+  })
+
+  confirmPushBtn.textContent = `Push ${total} variable${total !== 1 ? 's' : ''}`
+  confirmPanel.style.display = 'flex'
+}
+
+function hideConfirmPanel() {
+  confirmPanel.style.display = 'none'
+}
+
+function executePush() {
+  send({
+    type: 'push-variables',
+    colors,
+    prefix: prefixInput.value.trim() || 'Paletta',
+    includeShades: includeShadesCheckbox.checked,
+  })
+  hideConfirmPanel()
+}
+
+confirmCloseBtn.addEventListener('click', hideConfirmPanel)
+confirmCancelBtn.addEventListener('click', hideConfirmPanel)
+confirmPushBtn.addEventListener('click', executePush)
+
+// Escape closes confirmation panel
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (confirmPanel.style.display !== 'none') {
+      hideConfirmPanel()
+      e.preventDefault()
+    }
+  }
+})
+
+// ── CTA click handler ────────────────────────────────────────────
+ctaBtn.addEventListener('click', () => {
+  if (colors.length === 0) {
+    showStatus('Generate a palette first', 'error')
+    return
+  }
+
+  const scope = getSelectedScope()
+
+  switch (scope) {
+    case 'variables':
+      showConfirmPanel()
+      break
+
+    case 'copy-css': {
+      const css = `:root {\n${generateCSS()}\n}`
+      if (copyToClipboard(css)) {
+        send({ type: 'notify', message: '✓ Copied CSS variables' })
+        showStatus('Copied CSS variables', 'success')
+      } else {
+        showStatus('Failed to copy', 'error')
+      }
+      break
+    }
+
+    case 'copy-tailwind': {
+      const tw = generateTailwind()
+      if (copyToClipboard(tw)) {
+        send({ type: 'notify', message: '✓ Copied Tailwind config' })
+        showStatus('Copied Tailwind config', 'success')
+      } else {
+        showStatus('Failed to copy', 'error')
+      }
+      break
+    }
+
+    case 'apply':
+      if (!hasSelection) {
+        showStatus('Select frames to apply colors', 'error')
+        return
+      }
+      send({
+        type: 'apply-to-selection',
+        colors: colors.map(c => c.hex),
+      })
+      break
+  }
+})
+
+// ── Reset ────────────────────────────────────────────────────────
+function resetAll() {
+  aiPromptInput.value = ''
+  seedInput.value = ''
+  includeShadesCheckbox.checked = false
+
+  // Reset scope to variables
+  const variablesRadio = document.querySelector<HTMLInputElement>('input[name="scope"][value="variables"]')
+  if (variablesRadio) variablesRadio.checked = true
+
+  // Reset count to 5
+  countSelect.value = '5'
+
+  // Reset harmony to random
+  harmonySelect.value = 'random'
+
+  // Generate fresh random palette
+  send({
+    type: 'generate',
+    mode: 'random',
+    count: 5,
+    seedColor: null,
+    lockedIndices: [],
+  })
+
+  updateCTA()
+  showStatus('Reset', 'info')
+}
+
+resetBtn.addEventListener('click', resetAll)
+
+// ── Onboarding ───────────────────────────────────────────────────
+function showOnboarding() {
+  onboardingOverlay.style.display = 'flex'
+}
+
+function dismissOnboarding() {
+  onboardingOverlay.style.display = 'none'
+  send({ type: 'set-onboarded' })
+}
+
+onboardingDismissBtn.addEventListener('click', dismissOnboarding)
+
 // ── Event handlers ───────────────────────────────────────────────
 generateBtn.addEventListener('click', () => {
   const lockedIndices = colors
@@ -166,35 +432,12 @@ generateBtn.addEventListener('click', () => {
   })
 })
 
-applyBtn.addEventListener('click', () => {
-  send({
-    type: 'apply-to-selection',
-    colors: colors.map(c => c.hex),
-  })
-})
-
-variablesBtn.addEventListener('click', () => {
-  send({
-    type: 'push-variables',
-    colors,
-    prefix: prefixInput.value.trim(),
-  })
-})
-
 extractBtn.addEventListener('click', () => {
-  send({ type: 'extract-from-selection' })
-})
-
-shadesBtn.addEventListener('click', () => {
-  if (colors.length === 0) {
-    showStatus('Generate a palette first', 'error')
+  if (!hasSelection) {
+    showStatus('Select a frame with an image fill', 'error')
     return
   }
-  send({
-    type: 'push-shade-variables',
-    colors,
-    prefix: prefixInput.value.trim(),
-  })
+  send({ type: 'extract-from-selection' })
 })
 
 aiGenerateBtn.addEventListener('click', () => {
@@ -210,7 +453,6 @@ aiGenerateBtn.addEventListener('click', () => {
   })
 })
 
-// AI prompt: Enter to submit
 aiPromptInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault()
@@ -232,6 +474,12 @@ window.onmessage = (event: MessageEvent) => {
   if (!msg) return
 
   switch (msg.type) {
+    case 'init':
+      if (!msg.hasSeenOnboarding) {
+        showOnboarding()
+      }
+      break
+
     case 'palette-generated':
       colors = msg.colors
       renderPalette()
@@ -243,10 +491,6 @@ window.onmessage = (event: MessageEvent) => {
 
     case 'variables-pushed':
       showStatus(`Pushed ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
-      break
-
-    case 'shade-variables-pushed':
-      showStatus(`Pushed ${msg.count} shade variable${msg.count !== 1 ? 's' : ''}`, 'success')
       break
 
     case 'ai-loading':
@@ -263,7 +507,7 @@ window.onmessage = (event: MessageEvent) => {
     case 'colors-extracted': {
       colors = msg.colors.map(hex => ({
         hex,
-        name: hex, // Name will come from the sandbox on next generate
+        name: hex,
         locked: false,
       }))
       renderPalette()
@@ -273,8 +517,8 @@ window.onmessage = (event: MessageEvent) => {
 
     case 'selection-changed':
       hasSelection = msg.hasSelection
-      applyBtn.disabled = !hasSelection
-      extractBtn.disabled = !hasSelection
+      selectionCount = msg.count
+      updateCTA()
       break
 
     case 'error':

@@ -13,7 +13,7 @@
       --color-text: #1a1a2e;
       --color-text-muted: #6b7280;
       --color-primary: #6C47FF;
-      --color-primary-hover: #5a35e6;
+      --color-primary-hover: #5B38E0;
       --color-primary-fg: #ffffff;
       --color-destructive: #ef4444;
       --color-success: #16A34A;
@@ -45,13 +45,20 @@
       overflow-x: hidden;
     }
 
-    /* ── Layout ───────────────────────────────────────────────── */
+    /* ── Plugin shell ─────────────────────────────────────────── */
     .plugin {
+      position: relative;
+      height: 100vh;
+    }
+
+    /* ── Main view ────────────────────────────────────────────── */
+    .main-view {
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100%;
       padding: 12px;
-      gap: 12px;
+      gap: 10px;
+      overflow-y: auto;
     }
 
     .plugin-header {
@@ -81,6 +88,14 @@
       min-height: 80px;
     }
 
+    .palette-row-wrap {
+      flex-wrap: wrap;
+    }
+
+    .palette-row-wrap .swatch {
+      min-width: 42px;
+    }
+
     .swatch {
       flex: 1;
       border-radius: var(--radius-card);
@@ -90,8 +105,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 6px;
-      gap: 3px;
+      padding-bottom: 4px;
+      gap: 2px;
       transition: transform 150ms ease, box-shadow 150ms ease;
       border: 1px solid rgba(0, 0, 0, 0.06);
     }
@@ -110,6 +125,13 @@
       font-family: 'SF Mono', 'Fira Code', monospace;
       text-transform: uppercase;
       opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .swatch-role {
+      font-size: 8px;
+      font-weight: 500;
+      opacity: 0.6;
       pointer-events: none;
     }
 
@@ -165,11 +187,33 @@
       box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
     }
 
+    /* ── Reset link ───────────────────────────────────────────── */
+    .reset-link {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 2px 0;
+      text-align: left;
+      width: fit-content;
+      transition: color 150ms;
+    }
+
+    .reset-link:hover { color: var(--color-text); }
+
+    .reset-link:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--color-primary);
+      border-radius: 4px;
+    }
+
     /* ── Controls ─────────────────────────────────────────────── */
     .controls {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .control-row {
@@ -249,19 +293,142 @@
 
     .btn-full { width: 100%; }
 
-    /* ── Action row ───────────────────────────────────────────── */
-    .actions {
+    /* ── Generate area ────────────────────────────────────────── */
+    .generate-area {
       display: flex;
-      gap: 6px;
-      margin-top: auto;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .extract-link {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 2px 0;
+      text-align: center;
+      transition: color 150ms;
+    }
+
+    .extract-link:hover { color: var(--color-primary); }
+
+    .extract-link:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--color-primary);
+      border-radius: 4px;
+    }
+
+    .extract-link:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Scope picker ─────────────────────────────────────────── */
+    .scope-section {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
       padding-top: 8px;
       border-top: 1px solid var(--color-border);
     }
 
-    .actions .btn {
-      flex: 1;
-      padding: 0 8px;
+    .scope-label {
       font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 2px;
+    }
+
+    .scope-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: var(--radius-button);
+      cursor: pointer;
+      transition: background 150ms;
+    }
+
+    .scope-option:hover {
+      background: var(--color-surface);
+    }
+
+    .scope-option input[type="radio"] {
+      margin-top: 2px;
+      accent-color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .scope-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .scope-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text);
+      transition: color 150ms;
+    }
+
+    .scope-desc {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      line-height: 1.3;
+    }
+
+    .scope-option input[type="radio"]:checked ~ .scope-content .scope-title {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* Shade checkbox */
+    .shade-checkbox {
+      padding: 4px 8px 4px 26px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shade-checkbox label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+    }
+
+    .shade-checkbox input[type="checkbox"] {
+      accent-color: var(--color-primary);
+    }
+
+    /* CTA button */
+    .cta-button {
+      width: 100%;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--color-primary);
+      color: var(--color-primary-fg);
+      font-weight: 600;
+      font-size: 13px;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      transition: background 150ms, transform 150ms;
+      margin-top: 4px;
+    }
+
+    .cta-button:hover:not(:disabled) { background: var(--color-primary-hover); }
+    .cta-button:active:not(:disabled) { transform: scale(0.98); }
+    .cta-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .cta-button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary);
     }
 
     /* ── Status bar ───────────────────────────────────────────── */
@@ -270,10 +437,205 @@
       color: var(--color-text-muted);
       text-align: center;
       padding: 4px 0;
+      min-height: 20px;
     }
 
     .status-success { color: var(--color-success); }
     .status-error { color: var(--color-destructive); }
+
+    /* ── Confirmation panel ───────────────────────────────────── */
+    .confirm-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-bg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .confirm-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .confirm-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .confirm-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      color: var(--color-text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 150ms;
+    }
+
+    .confirm-close:hover { background: var(--color-surface); }
+
+    .confirm-close:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--color-primary);
+    }
+
+    .confirm-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+
+    .confirm-collection {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-bottom: 10px;
+    }
+
+    .confirm-collection strong {
+      color: var(--color-text);
+    }
+
+    .confirm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .confirm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .confirm-chip {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .confirm-role {
+      font-weight: 600;
+      min-width: 70px;
+    }
+
+    .confirm-hex {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+
+    .confirm-shade-note {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      padding-left: 24px;
+    }
+
+    .confirm-warning {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 12px;
+      padding: 8px;
+      background: var(--color-surface);
+      border-radius: var(--radius-button);
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .confirm-actions .btn {
+      flex: 1;
+    }
+
+    .confirm-hint {
+      text-align: center;
+      font-size: 10px;
+      color: var(--color-text-muted);
+      padding-top: 8px;
+    }
+
+    /* ── Onboarding overlay ───────────────────────────────────── */
+    .onboarding-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-bg);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .onboarding-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      gap: 16px;
+      max-width: 300px;
+    }
+
+    .onboarding-icon {
+      font-size: 32px;
+      color: var(--color-primary);
+      line-height: 1;
+    }
+
+    .onboarding-content h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .onboarding-content p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    .onboarding-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .onboarding-step {
+      font-size: 12px;
+      padding: 8px 12px;
+      background: var(--color-surface);
+      border-radius: var(--radius-button);
+    }
+
+    .onboarding-footer {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      padding-top: 8px;
+    }
 
     /* ── AI loading ───────────────────────────────────────────── */
     .btn-loading {
@@ -290,15 +652,6 @@
       animation: pulse 1.2s ease-in-out infinite;
     }
 
-    /* ── Swatch wrap for 6+ colors ───────────────────────────── */
-    .palette-row-wrap {
-      flex-wrap: wrap;
-    }
-
-    .palette-row-wrap .swatch {
-      min-width: 42px;
-    }
-
     /* ── Reduced motion ───────────────────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -310,77 +663,174 @@
 </head>
 <body>
   <div class="plugin" id="app">
-    <header class="plugin-header">
-      <span class="plugin-title">Paletta</span>
-      <span class="plugin-subtitle">Color systems</span>
-    </header>
+    <!-- ── Main view ─────────────────────────────────────────── -->
+    <div class="main-view" id="main-view">
+      <header class="plugin-header">
+        <span class="plugin-title">Paletta</span>
+        <span class="plugin-subtitle">Color systems</span>
+      </header>
 
-    <div class="palette-row" id="palette-row" role="group" aria-label="Color palette">
-      <!-- Swatches rendered by JS -->
-    </div>
+      <div class="palette-row" id="palette-row" role="group" aria-label="Color palette">
+        <!-- Swatches rendered by JS -->
+      </div>
 
-    <div class="controls">
-      <div class="control-row">
-        <label class="control-label" for="harmony-select">Harmony</label>
-        <select id="harmony-select" aria-label="Harmony mode">
-          <option value="random">Random</option>
-          <option value="analogous">Analogous</option>
-          <option value="monochromatic">Monochromatic</option>
-          <option value="complementary">Complementary</option>
-          <option value="triadic">Triadic</option>
-        </select>
+      <button class="reset-link" id="reset-btn" aria-label="Reset palette to random colors">&#8635; Reset</button>
+
+      <div class="controls">
+        <div class="control-row">
+          <label class="control-label" for="harmony-select">Harmony</label>
+          <select id="harmony-select" aria-label="Harmony mode">
+            <option value="random">Random</option>
+            <option value="analogous">Analogous</option>
+            <option value="monochromatic">Monochromatic</option>
+            <option value="complementary">Complementary</option>
+            <option value="triadic">Triadic</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label class="control-label" for="count-select">Colors</label>
+          <select id="count-select" aria-label="Number of colors">
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5" selected>5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label class="control-label" for="seed-input">Seed</label>
+          <input type="text" id="seed-input" placeholder="#6C47FF (optional)" maxlength="7" aria-label="Seed color hex value">
+        </div>
+
+        <div class="control-row">
+          <label class="control-label" for="prefix-input">Prefix</label>
+          <input type="text" id="prefix-input" placeholder="Paletta" value="Paletta" aria-label="Variable collection prefix">
+        </div>
       </div>
 
       <div class="control-row">
-        <label class="control-label" for="count-select">Colors</label>
-        <select id="count-select" aria-label="Number of colors">
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5" selected>5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-        </select>
+        <input type="text" id="ai-prompt-input" placeholder="Describe a palette… (e.g. sunset over ocean)" aria-label="AI palette prompt" style="flex:1;">
+        <button class="btn btn-primary" id="ai-generate-btn" aria-label="Generate palette from AI prompt" style="min-width:48px;height:32px;padding:0 10px;font-size:11px;">
+          AI
+        </button>
       </div>
 
-      <div class="control-row">
-        <label class="control-label" for="seed-input">Seed</label>
-        <input type="text" id="seed-input" placeholder="#6C47FF (optional)" maxlength="7" aria-label="Seed color hex value">
+      <div class="generate-area">
+        <button class="btn btn-primary btn-full" id="generate-btn" aria-label="Generate new palette">
+          Generate
+        </button>
+        <button class="extract-link" id="extract-btn" aria-label="Extract colors from selected layers">
+          Extract from selection &#x2197;
+        </button>
       </div>
 
-      <div class="control-row">
-        <label class="control-label" for="prefix-input">Prefix</label>
-        <input type="text" id="prefix-input" placeholder="Paletta" value="Paletta" aria-label="Variable collection prefix">
+      <!-- Scope picker -->
+      <div class="scope-section">
+        <div class="scope-label">What do you want to do?</div>
+
+        <label class="scope-option">
+          <input type="radio" name="scope" value="variables" checked>
+          <div class="scope-content">
+            <span class="scope-title">Push as Figma Variables</span>
+            <span class="scope-desc">Create color variables in your file</span>
+          </div>
+        </label>
+
+        <label class="scope-option">
+          <input type="radio" name="scope" value="copy-css">
+          <div class="scope-content">
+            <span class="scope-title">Copy as CSS</span>
+            <span class="scope-desc">CSS custom properties to clipboard</span>
+          </div>
+        </label>
+
+        <label class="scope-option">
+          <input type="radio" name="scope" value="copy-tailwind">
+          <div class="scope-content">
+            <span class="scope-title">Copy as Tailwind</span>
+            <span class="scope-desc">Tailwind config to clipboard</span>
+          </div>
+        </label>
+
+        <label class="scope-option">
+          <input type="radio" name="scope" value="apply">
+          <div class="scope-content">
+            <span class="scope-title">Apply to selection</span>
+            <span class="scope-desc">Fill selected frames with colors</span>
+          </div>
+        </label>
+
+        <div class="shade-checkbox" id="shade-checkbox">
+          <label>
+            <input type="checkbox" id="include-shades">
+            <span title="Generate a 10-step shade scale (50–900) for each color">Include shade scales (50–900)</span>
+          </label>
+        </div>
+
+        <button class="cta-button" id="cta-btn" aria-label="Execute selected action">
+          Push 5 variables
+        </button>
+      </div>
+
+      <div class="status" id="status" aria-live="polite"></div>
+    </div>
+
+    <!-- ── Confirmation panel ─────────────────────────────────── -->
+    <div class="confirm-panel" id="confirm-panel" style="display: none;">
+      <div class="confirm-header">
+        <span class="confirm-title">Push to Figma Variables</span>
+        <button class="confirm-close" id="confirm-close-btn" aria-label="Cancel and go back">&#10005;</button>
+      </div>
+
+      <div class="confirm-body">
+        <div class="confirm-collection">
+          Collection: "<strong id="confirm-prefix">Paletta</strong>"
+        </div>
+
+        <div class="confirm-list" id="confirm-list">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="confirm-warning">
+          &#9432; Existing variables with these names will be updated.
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="confirm-cancel-btn" aria-label="Cancel">Cancel</button>
+        <button class="btn btn-primary" id="confirm-push-btn" aria-label="Confirm push variables">
+          Push 5 variables
+        </button>
+      </div>
+
+      <div class="confirm-hint">Tip: Undo with &#8984;Z</div>
+    </div>
+
+    <!-- ── Onboarding overlay ─────────────────────────────────── -->
+    <div class="onboarding-overlay" id="onboarding" style="display: none;">
+      <div class="onboarding-content">
+        <div class="onboarding-icon">&#9670;</div>
+        <h2>Welcome to Paletta</h2>
+        <p>Color systems with built-in accessibility validation</p>
+
+        <div class="onboarding-steps">
+          <div class="onboarding-step">&#9312; Generate harmonious palettes</div>
+          <div class="onboarding-step">&#9313; Check WCAG contrast instantly</div>
+          <div class="onboarding-step">&#9314; Push to Figma Variables</div>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="onboarding-dismiss-btn" aria-label="Dismiss onboarding and get started">
+          Get started
+        </button>
+
+        <div class="onboarding-footer">
+          usepaletta.io &middot; Pro: $5/mo
+        </div>
       </div>
     </div>
-
-    <div class="control-row">
-      <input type="text" id="ai-prompt-input" placeholder="Describe a palette… (e.g. sunset over ocean)" aria-label="AI palette prompt" style="flex:1;">
-      <button class="btn btn-primary" id="ai-generate-btn" aria-label="Generate palette from AI prompt" style="min-width:48px;height:32px;padding:0 10px;font-size:11px;">
-        AI
-      </button>
-    </div>
-
-    <button class="btn btn-primary btn-full" id="generate-btn" aria-label="Generate new palette">
-      Generate
-    </button>
-
-    <div class="actions">
-      <button class="btn btn-secondary" id="apply-btn" aria-label="Apply palette colors to selected layers" disabled>
-        Apply
-      </button>
-      <button class="btn btn-secondary" id="variables-btn" aria-label="Push colors as Figma variables">
-        Variables
-      </button>
-      <button class="btn btn-secondary" id="shades-btn" aria-label="Push shade scale variables to Figma">
-        Shades
-      </button>
-      <button class="btn btn-secondary" id="extract-btn" aria-label="Extract colors from selected layers" disabled>
-        Extract
-      </button>
-    </div>
-
-    <div class="status" id="status" aria-live="polite"></div>
   </div>
 
   <!--JS_BUNDLE-->
