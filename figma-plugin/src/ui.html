@@ -16,9 +16,13 @@
       --color-primary-hover: #5a35e6;
       --color-primary-fg: #ffffff;
       --color-destructive: #ef4444;
-      --color-success: #22c55e;
+      --color-success: #16A34A;
+      --color-success-bg: #DCFCE7;
+      --color-fail: #9CA3AF;
+      --color-fail-bg: #F3F4F6;
       --radius-button: 8px;
       --radius-card: 12px;
+      --radius-badge: 6px;
     }
 
     /* Figma dark theme support */
@@ -28,6 +32,8 @@
       --color-border: #4a4a4a;
       --color-text: #ffffff;
       --color-text-muted: #a0a0a0;
+      --color-success-bg: #1a3a2a;
+      --color-fail-bg: #3a3a3a;
     }
 
     html, body {
@@ -50,8 +56,8 @@
 
     .plugin-header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--color-border);
     }
@@ -62,16 +68,17 @@
       letter-spacing: -0.01em;
     }
 
-    .plugin-version {
+    .plugin-subtitle {
       font-size: 10px;
       color: var(--color-text-muted);
+      font-weight: 500;
     }
 
     /* ── Palette swatches ─────────────────────────────────────── */
     .palette-row {
       display: flex;
       gap: 6px;
-      min-height: 64px;
+      min-height: 80px;
     }
 
     .swatch {
@@ -80,9 +87,11 @@
       cursor: pointer;
       position: relative;
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
       padding-bottom: 6px;
+      gap: 3px;
       transition: transform 150ms ease, box-shadow 150ms ease;
       border: 1px solid rgba(0, 0, 0, 0.06);
     }
@@ -104,14 +113,37 @@
       pointer-events: none;
     }
 
+    /* WCAG contrast badge */
+    .swatch-badge {
+      font-size: 8px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: var(--radius-badge);
+      pointer-events: none;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+    }
+
+    .swatch-badge-pass {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .swatch-badge-fail {
+      background: var(--color-fail-bg);
+      color: var(--color-fail);
+    }
+
+    /* Lock icon */
     .swatch-lock {
       position: absolute;
       top: 4px;
       right: 4px;
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -126,7 +158,11 @@
     }
 
     .swatch[data-locked="true"] .swatch-lock {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .swatch[data-locked="true"] {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
     }
 
     /* ── Controls ─────────────────────────────────────────────── */
@@ -191,12 +227,17 @@
       box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary);
     }
 
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       background: var(--color-primary);
       color: var(--color-primary-fg);
     }
 
-    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-primary:hover:not(:disabled) { background: var(--color-primary-hover); }
 
     .btn-secondary {
       background: var(--color-surface);
@@ -204,7 +245,7 @@
       border: 1px solid var(--color-border);
     }
 
-    .btn-secondary:hover { background: var(--color-border); }
+    .btn-secondary:hover:not(:disabled) { background: var(--color-border); }
 
     .btn-full { width: 100%; }
 
@@ -217,7 +258,11 @@
       border-top: 1px solid var(--color-border);
     }
 
-    .actions .btn { flex: 1; }
+    .actions .btn {
+      flex: 1;
+      padding: 0 8px;
+      font-size: 11px;
+    }
 
     /* ── Status bar ───────────────────────────────────────────── */
     .status {
@@ -243,7 +288,7 @@
   <div class="plugin" id="app">
     <header class="plugin-header">
       <span class="plugin-title">Paletta</span>
-      <span class="plugin-version">v0.1.0</span>
+      <span class="plugin-subtitle">Color systems</span>
     </header>
 
     <div class="palette-row" id="palette-row" role="group" aria-label="Color palette">
@@ -281,7 +326,7 @@
 
       <div class="control-row">
         <label class="control-label" for="prefix-input">Prefix</label>
-        <input type="text" id="prefix-input" placeholder="Paletta (for styles)" value="Paletta" aria-label="Style name prefix">
+        <input type="text" id="prefix-input" placeholder="Paletta" value="Paletta" aria-label="Variable collection prefix">
       </div>
     </div>
 
@@ -290,13 +335,13 @@
     </button>
 
     <div class="actions">
-      <button class="btn btn-secondary" id="apply-btn" aria-label="Apply palette to selection" disabled>
+      <button class="btn btn-secondary" id="apply-btn" aria-label="Apply palette colors to selected layers" disabled>
         Apply
       </button>
-      <button class="btn btn-secondary" id="styles-btn" aria-label="Create color styles">
-        Styles
+      <button class="btn btn-secondary" id="variables-btn" aria-label="Push colors as Figma variables">
+        Variables
       </button>
-      <button class="btn btn-secondary" id="extract-btn" aria-label="Extract colors from selection" disabled>
+      <button class="btn btn-secondary" id="extract-btn" aria-label="Extract colors from selected layers" disabled>
         Extract
       </button>
     </div>

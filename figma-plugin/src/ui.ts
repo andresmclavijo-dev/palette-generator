@@ -13,7 +13,7 @@ const seedInput = document.getElementById('seed-input') as HTMLInputElement
 const prefixInput = document.getElementById('prefix-input') as HTMLInputElement
 const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement
 const applyBtn = document.getElementById('apply-btn') as HTMLButtonElement
-const stylesBtn = document.getElementById('styles-btn') as HTMLButtonElement
+const variablesBtn = document.getElementById('variables-btn') as HTMLButtonElement
 const extractBtn = document.getElementById('extract-btn') as HTMLButtonElement
 const statusEl = document.getElementById('status')!
 
@@ -24,6 +24,33 @@ let hasSelection = false
 // ── Send message to plugin sandbox ───────────────────────────────
 function send(msg: UIMessage) {
   parent.postMessage({ pluginMessage: msg }, '*')
+}
+
+// ── WCAG contrast utilities ──────────────────────────────────────
+function luminance(hex: string): number {
+  const rgb = [
+    parseInt(hex.slice(1, 3), 16) / 255,
+    parseInt(hex.slice(3, 5), 16) / 255,
+    parseInt(hex.slice(5, 7), 16) / 255,
+  ].map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+}
+
+function contrastRatio(hex1: string, hex2: string): number {
+  const l1 = luminance(hex1)
+  const l2 = luminance(hex2)
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+function getWcagBadge(hex: string): { label: string; pass: boolean } {
+  const onWhite = contrastRatio(hex, '#FFFFFF')
+  const onBlack = contrastRatio(hex, '#000000')
+  const best = Math.max(onWhite, onBlack)
+  if (best >= 7) return { label: 'AAA', pass: true }
+  if (best >= 4.5) return { label: 'AA', pass: true }
+  return { label: 'Fail', pass: false }
 }
 
 // ── Render palette swatches ──────────────────────────────────────
@@ -47,12 +74,21 @@ function renderPalette() {
     hexLabel.textContent = color.hex.toUpperCase()
     hexLabel.style.color = textColor
 
+    // WCAG contrast badge
+    const badge = getWcagBadge(color.hex)
+    const badgeEl = document.createElement('span')
+    badgeEl.className = `swatch-badge ${badge.pass ? 'swatch-badge-pass' : 'swatch-badge-fail'}`
+    badgeEl.textContent = badge.label
+
+    // Lock icon
     const lockIcon = document.createElement('span')
     lockIcon.className = 'swatch-lock'
-    lockIcon.textContent = color.locked ? '🔒' : '🔓'
-    lockIcon.style.color = '#ffffff'
+    lockIcon.innerHTML = color.locked
+      ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+      : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 8 0"/></svg>'
 
     swatch.appendChild(hexLabel)
+    swatch.appendChild(badgeEl)
     swatch.appendChild(lockIcon)
 
     // Toggle lock on click
@@ -127,9 +163,9 @@ applyBtn.addEventListener('click', () => {
   })
 })
 
-stylesBtn.addEventListener('click', () => {
+variablesBtn.addEventListener('click', () => {
   send({
-    type: 'create-styles',
+    type: 'push-variables',
     colors,
     prefix: prefixInput.value.trim(),
   })
@@ -162,8 +198,8 @@ window.onmessage = (event: MessageEvent) => {
       showStatus(`Applied to ${msg.count} layer${msg.count !== 1 ? 's' : ''}`, 'success')
       break
 
-    case 'styles-created':
-      showStatus(`Created ${msg.count} style${msg.count !== 1 ? 's' : ''}`, 'success')
+    case 'variables-pushed':
+      showStatus(`Pushed ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
       break
 
     case 'colors-extracted': {

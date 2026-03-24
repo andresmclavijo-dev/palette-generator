@@ -12,7 +12,7 @@ export interface PaletteColor {
 export type UIMessage =
   | { type: 'generate'; mode: HarmonyMode; count: number; seedColor: string | null; lockedIndices: number[] }
   | { type: 'apply-to-selection'; colors: string[] }
-  | { type: 'create-styles'; colors: PaletteColor[]; prefix: string }
+  | { type: 'push-variables'; colors: PaletteColor[]; prefix: string }
   | { type: 'extract-from-selection' }
   | { type: 'ui-ready' }
 
@@ -20,7 +20,7 @@ export type UIMessage =
 export type PluginMessage =
   | { type: 'palette-generated'; colors: PaletteColor[] }
   | { type: 'colors-applied'; count: number }
-  | { type: 'styles-created'; count: number }
+  | { type: 'variables-pushed'; count: number }
   | { type: 'colors-extracted'; colors: string[] }
   | { type: 'selection-changed'; hasSelection: boolean; count: number }
   | { type: 'error'; message: string }

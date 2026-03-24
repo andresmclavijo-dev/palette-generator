@@ -18,6 +18,15 @@ function send(msg: PluginMessage) {
   figma.ui.postMessage(msg)
 }
 
+// ── Hex → Figma RGBA (0-1 range) ─────────────────────────────────
+function hexToRGBA(hex: string): RGBA {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16) / 255
+  const g = parseInt(c.substring(2, 4), 16) / 255
+  const b = parseInt(c.substring(4, 6), 16) / 255
+  return { r, g, b, a: 1 }
+}
+
 // ── Selection change listener ────────────────────────────────────
 figma.on('selectionchange', () => {
   const sel = figma.currentPage.selection
@@ -72,21 +81,39 @@ figma.ui.onmessage = (msg: UIMessage) => {
       break
     }
 
-    case 'create-styles': {
-      let created = 0
-      for (const color of msg.colors) {
-        const styleName = msg.prefix
-          ? `${msg.prefix}/${color.name}`
-          : color.name
+    case 'push-variables': {
+      const prefix = msg.prefix || 'Paletta'
+      const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
 
-        const style = figma.createPaintStyle()
-        style.name = styleName
-        style.paints = [{ type: 'SOLID', color: hexToFigmaRGB(color.hex) }]
-        created++
+      // Find or create collection
+      const collections = figma.variables.getLocalVariableCollections()
+      let collection = collections.find(c => c.name === prefix)
+      if (!collection) {
+        collection = figma.variables.createVariableCollection(prefix)
       }
 
-      send({ type: 'styles-created', count: created })
-      figma.notify(`Created ${created} color style${created !== 1 ? 's' : ''}`)
+      const modeId = collection.modes[0].modeId
+      const existingVars = figma.variables.getLocalVariables('COLOR')
+
+      let pushed = 0
+      for (let i = 0; i < msg.colors.length; i++) {
+        const roleName = ROLES[i] || `color-${i + 1}`
+
+        // Find existing variable in this collection with the same name
+        let variable = existingVars.find(v =>
+          v.name === roleName && v.variableCollectionId === collection!.id
+        )
+
+        if (!variable) {
+          variable = figma.variables.createVariable(roleName, collection, 'COLOR')
+        }
+
+        variable.setValueForMode(modeId, hexToRGBA(msg.colors[i].hex))
+        pushed++
+      }
+
+      send({ type: 'variables-pushed', count: pushed })
+      figma.notify(`✓ Pushed ${pushed} variables to "${prefix}"`)
       break
     }
 
