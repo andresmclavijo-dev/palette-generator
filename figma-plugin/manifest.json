@@ -1,0 +1,14 @@
+{
+  "name": "Paletta",
+  "id": "paletta-figma-plugin",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["usepaletta.io"],
+    "reasoning": "Sync palettes with the Paletta web app"
+  },
+  "capabilities": [],
+  "permissions": ["currentuser"]
+}
