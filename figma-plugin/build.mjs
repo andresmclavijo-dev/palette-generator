@@ -6,13 +6,13 @@ const watch = process.argv.includes('--watch')
 mkdirSync('dist', { recursive: true })
 
 // Build the sandbox code (runs in Figma's main thread)
-// Figma's sandbox runs in a limited environment — use cjs format, no strict mode
+// IIFE format so everything executes at top level — strip "use strict" post-build
 const codeConfig = {
   entryPoints: ['src/code.ts'],
   bundle: true,
   outfile: 'dist/code.js',
   target: 'es2015',
-  format: 'cjs',
+  format: 'iife',
   minify: !watch,
 }
 
