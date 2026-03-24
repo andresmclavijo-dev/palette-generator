@@ -40,7 +40,7 @@ async function buildAll() {
   // Inline the JS bundle into the HTML shell
   const html = readFileSync('src/ui.html', 'utf-8')
   const js = readFileSync('dist/ui.bundle.js', 'utf-8')
-  const inlined = html.replace('<!-- BUNDLE -->', `<script>${js}</script>`)
+  const inlined = html.replace('<!--JS_BUNDLE-->', () => `<script>${js}</script>`)
   writeFileSync('dist/ui.html', inlined)
 
   console.log('✓ Build complete')
@@ -60,7 +60,7 @@ if (watch) {
     try {
       const html = readFileSync('src/ui.html', 'utf-8')
       const js = readFileSync('dist/ui.bundle.js', 'utf-8')
-      const inlined = html.replace('<!-- BUNDLE -->', `<script>${js}</script>`)
+      const inlined = html.replace('<!--JS_BUNDLE-->', () => `<script>${js}</script>`)
       writeFileSync('dist/ui.html', inlined)
     } catch { /* ignore during mid-write */ }
   }, 1000)
