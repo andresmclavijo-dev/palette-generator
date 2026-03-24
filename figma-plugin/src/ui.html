@@ -81,11 +81,11 @@
       font-weight: 500;
     }
 
-    /* ── Palette swatches ─────────────────────────────────────── */
+    /* ── Palette swatches (hero) ──────────────────────────────── */
     .palette-row {
       display: flex;
-      gap: 6px;
-      min-height: 80px;
+      gap: 5px;
+      min-height: 76px;
     }
 
     .palette-row-wrap {
@@ -93,11 +93,12 @@
     }
 
     .palette-row-wrap .swatch {
-      min-width: 42px;
+      min-width: 40px;
     }
 
     .swatch {
       flex: 1;
+      min-height: 76px;
       border-radius: var(--radius-card);
       cursor: pointer;
       position: relative;
@@ -105,8 +106,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 4px;
-      gap: 2px;
+      padding-bottom: 6px;
+      gap: 3px;
       transition: transform 150ms ease, box-shadow 150ms ease;
       border: 1px solid rgba(0, 0, 0, 0.06);
     }
@@ -120,27 +121,27 @@
     }
 
     .swatch-hex {
-      font-size: 9px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       font-family: 'SF Mono', 'Fira Code', monospace;
       text-transform: uppercase;
-      opacity: 0.9;
+      opacity: 0.95;
       pointer-events: none;
     }
 
     .swatch-role {
-      font-size: 8px;
+      font-size: 10px;
       font-weight: 500;
-      opacity: 0.6;
+      opacity: 0.55;
       pointer-events: none;
     }
 
     /* WCAG contrast badge */
     .swatch-badge {
-      font-size: 8px;
+      font-size: 9px;
       font-weight: 700;
-      padding: 1px 4px;
-      border-radius: var(--radius-badge);
+      padding: 2px 6px;
+      border-radius: 4px;
       pointer-events: none;
       line-height: 1.3;
       letter-spacing: 0.02em;
@@ -209,11 +210,29 @@
       border-radius: 4px;
     }
 
-    /* ── Controls ─────────────────────────────────────────────── */
+    /* ── Controls (compact 2-col) ─────────────────────────────── */
     .controls {
       display: flex;
       flex-direction: column;
       gap: 6px;
+    }
+
+    .control-pair {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .control-field-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--color-text-muted);
     }
 
     .control-row {
@@ -222,15 +241,8 @@
       gap: 8px;
     }
 
-    .control-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--color-text-muted);
-      min-width: 56px;
-    }
-
     select, input[type="text"] {
-      flex: 1;
+      width: 100%;
       height: 32px;
       padding: 0 8px;
       border: 1px solid var(--color-border);
@@ -355,6 +367,14 @@
       background: var(--color-surface);
     }
 
+    .scope-option:has(input:checked) {
+      background: rgba(108, 71, 255, 0.08);
+    }
+
+    .figma-dark .scope-option:has(input:checked) {
+      background: rgba(108, 71, 255, 0.15);
+    }
+
     .scope-option input[type="radio"] {
       margin-top: 2px;
       accent-color: var(--color-primary);
@@ -371,7 +391,7 @@
       font-size: 11px;
       font-weight: 500;
       color: var(--color-text);
-      transition: color 150ms;
+      transition: color 150ms, font-weight 150ms;
     }
 
     .scope-desc {
@@ -380,7 +400,7 @@
       line-height: 1.3;
     }
 
-    .scope-option input[type="radio"]:checked ~ .scope-content .scope-title {
+    .scope-option:has(input:checked) .scope-title {
       color: var(--color-primary);
       font-weight: 600;
     }
@@ -391,6 +411,17 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      overflow: hidden;
+      max-height: 30px;
+      opacity: 1;
+      transition: max-height 200ms ease, opacity 150ms ease, padding 200ms ease;
+    }
+
+    .shade-checkbox.hidden {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
     }
 
     .shade-checkbox label {
@@ -677,37 +708,38 @@
       <button class="reset-link" id="reset-btn" aria-label="Reset palette to random colors">&#8635; Reset</button>
 
       <div class="controls">
-        <div class="control-row">
-          <label class="control-label" for="harmony-select">Harmony</label>
-          <select id="harmony-select" aria-label="Harmony mode">
-            <option value="random">Random</option>
-            <option value="analogous">Analogous</option>
-            <option value="monochromatic">Monochromatic</option>
-            <option value="complementary">Complementary</option>
-            <option value="triadic">Triadic</option>
-          </select>
+        <div class="control-pair">
+          <div class="control-field">
+            <label class="control-field-label" for="harmony-select">Harmony</label>
+            <select id="harmony-select" aria-label="Harmony mode">
+              <option value="random">Random</option>
+              <option value="analogous">Analogous</option>
+              <option value="monochromatic">Monochromatic</option>
+              <option value="complementary">Complementary</option>
+              <option value="triadic">Triadic</option>
+            </select>
+          </div>
+          <div class="control-field">
+            <label class="control-field-label" for="count-select">Colors</label>
+            <select id="count-select" aria-label="Number of colors">
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+            </select>
+          </div>
         </div>
-
-        <div class="control-row">
-          <label class="control-label" for="count-select">Colors</label>
-          <select id="count-select" aria-label="Number of colors">
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5" selected>5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-          </select>
-        </div>
-
-        <div class="control-row">
-          <label class="control-label" for="seed-input">Seed</label>
-          <input type="text" id="seed-input" placeholder="#6C47FF (optional)" maxlength="7" aria-label="Seed color hex value">
-        </div>
-
-        <div class="control-row">
-          <label class="control-label" for="prefix-input">Prefix</label>
-          <input type="text" id="prefix-input" placeholder="Paletta" value="Paletta" aria-label="Variable collection prefix">
+        <div class="control-pair">
+          <div class="control-field">
+            <label class="control-field-label" for="seed-input">Seed</label>
+            <input type="text" id="seed-input" placeholder="#6C47FF" maxlength="7" aria-label="Seed color hex value">
+          </div>
+          <div class="control-field">
+            <label class="control-field-label" for="prefix-input">Prefix</label>
+            <input type="text" id="prefix-input" placeholder="Paletta" value="Paletta" aria-label="Variable collection prefix">
+          </div>
         </div>
       </div>
 
@@ -734,7 +766,7 @@
         <label class="scope-option">
           <input type="radio" name="scope" value="variables" checked>
           <div class="scope-content">
-            <span class="scope-title">Push as Figma Variables</span>
+            <span class="scope-title">Create Figma Variables</span>
             <span class="scope-desc">Create color variables in your file</span>
           </div>
         </label>
@@ -771,7 +803,7 @@
         </div>
 
         <button class="cta-button" id="cta-btn" aria-label="Execute selected action">
-          Push 5 variables
+          Create 5 variables
         </button>
       </div>
 
@@ -781,7 +813,7 @@
     <!-- ── Confirmation panel ─────────────────────────────────── -->
     <div class="confirm-panel" id="confirm-panel" style="display: none;">
       <div class="confirm-header">
-        <span class="confirm-title">Push to Figma Variables</span>
+        <span class="confirm-title">Create Figma Variables</span>
         <button class="confirm-close" id="confirm-close-btn" aria-label="Cancel and go back">&#10005;</button>
       </div>
 
@@ -801,8 +833,8 @@
 
       <div class="confirm-actions">
         <button class="btn btn-secondary" id="confirm-cancel-btn" aria-label="Cancel">Cancel</button>
-        <button class="btn btn-primary" id="confirm-push-btn" aria-label="Confirm push variables">
-          Push 5 variables
+        <button class="btn btn-primary" id="confirm-push-btn" aria-label="Confirm create variables">
+          Create 5 variables
         </button>
       </div>
 
@@ -819,7 +851,7 @@
         <div class="onboarding-steps">
           <div class="onboarding-step">&#9312; Generate harmonious palettes</div>
           <div class="onboarding-step">&#9313; Check WCAG contrast instantly</div>
-          <div class="onboarding-step">&#9314; Push to Figma Variables</div>
+          <div class="onboarding-step">&#9314; Create Figma Variables</div>
         </div>
 
         <button class="btn btn-primary btn-full" id="onboarding-dismiss-btn" aria-label="Dismiss onboarding and get started">

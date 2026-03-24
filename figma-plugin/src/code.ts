@@ -135,7 +135,7 @@ figma.ui.onmessage = async (msg: UIMessage) => {
       }
 
       send({ type: 'variables-pushed', count: pushed })
-      figma.notify(`✓ Pushed ${pushed} variable${pushed !== 1 ? 's' : ''} to "${prefix}"`)
+      figma.notify(`✓ Created ${pushed} variable${pushed !== 1 ? 's' : ''} in "${prefix}"`)
       break
     }
 

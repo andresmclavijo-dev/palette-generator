@@ -190,16 +190,16 @@ function updateCTA() {
   const n = colors.length
   const shades = includeShadesCheckbox.checked
 
-  // Show/hide shade checkbox
-  shadeCheckboxContainer.style.display = scope === 'variables' ? 'block' : 'none'
+  // Show/hide shade checkbox with animation
+  shadeCheckboxContainer.classList.toggle('hidden', scope !== 'variables')
 
   switch (scope) {
     case 'variables':
       if (shades) {
         const total = n * 11 // N flat + N * 10 shades
-        ctaBtn.textContent = `Push ${total} variables`
+        ctaBtn.textContent = `Create ${total} variables`
       } else {
-        ctaBtn.textContent = `Push ${n} variable${n !== 1 ? 's' : ''}`
+        ctaBtn.textContent = `Create ${n} variable${n !== 1 ? 's' : ''}`
       }
       ctaBtn.disabled = n === 0
       break
@@ -293,7 +293,7 @@ function showConfirmPanel() {
     }
   })
 
-  confirmPushBtn.textContent = `Push ${total} variable${total !== 1 ? 's' : ''}`
+  confirmPushBtn.textContent = `Create ${total} variable${total !== 1 ? 's' : ''}`
   confirmPanel.style.display = 'flex'
 }
 
@@ -490,7 +490,7 @@ window.onmessage = (event: MessageEvent) => {
       break
 
     case 'variables-pushed':
-      showStatus(`Pushed ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
+      showStatus(`Created ${msg.count} variable${msg.count !== 1 ? 's' : ''}`, 'success')
       break
 
     case 'ai-loading':
