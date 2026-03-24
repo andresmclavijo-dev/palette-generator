@@ -6,7 +6,7 @@
   "ui": "dist/ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["usepaletta.io"],
+    "allowedDomains": ["https://usepaletta.io"],
     "reasoning": "Sync palettes with the Paletta web app"
   },
   "capabilities": [],
