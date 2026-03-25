@@ -99,8 +99,8 @@ export function Dock({
             active={false}
             expanded={expanded}
             onClick={() => {
-              window.open('/plugin', '_blank')
               analytics.track('plugin_nav_clicked')
+              window.location.href = '/plugin'
             }}
           />
         </div>
