@@ -64,6 +64,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 </html>`
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
-  res.setHeader('Cache-Control', 'public, s-maxage=604800, stale-while-revalidate=86400')
+  // Don't cache on CDN — response varies by User-Agent (bot vs browser)
+  res.setHeader('Cache-Control', 'no-store, must-revalidate')
   res.status(200).send(html)
 }
