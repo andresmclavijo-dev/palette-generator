@@ -8,14 +8,20 @@ function getSystemTheme(): 'light' | 'dark' {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+function resolve(theme: Theme): 'light' | 'dark' {
+  return theme === 'system' ? getSystemTheme() : theme
+}
+
 function applyTheme(theme: Theme) {
-  const resolved = theme === 'system' ? getSystemTheme() : theme
-  document.documentElement.classList.toggle('dark', resolved === 'dark')
+  document.documentElement.classList.toggle('dark', resolve(theme) === 'dark')
 }
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem(STORAGE_KEY) as Theme) || 'system'
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
+    // Migrate legacy "system" preference to "light"
+    if (!stored || stored === 'system') return 'light'
+    return stored
   })
 
   useEffect(() => {
@@ -23,14 +29,5 @@ export function useTheme() {
     localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 
-  // Watch system preference changes when in 'system' mode
-  useEffect(() => {
-    if (theme !== 'system') return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => applyTheme('system')
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [theme])
-
-  return { theme, setTheme }
+  return { theme, resolved: resolve(theme), setTheme }
 }

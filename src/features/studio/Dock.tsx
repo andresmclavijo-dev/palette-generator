@@ -148,8 +148,8 @@ export function Dock({
           <ThemeToggle compact collapsed={!expanded} />
         </div>
 
-        {/* Info / Legal links */}
-        <DockInfoMenu expanded={expanded} />
+        {/* Legal */}
+        <DockLegalMenu expanded={expanded} />
 
         {/* Collapse / Expand toggle */}
         {expanded ? (
@@ -284,8 +284,8 @@ function DockItem({
   )
 }
 
-// ─── Dock Info Menu ─────────────────────────────────────────
-function DockInfoMenu({ expanded }: { expanded: boolean }) {
+// ─── Dock Legal Menu ────────────────────────────────────────
+function DockLegalMenu({ expanded }: { expanded: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -304,69 +304,68 @@ function DockInfoMenu({ expanded }: { expanded: boolean }) {
     { label: 'Cookie Policy', href: '/cookie-policy' },
   ]
 
+  const popover = open && (
+    <div
+      className="absolute z-50 bg-card overflow-hidden"
+      style={{
+        ...(expanded
+          ? { left: 0, bottom: '100%', marginBottom: 6 }
+          : { left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: 10 }),
+        borderRadius: 8,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
+        minWidth: 180,
+        padding: '6px 0',
+      }}
+      role="menu"
+    >
+      {links.map(l => (
+        <a
+          key={l.href}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium transition-all hover:bg-surface"
+          style={{ color: 'hsl(var(--foreground))', textDecoration: 'none' }}
+          role="menuitem"
+          onClick={() => setOpen(false)}
+        >
+          {l.label}
+          <ExternalLink size={12} className="opacity-40 ml-auto" />
+        </a>
+      ))}
+    </div>
+  )
+
   if (expanded) {
     return (
-      <div className="mt-4 pt-4 border-t border-border flex flex-col gap-1" style={{ marginBottom: 8 }}>
-        {links.map(l => (
-          <a
-            key={l.href}
-            href={l.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            style={{ textDecoration: 'none', padding: '0 14px' }}
-          >
-            {l.label}
-          </a>
-        ))}
+      <div ref={ref} className="relative" style={{ padding: '0 14px', marginBottom: 4 }}>
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="text-[12px] text-muted-foreground hover:text-foreground hover:underline transition-colors"
+          style={{ background: 'none', border: 'none', padding: 0 }}
+          aria-label="Legal links"
+          aria-expanded={open}
+        >
+          Legal
+        </button>
+        {popover}
       </div>
     )
   }
 
   return (
     <div ref={ref} className="relative flex justify-center py-1">
-      <DarkTooltip label="More" position="right">
+      <DarkTooltip label="Legal" position="right">
         <button
           onClick={() => setOpen(o => !o)}
           className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
-          aria-label="Info and legal links"
+          aria-label="Legal links"
           aria-expanded={open}
         >
           <MoreHorizontal size={20} />
         </button>
       </DarkTooltip>
-
-      {open && (
-        <div
-          className="absolute z-50 bg-card rounded-xl overflow-hidden"
-          style={{
-            left: '100%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            marginLeft: 10,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
-            minWidth: 200,
-            padding: '8px 0',
-          }}
-          role="menu"
-        >
-          {links.map(l => (
-            <a
-              key={l.href}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 text-[12px] font-medium transition-all hover:bg-surface"
-              style={{ color: 'hsl(var(--foreground))', textDecoration: 'none' }}
-              role="menuitem"
-            >
-              {l.label}
-              <ExternalLink size={14} className="opacity-40 ml-auto" />
-            </a>
-          ))}
-
-        </div>
-      )}
+      {popover}
     </div>
   )
 }
