@@ -167,19 +167,51 @@ function showToast(msg: string) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
 }
 
-// ── Auth flow (JWT popup pattern) ─────────────────────────────────
-let authPopup: Window | null = null
+// ── Auth flow (server-side polling pattern) ──────────────────────
+// postMessage can't reach Figma plugin iframes, so we use:
+// 1. Plugin generates session ID, opens popup with it
+// 2. Popup completes OAuth, POSTs token to /api/plugin-auth-status
+// 3. Plugin polls GET /api/plugin-auth-status every 2s until token appears
+let authPollTimer: ReturnType<typeof setInterval> | null = null
 
 function handleLogin() {
+  const sessionId = 'ps_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11)
   const width = 500
   const height = 600
   const left = Math.round((screen.width - width) / 2)
   const top = Math.round((screen.height - height) / 2)
-  authPopup = window.open(
-    'https://www.usepaletta.io/auth/plugin',
+
+  window.open(
+    `https://www.usepaletta.io/auth/plugin?session=${sessionId}`,
     'paletta-auth',
     `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`,
   )
+
+  showToast('Sign in via the popup...')
+
+  // Poll for the token
+  let attempts = 0
+  const maxAttempts = 60 // 2 minutes at 2s intervals
+  if (authPollTimer) clearInterval(authPollTimer)
+
+  authPollTimer = setInterval(async () => {
+    attempts++
+    if (attempts > maxAttempts) {
+      clearInterval(authPollTimer!)
+      authPollTimer = null
+      showToast('Sign in timed out')
+      return
+    }
+    try {
+      const res = await fetch(`https://www.usepaletta.io/api/plugin-auth-status?session=${sessionId}`)
+      const data = await res.json() as { status: string; token?: string; user?: { id: string; email: string; isPro: boolean } }
+      if (data.status === 'complete' && data.token && data.user) {
+        clearInterval(authPollTimer!)
+        authPollTimer = null
+        completeAuth(data.token, data.user)
+      }
+    } catch { /* network error — keep polling */ }
+  }, 2000)
 }
 
 function completeAuth(token: string, user: { id: string; email: string; isPro: boolean }) {
@@ -189,8 +221,6 @@ function completeAuth(token: string, user: { id: string; email: string; isPro: b
   state.isSignedIn = true
   updateHomeAuthUI()
   showToast(`Signed in as ${user.email}`)
-  if (authPopup && !authPopup.closed) authPopup.close()
-  authPopup = null
 }
 
 function handleSignOut() {
@@ -213,7 +243,6 @@ function initAuth(auth: { token: string; user: { id: string; email: string; isPr
       return
     }
   } catch { /* invalid token */ }
-  // Token expired or invalid — clear
   send({ type: 'clear-auth' })
 }
 
@@ -247,14 +276,6 @@ function updateHomeAuthUI() {
     document.getElementById('home-pro-link')?.addEventListener('click', showProModal)
   }
 }
-
-// Listen for auth postMessage from popup
-window.addEventListener('message', (event: MessageEvent) => {
-  const data = event.data
-  if (data?.type === 'paletta-auth' && data.token && data.user) {
-    completeAuth(data.token, data.user)
-  }
-})
 
 // ── Navigation ────────────────────────────────────────────────────
 function navigate(screen: string) {

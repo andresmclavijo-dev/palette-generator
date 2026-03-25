@@ -1,7 +1,8 @@
 /**
  * Plugin Auth Page — opened in a popup by the Figma plugin.
- * Handles Google OAuth via Supabase, then sends token + user info
- * back to the plugin opener via postMessage.
+ * Handles Google OAuth via Supabase, then POSTs the token to
+ * /api/plugin-auth-status so the plugin can poll for it.
+ * (postMessage can't reach Figma plugin iframes.)
  */
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
@@ -21,19 +22,29 @@ export default function PluginAuth() {
 
   async function handleAuth() {
     try {
+      const params = new URLSearchParams(window.location.search)
+      const sessionId = params.get('session')
+
+      if (!sessionId) {
+        console.error('No session ID in URL')
+        setStatus('error')
+        return
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession()
       if (error) throw error
 
       if (session) {
-        await sendTokenToPlugin(session)
+        await sendTokenToPlugin(session, sessionId)
         return
       }
 
-      // No session — kick off Google OAuth, redirect back here
+      // No session — kick off Google OAuth
+      // Preserve session ID through the OAuth redirect
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/auth/plugin',
+          redirectTo: `${window.location.origin}/auth/plugin?session=${sessionId}`,
         },
       })
       if (signInError) throw signInError
@@ -43,8 +54,12 @@ export default function PluginAuth() {
     }
   }
 
-  async function sendTokenToPlugin(session: { access_token: string; user: { id: string; email?: string } }) {
+  async function sendTokenToPlugin(
+    session: { access_token: string; user: { id: string; email?: string } },
+    sessionId: string,
+  ) {
     try {
+      // Generate plugin token
       const response = await fetch('/api/plugin-token', {
         method: 'POST',
         headers: {
@@ -68,13 +83,19 @@ export default function PluginAuth() {
         isPro: profile?.is_pro || false,
       }
 
+      // POST to polling endpoint — plugin will pick this up
+      const statusRes = await fetch(`/api/plugin-auth-status?session=${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, user }),
+      })
+      if (!statusRes.ok) throw new Error('Failed to store token for plugin')
+
       setStatus('success')
 
-      // Send to plugin opener via postMessage
-      if (window.opener) {
-        window.opener.postMessage({ type: 'paletta-auth', token, user }, '*')
-        setTimeout(() => window.close(), 1500)
-      }
+      setTimeout(() => {
+        try { window.close() } catch { /* may not work in all browsers */ }
+      }, 2000)
     } catch (err) {
       console.error('Token generation error:', err)
       setStatus('error')
