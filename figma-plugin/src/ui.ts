@@ -47,11 +47,11 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: s
   { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced hues' },
 ]
 const LENS_OPTIONS = [
-  { id: 'normal', title: 'Normal vision', desc: 'No simulation' },
-  { id: 'protanopia', title: 'Protanopia', desc: 'Red-blind — affects ~1.3% of men' },
-  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men' },
-  { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-blind — rare, ~0.01%' },
-  { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Total color blindness' },
+  { id: 'normal', title: 'Normal vision', desc: 'No simulation', free: true },
+  { id: 'protanopia', title: 'Protanopia', desc: 'Red-blind — affects ~1.3% of men', free: true },
+  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men', free: true },
+  { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-blind — rare, ~0.01%', free: false },
+  { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Total color blindness', free: false },
 ]
 
 // ── State ─────────────────────────────────────────────────────────
@@ -68,6 +68,7 @@ const state = {
   codeTab: 'css' as 'css' | 'tailwind',
   proPlan: 'monthly' as 'monthly' | 'yearly',
   themeMode: 'system' as 'light' | 'system' | 'dark',
+  isPro: false,
 }
 
 // ── Send to plugin sandbox ────────────────────────────────────────
@@ -225,7 +226,7 @@ function buildHomeScreen() {
     { screen: 'vars', icon: 'box', title: 'Create Variables', desc: 'Push to Figma tokens' },
     { screen: 'code', icon: 'code', title: 'Copy Code', desc: 'CSS or Tailwind config' },
     { screen: 'contrast', icon: 'checkCircle', title: 'Contrast Checker', desc: 'WCAG AA/AAA validation' },
-    { screen: 'extract', icon: 'image', title: 'Extract from Image', desc: 'Pull colors from images', pro: true },
+    { screen: 'extract', icon: 'image', title: 'Extract from Image', desc: 'Pull colors from images', pro: !state.isPro },
   ]
   const menu = document.getElementById('home-menu')!
   menuData.forEach(item => {
@@ -275,23 +276,43 @@ function buildHomeScreen() {
 
 function buildExtractScreen() {
   const el = document.getElementById('screen-extract')!
-  el.innerHTML = `
-    <div class="header-bar">
-      <div class="header-left">
-        <button class="back-btn" id="extract-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+  if (state.isPro) {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="extract-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
       </div>
-    </div>
-    <div class="empty-state">
-      <div class="empty-icon">${ICONS.image}</div>
-      <h2 class="empty-title">Extract from Image</h2>
-      <p class="empty-body">Select a frame with an image fill, then extract its color palette.</p>
-      <button class="empty-cta" id="extract-pro-btn" aria-label="Go Pro to unlock" title="Upgrade to Pro to unlock image extraction">Go Pro to unlock</button>
-      <button class="btn-ghost" id="extract-later-btn" aria-label="Maybe later">Maybe later</button>
-    </div>
-  `
-  document.getElementById('extract-back')!.addEventListener('click', () => navigate('home'))
-  document.getElementById('extract-pro-btn')!.addEventListener('click', showProModal)
-  document.getElementById('extract-later-btn')!.addEventListener('click', () => navigate('home'))
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.image}</div>
+        <h2 class="empty-title">Extract from Selection</h2>
+        <p class="empty-body">Select layers with solid fills, then extract their colors into a palette.</p>
+        <button class="empty-cta" id="extract-action-btn" aria-label="Extract colors" title="Extract colors from selected layers">Extract Colors</button>
+      </div>
+    `
+    document.getElementById('extract-back')!.addEventListener('click', () => navigate('home'))
+    document.getElementById('extract-action-btn')!.addEventListener('click', () => {
+      send({ type: 'extract-from-selection' })
+    })
+  } else {
+    el.innerHTML = `
+      <div class="header-bar">
+        <div class="header-left">
+          <button class="back-btn" id="extract-back" aria-label="Go back" title="Go back to home">${ICONS.chevronLeft}<span>Back</span></button>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon">${ICONS.image}</div>
+        <h2 class="empty-title">Extract from Image</h2>
+        <p class="empty-body">Select a frame with an image fill, then extract its color palette.</p>
+        <button class="empty-cta" id="extract-pro-btn" aria-label="Go Pro to unlock" title="Upgrade to Pro to unlock image extraction">Go Pro to unlock</button>
+        <button class="btn-ghost" id="extract-later-btn" aria-label="Maybe later">Maybe later</button>
+      </div>
+    `
+    document.getElementById('extract-back')!.addEventListener('click', () => navigate('home'))
+    document.getElementById('extract-pro-btn')!.addEventListener('click', showProModal)
+    document.getElementById('extract-later-btn')!.addEventListener('click', () => navigate('home'))
+  }
 }
 
 // ── Studio screen ─────────────────────────────────────────────────
@@ -347,6 +368,10 @@ function renderStudioScreen() {
   document.getElementById('studio-generate')!.addEventListener('click', generatePalette)
   document.getElementById('studio-save')!.addEventListener('click', () => {
     if (state.palette.length === 0) { showToast('Generate a palette first'); return }
+    if (!state.isPro && state.savedPalettes.length >= 3) {
+      showProModal()
+      return
+    }
     const name = state.palette.map(c => c.name).slice(0, 3).join(' \u00b7 ')
     send({ type: 'save-palette', name, colors: state.palette })
   })
@@ -433,20 +458,25 @@ function renderStudioAccordions() {
   const lensList = document.createElement('div')
   lensList.className = 'accordion-list'
   LENS_OPTIONS.forEach(opt => {
+    const isGated = !opt.free && !state.isPro
     const row = document.createElement('button')
     row.className = 'option-row'
     row.dataset.selected = String(state.lens === opt.id)
     row.setAttribute('aria-label', opt.title)
-    row.setAttribute('title', opt.desc)
+    row.setAttribute('title', isGated ? 'Pro feature — upgrade to unlock' : opt.desc)
     row.innerHTML = `
       <span class="option-icon">${ICONS.eye}</span>
       <span class="option-text">
-        <span class="option-title">${opt.title}</span>
+        <span class="option-title">${opt.title}${isGated ? ' <span class="pro-badge-sm">PRO</span>' : ''}</span>
         <span class="option-desc">${opt.desc}</span>
       </span>
       ${state.lens === opt.id ? `<span class="option-check">${ICONS.check}</span>` : ''}
     `
     row.addEventListener('click', () => {
+      if (isGated) {
+        showProModal()
+        return
+      }
       state.lens = opt.id
       lensAcc.classList.remove('open')
       renderStudioBars()
@@ -549,7 +579,7 @@ function renderLibraryScreen() {
     </div>
     <div class="scroll-area">
       <h2 class="section-title">Library</h2>
-      <p class="section-subtitle">${state.savedPalettes.length} palette${state.savedPalettes.length !== 1 ? 's' : ''}</p>
+      <p class="section-subtitle">${state.savedPalettes.length} palette${state.savedPalettes.length !== 1 ? 's' : ''}${!state.isPro ? ` (${state.savedPalettes.length}/3 free)` : ''}</p>
       <div class="section-pad" style="display:flex;flex-direction:column;gap:10px;padding-bottom:16px;" id="lib-list"></div>
     </div>
   `
@@ -670,7 +700,14 @@ function renderVarsScreen() {
     const sub = document.getElementById('vars-shade-sub')
     if (sub) sub.textContent = `${n} \u00d7 10 = ${n * 10} extra variables`
   }
-  shadesCheckbox.addEventListener('change', updateVarsCTA)
+  shadesCheckbox.addEventListener('change', () => {
+    if (!state.isPro && shadesCheckbox.checked) {
+      shadesCheckbox.checked = false
+      showProModal()
+      return
+    }
+    updateVarsCTA()
+  })
   cta.addEventListener('click', () => {
     send({
       type: 'push-variables',
@@ -721,7 +758,7 @@ function renderCodeScreen() {
       <h2 class="section-title">Copy Code</h2>
       <div class="seg-control" id="code-tabs">
         <button class="seg-btn${state.codeTab === 'css' ? ' active' : ''}" data-tab="css" aria-label="CSS" title="Show CSS custom properties">CSS</button>
-        <button class="seg-btn${state.codeTab === 'tailwind' ? ' active' : ''}" data-tab="tailwind" aria-label="Tailwind" title="Show Tailwind config">Tailwind</button>
+        <button class="seg-btn${state.codeTab === 'tailwind' ? ' active' : ''}" data-tab="tailwind" aria-label="Tailwind" title="Show Tailwind config">Tailwind${!state.isPro ? ' <span class="pro-badge-sm">PRO</span>' : ''}</button>
       </div>
       <pre class="code-block" id="code-block">${escapeHTML(code)}</pre>
     </div>
@@ -733,7 +770,12 @@ function renderCodeScreen() {
   el.querySelector('#code-back')!.addEventListener('click', () => navigate('home'))
   document.querySelectorAll('#code-tabs .seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      state.codeTab = (btn as HTMLElement).dataset.tab as 'css' | 'tailwind'
+      const tab = (btn as HTMLElement).dataset.tab as 'css' | 'tailwind'
+      if (tab === 'tailwind' && !state.isPro) {
+        showProModal()
+        return
+      }
+      state.codeTab = tab
       renderCodeScreen()
     })
   })
@@ -872,7 +914,8 @@ function renderProModal() {
   el.querySelector('#pro-close')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-later')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-cta')!.addEventListener('click', () => {
-    send({ type: 'notify', message: 'Visit usepaletta.io to subscribe' })
+    window.open('https://www.usepaletta.io/pro', '_blank')
+    send({ type: 'notify', message: 'Opening usepaletta.io' })
   })
   document.querySelectorAll('#pro-plan-toggle .seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {

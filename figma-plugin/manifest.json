@@ -6,8 +6,8 @@
   "ui": "dist/ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["https://usepaletta.io", "https://www.usepaletta.io"],
-    "reasoning": "AI palette generation via Paletta API"
+    "allowedDomains": ["https://www.usepaletta.io"],
+    "reasoning": "AI palette generation and Pro upgrade flow via Paletta API (usepaletta.io)"
   },
   "capabilities": [],
   "permissions": ["currentuser"]
