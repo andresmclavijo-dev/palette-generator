@@ -22,6 +22,7 @@ import SignInModal from '@/components/ui/SignInModal'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
+import { PreviewGrid } from '@/components/preview/PreviewGrid'
 import type { MobileTab } from './MobileShell'
 
 // ─── Constants ───
@@ -426,65 +427,12 @@ export function MobileStudio(_props: MobileStudioProps) {
               filter: visionFilter,
             }}
           >
-            <div className="flex flex-col gap-3">
-              {(() => {
-                const c1 = swatches[0]?.hex || '#6C47FF'
-                const c2 = swatches[Math.min(1, swatches.length - 1)]?.hex || '#FF6B6B'
-                const c3 = swatches[Math.min(2, swatches.length - 1)]?.hex || '#4ECDC4'
-                const mocks = [
-                  { title: 'Landing Page', desc: 'Hero section with CTA', height: 200, free: true, gradient: `linear-gradient(145deg, ${c1}22, ${c2}22, ${c3}22)` },
-                  { title: 'Dashboard', desc: 'Analytics sidebar layout', height: 180, free: false, gradient: `linear-gradient(145deg, ${c1}33, ${c3}33)` },
-                  { title: 'Mobile App', desc: 'iOS app interface', height: 180, free: false, gradient: `linear-gradient(145deg, ${c2}22, ${c3}22)` },
-                ]
-                return mocks.map((mock, idx) => (
-                  <div
-                    key={mock.title}
-                    className="bg-card rounded-[20px] overflow-hidden shadow-sm border border-border/30"
-                  >
-                    <div
-                      className="relative"
-                      style={{ height: mock.height, background: mock.gradient }}
-                    >
-                      {/* Nav bar wireframe */}
-                      <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
-                        <div className="w-16 h-2.5 rounded-full" style={{ backgroundColor: `${c1}40` }} />
-                        <div className="flex-1" />
-                        <div className="w-8 h-2.5 rounded-full" style={{ backgroundColor: `${c2}30` }} />
-                        <div className="w-8 h-2.5 rounded-full" style={{ backgroundColor: `${c2}30` }} />
-                      </div>
-                      {/* Hero content wireframe */}
-                      <div className="absolute bottom-6 left-4 right-4">
-                        <div className="w-3/4 h-4 rounded-full mb-3" style={{ backgroundColor: `${c1}35` }} />
-                        <div className="w-1/2 h-2.5 rounded-full mb-4" style={{ backgroundColor: `${c2}25` }} />
-                        <div className="w-24 h-8 rounded-lg" style={{ backgroundColor: `${c1}30` }} />
-                      </div>
-                      {/* Dashboard sidebar hint */}
-                      {idx === 1 && (
-                        <div className="absolute top-0 left-0 w-16 h-full" style={{ backgroundColor: `${c1}15` }}>
-                          <div className="mt-12 ml-3 space-y-3">
-                            <div className="w-8 h-1.5 rounded-full" style={{ backgroundColor: `${c1}30` }} />
-                            <div className="w-6 h-1.5 rounded-full" style={{ backgroundColor: `${c1}20` }} />
-                            <div className="w-7 h-1.5 rounded-full" style={{ backgroundColor: `${c1}20` }} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    {/* Label bar */}
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <div>
-                        <div className="text-[14px] font-semibold text-foreground">{mock.title}</div>
-                        <div className="text-[11px] text-muted-foreground">{mock.desc}</div>
-                      </div>
-                      {mock.free ? (
-                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-success-bg text-success">FREE</span>
-                      ) : (
-                        <Badge variant="pro">PRO</Badge>
-                      )}
-                    </div>
-                  </div>
-                ))
-              })()}
-            </div>
+            <PreviewGrid
+              hexes={swatches.map(s => s.hex)}
+              isPro={isPro}
+              onProGate={openProModal}
+              isMobile
+            />
           </div>
         )}
       </div>
