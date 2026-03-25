@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Heart, Link2, Share2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePaletteStore } from '@/store/paletteStore'
-import { makeSwatch } from '@/lib/colorEngine'
+import { makeSwatch, buildShareUrl } from '@/lib/colorEngine'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { Button } from '@/components/ui/button'
@@ -50,8 +50,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
   }
 
   const handleShare = async (palette: SavedPalette) => {
-    const hex = palette.colors.map(c => c.replace('#', '')).join('-')
-    const url = `${window.location.origin}?p=${hex}`
+    const url = buildShareUrl(palette.colors)
     if (typeof navigator.share === 'function') {
       try {
         await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url })

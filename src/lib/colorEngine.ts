@@ -247,3 +247,9 @@ export function decodePalette(param: string): string[] | null {
   if (!valid) return null
   return parts.map(p => `#${p.toUpperCase()}`)
 }
+
+/** Build a shareable `/s/` URL that serves correct OG meta tags to bots */
+export function buildShareUrl(hexes: string[]): string {
+  const encoded = encodePalette(hexes)
+  return `${window.location.origin}/s/${encoded}`
+}

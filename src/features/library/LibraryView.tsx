@@ -6,6 +6,7 @@ import {
   DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
 import { BRAND_VIOLET } from '@/lib/tokens'
+import { buildShareUrl } from '@/lib/colorEngine'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import ExportPanel from '@/components/palette/ExportPanel'
@@ -55,8 +56,7 @@ export function LibraryView({
   }
 
   const handleShare = async (colors: string[]) => {
-    const hex = colors.map(c => c.replace('#', '')).join('-')
-    const url = `https://www.usepaletta.io/?p=${hex}`
+    const url = buildShareUrl(colors)
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url })

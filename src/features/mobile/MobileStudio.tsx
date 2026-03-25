@@ -4,7 +4,7 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  readableOn, getColorName, getContrastBadge, getColorInfo, makeSwatch,
+  readableOn, getColorName, getContrastBadge, getColorInfo, makeSwatch, buildShareUrl,
 } from '@/lib/colorEngine'
 import type { HarmonyMode } from '@/lib/colorEngine'
 import type { VisionMode } from '@/components/palette/VisionSimulator'
@@ -99,7 +99,7 @@ export function MobileStudio(_props: MobileStudioProps) {
   const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 
   const handleShare = async () => {
-    const shareUrl = window.location.href
+    const shareUrl = buildShareUrl(swatches.map(s => s.hex))
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url: shareUrl })

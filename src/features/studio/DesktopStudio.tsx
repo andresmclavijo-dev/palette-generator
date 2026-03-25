@@ -29,7 +29,7 @@ import CookieConsent from '@/components/CookieConsent'
 import {
   readableOn, getColorName, getContrastBadge,
   makeSwatch,
-  encodePalette, decodePalette, parseHex,
+  encodePalette, decodePalette, parseHex, buildShareUrl,
 } from '@/lib/colorEngine'
 import { extractColorsFromFile } from '@/lib/kMeans'
 import { BRAND_VIOLET } from '@/lib/tokens'
@@ -232,7 +232,7 @@ export default function DesktopStudio() {
   const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 
   const handleShare = async () => {
-    const shareUrl = window.location.href
+    const shareUrl = buildShareUrl(swatches.map(s => s.hex))
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Paletta — Color Palette', text: 'Check out this color palette', url: shareUrl })
