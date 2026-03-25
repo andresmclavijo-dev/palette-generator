@@ -131,7 +131,8 @@ const CONTENT = `<style>
   <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#userdata"><span style="color: rgb(0, 58, 250);">19. USER DATA</span></a></span></div>
   <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#electronic"><span style="color: rgb(0, 58, 250);">20. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES</span></a></span></div>
   <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#misc"><span style="color: rgb(0, 58, 250);">21. MISCELLANEOUS</span></a></span></div>
-  <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#contact"><span style="color: rgb(0, 58, 250);">22. CONTACT US</span></a></span></div>
+  <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#figmaplugin"><span style="color: rgb(0, 58, 250);">22. FIGMA PLUGIN</span></a></span></div>
+  <div style="line-height: 1.5;"><span style="font-size: 15px;"><a data-custom-class="link" href="#contact"><span style="color: rgb(0, 58, 250);">23. CONTACT US</span></a></span></div>
 
   <div style="line-height: 1.5;"><br></div>
   <div style="line-height: 1.5;"><br></div>
@@ -506,9 +507,39 @@ const CONTENT = `<style>
   </div>
   <div style="line-height: 1.5;"><br></div>
 
-  <!-- 22. CONTACT US -->
+  <!-- 22. FIGMA PLUGIN -->
+  <div id="figmaplugin" style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="heading_1"><strong><h2>22. FIGMA PLUGIN</h2></strong></span></span>
+  </div>
+
+  <div style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="body_text">The Paletta Figma Plugin ("Plugin") is subject to these Legal Terms in addition to Figma's Plugin Terms of Service. By installing or using the Plugin, you agree to the following additional terms:</span></span>
+  </div>
+  <div style="line-height: 1.5;"><br></div>
+
+  <div style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="body_text"><strong>Pro Features.</strong> Certain features within the Plugin, including but not limited to unlimited AI palette generation, advanced vision simulation modes, shade scale generation, and Tailwind configuration export, require an active Paletta Pro subscription ($5/month or $45/year). Free users may access a limited set of Plugin features as described on our website.</span></span>
+  </div>
+  <div style="line-height: 1.5;"><br></div>
+
+  <div style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="body_text"><strong>Authentication.</strong> The Plugin requires authentication via Google OAuth through your Paletta account. Your authentication session is stored locally using Figma's clientStorage API and may expire, requiring re-authentication. You are responsible for maintaining the security of your account credentials.</span></span>
+  </div>
+  <div style="line-height: 1.5;"><br></div>
+
+  <div style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="body_text"><strong>No Warranty.</strong> The Plugin is provided "as is" without warranty of any kind. We do not guarantee compatibility with all Figma features, plans, or future Figma updates. We are not responsible for any issues arising from changes to Figma's platform, API, or plugin infrastructure.</span></span>
+  </div>
+  <div style="line-height: 1.5;"><br></div>
+
+  <div style="line-height: 1.5;">
+    <span style="font-size: 15px;"><span data-custom-class="body_text"><strong>Modifications and Discontinuation.</strong> We reserve the right to modify, suspend, or discontinue Plugin functionality at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuation of the Plugin.</span></span>
+  </div>
+  <div style="line-height: 1.5;"><br></div>
+
+  <!-- 23. CONTACT US -->
   <div id="contact" style="line-height: 1.5;">
-    <span style="font-size: 15px;"><span data-custom-class="heading_1"><strong><h2>22. CONTACT US</h2></strong></span></span>
+    <span style="font-size: 15px;"><span data-custom-class="heading_1"><strong><h2>23. CONTACT US</h2></strong></span></span>
   </div>
 
   <div style="line-height: 1.5;">
