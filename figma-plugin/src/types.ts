@@ -28,6 +28,9 @@ export type UIMessage =
   | { type: 'load-palettes' }
   | { type: 'delete-palette'; id: string }
   | { type: 'set-ai-usage'; usage: { count: number; date: string } }
+  | { type: 'set-auth'; token: string; user: { id: string; email: string; isPro: boolean } }
+  | { type: 'clear-auth' }
+  | { type: 'get-auth' }
 
 // Messages from Plugin sandbox → UI
 export type PluginMessage =
@@ -36,7 +39,7 @@ export type PluginMessage =
   | { type: 'variables-pushed'; count: number }
   | { type: 'colors-extracted'; colors: string[] }
   | { type: 'selection-changed'; hasSelection: boolean; count: number }
-  | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[]; aiUsage: { count: number; date: string } | null }
+  | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[]; aiUsage: { count: number; date: string } | null; auth: { token: string; user: { id: string; email: string; isPro: boolean } } | null }
   | { type: 'error'; message: string }
   | { type: 'palettes-loaded'; palettes: SavedPalette[] }
   | { type: 'palette-saved'; palette: SavedPalette }

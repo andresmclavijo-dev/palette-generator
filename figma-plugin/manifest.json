@@ -7,7 +7,7 @@
   "editorType": ["figma"],
   "networkAccess": {
     "allowedDomains": ["https://www.usepaletta.io"],
-    "reasoning": "AI palette generation and Pro upgrade flow via Paletta API (usepaletta.io)"
+    "reasoning": "AI palette generation, user authentication, and Pro subscription via Paletta API"
   },
   "capabilities": [],
   "permissions": ["currentuser"]

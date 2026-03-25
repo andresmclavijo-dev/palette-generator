@@ -59,7 +59,10 @@ figma.ui.onmessage = async (msg: UIMessage) => {
       const hasSeenOnboarding = await figma.clientStorage.getAsync('paletta_onboarded')
       const palettes = await loadPalettes()
       const aiUsage = await figma.clientStorage.getAsync('paletta_ai_usage') as { count: number; date: string } | null
-      send({ type: 'init', hasSeenOnboarding: !!hasSeenOnboarding, palettes, aiUsage: aiUsage || null })
+      const authToken = await figma.clientStorage.getAsync('paletta_auth_token') as string | null
+      const authUser = await figma.clientStorage.getAsync('paletta_auth_user') as { id: string; email: string; isPro: boolean } | null
+      const auth = authToken && authUser ? { token: authToken, user: authUser } : null
+      send({ type: 'init', hasSeenOnboarding: !!hasSeenOnboarding, palettes, aiUsage: aiUsage || null, auth })
 
       const hexes = generateByMode('random', null, msg.count || 5)
       currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
@@ -201,6 +204,26 @@ figma.ui.onmessage = async (msg: UIMessage) => {
 
     case 'set-ai-usage': {
       await figma.clientStorage.setAsync('paletta_ai_usage', msg.usage)
+      break
+    }
+
+    case 'set-auth': {
+      await figma.clientStorage.setAsync('paletta_auth_token', msg.token)
+      await figma.clientStorage.setAsync('paletta_auth_user', msg.user)
+      break
+    }
+
+    case 'clear-auth': {
+      await figma.clientStorage.deleteAsync('paletta_auth_token')
+      await figma.clientStorage.deleteAsync('paletta_auth_user')
+      break
+    }
+
+    case 'get-auth': {
+      const token = await figma.clientStorage.getAsync('paletta_auth_token') as string | null
+      const user = await figma.clientStorage.getAsync('paletta_auth_user') as { id: string; email: string; isPro: boolean } | null
+      const authData = token && user ? { token, user } : null
+      send({ type: 'init', hasSeenOnboarding: true, palettes: [], aiUsage: null, auth: authData })
       break
     }
 

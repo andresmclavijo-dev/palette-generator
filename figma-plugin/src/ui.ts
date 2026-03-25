@@ -69,6 +69,8 @@ const state = {
   proPlan: 'monthly' as 'monthly' | 'yearly',
   themeMode: 'system' as 'light' | 'system' | 'dark',
   isPro: false,
+  isSignedIn: false,
+  user: null as { id: string; email: string; isPro: boolean } | null,
 }
 
 // ── Send to plugin sandbox ────────────────────────────────────────
@@ -165,6 +167,95 @@ function showToast(msg: string) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
 }
 
+// ── Auth flow (JWT popup pattern) ─────────────────────────────────
+let authPopup: Window | null = null
+
+function handleLogin() {
+  const width = 500
+  const height = 600
+  const left = Math.round((screen.width - width) / 2)
+  const top = Math.round((screen.height - height) / 2)
+  authPopup = window.open(
+    'https://www.usepaletta.io/auth/plugin',
+    'paletta-auth',
+    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`,
+  )
+}
+
+function completeAuth(token: string, user: { id: string; email: string; isPro: boolean }) {
+  send({ type: 'set-auth', token, user })
+  state.isPro = user.isPro
+  state.user = user
+  state.isSignedIn = true
+  updateHomeAuthUI()
+  showToast(`Signed in as ${user.email}`)
+  if (authPopup && !authPopup.closed) authPopup.close()
+  authPopup = null
+}
+
+function handleSignOut() {
+  send({ type: 'clear-auth' })
+  state.isPro = false
+  state.user = null
+  state.isSignedIn = false
+  updateHomeAuthUI()
+  showToast('Signed out')
+}
+
+function initAuth(auth: { token: string; user: { id: string; email: string; isPro: boolean } } | null) {
+  if (!auth) return
+  try {
+    const payload = JSON.parse(atob(auth.token)) as { exp?: number }
+    if (payload.exp && payload.exp > Date.now()) {
+      state.isPro = auth.user.isPro
+      state.user = auth.user
+      state.isSignedIn = true
+      return
+    }
+  } catch { /* invalid token */ }
+  // Token expired or invalid — clear
+  send({ type: 'clear-auth' })
+}
+
+function updateHomeAuthUI() {
+  const section = document.getElementById('home-auth')
+  if (!section) return
+
+  if (state.isSignedIn && state.user) {
+    const initial = (state.user.email || '?')[0].toUpperCase()
+    const planLabel = state.isPro
+      ? '<span class="pro-badge-sm">PRO</span>'
+      : '<span style="font-size:11px;color:var(--text-tertiary)">Free plan</span>'
+
+    section.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-secondary);border-radius:12px;width:100%;">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--violet);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0;">${initial}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${state.user.email}</div>
+          <div style="margin-top:2px;">${planLabel}</div>
+        </div>
+        <button id="home-sign-out" style="font-size:11px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;" aria-label="Sign out" title="Sign out">Sign out</button>
+      </div>
+    `
+    document.getElementById('home-sign-out')?.addEventListener('click', handleSignOut)
+  } else {
+    section.innerHTML = `
+      <button class="home-auth-btn" id="home-auth-btn" aria-label="Continue with Google" title="Sign in with your Google account">Continue with Google</button>
+      <button class="home-pro-link" id="home-pro-link" aria-label="See Pro features" title="View Pro features and pricing">See what's in Pro &rarr;</button>
+    `
+    document.getElementById('home-auth-btn')?.addEventListener('click', handleLogin)
+    document.getElementById('home-pro-link')?.addEventListener('click', showProModal)
+  }
+}
+
+// Listen for auth postMessage from popup
+window.addEventListener('message', (event: MessageEvent) => {
+  const data = event.data
+  if (data?.type === 'paletta-auth' && data.token && data.user) {
+    completeAuth(data.token, data.user)
+  }
+})
+
 // ── Navigation ────────────────────────────────────────────────────
 function navigate(screen: string) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
@@ -208,10 +299,7 @@ function buildHomeScreen() {
         <h1 class="home-welcome">Welcome to Paletta</h1>
         <p class="home-desc">Color systems with built-in accessibility</p>
       </div>
-      <div class="home-auth">
-        <button class="home-auth-btn" id="home-auth-btn" aria-label="Continue with Google" title="Sign in with your Google account">Continue with Google</button>
-        <button class="home-pro-link" id="home-pro-link" aria-label="See Pro features" title="View Pro features and pricing">See what's in Pro &rarr;</button>
-      </div>
+      <div class="home-auth" id="home-auth"></div>
       <nav class="menu-list" id="home-menu" aria-label="Main navigation"></nav>
     </div>
     <footer class="home-footer">
@@ -267,11 +355,8 @@ function buildHomeScreen() {
     toggle.appendChild(btn)
   })
 
-  // Auth + Pro
-  document.getElementById('home-auth-btn')!.addEventListener('click', () => {
-    send({ type: 'notify', message: 'Sign in at usepaletta.io' })
-  })
-  document.getElementById('home-pro-link')!.addEventListener('click', showProModal)
+  // Auth section (dynamic: signed-in card or sign-in button)
+  updateHomeAuthUI()
 }
 
 function buildExtractScreen() {
@@ -1004,8 +1089,13 @@ function renderProModal() {
   el.querySelector('#pro-close')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-later')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-cta')!.addEventListener('click', () => {
-    window.open('https://www.usepaletta.io', '_blank')
-    send({ type: 'notify', message: 'Opening usepaletta.io' })
+    if (state.isSignedIn) {
+      window.open('https://www.usepaletta.io', '_blank')
+      send({ type: 'notify', message: 'Opening usepaletta.io' })
+    } else {
+      hideProModal()
+      handleLogin()
+    }
   })
   document.querySelectorAll('#pro-plan-toggle .seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1050,6 +1140,8 @@ window.onmessage = (event: MessageEvent) => {
     case 'init':
       state.savedPalettes = msg.palettes || []
       initAiUsage(msg.aiUsage)
+      initAuth(msg.auth)
+      updateHomeAuthUI()
       if (!msg.hasSeenOnboarding) {
         send({ type: 'set-onboarded' })
       }
