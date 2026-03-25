@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
-  Image, Star, Heart,
+  ChevronDown, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
   Share2, Link2, Download, Grid3X3,
-  Plus, Minus,
+  Plus, Minus, Undo2, Redo2,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -587,7 +588,7 @@ export default function DesktopStudio() {
                         <div
                           key={s.id}
                           className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
-                          style={{ backgroundColor: s.hex, paddingTop: 70, paddingBottom: 56 }}
+                          style={{ backgroundColor: s.hex, paddingTop: 70, paddingBottom: 72 }}
                         >
                           <div className="flex flex-col items-center justify-center gap-3">
                             {/* WCAG badge */}
@@ -712,13 +713,20 @@ export default function DesktopStudio() {
                 />
               )}
 
-              {/* ─── Unified Bottom Bar (Colors view only) ─── */}
+              {/* ─── Floating Bottom Bar (Colors view only) ─── */}
               {viewMode === 'colors' && activeDialog === null && (
-                <CanvasBottomBar
+                <ColorsBottomBar
                   harmonyMode={harmonyMode}
                   onHarmonySelect={handleHarmonySelect}
-                  count={count}
+                  lensOn={lensOn}
+                  visionMode={visionMode}
                   isPro={isPro}
+                  onToggleLens={() => setLensOn(v => !v)}
+                  onVisionChange={setVisionMode}
+                  onProGate={() => openProModal('vision_sim', 'lens_bar')}
+                  onUndo={undo}
+                  onRedo={redo}
+                  count={count}
                   isAtFreeCap={isAtFreeCap}
                   isAtProMax={isAtProMax}
                   isColorGated={isColorGated}
@@ -731,11 +739,6 @@ export default function DesktopStudio() {
                     setCount(liveCount + 1)
                   }}
                   onGenerate={() => triggerGenerate('button')}
-                  lensOn={lensOn}
-                  visionMode={visionMode}
-                  onToggleLens={() => setLensOn(v => !v)}
-                  onVisionChange={setVisionMode}
-                  onProGate={() => openProModal('vision_sim', 'lens_bar')}
                 />
               )}
             </>
@@ -861,155 +864,318 @@ export default function DesktopStudio() {
   )
 }
 
-// ─── Unified Canvas Bottom Bar ───
-function CanvasBottomBar({
+// ─── Floating Bottom Bar for Colors View ───
+const FLOATING_BAR_STYLE: React.CSSProperties = {
+  height: 48,
+  borderRadius: 12,
+  backgroundColor: 'hsl(var(--card) / 0.95)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+  border: '1px solid hsl(var(--border-light))',
+  padding: '0 12px',
+}
+
+function ColorsBottomBar({
   harmonyMode, onHarmonySelect,
-  count, isPro, isAtFreeCap, isAtProMax, isColorGated,
+  lensOn, visionMode, isPro,
+  onToggleLens, onVisionChange, onProGate,
+  onUndo, onRedo,
+  count, isAtFreeCap, isAtProMax, isColorGated,
   onCountDown, onCountUp, onGenerate,
-  lensOn, visionMode, onToggleLens, onVisionChange, onProGate,
 }: {
   harmonyMode: HarmonyMode
   onHarmonySelect: (mode: HarmonyMode) => void
-  count: number
+  lensOn: boolean
+  visionMode: VisionMode
   isPro: boolean
+  onToggleLens: () => void
+  onVisionChange: (mode: VisionMode) => void
+  onProGate: () => void
+  onUndo: () => void
+  onRedo: () => void
+  count: number
   isAtFreeCap: boolean
   isAtProMax: boolean
   isColorGated: boolean
   onCountDown: () => void
   onCountUp: () => void
   onGenerate: () => void
-  lensOn: boolean
-  visionMode: VisionMode
-  onToggleLens: () => void
-  onVisionChange: (mode: VisionMode) => void
-  onProGate: () => void
 }) {
-  const handleVisionSelect = (v: typeof VISION_MODES[number]) => {
-    if (v.pro && !isPro) { onProGate(); return }
+  // Harmony dropdown
+  const [harmonyOpen, setHarmonyOpen] = useState(false)
+  const harmonyBtnRef = useRef<HTMLButtonElement>(null)
+  const harmonyDropRef = useRef<HTMLDivElement>(null)
+  const [harmonyPos, setHarmonyPos] = useState({ bottom: 0, left: 0 })
+
+  // Vision dropdown
+  const [visionOpen, setVisionOpen] = useState(false)
+  const visionBtnRef = useRef<HTMLButtonElement>(null)
+  const visionDropRef = useRef<HTMLDivElement>(null)
+  const [visionPos, setVisionPos] = useState({ bottom: 0, left: 0 })
+
+  const toggleHarmony = () => {
+    if (!harmonyOpen && harmonyBtnRef.current) {
+      const rect = harmonyBtnRef.current.getBoundingClientRect()
+      setHarmonyPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
+    }
+    setHarmonyOpen(o => !o)
+    setVisionOpen(false)
+  }
+
+  const toggleVision = () => {
+    if (!visionOpen && visionBtnRef.current) {
+      const rect = visionBtnRef.current.getBoundingClientRect()
+      setVisionPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
+    }
+    setVisionOpen(o => !o)
+    setHarmonyOpen(false)
+  }
+
+  const selectHarmony = (mode: HarmonyMode) => {
+    onHarmonySelect(mode)
+    setHarmonyOpen(false)
+  }
+
+  const selectVision = (v: typeof VISION_MODES[number]) => {
+    if (v.pro && !isPro) { setVisionOpen(false); onProGate(); return }
     if (v.mode === 'normal') {
       if (lensOn) onToggleLens()
     } else {
       if (!lensOn) onToggleLens()
       onVisionChange(v.mode)
     }
+    setVisionOpen(false)
   }
 
+  // Close dropdowns on outside click
+  useEffect(() => {
+    if (!harmonyOpen && !visionOpen) return
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Node
+      if (harmonyOpen && !harmonyBtnRef.current?.contains(t) && !harmonyDropRef.current?.contains(t)) setHarmonyOpen(false)
+      if (visionOpen && !visionBtnRef.current?.contains(t) && !visionDropRef.current?.contains(t)) setVisionOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [harmonyOpen, visionOpen])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!harmonyOpen && !visionOpen) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setHarmonyOpen(false); setVisionOpen(false) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [harmonyOpen, visionOpen])
+
+  const activeHarmonyLabel = HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'
+  const activeVisionLabel = lensOn
+    ? (VISION_MODES.find(v => v.mode === visionMode)?.short ?? 'Normal')
+    : 'Normal'
+
   return (
-    <div
-      className="absolute bottom-0 left-0 right-0 z-20 flex items-center bg-card border-t border-border motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
-      style={{ height: 48, padding: '0 16px' }}
-    >
-      {/* LEFT — Harmony modes (flex: 1, left-aligned) */}
-      <div className="flex-1 flex items-center gap-0.5" role="radiogroup" aria-label="Harmony mode">
-        {HARMONIES.map(h => {
-          const isActive = harmonyMode === h.mode
-          return (
+    <>
+      <div
+        className="absolute z-20 left-3 right-3 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
+        style={{ bottom: 12 }}
+      >
+        <div className="flex items-center justify-between" style={FLOATING_BAR_STYLE}>
+          {/* LEFT — Dropdown pills */}
+          <div className="flex items-center gap-2">
+            {/* Harmony pill */}
             <button
-              key={h.mode}
-              role="radio"
-              aria-checked={isActive}
-              onClick={() => onHarmonySelect(h.mode)}
-              className="transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-              style={{
-                height: 32,
-                padding: '0 10px',
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: isActive ? 500 : 400,
-                backgroundColor: isActive ? 'hsl(var(--surface))' : undefined,
-                color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                whiteSpace: 'nowrap',
-              }}
-              aria-label={h.label}
+              ref={harmonyBtnRef}
+              onClick={toggleHarmony}
+              className="flex items-center gap-1.5 transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ height: 36, padding: '0 12px', borderRadius: 12, border: '0.5px solid hsl(var(--border))' }}
+              aria-label="Harmony mode"
+              aria-haspopup="listbox"
+              aria-expanded={harmonyOpen}
             >
-              {h.short}
+              <span className="text-[13px] text-muted-foreground">Harmony:</span>
+              <span className="text-[13px] font-medium text-foreground">{activeHarmonyLabel}</span>
+              <ChevronDown size={14} className="text-muted-foreground" style={{ transform: harmonyOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
             </button>
-          )
-        })}
-      </div>
 
-      {/* Divider */}
-      <div className="bg-border" style={{ width: 1, height: 22, margin: '0 10px' }} />
+            {/* Vision pill */}
+            <button
+              ref={visionBtnRef}
+              onClick={toggleVision}
+              className="flex items-center gap-1.5 transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ height: 36, padding: '0 12px', borderRadius: 12, border: '0.5px solid hsl(var(--border))' }}
+              aria-label="Vision simulation"
+              aria-haspopup="listbox"
+              aria-expanded={visionOpen}
+            >
+              <span className="text-[13px] text-muted-foreground">Vision:</span>
+              <span className="text-[13px] font-medium" style={{ color: lensOn && visionMode !== 'normal' ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>{activeVisionLabel}</span>
+              <ChevronDown size={14} className="text-muted-foreground" style={{ transform: visionOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
+            </button>
+          </div>
 
-      {/* CENTER — Count + Generate */}
-      <div className="flex items-center gap-2">
-        {/* Count selector */}
-        <div className="flex items-center">
-          <button
-            onClick={onCountDown}
-            className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-            style={{ width: 28, height: 28, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
-            disabled={count <= 3}
-            aria-label="Remove color"
-          >
-            <Minus size={14} className="text-muted-foreground" />
-          </button>
-          <span className="text-[13px] font-medium text-foreground tabular-nums" style={{ minWidth: 18, textAlign: 'center' }}>{count}</span>
-          <button
-            onClick={onCountUp}
-            className={`relative flex items-center justify-center transition-all duration-150 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-surface' : ''}`}
-            style={{ width: 28, height: 28, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
-            disabled={isAtProMax}
-            aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
-          >
-            <Plus size={14} className="text-muted-foreground" />
-            {isAtFreeCap && (
-              <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
-                <Lock size={8} className="text-muted-foreground" />
-              </span>
-            )}
-          </button>
+          {/* RIGHT — Controls */}
+          <div className="flex items-center" style={{ gap: 16 }}>
+            {/* Undo / Redo */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={onUndo}
+                className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+                style={{ width: 32, height: 32, borderRadius: 8 }}
+                aria-label="Undo"
+              >
+                <Undo2 size={18} className="text-muted-foreground" />
+              </button>
+              <button
+                onClick={onRedo}
+                className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+                style={{ width: 32, height: 32, borderRadius: 8 }}
+                aria-label="Redo"
+              >
+                <Redo2 size={18} className="text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Count selector */}
+            <div className="flex items-center">
+              <button
+                onClick={onCountDown}
+                className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+                style={{ width: 28, height: 28, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
+                disabled={count <= 3}
+                aria-label="Remove color"
+              >
+                <Minus size={14} className="text-muted-foreground" />
+              </button>
+              <span className="text-[13px] font-medium text-foreground tabular-nums" style={{ minWidth: 18, textAlign: 'center' }}>{count}</span>
+              <button
+                onClick={onCountUp}
+                className={`relative flex items-center justify-center transition-all duration-150 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-surface' : ''}`}
+                style={{ width: 28, height: 28, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
+                disabled={isAtProMax}
+                aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
+              >
+                <Plus size={14} className="text-muted-foreground" />
+                {isAtFreeCap && (
+                  <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
+                    <Lock size={8} className="text-muted-foreground" />
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Generate */}
+            <button
+              onClick={onGenerate}
+              className="flex items-center gap-1.5 transition-all duration-150 bg-surface hover:bg-border-light focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ height: 36, padding: '0 12px', borderRadius: 8 }}
+              aria-label="Generate new palette"
+            >
+              <span className="text-[13px] font-medium text-foreground">Generate</span>
+              <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-muted-foreground" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'hsl(var(--card))' }}>space</kbd>
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Generate button + hint */}
-        <button
-          onClick={onGenerate}
-          className="flex items-center gap-1.5 transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-          style={{ height: 32, padding: '0 10px', borderRadius: 8 }}
-          aria-label="Generate new palette"
+      {/* Harmony dropdown (portal, opens upward) */}
+      {harmonyOpen && createPortal(
+        <div
+          ref={harmonyDropRef}
+          role="listbox"
+          aria-label="Harmony modes"
+          className="fixed z-[200] bg-card overflow-hidden"
+          style={{
+            bottom: harmonyPos.bottom,
+            left: harmonyPos.left,
+            width: 240,
+            borderRadius: 8,
+            border: '0.5px solid hsl(var(--border))',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
         >
-          <span className="text-[13px] font-medium text-foreground">Generate</span>
-          <kbd className="inline-flex items-center justify-center text-[11px] font-mono bg-surface text-muted-foreground" style={{ padding: '2px 6px', borderRadius: 4 }}>space</kbd>
-        </button>
-      </div>
+          {HARMONIES.map((h, i) => {
+            const isActive = harmonyMode === h.mode
+            return (
+              <button
+                key={h.mode}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => selectHarmony(h.mode)}
+                className="w-full text-left transition-colors duration-150 hover:bg-surface"
+                style={{
+                  height: 36,
+                  padding: '0 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: isActive ? 'hsl(var(--surface))' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
+                }}
+              >
+                <span className="text-[13px]" style={{ fontWeight: isActive ? 500 : 400, color: 'hsl(var(--foreground))' }}>
+                  {h.label}
+                </span>
+                {isActive && <Check size={14} className="text-primary" />}
+              </button>
+            )
+          })}
+        </div>,
+        document.body,
+      )}
 
-      {/* Divider */}
-      <div className="bg-border" style={{ width: 1, height: 22, margin: '0 10px' }} />
-
-      {/* RIGHT — Lens modes (flex: 1, right-aligned) */}
-      <div className="flex-1 flex items-center justify-end gap-0.5" role="radiogroup" aria-label="Accessibility lens">
-        {VISION_MODES.map(v => {
-          const isActive = lensOn
-            ? visionMode === v.mode
-            : v.mode === 'normal'
-          const needsPro = v.pro && !isPro
-          return (
-            <button
-              key={v.mode}
-              role="radio"
-              aria-checked={isActive}
-              onClick={() => handleVisionSelect(v)}
-              className="transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-              style={{
-                height: 32,
-                padding: '0 10px',
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: isActive ? 500 : 400,
-                backgroundColor: isActive && v.mode !== 'normal' ? 'hsl(var(--primary) / 0.10)' : isActive ? 'hsl(var(--surface))' : undefined,
-                color: isActive && v.mode !== 'normal' ? BRAND_VIOLET : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                opacity: needsPro ? 0.4 : 1,
-                whiteSpace: 'nowrap',
-              }}
-              aria-label={v.label}
-            >
-              {v.short}
-              {needsPro && <Lock size={10} className="inline ml-1" style={{ verticalAlign: '-1px' }} />}
-            </button>
-          )
-        })}
-      </div>
-    </div>
+      {/* Vision dropdown (portal, opens upward) */}
+      {visionOpen && createPortal(
+        <div
+          ref={visionDropRef}
+          role="listbox"
+          aria-label="Vision simulation modes"
+          className="fixed z-[200] bg-card overflow-hidden"
+          style={{
+            bottom: visionPos.bottom,
+            left: visionPos.left,
+            width: 240,
+            borderRadius: 8,
+            border: '0.5px solid hsl(var(--border))',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
+        >
+          {VISION_MODES.map((v, i) => {
+            const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
+            const needsPro = v.pro && !isPro
+            return (
+              <button
+                key={v.mode}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => selectVision(v)}
+                className="w-full transition-colors duration-150 hover:bg-surface"
+                style={{
+                  height: 36,
+                  padding: '0 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: isActive ? 'hsl(var(--surface))' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
+                  opacity: needsPro ? 0.4 : 1,
+                }}
+              >
+                <span className="text-[13px]" style={{ fontWeight: isActive ? 500 : 400, color: isActive && v.mode !== 'normal' ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
+                  {v.label}
+                </span>
+                <div className="flex items-center gap-2">
+                  {needsPro && <Lock size={12} className="text-muted-foreground" />}
+                  {isActive && <Check size={14} className="text-primary" />}
+                </div>
+              </button>
+            )
+          })}
+        </div>,
+        document.body,
+      )}
+    </>
   )
 }
 
