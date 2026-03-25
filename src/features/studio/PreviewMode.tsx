@@ -34,7 +34,7 @@ export function PreviewMode({
       <div className="absolute inset-0 overflow-y-auto">
         <div
           style={{
-            padding: '24px 24px 80px',
+            padding: '68px 24px 80px',
             opacity: entering ? 0 : 1,
             transition: 'opacity 300ms ease 100ms',
             filter: visionFilter,

@@ -103,8 +103,8 @@ export function PreviewGrid({
                 <div className="flex-1 h-4 rounded" style={{ backgroundColor: '#e5e7eb', maxWidth: 200 }} />
                 <button
                   onClick={() => handleExpand(t.id, t.free)}
-                  className="flex items-center justify-center transition-opacity hover:opacity-100"
-                  style={{ width: 24, height: 24, borderRadius: 6, opacity: 0.4, background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}
+                  className="flex items-center justify-center transition-opacity hover:opacity-70"
+                  style={{ width: 24, height: 24, borderRadius: 6, opacity: 0.25, background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}
                   aria-label={`Expand ${t.label}`}
                 >
                   <Maximize2 size={12} />
@@ -150,7 +150,7 @@ export function PreviewGrid({
                 className="flex items-center gap-2 px-3 py-2"
                 style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
               >
-                <span className="text-[12px] font-semibold" style={{ color: BRAND_DARK }}>{t.label}</span>
+                <span className="text-[13px] font-medium text-muted-foreground">{t.label}</span>
                 {t.free ? (
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5"
