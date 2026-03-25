@@ -128,15 +128,17 @@ export function PreviewGrid({
           >
             {/* Browser chrome */}
             <div
-              className="flex items-center gap-2 px-3"
-              style={{ height: 32, backgroundColor: '#f3f4f6', borderBottom: '1px solid rgba(0,0,0,0.06)', flexShrink: 0 }}
+              className="flex items-center px-3"
+              style={{ height: 30, backgroundColor: '#F5F5F5', borderBottom: '1px solid rgba(0,0,0,0.06)', flexShrink: 0 }}
             >
-              <div className="flex" style={{ gap: 5 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#ef4444' }} />
-                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#eab308' }} />
-                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#22c55e' }} />
+              <div className="flex" style={{ gap: 6 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#FF5F57' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#FEBC2E' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#28C840' }} />
               </div>
-              <div className="flex-1 h-4 rounded" style={{ backgroundColor: '#e5e7eb', maxWidth: 200 }} />
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '0 12px' }}>
+                <div style={{ width: '60%', height: 14, borderRadius: 4, backgroundColor: '#e5e7eb' }} />
+              </div>
             </div>
 
             {/* Template content — uniform 3:2 aspect ratio, scaled to fit */}

@@ -98,24 +98,20 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
       {/* Testimonial */}
       <section style={{ padding: '0 32px 40px' }}>
         <div style={{
-          maxWidth: 520, margin: '0 auto', padding: '24px 28px',
-          borderRadius: 14, backgroundColor: p.primaryTint,
-          border: `1px solid ${p.primary}12`,
+          maxWidth: 520, margin: '0 auto', padding: '28px 32px',
+          borderRadius: 14, backgroundColor: `${p.all[0]}0D`,
         }}>
-          <p style={{ fontSize: 14, color: p.textDark, lineHeight: 1.7, fontStyle: 'italic', margin: '0 0 16px' }}>
-            "We switched to Paletta three months ago and haven't looked back. Our deploy time dropped by 60% and the team loves the workflow."
+          <div style={{ fontSize: 32, fontWeight: 800, color: p.primary, lineHeight: 1, marginBottom: 12 }}>"</div>
+          <p style={{ fontSize: 14, color: p.textDark, lineHeight: 1.7, margin: '0 0 18px' }}>
+            Paletta changed how our team handles color systems. We ship twice as fast.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              width: 36, height: 36, borderRadius: '50%', backgroundColor: p.secondary, opacity: 0.8,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, fontWeight: 700, color: p.onPrimary,
-            }}>
-              SK
-            </div>
+              width: 32, height: 32, borderRadius: '50%', backgroundColor: p.accent,
+            }} />
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: p.textDark }}>Sarah Kim</div>
-              <div style={{ fontSize: 11, color: p.textMuted }}>CTO at Wavelength</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: p.textDark }}>Sarah Chen</div>
+              <div style={{ fontSize: 11, color: p.textMuted }}>Design Lead at Linear</div>
             </div>
           </div>
         </div>

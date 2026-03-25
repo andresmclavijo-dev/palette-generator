@@ -21,7 +21,7 @@ export function DashboardPreview({ p }: { p: PreviewPalette }) {
   return (
     <div style={{ fontFamily: 'var(--font-sans, system-ui)', display: 'flex', minHeight: 520, backgroundColor: p.surface }}>
       {/* Sidebar */}
-      <aside style={{ width: 180, backgroundColor: p.darkest, padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+      <aside style={{ width: 154, backgroundColor: p.darkest, padding: '20px 10px', display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px', marginBottom: 20 }}>
           <div style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: p.primary }} />
           <span style={{ fontSize: 14, fontWeight: 700, color: p.onDarkest }}>Paletta</span>
@@ -96,11 +96,11 @@ export function DashboardPreview({ p }: { p: PreviewPalette }) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* Notification bell */}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={p.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke={p.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" aria-hidden="true">
               <path d="M8 1.5a4 4 0 0 1 4 4v3l1.5 2H2.5L4 8.5v-3a4 4 0 0 1 4-4z" />
               <path d="M6 13.5a2 2 0 0 0 4 0" />
             </svg>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: p.secondary, opacity: 0.7 }} />
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: p.secondary, opacity: 0.5 }} />
           </div>
         </header>
 
