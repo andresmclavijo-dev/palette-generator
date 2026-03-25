@@ -408,10 +408,8 @@ export default function DesktopStudio() {
           expanded={dockExpanded}
           section={section}
           dockPulse={dockPulse}
-          isPro={isPro}
           onToggle={toggleDock}
           onSectionChange={setSection}
-          onProGate={openProModal}
         />
 
         {/* ─── Main Area (bento container) ─── */}

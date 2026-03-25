@@ -1,28 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
-  MoreHorizontal, ExternalLink, Puzzle, Scale,
+  MoreHorizontal, ExternalLink, Puzzle, Shield, Sun, Moon,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { useTheme } from '@/hooks/useTheme'
 import { analytics } from '@/lib/posthog'
 
 type SectionId = 'studio' | 'library' | 'profile'
 
 export function Dock({
-  expanded, section, dockPulse, isPro,
-  onToggle, onSectionChange, onProGate,
+  expanded, section, dockPulse,
+  onToggle, onSectionChange,
 }: {
   expanded: boolean
   section: SectionId
   dockPulse: boolean
-  isPro: boolean
   onToggle: () => void
   onSectionChange: (s: SectionId) => void
-  onProGate: (feature?: string, source?: string) => void
 }) {
   const dockW = expanded ? 200 : 80
 
@@ -114,63 +112,25 @@ export function Dock({
           />
         </div>
 
-        {/* Go Pro — free users only */}
-        {!isPro && (
-          <>
-            <div
-              style={{
-                height: 1,
-                margin: expanded ? '4px 14px' : '4px 8px',
-                backgroundColor: 'hsl(var(--border) / 0.2)',
-              }}
-            />
-            <div className="flex flex-col" style={{ gap: expanded ? 4 : 6 }}>
-              <DockItem
-                icon={<Sparkles size={20} />}
-                label="Go Pro"
-                active={false}
-                expanded={expanded}
-                onClick={() => {
-                  analytics.track('sidebar_go_pro_clicked')
-                  onProGate('sidebar_nav', 'sidebar')
-                }}
-                tint
-              />
-            </div>
-          </>
-        )}
-
         {/* Spacer */}
         <div className="flex-1" />
 
         {/* ─── Bottom utility group ─── */}
         {expanded ? (
-          <div className="flex flex-col" style={{ gap: 8 }}>
-            {/* Separator */}
-            <div style={{ height: 1, margin: '0 14px', backgroundColor: 'hsl(var(--border) / 0.2)' }} />
-
-            {/* Theme toggle — full width segmented control */}
-            <div style={{ padding: '0 6px' }}>
-              <ThemeToggle />
-            </div>
-
-            {/* Legal — icon + text row, opens popover */}
+          <div className="flex flex-col" style={{ gap: 4 }}>
+            <DockThemeIcons expanded />
             <DockLegalMenu expanded />
-
-            {/* Collapse */}
-            <button
+            <DockItem
+              icon={<ChevronLeft size={20} />}
+              label="Collapse"
+              active={false}
+              expanded
               onClick={onToggle}
-              className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-              style={{ height: 36, padding: '0 14px', gap: 10, borderRadius: 8 }}
-              aria-label="Collapse dock"
-            >
-              <ChevronLeft size={18} />
-              <span>Collapse</span>
-            </button>
+            />
           </div>
         ) : (
-          <div className="flex flex-col items-center" style={{ gap: 2 }}>
-            <ThemeToggle collapsed />
+          <div className="flex flex-col items-center" style={{ gap: 6 }}>
+            <DockThemeIcons expanded={false} />
             <DockLegalMenu expanded={false} />
             <DarkTooltip label="Expand" position="right">
               <button
@@ -190,7 +150,7 @@ export function Dock({
 
 // ─── Dock Item ───────────────────────────────────────────────
 function DockItem({
-  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse, tint,
+  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse,
 }: {
   icon: React.ReactNode
   label: string
@@ -201,7 +161,6 @@ function DockItem({
   badge?: string
   proBadge?: boolean
   pulse?: boolean
-  tint?: boolean
 }) {
   const [showTooltip, setShowTooltip] = useState(false)
   const isCollapsed = !expanded
@@ -214,8 +173,7 @@ function DockItem({
         onMouseLeave={() => setShowTooltip(false)}
         className={cn(
           'flex items-center transition-colors duration-150 ease-in-out',
-          !primary && !active && !tint && 'text-muted-foreground hover:bg-surface hover:text-foreground',
-          tint && 'hover:bg-surface',
+          !primary && !active && 'text-muted-foreground hover:bg-surface hover:text-foreground',
           pulse && 'dock-pulse'
         )}
         style={{
@@ -232,9 +190,6 @@ function DockItem({
             fontWeight: 600,
           } : active ? {
             backgroundColor: 'rgba(108,71,255,0.08)',
-            color: BRAND_VIOLET,
-            fontWeight: 600,
-          } : tint ? {
             color: BRAND_VIOLET,
             fontWeight: 600,
           } : {
@@ -294,6 +249,62 @@ function DockItem({
   )
 }
 
+// ─── Dock Theme Icons ───────────────────────────────────────
+function DockThemeIcons({ expanded }: { expanded: boolean }) {
+  const { resolved, setTheme } = useTheme()
+  const isLight = resolved === 'light'
+
+  // Collapsed: single active theme icon
+  if (!expanded) {
+    const toggle = () => setTheme(isLight ? 'dark' : 'light')
+    const Icon = isLight ? Sun : Moon
+    return (
+      <DarkTooltip label={isLight ? 'Dark mode' : 'Light mode'} position="right">
+        <button
+          onClick={toggle}
+          aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
+          className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
+        >
+          <Icon size={20} />
+        </button>
+      </DarkTooltip>
+    )
+  }
+
+  // Expanded: two bare icons side by side, aligned to nav icon margin
+  return (
+    <div
+      className="flex items-center"
+      style={{ height: 48, padding: '0 14px', gap: 8 }}
+    >
+      <button
+        onClick={() => setTheme('light')}
+        aria-label="Light mode"
+        className="transition-colors duration-150"
+        style={{
+          background: 'none', border: 'none', padding: 0,
+          color: isLight ? BRAND_VIOLET : undefined,
+          opacity: isLight ? 1 : 0.4,
+        }}
+      >
+        <Sun size={20} />
+      </button>
+      <button
+        onClick={() => setTheme('dark')}
+        aria-label="Dark mode"
+        className="transition-colors duration-150"
+        style={{
+          background: 'none', border: 'none', padding: 0,
+          color: !isLight ? BRAND_VIOLET : undefined,
+          opacity: !isLight ? 1 : 0.4,
+        }}
+      >
+        <Moon size={20} />
+      </button>
+    </div>
+  )
+}
+
 // ─── Dock Legal Menu ────────────────────────────────────────
 function DockLegalMenu({ expanded }: { expanded: boolean }) {
   const [open, setOpen] = useState(false)
@@ -316,15 +327,16 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
 
   const popover = open && (
     <div
-      className="absolute z-50 bg-card overflow-hidden"
+      className="absolute z-50 bg-card"
       style={{
         ...(expanded
-          ? { left: 0, bottom: '100%', marginBottom: 6 }
+          ? { left: 0, bottom: '100%', marginBottom: 4 }
           : { left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: 10 }),
         borderRadius: 8,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
+        border: '0.5px solid hsl(var(--border))',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
         minWidth: 180,
-        padding: '6px 0',
+        padding: 4,
       }}
       role="menu"
     >
@@ -334,8 +346,8 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
           href={l.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium transition-all hover:bg-surface"
-          style={{ color: 'hsl(var(--foreground))', textDecoration: 'none' }}
+          className="flex items-center gap-2 text-[13px] font-medium transition-all hover:bg-surface"
+          style={{ color: 'hsl(var(--foreground))', textDecoration: 'none', padding: '8px 12px', borderRadius: 6 }}
           role="menuitem"
           onClick={() => setOpen(false)}
         >
@@ -351,12 +363,12 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
       <div ref={ref} className="relative">
         <button
           onClick={() => setOpen(o => !o)}
-          className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-          style={{ height: 36, padding: '0 14px', gap: 10, borderRadius: 8, background: 'none', border: 'none' }}
+          className="flex items-center w-full text-[14px] text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          style={{ height: 48, padding: '0 14px', gap: 12, borderRadius: 12, background: 'none', border: 'none', fontWeight: 500 }}
           aria-label="Legal links"
           aria-expanded={open}
         >
-          <Scale size={18} />
+          <Shield size={20} />
           <span>Legal</span>
         </button>
         {popover}
@@ -365,7 +377,7 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
   }
 
   return (
-    <div ref={ref} className="relative flex justify-center py-1">
+    <div ref={ref} className="relative flex justify-center">
       <DarkTooltip label="Legal" position="right">
         <button
           onClick={() => setOpen(o => !o)}
