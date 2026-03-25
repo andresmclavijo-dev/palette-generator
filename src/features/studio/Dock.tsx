@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
-  MoreHorizontal, ExternalLink, Puzzle,
+  MoreHorizontal, ExternalLink, Puzzle, X,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -9,18 +9,27 @@ import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { analytics } from '@/lib/posthog'
+import { getAiUsageToday, AI_MAX_FREE } from '@/components/palette/AiPrompt'
 
 type SectionId = 'studio' | 'library' | 'profile'
 
+const DISMISS_KEY = 'paletta_sidebar_promo_dismissed'
+const DISMISS_TS_KEY = 'paletta_sidebar_promo_dismissed_at'
+const DISMISS_TYPE_KEY = 'paletta_sidebar_promo_dismissed_type'
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
+
 export function Dock({
-  expanded, section, dockPulse,
-  onToggle, onSectionChange,
+  expanded, section, dockPulse, isPro, isSignedIn,
+  onToggle, onSectionChange, onProGate,
 }: {
   expanded: boolean
   section: SectionId
   dockPulse: boolean
+  isPro: boolean
+  isSignedIn: boolean
   onToggle: () => void
   onSectionChange: (s: SectionId) => void
+  onProGate: (feature?: string, source?: string) => void
 }) {
   const dockW = expanded ? 200 : 80
 
@@ -114,6 +123,15 @@ export function Dock({
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Contextual promo card — expanded only */}
+        {expanded && (
+          <DockPromoCard
+            isPro={isPro}
+            isSignedIn={isSignedIn}
+            onProGate={onProGate}
+          />
+        )}
 
         {/* Theme toggle */}
         <div className="flex justify-center" style={{ margin: expanded ? '8px 0' : '6px 0' }}>
@@ -249,6 +267,159 @@ function DockItem({
       )}
     </div>
   )
+}
+
+// ─── Dock Promo Card ────────────────────────────────────────
+function DockPromoCard({
+  isPro, isSignedIn, onProGate,
+}: {
+  isPro: boolean
+  isSignedIn: boolean
+  onProGate: (feature?: string, source?: string) => void
+}) {
+  const [dismissed, setDismissed] = useState(() => isDismissed(isPro ? 'plugin' : 'pro'))
+  const [aiUsed, setAiUsed] = useState(getAiUsageToday)
+
+  // Refresh AI usage every 10s for signed-in free users
+  useEffect(() => {
+    if (isPro || !isSignedIn) return
+    const id = setInterval(() => setAiUsed(getAiUsageToday()), 10_000)
+    return () => clearInterval(id)
+  }, [isPro, isSignedIn])
+
+  // When user upgrades to Pro, reset dismiss so plugin promo shows fresh
+  useEffect(() => {
+    if (isPro) {
+      const prevType = localStorage.getItem(DISMISS_TYPE_KEY)
+      if (prevType === 'pro') {
+        localStorage.removeItem(DISMISS_KEY)
+        localStorage.removeItem(DISMISS_TS_KEY)
+        localStorage.removeItem(DISMISS_TYPE_KEY)
+        setDismissed(false)
+      }
+    }
+  }, [isPro])
+
+  const handleDismiss = useCallback(() => {
+    const type = isPro ? 'plugin' : 'pro'
+    localStorage.setItem(DISMISS_KEY, '1')
+    localStorage.setItem(DISMISS_TS_KEY, String(Date.now()))
+    localStorage.setItem(DISMISS_TYPE_KEY, type)
+    setDismissed(true)
+    analytics.track('sidebar_promo_dismissed', { type })
+  }, [isPro])
+
+  // State 4: Pro user who dismissed plugin promo → show nothing
+  if (isPro && dismissed) return null
+
+  // State 3: Pro user, plugin promo
+  if (isPro) {
+    return (
+      <div
+        className="relative"
+        style={{
+          borderRadius: 12,
+          padding: 12,
+          marginBottom: 8,
+          backgroundColor: 'hsl(var(--primary) / 0.08)',
+          borderTop: '1px solid hsl(var(--primary) / 0.12)',
+        }}
+      >
+        <button
+          onClick={handleDismiss}
+          className="absolute flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          style={{ top: 8, right: 8, width: 20, height: 20, background: 'none', border: 'none', padding: 0 }}
+          aria-label="Dismiss plugin suggestion"
+        >
+          <X size={12} />
+        </button>
+        <Puzzle size={16} className="text-primary" style={{ marginBottom: 6 }} aria-hidden="true" />
+        <div className="text-[13px] font-semibold text-foreground" style={{ marginBottom: 2 }}>Paletta for Figma</div>
+        <div className="text-[12px] text-muted-foreground" style={{ marginBottom: 10, lineHeight: 1.4 }}>
+          Create color systems in Figma.
+        </div>
+        <button
+          onClick={() => {
+            analytics.track('sidebar_promo_plugin_clicked')
+            window.location.href = '/plugin'
+          }}
+          className="w-full flex items-center justify-center text-[12px] font-semibold text-primary hover:bg-primary/5 transition-colors"
+          style={{
+            height: 32,
+            borderRadius: 8,
+            border: '1.5px solid hsl(var(--primary))',
+            backgroundColor: 'transparent',
+          }}
+          aria-label="Install Paletta Figma plugin"
+        >
+          Install Plugin
+        </button>
+      </div>
+    )
+  }
+
+  // State 1 & 2: Free user (dismissed → show nothing)
+  if (dismissed) return null
+
+  return (
+    <div
+      className="relative"
+      style={{
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 8,
+        backgroundColor: 'hsl(var(--primary) / 0.08)',
+        borderTop: '1px solid hsl(var(--primary) / 0.12)',
+      }}
+    >
+      <button
+        onClick={handleDismiss}
+        className="absolute flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        style={{ top: 8, right: 8, width: 20, height: 20, background: 'none', border: 'none', padding: 0 }}
+        aria-label="Dismiss upgrade suggestion"
+      >
+        <X size={12} />
+      </button>
+      <div className="text-[13px] font-semibold text-foreground" style={{ marginBottom: 2 }}>Unlock the full toolkit</div>
+      <div className="text-[12px] text-muted-foreground" style={{ marginBottom: isSignedIn ? 6 : 10, lineHeight: 1.4 }}>
+        Shade scales, AI palettes, and more.
+      </div>
+      {/* State 2: signed-in free user gets AI usage indicator */}
+      {isSignedIn && (
+        <div className="text-[11px] text-muted-foreground" style={{ marginBottom: 8 }}>
+          {aiUsed} of {AI_MAX_FREE} AI prompts used today
+        </div>
+      )}
+      <button
+        onClick={() => {
+          analytics.track('sidebar_promo_go_pro_clicked')
+          onProGate('sidebar_promo', 'sidebar')
+        }}
+        className="w-full flex items-center justify-center text-[12px] font-semibold transition-colors"
+        style={{
+          height: 32,
+          borderRadius: 8,
+          backgroundColor: BRAND_VIOLET,
+          color: '#ffffff',
+          border: 'none',
+        }}
+        aria-label="Upgrade to Pro"
+      >
+        Go Pro
+      </button>
+    </div>
+  )
+}
+
+function isDismissed(promoType: 'pro' | 'plugin'): boolean {
+  try {
+    const val = localStorage.getItem(DISMISS_KEY)
+    if (!val) return false
+    const type = localStorage.getItem(DISMISS_TYPE_KEY)
+    if (type !== promoType) return false
+    const ts = parseInt(localStorage.getItem(DISMISS_TS_KEY) ?? '0', 10)
+    return Date.now() - ts < SEVEN_DAYS
+  } catch { return false }
 }
 
 // ─── Dock Info Menu ─────────────────────────────────────────
