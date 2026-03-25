@@ -49,7 +49,7 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: s
 const LENS_OPTIONS = [
   { id: 'normal', title: 'Normal vision', desc: 'No simulation', free: true },
   { id: 'protanopia', title: 'Protanopia', desc: 'Red-blind — affects ~1.3% of men', free: true },
-  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men', free: true },
+  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men', free: false },
   { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-blind — rare, ~0.01%', free: false },
   { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Total color blindness', free: false },
 ]
