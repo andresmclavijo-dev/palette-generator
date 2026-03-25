@@ -46,6 +46,7 @@ import { ShadesSpecimen } from './ShadesSpecimen'
 import { ColorInfoPopover } from './ColorInfoPopover'
 import { PreviewMode } from './PreviewMode'
 import { UserMenu } from './UserMenu'
+import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
 // Cross-feature imports
 import { LibraryView } from '@/features/library/LibraryView'
 import { ProfileView } from '@/features/profile/ProfileView'
@@ -110,6 +111,7 @@ export default function DesktopStudio() {
   const [imageUploading, setImageUploading] = useState(false)
 
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
+  const [coachVisible, setCoachVisible] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const trackedRef = useRef(false)
@@ -207,7 +209,11 @@ export default function DesktopStudio() {
       const sessionStart = Number(sessionStorage.getItem('paletta_session_start') || Date.now())
       analytics.track('first_generate', { time_to_first_generate_ms: Date.now() - sessionStart })
     }
-  }, [generate, harmonyMode, count])
+    // Coach mark: show after 5th generate (non-Pro only)
+    if (!isPro && method !== 'ai' && incrementGenerateCount()) {
+      setCoachVisible(true)
+    }
+  }, [generate, harmonyMode, count, isPro])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -542,25 +548,33 @@ export default function DesktopStudio() {
                 >
                   {/* Action bar tooltips use position="bottom" — bar sits at viewport top edge, "top" would clip */}
                   {/* AI */}
-                  <DarkTooltip label="AI palette" position="bottom">
-                    <button
-                      onClick={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
-                      className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
-                      style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
-                      aria-label="AI palette"
-                    >
-                      <Star size={16} strokeWidth={1.5} />
-                      <span className="text-[12px] font-medium">AI</span>
-                      {!isPro && (
-                        <span
-                          className="text-[10px] font-bold text-white px-1.5 py-0.5"
-                          style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
-                        >
-                          {aiRemaining}
-                        </span>
-                      )}
-                    </button>
-                  </DarkTooltip>
+                  <div className="relative">
+                    <DarkTooltip label="AI palette" position="bottom">
+                      <button
+                        onClick={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
+                        className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
+                        style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
+                        aria-label="AI palette"
+                      >
+                        <Star size={16} strokeWidth={1.5} />
+                        <span className="text-[12px] font-medium">AI</span>
+                        {!isPro && (
+                          <span
+                            className="text-[10px] font-bold text-white px-1.5 py-0.5"
+                            style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
+                          >
+                            {aiRemaining}
+                          </span>
+                        )}
+                      </button>
+                    </DarkTooltip>
+                    <AiCoachMark
+                      visible={coachVisible}
+                      onDismiss={() => setCoachVisible(false)}
+                      onTry={() => { setCoachVisible(false); openDialog('ai-full') }}
+                      position="below"
+                    />
+                  </div>
 
                   {/* Extract */}
                   <DarkTooltip label="Extract from image" position="bottom">

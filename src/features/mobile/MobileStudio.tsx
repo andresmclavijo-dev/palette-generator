@@ -21,6 +21,7 @@ import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
 import SignInModal from '@/components/ui/SignInModal'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
+import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
 import type { MobileTab } from './MobileShell'
 
 // ─── Constants ───
@@ -63,6 +64,7 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [lensOn, setLensOn] = useState(false)
   const [copiedHex, setCopiedHex] = useState<string | null>(null)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
+  const [coachVisible, setCoachVisible] = useState(false)
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
@@ -85,7 +87,10 @@ export function MobileStudio(_props: MobileStudioProps) {
     if (!localStorage.getItem('paletta_first_generate_at')) {
       localStorage.setItem('paletta_first_generate_at', String(Date.now()))
     }
-  }, [generate, harmonyMode, count])
+    if (!isPro && incrementGenerateCount()) {
+      setCoachVisible(true)
+    }
+  }, [generate, harmonyMode, count, isPro])
 
   const handleCopyHex = async (hex: string) => {
     try {
@@ -342,19 +347,27 @@ export function MobileStudio(_props: MobileStudioProps) {
             {/* Action tools row */}
             <div className="flex justify-center gap-2 px-3 pt-3 pb-2">
               {/* AI */}
-              <button
-                onClick={() => setActiveSheet('ai')}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label="AI palette"
-              >
-                <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                {!isPro && (
-                  <span className="absolute -top-1 -right-0.5 text-[10px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
-                    {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
-                  </span>
-                )}
-                <span className="text-[10px] font-medium text-muted-foreground">AI</span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setActiveSheet('ai')}
+                  className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
+                  aria-label="AI palette"
+                >
+                  <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                  {!isPro && (
+                    <span className="absolute -top-1 -right-0.5 text-[10px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
+                      {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
+                    </span>
+                  )}
+                  <span className="text-[10px] font-medium text-muted-foreground">AI</span>
+                </button>
+                <AiCoachMark
+                  visible={coachVisible}
+                  onDismiss={() => setCoachVisible(false)}
+                  onTry={() => { setCoachVisible(false); setActiveSheet('ai') }}
+                  position="above"
+                />
+              </div>
               {/* Extract */}
               <button
                 onClick={() => {
