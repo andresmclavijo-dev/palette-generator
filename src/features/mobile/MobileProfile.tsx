@@ -38,7 +38,7 @@ function PluginCard() {
 
 function LegalLinks() {
   return (
-    <div className="flex flex-col gap-2 mt-6 px-4 pb-8">
+    <div className="flex flex-col mt-6 px-4 pb-8">
       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
       {[
         { label: 'Privacy Policy', href: '/privacy-policy' },
