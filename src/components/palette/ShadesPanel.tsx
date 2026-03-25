@@ -36,7 +36,7 @@ export default function ShadesPanel({ hex, onClose }: ShadesPanelProps) {
     try {
       await navigator.clipboard.writeText(shade)
       setCopiedIndex(i)
-      showToast('Copied!')
+      showToast(`Copied ${shade.toUpperCase()}`, shade)
       setTimeout(() => setCopiedIndex(null), 1200)
     } catch { /* silent */ }
   }

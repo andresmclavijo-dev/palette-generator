@@ -93,7 +93,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
     try {
       await copyToClipboard(color)
       setCopied(true)
-      showToast('Copied!')
+      showToast(`Copied ${color.toUpperCase()}`, color)
       setTimeout(() => setCopied(false), 1200)
     } catch { /* silent */ }
   }

@@ -89,7 +89,7 @@ export default function ColorSwatch({
     try {
       await navigator.clipboard.writeText(hex)
       setCopied(true)
-      showToast('Copied!')
+      showToast(`Copied ${hex.toUpperCase()}`, hex)
       setTimeout(() => setCopied(false), 1400)
     } catch { /* silent */ }
   }
@@ -219,9 +219,12 @@ export default function ColorSwatch({
         zIndex: isDragging ? 20 : undefined,
       }}
     >
-      {/* Dark overlay when locked */}
+      {/* Locked indicator: subtle overlay + left accent bar */}
       {locked && (
-        <div className="absolute inset-0 pointer-events-none z-[1]" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
+        <>
+          <div className="absolute inset-0 pointer-events-none z-[1]" style={{ backgroundColor: 'rgba(0,0,0,0.10)' }} />
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] pointer-events-none z-[2]" style={{ backgroundColor: lightBg ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.5)' }} />
+        </>
       )}
 
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => onPanelChange(null)} />}
@@ -333,8 +336,12 @@ export default function ColorSwatch({
         style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
       />
 
+      {/* Locked indicator: subtle overlay + top accent bar */}
       {locked && (
-        <div className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.15)' }} />
+        <>
+          <div className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.10)' }} />
+          <div className="absolute top-0 left-0 right-0 h-[3px] pointer-events-none z-[2]" style={{ backgroundColor: lightBg ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.5)' }} />
+        </>
       )}
 
       {shadesOpen && <ShadesPanel hex={hex} onClose={() => onPanelChange(null)} />}

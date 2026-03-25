@@ -30,7 +30,7 @@ export function ShadesSpecimen({ open, hex, onClose }: { open: boolean; hex: str
     try {
       await navigator.clipboard.writeText(shade.toUpperCase())
       setCopiedIdx(i)
-      showToast('Copied!')
+      showToast(`Copied ${shade.toUpperCase()}`, shade)
       setTimeout(() => setCopiedIdx(null), 1200)
     } catch { /* silent */ }
   }

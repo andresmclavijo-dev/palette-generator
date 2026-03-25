@@ -344,7 +344,7 @@ export default function DesktopStudio() {
     try {
       await navigator.clipboard.writeText(hex.toUpperCase())
       setCopiedId(id)
-      showToast('Copied!')
+      showToast(`Copied ${hex.toUpperCase()}`, hex)
       setTimeout(() => setCopiedId(null), 1200)
     } catch { /* silent */ }
   }

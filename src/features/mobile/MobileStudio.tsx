@@ -91,7 +91,7 @@ export function MobileStudio(_props: MobileStudioProps) {
     try {
       await navigator.clipboard.writeText(hex.toUpperCase())
       setCopiedHex(hex)
-      showToast('Copied!')
+      showToast(`Copied ${hex.toUpperCase()}`, hex)
       setTimeout(() => setCopiedHex(null), 1200)
     } catch { /* silent */ }
   }
