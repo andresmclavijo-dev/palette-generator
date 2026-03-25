@@ -39,6 +39,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const CookiePolicy = lazy(() => import('./pages/CookiePolicy'))
 const TermsOfService = lazy(() => import('./pages/TermsOfService'))
 const PluginAuth = lazy(() => import('./pages/PluginAuth'))
+const PluginPage = lazy(() => import('./pages/Plugin'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -52,6 +53,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/auth/plugin" element={<PluginAuth />} />
+            <Route path="/plugin" element={<PluginPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

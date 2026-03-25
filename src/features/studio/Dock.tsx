@@ -99,7 +99,7 @@ export function Dock({
             active={false}
             expanded={expanded}
             onClick={() => {
-              window.open('https://www.usepaletta.io', '_blank')
+              window.open('/plugin', '_blank')
               analytics.track('plugin_nav_clicked')
             }}
           />

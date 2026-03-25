@@ -15,7 +15,7 @@ function PluginCard() {
   return (
     <button
       onClick={() => {
-        window.open('https://www.usepaletta.io', '_blank')
+        window.open('/plugin', '_blank')
         analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
       }}
       type="button"
