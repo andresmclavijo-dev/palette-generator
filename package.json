@@ -28,6 +28,7 @@
     "stripe": "^20.4.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
+    "sharp": "^0.34.5",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -38,7 +39,6 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.33",
-    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
