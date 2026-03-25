@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
-  MoreHorizontal, ExternalLink, Puzzle,
+  MoreHorizontal, ExternalLink, Puzzle, Scale,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -143,35 +143,45 @@ export function Dock({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Theme toggle */}
-        <div className="flex justify-center" style={{ margin: expanded ? '8px 0' : '6px 0' }}>
-          <ThemeToggle compact collapsed={!expanded} />
-        </div>
-
-        {/* Legal */}
-        <DockLegalMenu expanded={expanded} />
-
-        {/* Collapse / Expand toggle */}
+        {/* ─── Bottom utility group ─── */}
         {expanded ? (
-          <button
-            onClick={onToggle}
-            className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
-            style={{ height: 48, padding: '0 14px', gap: 8, borderRadius: 12 }}
-            aria-label="Collapse dock"
-          >
-            <ChevronLeft size={20} />
-            <span>Collapse</span>
-          </button>
-        ) : (
-          <DarkTooltip label="Expand" position="right">
+          <div className="flex flex-col" style={{ gap: 8 }}>
+            {/* Separator */}
+            <div style={{ height: 1, margin: '0 14px', backgroundColor: 'hsl(var(--border) / 0.2)' }} />
+
+            {/* Theme toggle — full width segmented control */}
+            <div style={{ padding: '0 6px' }}>
+              <ThemeToggle />
+            </div>
+
+            {/* Legal — icon + text row, opens popover */}
+            <DockLegalMenu expanded />
+
+            {/* Collapse */}
             <button
               onClick={onToggle}
-              className="mx-auto w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
-              aria-label="Expand dock"
+              className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              style={{ height: 36, padding: '0 14px', gap: 10, borderRadius: 8 }}
+              aria-label="Collapse dock"
             >
-              <ChevronRight size={20} />
+              <ChevronLeft size={18} />
+              <span>Collapse</span>
             </button>
-          </DarkTooltip>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center" style={{ gap: 2 }}>
+            <ThemeToggle collapsed />
+            <DockLegalMenu expanded={false} />
+            <DarkTooltip label="Expand" position="right">
+              <button
+                onClick={onToggle}
+                className="w-12 h-12 flex items-center justify-center rounded-pill text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
+                aria-label="Expand dock"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </DarkTooltip>
+          </div>
         )}
       </nav>
     </aside>
@@ -338,15 +348,16 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
 
   if (expanded) {
     return (
-      <div ref={ref} className="relative" style={{ padding: '0 14px', marginBottom: 4 }}>
+      <div ref={ref} className="relative">
         <button
           onClick={() => setOpen(o => !o)}
-          className="text-[12px] text-muted-foreground hover:text-foreground hover:underline transition-colors"
-          style={{ background: 'none', border: 'none', padding: 0 }}
+          className="flex items-center w-full text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          style={{ height: 36, padding: '0 14px', gap: 10, borderRadius: 8, background: 'none', border: 'none' }}
           aria-label="Legal links"
           aria-expanded={open}
         >
-          Legal
+          <Scale size={18} />
+          <span>Legal</span>
         </button>
         {popover}
       </div>
