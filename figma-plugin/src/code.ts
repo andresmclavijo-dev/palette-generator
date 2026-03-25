@@ -175,7 +175,10 @@ figma.ui.onmessage = async (msg: UIMessage) => {
             isPro: true,
           }),
         })
-        if (!response.ok) throw new Error(`API ${response.status}`)
+        if (!response.ok) {
+          const body = await response.text().catch(() => '')
+          throw new Error(`API ${response.status}: ${body.slice(0, 200)}`)
+        }
         const data = await response.json() as { colors: string[] }
         if (!data.colors || !Array.isArray(data.colors)) throw new Error('Invalid response')
         currentPalette = data.colors.map(hex => ({
@@ -185,12 +188,14 @@ figma.ui.onmessage = async (msg: UIMessage) => {
         }))
         send({ type: 'ai-loading', loading: false })
         send({ type: 'palette-generated', colors: currentPalette })
-      } catch {
+      } catch (err) {
         send({ type: 'ai-loading', loading: false })
         const hexes = generateByMode('random', null, msg.count)
         currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
         send({ type: 'palette-generated', colors: currentPalette })
-        send({ type: 'error', message: 'AI unavailable — generated random palette instead' })
+        const detail = err instanceof Error ? err.message : String(err)
+        console.error('[AI_FETCH_ERROR]', detail)
+        send({ type: 'error', message: `AI unavailable (${detail.slice(0, 80)}) — random palette instead` })
       }
       break
     }
