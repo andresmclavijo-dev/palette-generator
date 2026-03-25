@@ -543,7 +543,47 @@ function updateStepper() {
   if (plus) plus.disabled = state.colorCount >= 8
 }
 
+// ── AI daily limit (free: 3/day, Pro: unlimited) ─────────────────
+const AI_DAILY_LIMIT = 3
+const AI_STORAGE_KEY = 'paletta_ai_usage'
+
+function getAiUsage(): { count: number; date: string } {
+  try {
+    const stored = localStorage.getItem(AI_STORAGE_KEY)
+    if (!stored) return { count: 0, date: new Date().toDateString() }
+    const usage = JSON.parse(stored) as { count: number; date: string }
+    if (usage.date !== new Date().toDateString()) return { count: 0, date: new Date().toDateString() }
+    return usage
+  } catch {
+    return { count: 0, date: new Date().toDateString() }
+  }
+}
+
+function incrementAiUsage(): number {
+  const usage = getAiUsage()
+  usage.count++
+  usage.date = new Date().toDateString()
+  localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(usage))
+  return usage.count
+}
+
+function canUseAi(): boolean {
+  if (state.isPro) return true
+  return getAiUsage().count < AI_DAILY_LIMIT
+}
+
+function getAiRemaining(): number {
+  if (state.isPro) return Infinity
+  return Math.max(0, AI_DAILY_LIMIT - getAiUsage().count)
+}
+
 async function aiGenerateFromUI(prompt: string, count: number, btn: HTMLButtonElement) {
+  if (!canUseAi()) {
+    showToast('Daily AI limit reached')
+    showProModal()
+    return
+  }
+
   btn.disabled = true
   btn.classList.add('loading')
   btn.textContent = '\u2026'
@@ -569,6 +609,13 @@ async function aiGenerateFromUI(prompt: string, count: number, btn: HTMLButtonEl
     renderStudioBars()
     renderStudioAccordions()
     updateStepper()
+
+    // Count successful call and show remaining
+    incrementAiUsage()
+    const remaining = getAiRemaining()
+    if (remaining > 0 && remaining <= 2) {
+      showToast(`${remaining} AI prompt${remaining === 1 ? '' : 's'} left today`)
+    }
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err)
     console.error('[AI_FETCH_ERROR]', detail)
