@@ -373,7 +373,7 @@ function DockLegalMenu({ expanded }: { expanded: boolean }) {
       <div ref={ref} className="relative">
         <button
           onClick={() => setOpen(o => !o)}
-          className="flex items-center w-full text-[14px] text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          className="flex items-center w-full text-[14px] text-muted-foreground hover:text-foreground hover:bg-surface transition-colors duration-150 ease-in-out cursor-pointer"
           style={{ height: 48, padding: '0 14px', gap: 12, borderRadius: 12, background: 'none', border: 'none', fontWeight: 500 }}
           aria-label="Legal links"
           aria-expanded={open}
