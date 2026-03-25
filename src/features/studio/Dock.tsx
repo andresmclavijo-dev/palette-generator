@@ -275,32 +275,42 @@ function DockThemeIcons({ expanded }: { expanded: boolean }) {
   return (
     <div
       className="flex items-center"
-      style={{ height: 48, padding: '0 14px', gap: 8 }}
+      style={{ height: 48, padding: '0 14px', gap: 16 }}
     >
-      <button
-        onClick={() => setTheme('light')}
-        aria-label="Light mode"
-        className="transition-colors duration-150"
-        style={{
-          background: 'none', border: 'none', padding: 0,
-          color: isLight ? BRAND_VIOLET : undefined,
-          opacity: isLight ? 1 : 0.4,
-        }}
-      >
-        <Sun size={20} />
-      </button>
-      <button
-        onClick={() => setTheme('dark')}
-        aria-label="Dark mode"
-        className="transition-colors duration-150"
-        style={{
-          background: 'none', border: 'none', padding: 0,
-          color: !isLight ? BRAND_VIOLET : undefined,
-          opacity: !isLight ? 1 : 0.4,
-        }}
-      >
-        <Moon size={20} />
-      </button>
+      <DarkTooltip label="Light mode" position="top">
+        <button
+          onClick={() => setTheme('light')}
+          aria-label="Light mode"
+          className="cursor-pointer"
+          style={{
+            background: 'none', border: 'none', padding: 0,
+            color: isLight ? BRAND_VIOLET : undefined,
+            opacity: isLight ? 1 : 0.4,
+            transition: 'opacity 150ms ease-out, color 150ms ease-out',
+          }}
+          onMouseEnter={(e) => { if (!isLight) e.currentTarget.style.opacity = '0.7' }}
+          onMouseLeave={(e) => { if (!isLight) e.currentTarget.style.opacity = '0.4' }}
+        >
+          <Sun size={20} />
+        </button>
+      </DarkTooltip>
+      <DarkTooltip label="Dark mode" position="top">
+        <button
+          onClick={() => setTheme('dark')}
+          aria-label="Dark mode"
+          className="cursor-pointer"
+          style={{
+            background: 'none', border: 'none', padding: 0,
+            color: !isLight ? BRAND_VIOLET : undefined,
+            opacity: !isLight ? 1 : 0.4,
+            transition: 'opacity 150ms ease-out, color 150ms ease-out',
+          }}
+          onMouseEnter={(e) => { if (isLight) e.currentTarget.style.opacity = '0.7' }}
+          onMouseLeave={(e) => { if (isLight) e.currentTarget.style.opacity = '0.4' }}
+        >
+          <Moon size={20} />
+        </button>
+      </DarkTooltip>
     </div>
   )
 }
