@@ -6,98 +6,90 @@ export function BrandPattern({ p }: { p: PreviewPalette }) {
 
   return (
     <svg viewBox="0 0 800 500" className="block w-full h-auto" aria-hidden="true" style={{ backgroundColor: p.surface }}>
-      {/* ── Background layer: large soft shapes ── */}
-      {/* Quarter circle — top-left */}
-      <path d="M 0 0 L 260 0 A 260 260 0 0 1 0 260 Z" fill={c[0 % n]} opacity="0.12" />
-      {/* Half circle — right edge */}
-      <circle cx="800" cy="250" r="200" fill={c[1 % n]} opacity="0.08" />
-      {/* Large rounded rect — bottom */}
-      <rect x="200" y="360" width="400" height="140" rx="70" fill={c[2 % n]} opacity="0.1" />
+      {/* ── Large organic blob shapes ── */}
 
-      {/* ── Mid layer: main shapes ── */}
-      {/* Large circle — upper left */}
-      <circle cx="140" cy="160" r="110" fill={c[0 % n]} opacity="0.8" />
-      {/* Overlapping rounded rect */}
-      <rect x="60" y="220" width="180" height="120" rx="20" fill={c[1 % n]} opacity="0.75" />
-      {/* Small circle overlap */}
-      <circle cx="200" cy="200" r="44" fill={c[2 % n]} opacity="0.85" />
+      {/* Blob 1 — top-left, largest */}
+      <path
+        d="M 40,80 C 80,-20 240,-40 340,30 C 440,100 420,200 360,270 C 300,340 160,350 80,290 C 0,230 -20,140 40,80 Z"
+        fill={c[0 % n]}
+        opacity="0.92"
+      />
 
-      {/* Diagonal stripe band — center */}
-      <g transform="rotate(-12 500 160)">
-        <rect x="320" y="80" width="320" height="28" rx="14" fill={c[0 % n]} opacity="0.85" />
-        <rect x="340" y="120" width="280" height="22" rx="11" fill={c[1 % n]} opacity="0.7" />
-        <rect x="360" y="152" width="240" height="18" rx="9" fill={c[2 % n]} opacity="0.6" />
-        {n > 3 && <rect x="380" y="180" width="200" height="14" rx="7" fill={c[3]} opacity="0.5" />}
-        {n > 4 && <rect x="400" y="204" width="160" height="12" rx="6" fill={c[4]} opacity="0.45" />}
-      </g>
+      {/* Blob 2 — center, wide and warm */}
+      <path
+        d="M 300,120 C 380,60 520,50 620,120 C 720,190 710,310 620,370 C 530,430 380,430 290,360 C 200,290 220,180 300,120 Z"
+        fill={c[1 % n]}
+        opacity="0.87"
+      />
 
-      {/* Half circle — mid-right */}
-      <path d="M 620 180 A 70 70 0 0 1 620 320" fill={c[(n > 3 ? 3 : 0) % n]} opacity="0.65" />
+      {/* Blob 3 — bottom-left overlap */}
+      <path
+        d="M 50,310 C 100,250 220,240 300,300 C 380,360 370,460 290,500 C 210,540 70,520 20,450 C -30,380 0,370 50,310 Z"
+        fill={c[2 % n]}
+        opacity="0.9"
+      />
 
-      {/* Concentric arcs — bottom-right */}
-      <path d="M 800 500 A 200 200 0 0 0 600 300" fill="none" stroke={c[0 % n]} strokeWidth="24" opacity="0.18" strokeLinecap="round" />
-      <path d="M 800 500 A 150 150 0 0 0 650 350" fill="none" stroke={c[1 % n]} strokeWidth="18" opacity="0.3" strokeLinecap="round" />
-      <path d="M 800 500 A 100 100 0 0 0 700 400" fill="none" stroke={c[2 % n]} strokeWidth="12" opacity="0.5" strokeLinecap="round" />
-
-      {/* ── Detail layer: small elements ── */}
-      {/* Scattered dots */}
-      {[
-        [420, 300, 20], [490, 340, 14], [540, 280, 24], [580, 340, 10],
-        [340, 400, 12], [400, 430, 18], [470, 450, 9], [310, 340, 8],
-      ].map(([cx, cy, r], i) => (
-        <circle key={`dot-${i}`} cx={cx} cy={cy} r={r} fill={c[i % n]} opacity={0.5 + (i % 3) * 0.15} />
-      ))}
-
-      {/* Triangle — lower left */}
-      <polygon points="50,450 190,450 120,350" fill={c[(n > 3 ? 3 : 1) % n]} opacity="0.45" />
-      {/* Small triangle accent */}
-      <polygon points="270,380 320,380 295,340" fill={c[0 % n]} opacity="0.35" />
-
-      {/* Grid of rounded squares — right */}
-      {[0, 1, 2].map(row =>
-        [0, 1, 2].map(col => (
-          <rect
-            key={`sq-${row}-${col}`}
-            x={640 + col * 44}
-            y={300 + row * 44}
-            width="36" height="36" rx="8"
-            fill={c[(row * 3 + col) % n]}
-            opacity={0.4 + row * 0.1}
-          />
-        ))
+      {/* Blob 4 — top-right (if 4+ colors) */}
+      {n > 3 && (
+        <path
+          d="M 560,0 C 640,-20 770,20 800,90 C 830,160 790,250 710,270 C 630,290 560,240 530,170 C 500,100 480,20 560,0 Z"
+          fill={c[3]}
+          opacity="0.85"
+        />
       )}
 
-      {/* Accent lines — top */}
-      {[0, 1, 2, 3, 4].map(i => (
-        <line
-          key={`ln-${i}`}
-          x1={320 + i * 4} y1={28 + i * 10}
-          x2={520 - i * 25} y2={28 + i * 10}
-          stroke={c[i % n]} strokeWidth={3 - i * 0.3} strokeLinecap="round" opacity={0.4 + i * 0.08}
+      {/* Blob 5 — bottom-right (if 5+ colors) */}
+      {n > 4 && (
+        <path
+          d="M 500,320 C 570,280 700,290 760,360 C 820,430 800,500 720,520 C 640,540 530,510 480,440 C 430,370 430,360 500,320 Z"
+          fill={c[4]}
+          opacity="0.88"
         />
+      )}
+
+      {/* Blob 6 — small accent, upper center overlap */}
+      <path
+        d="M 380,20 C 430,-10 510,10 530,60 C 550,110 520,160 470,170 C 420,180 370,150 360,100 C 350,50 330,50 380,20 Z"
+        fill={c[0 % n]}
+        opacity="0.65"
+      />
+
+      {/* Blob 7 — small accent, right edge */}
+      <path
+        d="M 710,140 C 750,110 800,130 810,180 C 820,230 790,280 750,290 C 710,300 680,270 670,220 C 660,170 670,170 710,140 Z"
+        fill={c[2 % n]}
+        opacity="0.6"
+      />
+
+      {/* ── Small accent elements ── */}
+
+      {/* Scattered organic dots of varying size */}
+      {[
+        [190, 140, 14], [460, 240, 10], [640, 100, 12], [360, 450, 9],
+        [100, 420, 11], [550, 450, 13], [740, 380, 8], [680, 40, 10],
+        [240, 210, 7], [500, 160, 9],
+      ].map(([cx, cy, r], i) => (
+        <circle key={`d-${i}`} cx={cx} cy={cy} r={r} fill={c[i % n]} opacity={0.35 + (i % 4) * 0.1} />
       ))}
 
-      {/* Thin diagonal lines — mid-left accent */}
-      {[0, 1, 2].map(i => (
-        <line
-          key={`diag-${i}`}
-          x1={260 + i * 16} y1={120}
-          x2={310 + i * 16} y2={240}
-          stroke={c[i % n]} strokeWidth="1.5" opacity="0.25" strokeLinecap="round"
-        />
-      ))}
+      {/* Curved accent arcs */}
+      <path d="M 170,50 Q 220,10 270,45" fill="none" stroke={c[2 % n]} strokeWidth="3.5" opacity="0.3" strokeLinecap="round" />
+      <path d="M 600,430 Q 650,400 700,440" fill="none" stroke={c[0 % n]} strokeWidth="3" opacity="0.25" strokeLinecap="round" />
+      <path d="M 430,70 Q 465,45 500,75" fill="none" stroke={c[1 % n]} strokeWidth="2.5" opacity="0.25" strokeLinecap="round" />
 
-      {/* Small dots row — bottom accent */}
-      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
-        <circle
-          key={`sdot-${i}`}
-          cx={240 + i * 28} cy={470}
-          r="3" fill={c[i % n]} opacity="0.4"
-        />
-      ))}
+      {/* Small organic blob accent — lower center */}
+      <path
+        d="M 400,400 C 420,385 450,390 460,410 C 470,430 455,450 435,455 C 415,460 395,445 390,425 C 385,405 380,415 400,400 Z"
+        fill={c[1 % n]}
+        opacity="0.5"
+      />
 
-      {/* Quarter circle — bottom-left corner */}
-      <path d="M 0 500 L 0 400 A 100 100 0 0 1 100 500 Z" fill={c[(n > 4 ? 4 : 1) % n]} opacity="0.3" />
+      {/* Small organic blob accent — mid right */}
+      <path
+        d="M 650,200 C 670,185 695,190 705,210 C 715,230 700,250 680,255 C 660,260 640,245 635,225 C 630,205 630,215 650,200 Z"
+        fill={c[0 % n]}
+        opacity="0.45"
+      />
     </svg>
   )
 }

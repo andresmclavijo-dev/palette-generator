@@ -24,7 +24,7 @@ export function DashboardPreview({ p }: { p: PreviewPalette }) {
       <aside style={{ width: 180, backgroundColor: p.darkest, padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px', marginBottom: 20 }}>
           <div style={{ width: 24, height: 24, borderRadius: 6, backgroundColor: p.primary }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: p.onDarkest }}>Acme</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: p.onDarkest }}>Paletta</span>
         </div>
         {sidebarItems.map(item => (
           <div

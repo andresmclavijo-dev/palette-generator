@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Lock, Maximize2, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -15,15 +15,61 @@ interface Template {
   id: TemplateId
   label: string
   free: boolean
-  aspect: 'wide' | 'tall'
 }
 
 const TEMPLATES: Template[] = [
-  { id: 'brand', label: 'Brand Pattern', free: true, aspect: 'wide' },
-  { id: 'landing', label: 'Landing Page', free: true, aspect: 'wide' },
-  { id: 'dashboard', label: 'Dashboard', free: false, aspect: 'wide' },
-  { id: 'mobile', label: 'Mobile App', free: false, aspect: 'tall' },
+  { id: 'brand', label: 'Brand Pattern', free: true },
+  { id: 'landing', label: 'Landing Page', free: true },
+  { id: 'dashboard', label: 'Dashboard', free: false },
+  { id: 'mobile', label: 'Mobile App', free: false },
 ]
+
+/** Fixed internal render size for each template */
+const TEMPLATE_SIZES: Record<TemplateId, { w: number; h: number }> = {
+  brand: { w: 600, h: 375 },
+  landing: { w: 800, h: 600 },
+  dashboard: { w: 900, h: 520 },
+  mobile: { w: 380, h: 650 },
+}
+
+/**
+ * Renders children at a fixed internal size and CSS-scales to fit container width.
+ * Prevents text reflow / layout breaking at different card sizes.
+ */
+function ScaledFrame({ templateWidth, templateHeight, children }: {
+  templateWidth: number
+  templateHeight: number
+  children: React.ReactNode
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => {
+      const w = el.clientWidth
+      if (w > 0) setScale(Math.min(w / templateWidth, 1))
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [templateWidth])
+
+  return (
+    <div ref={ref} style={{ overflow: 'hidden', height: scale > 0 ? templateHeight * scale : 0 }}>
+      <div style={{
+        width: templateWidth,
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
+        opacity: scale > 0 ? 1 : 0,
+      }}>
+        {children}
+      </div>
+    </div>
+  )
+}
 
 export function PreviewGrid({
   hexes,
@@ -75,10 +121,13 @@ export function PreviewGrid({
           gap: 16,
           maxWidth: 1000,
           margin: '0 auto',
+          paddingTop: isMobile ? 8 : 0,
+          paddingBottom: isMobile ? 160 : 0,
         }}
       >
         {TEMPLATES.map(t => {
           const locked = !t.free && !isPro
+          const size = TEMPLATE_SIZES[t.id]
           return (
             <div
               key={t.id}
@@ -103,18 +152,24 @@ export function PreviewGrid({
                 <div className="flex-1 h-4 rounded" style={{ backgroundColor: '#e5e7eb', maxWidth: 200 }} />
                 <button
                   onClick={() => handleExpand(t.id, t.free)}
-                  className="flex items-center justify-center transition-opacity hover:opacity-70"
-                  style={{ width: 24, height: 24, borderRadius: 6, opacity: 0.25, background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}
+                  className="flex items-center justify-center transition-opacity opacity-50 hover:opacity-100"
+                  style={{
+                    width: 24, height: 24, borderRadius: '50%',
+                    backgroundColor: 'rgba(0,0,0,0.06)',
+                    border: 'none', cursor: 'pointer', color: '#6b7280',
+                  }}
                   aria-label={`Expand ${t.label}`}
                 >
-                  <Maximize2 size={12} />
+                  <Maximize2 size={11} />
                 </button>
               </div>
 
-              {/* Template content */}
-              <div className="relative" style={{ overflow: 'hidden', maxHeight: t.aspect === 'tall' ? 520 : 380 }}>
+              {/* Template content — scaled to fit */}
+              <div className="relative" style={{ overflow: 'hidden' }}>
                 <div style={{ filter: locked ? 'blur(5px)' : undefined, opacity: locked ? 0.5 : 1, pointerEvents: 'none' }}>
-                  {renderTemplate(t.id)}
+                  <ScaledFrame templateWidth={size.w} templateHeight={size.h}>
+                    {renderTemplate(t.id)}
+                  </ScaledFrame>
                 </div>
 
                 {/* Pro lock overlay */}
@@ -147,10 +202,10 @@ export function PreviewGrid({
 
               {/* Label bar */}
               <div
-                className="flex items-center gap-2 px-3 py-2"
-                style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
+                className="flex items-center gap-2 px-3"
+                style={{ borderTop: '1px solid rgba(0,0,0,0.06)', padding: '8px 12px' }}
               >
-                <span className="text-[13px] font-medium text-muted-foreground">{t.label}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)', opacity: 0.6 }}>{t.label}</span>
                 {t.free ? (
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5"
@@ -167,7 +222,7 @@ export function PreviewGrid({
         })}
       </div>
 
-      {/* Fullscreen overlay */}
+      {/* Fullscreen overlay — renders at native size (no scaling) */}
       {expanded && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"

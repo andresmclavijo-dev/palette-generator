@@ -7,7 +7,7 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', height: 56, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: p.primary }} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: p.textDark }}>Acme</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: p.textDark }}>Paletta</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
           <span style={{ fontSize: 13, fontWeight: 500, color: p.textMuted, cursor: 'pointer' }}>Features</span>
@@ -103,7 +103,7 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
           border: `1px solid ${p.primary}12`,
         }}>
           <p style={{ fontSize: 14, color: p.textDark, lineHeight: 1.7, fontStyle: 'italic', margin: '0 0 16px' }}>
-            "We switched to Acme three months ago and haven't looked back. Our deploy time dropped by 60% and the team loves the workflow."
+            "We switched to Paletta three months ago and haven't looked back. Our deploy time dropped by 60% and the team loves the workflow."
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
@@ -139,7 +139,7 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
 
       {/* Footer */}
       <footer style={{ padding: '20px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-        <span style={{ fontSize: 12, color: p.textMuted }}>© 2026 Acme Inc.</span>
+        <span style={{ fontSize: 12, color: p.textMuted }}>© 2026 Paletta Inc.</span>
         <div style={{ display: 'flex', gap: 20 }}>
           <span style={{ fontSize: 12, color: p.textMuted }}>Privacy</span>
           <span style={{ fontSize: 12, color: p.textMuted }}>Terms</span>

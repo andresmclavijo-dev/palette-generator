@@ -421,7 +421,7 @@ export function MobileStudio(_props: MobileStudioProps) {
         ) : (
           /* Preview view */
           <div
-            className="flex-1 overflow-auto px-3 pt-1 pb-4"
+            className="flex-1 overflow-auto px-3 pt-3 pb-4"
             style={{
               WebkitOverflowScrolling: 'touch',
               filter: visionFilter,
