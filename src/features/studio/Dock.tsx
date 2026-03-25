@@ -103,19 +103,17 @@ export function Dock({
               window.location.href = '/plugin'
             }}
           />
+          <DockItem
+            icon={<User size={20} />}
+            label="Profile"
+            active={section === 'profile'}
+            expanded={expanded}
+            onClick={() => onSectionChange('profile')}
+          />
         </div>
 
         {/* Spacer */}
         <div className="flex-1" />
-
-        {/* Profile — at bottom, separated */}
-        <DockItem
-          icon={<User size={20} />}
-          label="Profile"
-          active={section === 'profile'}
-          expanded={expanded}
-          onClick={() => onSectionChange('profile')}
-        />
 
         {/* Theme toggle */}
         <div className="flex justify-center" style={{ margin: expanded ? '8px 0' : '6px 0' }}>
