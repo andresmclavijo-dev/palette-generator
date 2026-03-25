@@ -5,6 +5,7 @@ import {
   Lock, Unlock, Copy, Check, Info,
   Share2, Link2, Download, Grid3X3,
   Plus, Minus, Undo2, Redo2,
+  Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -52,20 +53,20 @@ type SectionId = 'studio' | 'library' | 'profile'
 type ViewMode = 'colors' | 'preview'
 type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
-const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string }[] = [
-  { mode: 'random', label: 'Random', short: 'Random', desc: 'Fully random colors' },
-  { mode: 'analogous', label: 'Analogous', short: 'Analogous', desc: 'Colors next to each other' },
-  { mode: 'triadic', label: 'Triadic', short: 'Triadic', desc: 'Three evenly spaced' },
-  { mode: 'complementary', label: 'Complementary', short: 'Compl.', desc: 'Opposite on the wheel' },
-  { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of one hue' },
+const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string; icon: typeof Shuffle; iconBg: string }[] = [
+  { mode: 'random', label: 'Random', short: 'Random', desc: 'Fully random colors', icon: Shuffle, iconBg: 'hsl(var(--muted-foreground) / 0.12)' },
+  { mode: 'analogous', label: 'Analogous', short: 'Analogous', desc: 'Colors next to each other', icon: Palette, iconBg: 'hsla(25, 95%, 53%, 0.12)' },
+  { mode: 'triadic', label: 'Triadic', short: 'Triadic', desc: 'Three evenly spaced', icon: Triangle, iconBg: 'hsla(142, 71%, 45%, 0.12)' },
+  { mode: 'complementary', label: 'Complementary', short: 'Compl.', desc: 'Opposite on the wheel', icon: Contrast, iconBg: 'hsla(217, 91%, 60%, 0.12)' },
+  { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of one hue', icon: Droplet, iconBg: 'hsla(263, 100%, 64%, 0.12)' },
 ]
 
-const VISION_MODES: { mode: VisionMode; label: string; short: string; pro: boolean }[] = [
-  { mode: 'normal', label: 'Normal Vision', short: 'Normal', pro: false },
-  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', pro: true },
-  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', pro: true },
-  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', pro: true },
+const VISION_MODES: { mode: VisionMode; label: string; short: string; desc: string; pro: boolean }[] = [
+  { mode: 'normal', label: 'Normal Vision', short: 'Normal', desc: 'Full color spectrum', pro: false },
+  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', desc: 'Reduced red sensitivity', pro: false },
+  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', desc: 'Reduced green sensitivity', pro: true },
+  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', desc: 'Reduced blue sensitivity', pro: true },
+  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', desc: 'Complete color blindness', pro: true },
 ]
 
 const DOCK_STORAGE_KEY = 'paletta_dock_expanded'
@@ -703,43 +704,61 @@ export default function DesktopStudio() {
                 <PreviewMode
                   swatches={swatches}
                   isPro={isPro}
-                  onGenerate={() => triggerGenerate('button')}
-                  onExport={() => openDialog('export')}
-                  onUndo={undo}
-                  onRedo={redo}
                   onProGate={openProModal}
-                  onLock={lockSwatch}
                   visionFilter={lensOn ? visionFilter : undefined}
                 />
               )}
 
-              {/* ─── Floating Bottom Bar (Colors view only) ─── */}
-              {viewMode === 'colors' && activeDialog === null && (
-                <ColorsBottomBar
-                  harmonyMode={harmonyMode}
-                  onHarmonySelect={handleHarmonySelect}
-                  lensOn={lensOn}
-                  visionMode={visionMode}
-                  isPro={isPro}
-                  onToggleLens={() => setLensOn(v => !v)}
-                  onVisionChange={setVisionMode}
-                  onProGate={() => openProModal('vision_sim', 'lens_bar')}
-                  onUndo={undo}
-                  onRedo={redo}
-                  count={count}
-                  isAtFreeCap={isAtFreeCap}
-                  isAtProMax={isAtProMax}
-                  isColorGated={isColorGated}
-                  onCountDown={() => { if (count > 3) setCount(count - 1) }}
-                  onCountUp={() => {
-                    const liveCount = usePaletteStore.getState().swatches.length
-                    const liveMax = isPro ? 8 : 5
-                    if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
-                    if (liveCount >= liveMax) return
-                    setCount(liveCount + 1)
-                  }}
-                  onGenerate={() => triggerGenerate('button')}
-                />
+              {/* ─── Unified Floating Bottom Bar (both views) ─── */}
+              {activeDialog === null && (
+                viewMode === 'colors' ? (
+                  <ColorsBottomBar
+                    harmonyMode={harmonyMode}
+                    onHarmonySelect={handleHarmonySelect}
+                    lensOn={lensOn}
+                    visionMode={visionMode}
+                    isPro={isPro}
+                    onToggleLens={() => setLensOn(v => !v)}
+                    onVisionChange={setVisionMode}
+                    onProGate={() => openProModal('vision_sim', 'lens_bar')}
+                    onUndo={undo}
+                    onRedo={redo}
+                    count={count}
+                    isAtFreeCap={isAtFreeCap}
+                    isAtProMax={isAtProMax}
+                    isColorGated={isColorGated}
+                    onCountDown={() => { if (count > 3) setCount(count - 1) }}
+                    onCountUp={() => {
+                      const liveCount = usePaletteStore.getState().swatches.length
+                      const liveMax = isPro ? 8 : 5
+                      if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                      if (liveCount >= liveMax) return
+                      setCount(liveCount + 1)
+                    }}
+                    onGenerate={() => triggerGenerate('button')}
+                  />
+                ) : viewMode === 'preview' ? (
+                  <PreviewBottomBar
+                    swatches={swatches}
+                    onLock={lockSwatch}
+                    onUndo={undo}
+                    onRedo={redo}
+                    count={count}
+                    isAtFreeCap={isAtFreeCap}
+                    isAtProMax={isAtProMax}
+                    isColorGated={isColorGated}
+                    onCountDown={() => { if (count > 3) setCount(count - 1) }}
+                    onCountUp={() => {
+                      const liveCount = usePaletteStore.getState().swatches.length
+                      const liveMax = isPro ? 8 : 5
+                      if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                      if (liveCount >= liveMax) return
+                      setCount(liveCount + 1)
+                    }}
+                    onGenerate={() => triggerGenerate('button')}
+                    onExport={() => openDialog('export')}
+                  />
+                ) : null
               )}
             </>
           )}
@@ -1065,21 +1084,22 @@ function ColorsBottomBar({
               </button>
             </div>
 
-            {/* Generate */}
+            {/* Generate — purple CTA */}
             <button
               onClick={onGenerate}
-              className="flex items-center gap-1.5 transition-all duration-150 bg-surface hover:bg-border-light focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-              style={{ height: 36, padding: '0 12px', borderRadius: 8 }}
+              className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+              style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
               aria-label="Generate new palette"
             >
-              <span className="text-[13px] font-medium text-foreground">Generate</span>
-              <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-muted-foreground" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'hsl(var(--card))' }}>space</kbd>
+              <Sparkles size={14} className="text-primary-foreground" />
+              <span className="text-[13px] font-semibold text-primary-foreground">Generate</span>
+              <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-primary-foreground/60" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.15)' }}>space</kbd>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Harmony dropdown (portal, opens upward) */}
+      {/* Harmony dropdown (portal, opens upward) — rich 2-line items */}
       {harmonyOpen && createPortal(
         <div
           ref={harmonyDropRef}
@@ -1089,43 +1109,52 @@ function ColorsBottomBar({
           style={{
             bottom: harmonyPos.bottom,
             left: harmonyPos.left,
-            width: 240,
-            borderRadius: 8,
-            border: '0.5px solid hsl(var(--border))',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            width: 280,
+            borderRadius: 12,
+            border: '1px solid hsl(var(--border-light))',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
-          {HARMONIES.map((h, i) => {
-            const isActive = harmonyMode === h.mode
-            return (
-              <button
-                key={h.mode}
-                role="option"
-                aria-selected={isActive}
-                onClick={() => selectHarmony(h.mode)}
-                className="w-full text-left transition-colors duration-150 hover:bg-surface"
-                style={{
-                  height: 36,
-                  padding: '0 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: isActive ? 'hsl(var(--surface))' : undefined,
-                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
-                }}
-              >
-                <span className="text-[13px]" style={{ fontWeight: isActive ? 500 : 400, color: 'hsl(var(--foreground))' }}>
-                  {h.label}
-                </span>
-                {isActive && <Check size={14} className="text-primary" />}
-              </button>
-            )
-          })}
+          <div style={{ padding: 6 }}>
+            {HARMONIES.map(h => {
+              const isActive = harmonyMode === h.mode
+              const Icon = h.icon
+              return (
+                <button
+                  key={h.mode}
+                  role="option"
+                  aria-selected={isActive}
+                  onClick={() => selectHarmony(h.mode)}
+                  className="w-full text-left transition-colors duration-150 hover:bg-surface"
+                  style={{
+                    padding: '8px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 8,
+                    background: isActive ? 'hsl(var(--surface))' : undefined,
+                  }}
+                >
+                  <div
+                    className="flex items-center justify-center flex-shrink-0"
+                    style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: h.iconBg }}
+                  >
+                    <Icon size={16} className="text-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-foreground">{h.label}</div>
+                    <div className="text-[11px] text-muted-foreground">{h.desc}</div>
+                  </div>
+                  {isActive && <Check size={14} className="text-primary flex-shrink-0" />}
+                </button>
+              )
+            })}
+          </div>
         </div>,
         document.body,
       )}
 
-      {/* Vision dropdown (portal, opens upward) */}
+      {/* Vision dropdown (portal, opens upward) — rich 2-line items */}
       {visionOpen && createPortal(
         <div
           ref={visionDropRef}
@@ -1135,43 +1164,56 @@ function ColorsBottomBar({
           style={{
             bottom: visionPos.bottom,
             left: visionPos.left,
-            width: 240,
-            borderRadius: 8,
-            border: '0.5px solid hsl(var(--border))',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            width: 280,
+            borderRadius: 12,
+            border: '1px solid hsl(var(--border-light))',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
-          {VISION_MODES.map((v, i) => {
-            const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
-            const needsPro = v.pro && !isPro
-            return (
-              <button
-                key={v.mode}
-                role="option"
-                aria-selected={isActive}
-                onClick={() => selectVision(v)}
-                className="w-full transition-colors duration-150 hover:bg-surface"
-                style={{
-                  height: 36,
-                  padding: '0 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: isActive ? 'hsl(var(--surface))' : undefined,
-                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
-                  opacity: needsPro ? 0.4 : 1,
-                }}
-              >
-                <span className="text-[13px]" style={{ fontWeight: isActive ? 500 : 400, color: isActive && v.mode !== 'normal' ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
-                  {v.label}
-                </span>
-                <div className="flex items-center gap-2">
-                  {needsPro && <Lock size={12} className="text-muted-foreground" />}
-                  {isActive && <Check size={14} className="text-primary" />}
-                </div>
-              </button>
-            )
-          })}
+          <div style={{ padding: 6 }}>
+            {VISION_MODES.map(v => {
+              const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
+              const needsPro = v.pro && !isPro
+              return (
+                <button
+                  key={v.mode}
+                  role="option"
+                  aria-selected={isActive}
+                  onClick={() => selectVision(v)}
+                  className="w-full text-left transition-colors duration-150 hover:bg-surface"
+                  style={{
+                    padding: '8px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    borderRadius: 8,
+                    background: isActive ? 'hsl(var(--surface))' : undefined,
+                    opacity: needsPro ? 0.5 : 1,
+                  }}
+                >
+                  <div
+                    className="flex items-center justify-center flex-shrink-0"
+                    style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      backgroundColor: isActive && v.mode !== 'normal'
+                        ? 'hsla(263, 100%, 64%, 0.12)'
+                        : 'hsl(var(--muted-foreground) / 0.08)',
+                    }}
+                  >
+                    <Eye size={16} className={isActive && v.mode !== 'normal' ? 'text-primary' : 'text-foreground'} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-foreground">{v.label}</div>
+                    <div className="text-[11px] text-muted-foreground">{v.desc}</div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {needsPro && <Lock size={12} className="text-muted-foreground" />}
+                    {isActive && <Check size={14} className="text-primary" />}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>,
         document.body,
       )}
@@ -1179,3 +1221,125 @@ function ColorsBottomBar({
   )
 }
 
+// ─── Floating Bottom Bar for Preview View ───
+function PreviewBottomBar({
+  swatches, onLock,
+  onUndo, onRedo,
+  count, isAtFreeCap, isAtProMax, isColorGated,
+  onCountDown, onCountUp, onGenerate, onExport,
+}: {
+  swatches: { id: string; hex: string; locked: boolean }[]
+  onLock: (id: string) => void
+  onUndo: () => void
+  onRedo: () => void
+  count: number
+  isAtFreeCap: boolean
+  isAtProMax: boolean
+  isColorGated: boolean
+  onCountDown: () => void
+  onCountUp: () => void
+  onGenerate: () => void
+  onExport: () => void
+}) {
+  return (
+    <div
+      className="absolute z-20 left-3 right-3 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
+      style={{ bottom: 12 }}
+    >
+      <div className="flex items-center justify-between" style={FLOATING_BAR_STYLE}>
+        {/* LEFT — Color swatches */}
+        <div className="flex items-center" style={{ gap: 6 }}>
+          {swatches.map(s => (
+            <button
+              key={s.id}
+              onClick={() => onLock(s.id)}
+              className="relative flex items-center justify-center transition-all active:scale-[0.98] hover:scale-105"
+              style={{
+                width: 32, height: 32, padding: 0, borderRadius: 8,
+                backgroundColor: s.hex, border: '1px solid rgba(0,0,0,0.08)',
+              }}
+              aria-label={`${s.hex} ${s.locked ? '(locked)' : '(unlocked)'}`}
+            >
+              {s.locked && (
+                <Lock size={10} style={{ color: readableOn(s.hex) }} />
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* RIGHT — Controls */}
+        <div className="flex items-center" style={{ gap: 16 }}>
+          {/* Undo / Redo */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onUndo}
+              className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ width: 32, height: 32, borderRadius: 8 }}
+              aria-label="Undo"
+            >
+              <Undo2 size={18} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={onRedo}
+              className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ width: 32, height: 32, borderRadius: 8 }}
+              aria-label="Redo"
+            >
+              <Redo2 size={18} className="text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Count selector */}
+          <div className="flex items-center">
+            <button
+              onClick={onCountDown}
+              className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+              style={{ width: 28, height: 28, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
+              disabled={count <= 3}
+              aria-label="Remove color"
+            >
+              <Minus size={14} className="text-muted-foreground" />
+            </button>
+            <span className="text-[13px] font-medium text-foreground tabular-nums" style={{ minWidth: 18, textAlign: 'center' }}>{count}</span>
+            <button
+              onClick={onCountUp}
+              className={`relative flex items-center justify-center transition-all duration-150 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-surface' : ''}`}
+              style={{ width: 28, height: 28, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
+              disabled={isAtProMax}
+              aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
+            >
+              <Plus size={14} className="text-muted-foreground" />
+              {isAtFreeCap && (
+                <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
+                  <Lock size={8} className="text-muted-foreground" />
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Generate — purple CTA */}
+          <button
+            onClick={onGenerate}
+            className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+            style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
+            aria-label="Generate new palette"
+          >
+            <Sparkles size={14} className="text-primary-foreground" />
+            <span className="text-[13px] font-semibold text-primary-foreground">Generate</span>
+          </button>
+
+          {/* Export — outlined */}
+          <button
+            onClick={onExport}
+            className="flex items-center gap-1.5 transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
+            style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid hsl(var(--border))' }}
+            aria-label="Export palette"
+          >
+            <Download size={14} className="text-foreground" />
+            <span className="text-[13px] font-medium text-foreground">Export</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
