@@ -82,6 +82,30 @@ export function MobileProfile() {
           </Button>
         </div>
 
+        {/* Figma Plugin promo */}
+        <div className="px-4 mt-6">
+          <button
+            onClick={() => {
+              window.open('https://www.usepaletta.io', '_blank')
+              analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
+            }}
+            type="button"
+            className="w-full bg-card border border-border/30 rounded-2xl p-4 text-left"
+            aria-label="Figma Plugin — Create variables and check contrast in Figma"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Puzzle size={20} className="text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
+                <div className="text-[11px] text-muted-foreground">Create variables and check contrast in Figma</div>
+              </div>
+              <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />
+            </div>
+          </button>
+        </div>
+
         {/* Appearance */}
         <div className="flex flex-col gap-2 mt-6 px-4">
           <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Appearance</span>
