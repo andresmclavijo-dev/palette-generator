@@ -4,7 +4,7 @@ import {
   ChevronDown, Eye, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
   Share2, Link2, Download, Grid3X3,
-  Plus, Minus,
+  Plus, Minus, Music,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -20,10 +20,6 @@ import SavedPalettesPanel from '@/components/ui/SavedPalettesPanel'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
 import {
@@ -431,105 +427,21 @@ export default function DesktopStudio() {
                 className="absolute flex items-center justify-between"
                 style={{ top: 12, left: 12, right: 12, zIndex: 30 }}
               >
-                {/* LEFT GROUP — 3 pills */}
-                <div className="flex items-center" style={{ gap: 6 }}>
-                  {/* Pill 1: Harmony dropdown */}
-                  <DropdownMenu
-                    open={activeDialog === 'harmony'}
-                    onOpenChange={(open) => open ? openDialog('harmony') : closeDialog()}
-                  >
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="flex items-center gap-1.5 text-[13px] font-medium text-foreground transition-all hover:bg-surface/50"
-                        style={{
-                          height: 36,
-                          padding: '0 12px',
-                          borderRadius: 8,
-                          backgroundColor: 'hsl(var(--card) / 0.95)',
-                          backdropFilter: 'blur(12px)',
-                          WebkitBackdropFilter: 'blur(12px)',
-                          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                          border: '1px solid hsl(var(--border-light))',
-                        }}
-                        aria-label="Harmony mode"
-                      >
-                        Harmony: {HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}
-                        <ChevronDown size={14} className="text-muted-foreground" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="min-w-[220px]">
-                      {HARMONIES.map(h => (
-                        <DropdownMenuItem
-                          key={h.mode}
-                          onClick={() => handleHarmonySelect(h.mode)}
-                          className="flex-col items-start gap-0.5 py-2.5"
-                          style={{
-                            backgroundColor: harmonyMode === h.mode ? 'hsl(var(--info-bg))' : undefined,
-                          }}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="text-[13px] font-semibold" style={{ color: harmonyMode === h.mode ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
-                              {h.label}
-                            </span>
-                            {harmonyMode === h.mode && <Check size={14} className="text-primary" />}
-                          </div>
-                          <span className="text-[11px] text-muted-foreground">{h.desc}</span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Pill 2: View mode segmented control */}
-                  <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-                    <TabsList
-                      style={{
-                        backgroundColor: 'hsl(var(--card) / 0.95)',
-                        backdropFilter: 'blur(12px)',
-                        WebkitBackdropFilter: 'blur(12px)',
-                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                        border: '1px solid hsl(var(--border-light))',
-                      }}
-                    >
-                      <TabsTrigger value="colors">Colors</TabsTrigger>
-                      <TabsTrigger value="preview">Preview</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-
-                  {/* Pill 3: Accessibility Lens toggle */}
-                  <button
-                    onClick={() => setLensOn(v => !v)}
-                    className="flex items-center transition-all hover:bg-surface/50"
+                {/* LEFT GROUP — view tabs */}
+                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+                  <TabsList
                     style={{
-                      height: 36,
-                      padding: '0 12px',
-                      borderRadius: 8,
-                      backgroundColor: lensOn ? BRAND_VIOLET : 'hsl(var(--card) / 0.95)',
-                      backdropFilter: lensOn ? undefined : 'blur(12px)',
-                      WebkitBackdropFilter: lensOn ? undefined : 'blur(12px)',
-                      boxShadow: lensOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
-                      border: lensOn ? 'none' : '1px solid hsl(var(--border-light))',
-                      gap: 6,
-                      color: lensOn ? 'white' : 'hsl(var(--muted-foreground))',
+                      backgroundColor: 'hsl(var(--card) / 0.95)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                      border: '1px solid hsl(var(--border-light))',
                     }}
-                    aria-pressed={lensOn}
-                    aria-label="Toggle accessibility lens"
                   >
-                    <Eye size={16} strokeWidth={1.5} />
-                    <span className="text-[13px] font-medium">Lens</span>
-                    {lensOn && (
-                      <span
-                        className="text-[10px] font-bold px-1.5 py-0.5"
-                        style={{
-                          borderRadius: 6,
-                          backgroundColor: a11yGrade === 'A' ? 'hsl(var(--success-bg))' : a11yGrade === 'B' ? 'hsl(var(--warning-bg))' : 'hsl(var(--error-bg))',
-                          color: a11yGrade === 'A' ? 'hsl(var(--success))' : a11yGrade === 'B' ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
-                        }}
-                      >
-                        {a11yGrade}
-                      </span>
-                    )}
-                  </button>
-                </div>
+                    <TabsTrigger value="colors">Colors</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                </Tabs>
 
                 {/* RIGHT GROUP — single pill */}
                 <div
@@ -669,56 +581,6 @@ export default function DesktopStudio() {
                 </div>
               </div>
 
-              {/* ─── Accessibility Lens: Vision Picker Bar ─── */}
-              {lensOn && (
-                <div
-                  className="absolute flex items-center"
-                  style={{
-                    top: 60, left: 12, zIndex: 70,
-                    borderRadius: 12,
-                    backgroundColor: 'rgba(255,255,255,0.95)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                    border: '1px solid rgba(0,0,0,0.04)',
-                    padding: 3, gap: 2,
-                  }}
-                  role="radiogroup"
-                  aria-label="Accessibility lens modes"
-                >
-                  {VISION_MODES.map(v => {
-                    const needsPro = v.pro && !isPro
-                    const isActive = visionMode === v.mode
-                    return (
-                      <button
-                        key={v.mode}
-                        onClick={() => {
-                          if (needsPro) { openProModal('vision_sim', 'lens_bar'); return }
-                          setVisionMode(v.mode)
-                        }}
-                        className="text-[11px] transition-all"
-                        style={{
-                          height: 32, padding: '0 10px', borderRadius: 8,
-                          fontWeight: isActive ? 600 : 400,
-                          backgroundColor: isActive ? 'hsl(var(--card))' : 'transparent',
-                          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : undefined,
-                          color: needsPro ? 'hsl(var(--muted-foreground))' : isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                          opacity: needsPro ? 0.6 : 1,
-                        }}
-                        role="radio"
-                        aria-checked={isActive}
-                        aria-label={v.label}
-                      >
-                        {v.label.replace(' Vision', '')}
-                        {needsPro && (
-                          <Badge variant="pro" className="ml-1">PRO</Badge>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-
               {/* ─── Colors View ─── */}
               {viewMode === 'colors' && (
                 <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: lensOn ? visionFilter : undefined }}>
@@ -857,6 +719,27 @@ export default function DesktopStudio() {
                   onLock={lockSwatch}
                   visionFilter={lensOn ? visionFilter : undefined}
                 />
+              )}
+
+              {/* ─── Floating Toolbars (bottom of canvas, Colors view only) ─── */}
+              {viewMode === 'colors' && activeDialog === null && (
+                <>
+                  {/* Harmony — bottom-left */}
+                  <FloatingHarmonyBar
+                    harmonyMode={harmonyMode}
+                    onSelect={handleHarmonySelect}
+                  />
+                  {/* Lens — bottom-right */}
+                  <FloatingLensBar
+                    lensOn={lensOn}
+                    visionMode={visionMode}
+                    isPro={isPro}
+                    a11yGrade={a11yGrade}
+                    onToggleLens={() => setLensOn(v => !v)}
+                    onVisionChange={setVisionMode}
+                    onProGate={() => openProModal('vision_sim', 'lens_bar')}
+                  />
+                </>
               )}
 
               {/* Bottom bar — color count + spacebar hint */}
@@ -1028,6 +911,291 @@ export default function DesktopStudio() {
       {/* SEO content below fold — scrollable past the app viewport */}
       <SEOContent />
       </div>{/* close outer w-screen wrapper */}
+    </>
+  )
+}
+
+// ─── Floating Toolbar Styles ───
+const FLOATING_BAR_STYLE: React.CSSProperties = {
+  height: 40,
+  borderRadius: 12,
+  backgroundColor: 'hsl(var(--card) / 0.80)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  border: '0.5px solid rgba(0,0,0,0.08)',
+  padding: '0 12px',
+}
+
+// ─── Floating Harmony Bar (bottom-left) ───
+function FloatingHarmonyBar({ harmonyMode, onSelect }: {
+  harmonyMode: HarmonyMode
+  onSelect: (mode: HarmonyMode) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const barRef = useRef<HTMLDivElement>(null)
+  const dropRef = useRef<HTMLDivElement>(null)
+  const [dropPos, setDropPos] = useState({ bottom: 0, left: 0 })
+
+  const handleClick = () => {
+    if (!open && barRef.current) {
+      const rect = barRef.current.getBoundingClientRect()
+      setDropPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
+    }
+    setOpen(o => !o)
+  }
+
+  const handleSelect = (mode: HarmonyMode) => {
+    onSelect(mode)
+    setOpen(false)
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (barRef.current?.contains(target) || dropRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setOpen(false); barRef.current?.querySelector('button')?.focus() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open])
+
+  return (
+    <>
+      <div
+        ref={barRef}
+        className="absolute z-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
+        style={{ bottom: 72, left: 16 }}
+      >
+        <button
+          onClick={handleClick}
+          className="flex items-center gap-2 text-[13px] font-medium text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
+          style={FLOATING_BAR_STYLE}
+          aria-label="Harmony mode"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+        >
+          <Music size={16} strokeWidth={1.5} className="text-muted-foreground" />
+          <span>{HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}</span>
+          <ChevronDown size={14} className="text-muted-foreground" style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
+        </button>
+      </div>
+      {open && createPortal(
+        <div
+          ref={dropRef}
+          role="listbox"
+          aria-label="Harmony modes"
+          className="fixed z-[200] bg-card overflow-hidden"
+          style={{
+            bottom: dropPos.bottom,
+            left: dropPos.left,
+            width: 240,
+            borderRadius: 12,
+            border: '1px solid hsl(var(--border-light))',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
+        >
+          {HARMONIES.map((h, i) => {
+            const isActive = harmonyMode === h.mode
+            return (
+              <button
+                key={h.mode}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => handleSelect(h.mode)}
+                className="w-full text-left transition-colors duration-150"
+                style={{
+                  padding: '10px 14px',
+                  background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold" style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
+                    {h.label}
+                  </span>
+                  {isActive && <Check size={14} style={{ color: BRAND_VIOLET }} />}
+                </div>
+                <p className="text-[11px] mt-0.5 m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{h.desc}</p>
+              </button>
+            )
+          })}
+        </div>,
+        document.body,
+      )}
+    </>
+  )
+}
+
+// ─── Floating Lens Bar (bottom-right) ───
+function FloatingLensBar({ lensOn, visionMode, isPro, a11yGrade, onToggleLens, onVisionChange, onProGate }: {
+  lensOn: boolean
+  visionMode: VisionMode
+  isPro: boolean
+  a11yGrade: 'A' | 'B' | 'C'
+  onToggleLens: () => void
+  onVisionChange: (mode: VisionMode) => void
+  onProGate: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const barRef = useRef<HTMLDivElement>(null)
+  const dropRef = useRef<HTMLDivElement>(null)
+  const [dropPos, setDropPos] = useState({ bottom: 0, right: 0 })
+
+  const handleBarClick = () => {
+    if (!lensOn) {
+      // First click turns lens ON with default mode
+      onToggleLens()
+      return
+    }
+    // If already on, open the mode picker
+    if (!open && barRef.current) {
+      const rect = barRef.current.getBoundingClientRect()
+      setDropPos({ bottom: window.innerHeight - rect.top + 8, right: window.innerWidth - rect.right })
+    }
+    setOpen(o => !o)
+  }
+
+  const handleSelect = (v: typeof VISION_MODES[number]) => {
+    if (v.pro && !isPro) { setOpen(false); onProGate(); return }
+    if (v.mode === 'normal') {
+      onToggleLens() // turn off
+    } else {
+      onVisionChange(v.mode)
+    }
+    setOpen(false)
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (barRef.current?.contains(target) || dropRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setOpen(false); barRef.current?.querySelector('button')?.focus() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [open])
+
+  const activeLabel = lensOn
+    ? VISION_MODES.find(v => v.mode === visionMode)?.label.replace(' Vision', '') ?? 'Normal'
+    : 'Lens'
+
+  return (
+    <>
+      <div
+        ref={barRef}
+        className="absolute z-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
+        style={{ bottom: 72, right: 16 }}
+      >
+        <button
+          onClick={handleBarClick}
+          className="flex items-center gap-2 text-[13px] font-medium transition-all hover:bg-surface/50 active:scale-[0.98]"
+          style={{
+            ...FLOATING_BAR_STYLE,
+            backgroundColor: lensOn ? BRAND_VIOLET : FLOATING_BAR_STYLE.backgroundColor,
+            color: lensOn ? 'white' : 'hsl(var(--foreground))',
+            border: lensOn ? '0.5px solid rgba(255,255,255,0.15)' : FLOATING_BAR_STYLE.border,
+          }}
+          aria-pressed={lensOn}
+          aria-label="Accessibility lens"
+          aria-haspopup={lensOn ? 'listbox' : undefined}
+          aria-expanded={lensOn ? open : undefined}
+        >
+          <Eye size={16} strokeWidth={1.5} style={{ opacity: lensOn ? 1 : 0.6 }} />
+          <span>{activeLabel}</span>
+          {lensOn && (
+            <>
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5"
+                style={{
+                  borderRadius: 6,
+                  backgroundColor: a11yGrade === 'A' ? 'rgba(255,255,255,0.25)' : a11yGrade === 'B' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)',
+                  color: 'white',
+                }}
+              >
+                {a11yGrade}
+              </span>
+              <ChevronDown size={14} style={{ opacity: 0.7, transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
+            </>
+          )}
+        </button>
+      </div>
+      {open && lensOn && createPortal(
+        <div
+          ref={dropRef}
+          role="listbox"
+          aria-label="Vision simulation modes"
+          className="fixed z-[200] bg-card overflow-hidden"
+          style={{
+            bottom: dropPos.bottom,
+            right: dropPos.right,
+            width: 260,
+            borderRadius: 12,
+            border: '1px solid hsl(var(--border-light))',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
+        >
+          {VISION_MODES.map((v, i) => {
+            const isActive = visionMode === v.mode
+            const needsPro = v.pro && !isPro
+            return (
+              <button
+                key={v.mode}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => handleSelect(v)}
+                className="w-full text-left transition-colors duration-150"
+                style={{
+                  padding: '10px 14px',
+                  background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
+                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
+                  opacity: needsPro ? 0.6 : 1,
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold" style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
+                    {v.label}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {needsPro && <Badge variant="pro">PRO</Badge>}
+                    {isActive && <Check size={14} style={{ color: BRAND_VIOLET }} />}
+                  </div>
+                </div>
+                <p className="text-[11px] mt-0.5 m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{v.desc}</p>
+              </button>
+            )
+          })}
+        </div>,
+        document.body,
+      )}
     </>
   )
 }
