@@ -35,10 +35,14 @@ export async function createCheckoutSession(
 /**
  * Create a Stripe Customer Portal session and return the URL.
  */
-export async function createPortalSession(email: string): Promise<string> {
+export async function createPortalSession(email: string, accessToken?: string): Promise<string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`
+  }
   const res = await fetch('/api/create-portal-session', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ email }),
   })
 

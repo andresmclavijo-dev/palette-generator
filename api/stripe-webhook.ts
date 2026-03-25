@@ -95,26 +95,104 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Webhook Error: ${message}` })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const userId = session.client_reference_id
-    const email = session.customer_details?.email
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      const userId = session.client_reference_id
+      const email = session.customer_details?.email
 
-    // Signed-in user: match by Supabase user ID
-    if (userId) {
-      const ok = await upgradeByUserId(userId, session.id)
-      if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
-      return res.status(200).json({ received: true })
+      // Signed-in user: match by Supabase user ID
+      if (userId) {
+        const ok = await upgradeByUserId(userId, session.id)
+        if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
+        return res.status(200).json({ received: true })
+      }
+
+      // Signed-out user: match by email from Stripe checkout
+      if (email) {
+        const ok = await upgradeByEmail(email, session.id)
+        if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
+        return res.status(200).json({ received: true })
+      }
+
+      console.error('No client_reference_id or email on checkout session', session.id)
+      break
     }
 
-    // Signed-out user: match by email from Stripe checkout
-    if (email) {
-      const ok = await upgradeByEmail(email, session.id)
-      if (!ok) return res.status(500).json({ error: 'Failed to update profile' })
-      return res.status(200).json({ received: true })
+    case 'customer.subscription.updated': {
+      const subscription = event.data.object as Stripe.Subscription
+      const customerId = subscription.customer as string
+      const isActive = ['active', 'trialing'].includes(subscription.status)
+
+      // Look up customer email from Stripe
+      const customer = await stripe.customers.retrieve(customerId)
+      if (customer.deleted) break
+
+      const email = customer.email
+      if (!email) {
+        console.error('No email on Stripe customer', customerId)
+        break
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ is_pro: isActive })
+          .eq('id', profile.id)
+
+        console.log(`Subscription ${subscription.id} updated → is_pro=${isActive} for ${email}`)
+      }
+      break
     }
 
-    console.error('No client_reference_id or email on checkout session', session.id)
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object as Stripe.Subscription
+      const customerId = subscription.customer as string
+
+      const customer = await stripe.customers.retrieve(customerId)
+      if (customer.deleted) break
+
+      const email = customer.email
+      if (!email) {
+        console.error('No email on Stripe customer', customerId)
+        break
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ is_pro: false })
+          .eq('id', profile.id)
+
+        console.log(`Subscription ${subscription.id} cancelled → is_pro=false for ${email}`)
+      }
+      break
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice
+      const customerId = invoice.customer as string
+
+      const customer = await stripe.customers.retrieve(customerId)
+      if (customer.deleted) break
+
+      console.error(`Payment failed for customer ${customerId} (${customer.email}), invoice ${invoice.id}`)
+      // Note: Don't immediately revoke Pro — Stripe retries failed payments.
+      // Revocation happens via subscription.deleted after all retries fail.
+      break
+    }
   }
 
   return res.status(200).json({ received: true })

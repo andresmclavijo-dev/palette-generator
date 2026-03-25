@@ -43,7 +43,7 @@ const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
-  const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
+  const { user, session, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count, historyIndex, history,
     generate, lockSwatch, editSwatch, reorderSwatches,
@@ -275,7 +275,7 @@ export default function App() {
       return
     }
     try {
-      const url = await createPortalSession(user.email)
+      const url = await createPortalSession(user.email, session?.access_token)
       window.location.href = url
     } catch {
       showToast('Contact support to manage your subscription')

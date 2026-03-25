@@ -78,7 +78,7 @@ const DOCK_STORAGE_KEY = 'paletta_dock_expanded'
 export default function DesktopStudio() {
   // Global state
   const { isPro, showPaymentModal, setShowPaymentModal } = usePro()
-  const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
+  const { user, session, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const {
     swatches, harmonyMode, count,
     generate, lockSwatch, editSwatch, setHarmonyMode, setCount,
@@ -339,7 +339,7 @@ export default function DesktopStudio() {
   const handleManageSubscription = async () => {
     if (!user?.email) { showToast('Contact support to manage your subscription'); return }
     try {
-      const url = await createPortalSession(user.email)
+      const url = await createPortalSession(user.email, session?.access_token)
       window.location.href = url
     } catch {
       showToast('Contact support to manage your subscription')

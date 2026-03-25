@@ -71,7 +71,7 @@ function LegalLinks() {
 }
 
 export function MobileProfile() {
-  const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
+  const { user, session, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const { isPro } = usePro()
   const { swatches } = usePaletteStore()
   const [proOpen, setProOpen] = useState(false)
@@ -94,7 +94,7 @@ export function MobileProfile() {
   const handleManageSubscription = async () => {
     if (!user?.email) { showToast('Contact support'); return }
     try {
-      const url = await createPortalSession(user.email)
+      const url = await createPortalSession(user.email, session?.access_token)
       window.location.href = url
     } catch {
       showToast('Contact support')

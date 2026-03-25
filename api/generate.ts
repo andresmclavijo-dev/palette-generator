@@ -1,4 +1,28 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+)
+
+// ─── Server-side Pro check ───
+async function isUserPro(req: VercelRequest): Promise<boolean> {
+  const authHeader = req.headers['authorization']
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return false
+
+  const token = authHeader.slice(7)
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+  if (error || !user) return false
+
+  const { data } = await supabase
+    .from('profiles')
+    .select('is_pro')
+    .eq('id', user.id)
+    .single()
+
+  return data?.is_pro === true
+}
 
 // ─── Per-minute rate limiter (abuse prevention) ───
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
@@ -41,7 +65,7 @@ const CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
 const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, x-plugin-source',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-plugin-source',
 }
 
 function setCors(res: VercelResponse): void {
@@ -75,7 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(429).json({ error: 'Slow down — too many requests. Try again in a minute.' })
   }
 
-  const { prompt, colorCount, isPro } = req.body ?? {}
+  const { prompt, colorCount } = req.body ?? {}
 
   if (!prompt || typeof prompt !== 'string' || !colorCount) {
     return res.status(400).json({ error: 'Missing prompt or colorCount' })
@@ -91,6 +115,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return res.status(200).json({ colors: cached.colors })
   }
+
+  // Server-side Pro verification (never trust client)
+  const isPro = await isUserPro(req)
 
   // Daily free-tier limiting (non-Pro only)
   const today = new Date().toISOString().split('T')[0]

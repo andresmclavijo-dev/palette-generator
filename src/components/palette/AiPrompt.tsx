@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import chroma from 'chroma-js'
 import { usePro } from '../../hooks/usePro'
+import { useAuth } from '../../hooks/useAuth'
 import { BRAND_VIOLET } from '../../lib/tokens'
 import { analytics } from '../../lib/posthog'
 import {
@@ -44,6 +45,7 @@ interface AiPromptProps {
 
 export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGate, onUsageChange, onError, colorCount }: AiPromptProps) {
   const { isPro } = usePro()
+  const { session } = useAuth()
   const [prompt, setPrompt] = useState('')
   const [loading, setLoading] = useState(false)
   const [usageCount, setUsageCount] = useState(getAiUsageToday)
@@ -97,10 +99,14 @@ export default function AiPrompt({ open, onClose, onPalette, onFallback, onProGa
 
     setLoading(true)
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
       const res = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), colorCount, isPro }),
+        headers,
+        body: JSON.stringify({ prompt: prompt.trim(), colorCount }),
       })
 
       // Handle rate limit — show Pro upgrade
