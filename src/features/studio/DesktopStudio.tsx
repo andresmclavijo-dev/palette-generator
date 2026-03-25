@@ -409,7 +409,6 @@ export default function DesktopStudio() {
           section={section}
           dockPulse={dockPulse}
           isPro={isPro}
-          isSignedIn={isSignedIn}
           onToggle={toggleDock}
           onSectionChange={setSection}
           onProGate={openProModal}
