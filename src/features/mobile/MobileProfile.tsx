@@ -11,6 +11,65 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
 import { ProUpgradeModal } from '@/features/pro/ProUpgradeModal'
 
+function PluginCard() {
+  return (
+    <button
+      onClick={() => {
+        window.open('https://www.usepaletta.io', '_blank')
+        analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
+      }}
+      type="button"
+      className="w-full bg-card border border-border/30 rounded-2xl p-4 mb-3 text-left"
+      aria-label="Figma Plugin — Create variables and check contrast in Figma"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <Puzzle size={20} className="text-primary" />
+        </div>
+        <div className="flex-1">
+          <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
+          <div className="text-[11px] text-muted-foreground">Create variables and check contrast in Figma</div>
+        </div>
+        <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />
+      </div>
+    </button>
+  )
+}
+
+function LegalLinks() {
+  return (
+    <div className="flex flex-col gap-2 mt-6 px-4 pb-8">
+      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
+      {[
+        { label: 'Privacy Policy', href: '/privacy-policy' },
+        { label: 'Cookie Policy', href: '/cookie-policy' },
+        { label: 'Terms of Service', href: '/terms-of-service' },
+      ].map(link => (
+        <a
+          key={link.href}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+          style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="mailto:hello@usepaletta.io"
+        className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        style={{ minHeight: 44, display: 'flex', alignItems: 'center' }}
+      >
+        Contact
+      </a>
+      <p className="text-[11px] text-muted-foreground mt-3">
+        Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
+      </p>
+    </div>
+  )
+}
+
 export function MobileProfile() {
   const { user, isSignedIn, signInWithGoogle, signOut } = useAuth()
   const { isPro } = usePro()
@@ -45,8 +104,8 @@ export function MobileProfile() {
   // Signed out
   if (!isSignedIn) {
     return (
-      <div className="flex flex-col h-full">
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+      <div className="flex flex-col h-full overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex flex-col items-center justify-center px-8 text-center pt-12 pb-6">
           {/* Logo mark */}
           <img
             src="/logo.svg"
@@ -83,27 +142,8 @@ export function MobileProfile() {
         </div>
 
         {/* Figma Plugin promo */}
-        <div className="px-4 mt-6">
-          <button
-            onClick={() => {
-              window.open('https://www.usepaletta.io', '_blank')
-              analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
-            }}
-            type="button"
-            className="w-full bg-card border border-border/30 rounded-2xl p-4 text-left"
-            aria-label="Figma Plugin — Create variables and check contrast in Figma"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Puzzle size={20} className="text-primary" />
-              </div>
-              <div className="flex-1">
-                <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
-                <div className="text-[11px] text-muted-foreground">Create variables and check contrast in Figma</div>
-              </div>
-              <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />
-            </div>
-          </button>
+        <div className="px-4">
+          <PluginCard />
         </div>
 
         {/* Appearance */}
@@ -112,34 +152,7 @@ export function MobileProfile() {
           <ThemeToggle />
         </div>
 
-        {/* Legal */}
-        <div className="flex flex-col gap-2 mt-6 px-4 pb-6">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
-          {[
-            { label: 'Privacy Policy', href: '/privacy-policy' },
-            { label: 'Cookie Policy', href: '/cookie-policy' },
-            { label: 'Terms of Service', href: '/terms-of-service' },
-          ].map(link => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="mailto:hello@usepaletta.io"
-            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Contact
-          </a>
-          <p className="text-[11px] text-muted-foreground mt-3">
-            Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
-          </p>
-        </div>
+        <LegalLinks />
 
         <ProUpgradeModal open={proOpen} onClose={() => setProOpen(false)} />
       </div>
@@ -148,8 +161,8 @@ export function MobileProfile() {
 
   // Signed in
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 px-4 pt-6">
+    <div className="flex flex-col h-full overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="px-4 pt-6">
         {/* User info */}
         <div className="flex items-center gap-3.5 mb-6">
           {user?.user_metadata?.avatar_url ? (
@@ -221,26 +234,7 @@ export function MobileProfile() {
         </div>
 
         {/* Figma Plugin promo */}
-        <button
-          onClick={() => {
-            window.open('https://www.usepaletta.io', '_blank')
-            analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
-          }}
-          type="button"
-          className="w-full bg-card border border-border/30 rounded-2xl p-4 mb-3 text-left"
-          aria-label="Figma Plugin — Create variables and validate colors in Figma"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Puzzle size={20} className="text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
-              <div className="text-[11px] text-muted-foreground">Create variables and validate colors in Figma</div>
-            </div>
-            <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />
-          </div>
-        </button>
+        <PluginCard />
 
         {/* Desktop features note */}
         <div className="bg-surface rounded-2xl p-4 mb-3 border border-border/20">
@@ -269,34 +263,7 @@ export function MobileProfile() {
         <ThemeToggle />
       </div>
 
-      {/* Legal */}
-      <div className="flex flex-col gap-2 mt-6 px-4 pb-6">
-        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Legal</span>
-        {[
-          { label: 'Privacy Policy', href: '/privacy-policy' },
-          { label: 'Cookie Policy', href: '/cookie-policy' },
-          { label: 'Terms of Service', href: '/terms-of-service' },
-        ].map(link => (
-          <a
-            key={link.href}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {link.label}
-          </a>
-        ))}
-        <a
-          href="mailto:hello@usepaletta.io"
-          className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Contact
-        </a>
-        <p className="text-[11px] text-muted-foreground mt-3">
-          Made by <a href="https://andresclavijo.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Andres Clavijo</a>
-        </p>
-      </div>
+      <LegalLinks />
 
       <ProUpgradeModal open={proOpen} onClose={() => setProOpen(false)} />
     </div>
