@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
-  MoreHorizontal, ExternalLink,
+  MoreHorizontal, ExternalLink, Puzzle,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { analytics } from '@/lib/posthog'
 
 type SectionId = 'studio' | 'library' | 'profile'
 
@@ -91,6 +92,16 @@ export function Dock({
             active={section === 'library'}
             expanded={expanded}
             onClick={() => onSectionChange('library')}
+          />
+          <DockItem
+            icon={<Puzzle size={20} />}
+            label="Plugin"
+            active={false}
+            expanded={expanded}
+            onClick={() => {
+              window.open('https://www.usepaletta.io', '_blank')
+              analytics.track('plugin_nav_clicked')
+            }}
           />
         </div>
 

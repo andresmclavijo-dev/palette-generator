@@ -60,7 +60,7 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [viewMode, setViewMode] = useState<'colors' | 'preview'>('colors')
   const [activeColorIdx, setActiveColorIdx] = useState(0)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
-  const [validateOn, setValidateOn] = useState(false)
+  const [lensOn, setLensOn] = useState(false)
   const [copiedHex, setCopiedHex] = useState<string | null>(null)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
 
@@ -175,19 +175,19 @@ export function MobileStudio(_props: MobileStudioProps) {
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
 
-  const handleToggleValidate = () => {
-    if (validateOn) {
-      setValidateOn(false)
+  const handleToggleLens = () => {
+    if (lensOn) {
+      setLensOn(false)
       setVisionMode('normal')
     } else {
-      setValidateOn(true)
+      setLensOn(true)
     }
   }
 
   const handleVisionSelect = (mode: VisionMode) => {
     if (mode === 'normal') {
       setVisionMode('normal')
-      setValidateOn(false)
+      setLensOn(false)
     } else {
       setVisionMode(mode)
     }
@@ -219,20 +219,20 @@ export function MobileStudio(_props: MobileStudioProps) {
         </button>
 
         <button
-          onClick={handleToggleValidate}
+          onClick={handleToggleLens}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-button text-[13px] font-medium transition-all ${
-            validateOn
+            lensOn
               ? 'bg-primary text-primary-foreground'
               : 'border border-border text-muted-foreground'
           }`}
           style={{ minHeight: 32 }}
-          aria-label={validateOn ? 'Disable accessibility validation' : 'Enable accessibility validation'}
-          aria-pressed={validateOn}
+          aria-label={lensOn ? 'Disable accessibility lens' : 'Enable accessibility lens'}
+          aria-pressed={lensOn}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
           </svg>
-          Validate
+          Lens
         </button>
       </div>
 
@@ -298,7 +298,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             </div>
 
             {/* Vision filter strip */}
-            {validateOn && (
+            {lensOn && (
               <div
                 className="mx-3 mt-2 flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl bg-card/90 border border-border/30 px-2 py-2"
                 style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
@@ -329,7 +329,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                   )
                 })}
                 <button
-                  onClick={() => { setVisionMode('normal'); setValidateOn(false) }}
+                  onClick={() => { setVisionMode('normal'); setLensOn(false) }}
                   className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground whitespace-nowrap"
                   style={{ minHeight: 32 }}
                   aria-label="Close vision simulation"

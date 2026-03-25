@@ -5,6 +5,7 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { createPortalSession } from '@/lib/stripe'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
+import { ChevronRight, Puzzle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
@@ -194,6 +195,28 @@ export function MobileProfile() {
             </div>
           </div>
         </div>
+
+        {/* Figma Plugin promo */}
+        <button
+          onClick={() => {
+            window.open('https://www.usepaletta.io', '_blank')
+            analytics.track('plugin_promo_clicked', { source: 'mobile_profile' })
+          }}
+          type="button"
+          className="w-full bg-card border border-border/30 rounded-2xl p-4 mb-3 text-left"
+          aria-label="Figma Plugin — Create variables and validate colors in Figma"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Puzzle size={20} className="text-primary" />
+            </div>
+            <div className="flex-1">
+              <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
+              <div className="text-[11px] text-muted-foreground">Create variables and validate colors in Figma</div>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />
+          </div>
+        </button>
 
         {/* Desktop features note */}
         <div className="bg-surface rounded-2xl p-4 mb-3 border border-border/20">

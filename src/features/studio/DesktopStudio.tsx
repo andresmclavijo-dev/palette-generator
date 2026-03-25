@@ -91,7 +91,7 @@ export default function DesktopStudio() {
   })
   const [section, setSection] = useState<SectionId>('studio')
   const [viewMode, setViewMode] = useState<ViewMode>('colors')
-  const [validateOn, setValidateOn] = useState(false)
+  const [lensOn, setLensOn] = useState(false)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
   // Unified dialog state — only one dialog open at a time
   type DialogType = 'extract' | 'harmony' | 'export' | 'ai-full' | 'pro' | 'sign-in' | 'saved' | 'save-name' | 'shortcuts' | 'shades' | null
@@ -220,7 +220,7 @@ export default function DesktopStudio() {
       if (e.key === '2' && section === 'studio') setViewMode('preview')
       if (e.key === 'Escape') {
         closeDialog()
-        setValidateOn(false); setShadesOpen(null); setInfoOpen(null)
+        setLensOn(false); setShadesOpen(null); setInfoOpen(null)
         setEditingId(null)
       }
     }
@@ -489,28 +489,28 @@ export default function DesktopStudio() {
                     </TabsList>
                   </Tabs>
 
-                  {/* Pill 3: Validate toggle */}
+                  {/* Pill 3: Accessibility Lens toggle */}
                   <button
-                    onClick={() => setValidateOn(v => !v)}
+                    onClick={() => setLensOn(v => !v)}
                     className="flex items-center transition-all hover:bg-surface/50"
                     style={{
                       height: 36,
                       padding: '0 12px',
                       borderRadius: 8,
-                      backgroundColor: validateOn ? BRAND_VIOLET : 'hsl(var(--card) / 0.95)',
-                      backdropFilter: validateOn ? undefined : 'blur(12px)',
-                      WebkitBackdropFilter: validateOn ? undefined : 'blur(12px)',
-                      boxShadow: validateOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
-                      border: validateOn ? 'none' : '1px solid hsl(var(--border-light))',
+                      backgroundColor: lensOn ? BRAND_VIOLET : 'hsl(var(--card) / 0.95)',
+                      backdropFilter: lensOn ? undefined : 'blur(12px)',
+                      WebkitBackdropFilter: lensOn ? undefined : 'blur(12px)',
+                      boxShadow: lensOn ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+                      border: lensOn ? 'none' : '1px solid hsl(var(--border-light))',
                       gap: 6,
-                      color: validateOn ? 'white' : 'hsl(var(--muted-foreground))',
+                      color: lensOn ? 'white' : 'hsl(var(--muted-foreground))',
                     }}
-                    aria-pressed={validateOn}
-                    aria-label="Toggle accessibility validation"
+                    aria-pressed={lensOn}
+                    aria-label="Toggle accessibility lens"
                   >
                     <Eye size={16} strokeWidth={1.5} />
-                    <span className="text-[13px] font-medium">Validate</span>
-                    {validateOn && (
+                    <span className="text-[13px] font-medium">Lens</span>
+                    {lensOn && (
                       <span
                         className="text-[10px] font-bold px-1.5 py-0.5"
                         style={{
@@ -655,8 +655,8 @@ export default function DesktopStudio() {
                 </div>
               </div>
 
-              {/* ─── Validate: Vision Picker Bar ─── */}
-              {validateOn && (
+              {/* ─── Accessibility Lens: Vision Picker Bar ─── */}
+              {lensOn && (
                 <div
                   className="absolute flex items-center"
                   style={{
@@ -670,7 +670,7 @@ export default function DesktopStudio() {
                     padding: 3, gap: 2,
                   }}
                   role="radiogroup"
-                  aria-label="Vision simulation modes"
+                  aria-label="Accessibility lens modes"
                 >
                   {VISION_MODES.map(v => {
                     const needsPro = v.pro && !isPro
@@ -679,7 +679,7 @@ export default function DesktopStudio() {
                       <button
                         key={v.mode}
                         onClick={() => {
-                          if (needsPro) { openProModal('vision_sim', 'validate_bar'); return }
+                          if (needsPro) { openProModal('vision_sim', 'lens_bar'); return }
                           setVisionMode(v.mode)
                         }}
                         className="text-[11px] transition-all"
@@ -707,7 +707,7 @@ export default function DesktopStudio() {
 
               {/* ─── Colors View ─── */}
               {viewMode === 'colors' && (
-                <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: validateOn ? visionFilter : undefined }}>
+                <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: lensOn ? visionFilter : undefined }}>
                   <div className="flex h-full">
                     {swatches.map(s => {
                       const textColor = readableOn(s.hex)
@@ -726,13 +726,13 @@ export default function DesktopStudio() {
                             {/* WCAG badge */}
                             <div
                               className="px-2.5 py-1 rounded-md font-mono font-semibold text-white"
-                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: validateOn ? 18 : 11 }}
+                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: lensOn ? 18 : 11 }}
                             >
                               {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
                             </div>
 
-                            {/* Validate: Aa text previews */}
-                            {validateOn && (
+                            {/* Accessibility Lens: Aa text previews */}
+                            {lensOn && (
                               <div className="flex gap-2">
                                 <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#ffffff', color: s.hex }}>Aa</span>
                                 <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#000000', color: s.hex }}>Aa</span>
@@ -841,7 +841,7 @@ export default function DesktopStudio() {
                   onRedo={redo}
                   onProGate={openProModal}
                   onLock={lockSwatch}
-                  visionFilter={validateOn ? visionFilter : undefined}
+                  visionFilter={lensOn ? visionFilter : undefined}
                 />
               )}
 
