@@ -553,6 +553,11 @@ async function aiGenerateFromUI(prompt: string, count: number, btn: HTMLButtonEl
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, colorCount: count, isPro: state.isPro }),
     })
+    if (response.status === 429) {
+      showToast('Daily AI limit reached')
+      showProModal()
+      return
+    }
     if (!response.ok) {
       const body = await response.text().catch(() => '')
       throw new Error(`API ${response.status}: ${body.slice(0, 100)}`)
@@ -701,7 +706,7 @@ function renderVarsScreen() {
         <label class="checkbox-card" id="vars-shade-card" title="Generate a full 10-step shade scale (50, 100, 200...900) for each color.">
           <input type="checkbox" id="vars-shades" aria-label="Include shade scales">
           <div>
-            <div class="checkbox-label">Include shade scales (50-900)</div>
+            <div class="checkbox-label">Include shade scales (50-900)${!state.isPro ? ' <span class="pro-badge-sm">PRO</span>' : ''}</div>
             <div class="checkbox-sub" id="vars-shade-sub">${n} &times; 10 = ${n * 10} extra variables</div>
           </div>
         </label>
@@ -955,7 +960,7 @@ function renderProModal() {
   el.querySelector('#pro-close')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-later')!.addEventListener('click', hideProModal)
   el.querySelector('#pro-cta')!.addEventListener('click', () => {
-    window.open('https://www.usepaletta.io/pro', '_blank')
+    window.open('https://www.usepaletta.io', '_blank')
     send({ type: 'notify', message: 'Opening usepaletta.io' })
   })
   document.querySelectorAll('#pro-plan-toggle .seg-btn').forEach(btn => {
