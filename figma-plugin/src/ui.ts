@@ -544,37 +544,34 @@ function updateStepper() {
 }
 
 // ── AI daily limit (free: 3/day, Pro: unlimited) ─────────────────
+// Uses in-memory counter, initialized from figma.clientStorage via init message,
+// persisted back via set-ai-usage message. No localStorage (blocked in plugin iframes).
 const AI_DAILY_LIMIT = 3
-const AI_STORAGE_KEY = 'paletta_ai_usage'
+let aiUsage = { count: 0, date: new Date().toDateString() }
 
-function getAiUsage(): { count: number; date: string } {
-  try {
-    const stored = localStorage.getItem(AI_STORAGE_KEY)
-    if (!stored) return { count: 0, date: new Date().toDateString() }
-    const usage = JSON.parse(stored) as { count: number; date: string }
-    if (usage.date !== new Date().toDateString()) return { count: 0, date: new Date().toDateString() }
-    return usage
-  } catch {
-    return { count: 0, date: new Date().toDateString() }
-  }
+function initAiUsage(stored: { count: number; date: string } | null) {
+  if (!stored) { aiUsage = { count: 0, date: new Date().toDateString() }; return }
+  if (stored.date !== new Date().toDateString()) { aiUsage = { count: 0, date: new Date().toDateString() }; return }
+  aiUsage = { count: stored.count, date: stored.date }
 }
 
 function incrementAiUsage(): number {
-  const usage = getAiUsage()
-  usage.count++
-  usage.date = new Date().toDateString()
-  localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(usage))
-  return usage.count
+  aiUsage.count++
+  aiUsage.date = new Date().toDateString()
+  send({ type: 'set-ai-usage', usage: { ...aiUsage } })
+  return aiUsage.count
 }
 
 function canUseAi(): boolean {
   if (state.isPro) return true
-  return getAiUsage().count < AI_DAILY_LIMIT
+  if (aiUsage.date !== new Date().toDateString()) { aiUsage = { count: 0, date: new Date().toDateString() } }
+  return aiUsage.count < AI_DAILY_LIMIT
 }
 
 function getAiRemaining(): number {
   if (state.isPro) return Infinity
-  return Math.max(0, AI_DAILY_LIMIT - getAiUsage().count)
+  if (aiUsage.date !== new Date().toDateString()) return AI_DAILY_LIMIT
+  return Math.max(0, AI_DAILY_LIMIT - aiUsage.count)
 }
 
 async function aiGenerateFromUI(prompt: string, count: number, btn: HTMLButtonElement) {
@@ -1052,6 +1049,7 @@ window.onmessage = (event: MessageEvent) => {
   switch (msg.type) {
     case 'init':
       state.savedPalettes = msg.palettes || []
+      initAiUsage(msg.aiUsage)
       if (!msg.hasSeenOnboarding) {
         send({ type: 'set-onboarded' })
       }

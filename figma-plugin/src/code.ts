@@ -58,7 +58,8 @@ figma.ui.onmessage = async (msg: UIMessage) => {
     case 'ui-ready': {
       const hasSeenOnboarding = await figma.clientStorage.getAsync('paletta_onboarded')
       const palettes = await loadPalettes()
-      send({ type: 'init', hasSeenOnboarding: !!hasSeenOnboarding, palettes })
+      const aiUsage = await figma.clientStorage.getAsync('paletta_ai_usage') as { count: number; date: string } | null
+      send({ type: 'init', hasSeenOnboarding: !!hasSeenOnboarding, palettes, aiUsage: aiUsage || null })
 
       const hexes = generateByMode('random', null, msg.count || 5)
       currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
@@ -195,6 +196,11 @@ figma.ui.onmessage = async (msg: UIMessage) => {
 
     case 'set-onboarded': {
       await figma.clientStorage.setAsync('paletta_onboarded', true)
+      break
+    }
+
+    case 'set-ai-usage': {
+      await figma.clientStorage.setAsync('paletta_ai_usage', msg.usage)
       break
     }
 

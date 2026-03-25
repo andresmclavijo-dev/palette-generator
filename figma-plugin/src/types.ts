@@ -27,6 +27,7 @@ export type UIMessage =
   | { type: 'save-palette'; name: string; colors: PaletteColor[] }
   | { type: 'load-palettes' }
   | { type: 'delete-palette'; id: string }
+  | { type: 'set-ai-usage'; usage: { count: number; date: string } }
 
 // Messages from Plugin sandbox → UI
 export type PluginMessage =
@@ -35,7 +36,7 @@ export type PluginMessage =
   | { type: 'variables-pushed'; count: number }
   | { type: 'colors-extracted'; colors: string[] }
   | { type: 'selection-changed'; hasSelection: boolean; count: number }
-  | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[] }
+  | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[]; aiUsage: { count: number; date: string } | null }
   | { type: 'error'; message: string }
   | { type: 'palettes-loaded'; palettes: SavedPalette[] }
   | { type: 'palette-saved'; palette: SavedPalette }
