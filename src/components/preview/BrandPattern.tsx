@@ -1,57 +1,66 @@
 import type { PreviewPalette } from '@/lib/previewColors'
 
+/**
+ * Geometric modernist / Bauhaus-inspired brand pattern.
+ * Uses only: quarter-circles, half-circles, rectangles, donut shapes.
+ * Solid fills, no opacity, no gradients. Tightly packed grid composition.
+ */
 export function BrandPattern({ p }: { p: PreviewPalette }) {
   const c = p.all
   const n = c.length
 
   return (
-    <svg viewBox="0 0 600 375" className="block w-full h-auto" aria-hidden="true" style={{ backgroundColor: p.primaryTint }}>
-      {/* ── Large shapes anchoring corners and center ── */}
+    <svg viewBox="0 0 600 375" className="block w-full h-auto" aria-hidden="true" style={{ backgroundColor: p.darkest }}>
+      {/* ═══ Row 1 — top band (y: 0–150) ═══ */}
 
-      {/* Top-left: super-rounded rectangle, bleeds off edge */}
-      <rect x="-30" y="-25" width="245" height="180" rx="50" fill={c[0 % n]} />
+      {/* Top-left: quarter circle, center at origin */}
+      <path d="M 0,0 L 185,0 A 185,185 0 0,1 0,185 Z" fill={c[0 % n]} />
 
-      {/* Top-right: quarter circle, bleeds off corner */}
-      <circle cx="600" cy="0" r="155" fill={c[1 % n]} />
+      {/* Top-center: rectangle */}
+      <rect x="185" y="0" width="230" height="145" fill={c[1 % n]} />
 
-      {/* Center: organic kidney/bean shape */}
-      <path
-        d="M 230,125 C 295,85 405,95 435,155 C 465,215 425,295 350,315 C 275,335 200,300 182,245 C 164,190 165,165 230,125 Z"
-        fill={c[2 % n]}
-      />
+      {/* Top-right: quarter circle, center at (600,0) */}
+      <path d="M 600,0 L 600,185 A 185,185 0 0,0 415,0 Z" fill={c[2 % n]} />
 
-      {/* Bottom-left: half circle, bleeds off left edge */}
-      <circle cx="-15" cy="315" r="110" fill={c[(n > 3 ? 3 : 0) % n]} />
+      {/* ═══ Row 2 — middle band (y: 145–265) ═══ */}
 
-      {/* Bottom-right: donut ring (outer circle + background-colored cutout) */}
-      <circle cx="510" cy="290" r="72" fill={c[(n > 4 ? 4 : 1) % n]} />
-      <circle cx="510" cy="290" r="30" fill={p.primaryTint} />
+      {/* Left: tall rectangle */}
+      <rect x="0" y="185" width="145" height="190" fill={c[2 % n]} />
 
-      {/* Top-center: small rounded rectangle accent */}
-      <rect x="260" y="12" width="115" height="62" rx="22" fill={c[1 % n]} />
+      {/* Below top-center rect: filler rect */}
+      <rect x="185" y="145" width="120" height="70" fill={c[(n > 3 ? 3 : 0) % n]} />
 
-      {/* Mid-right: half-circle arc shape */}
-      <path d="M 560,135 A 48,48 0 0,1 560,231 Z" fill={c[2 % n]} />
+      {/* Between top-right QC and right edge: filler */}
+      <rect x="415" y="145" width="100" height="120" fill={c[(n > 4 ? 4 : 1) % n]} />
 
-      {/* Bottom-center: organic rounded blob, bleeds off bottom */}
-      <path
-        d="M 265,330 C 300,298 372,302 392,342 C 412,382 376,415 330,418 C 284,421 250,393 242,360 C 234,327 230,362 265,330 Z"
-        fill={c[0 % n]}
-      />
+      {/* Center: donut (ring with cutout) */}
+      <circle cx="300" cy="230" r="95" fill={c[(n > 3 ? 3 : 0) % n]} />
+      <circle cx="300" cy="230" r="40" fill={p.darkest} />
 
-      {/* ── Small accent elements in gaps ── */}
+      {/* Right: half-circle clipped at edge */}
+      <circle cx="600" cy="255" r="80" fill={c[1 % n]} />
 
-      {[
-        [165, 215, 9], [325, 55, 6], [475, 85, 11], [395, 255, 7],
-        [138, 345, 8], [455, 355, 6], [568, 325, 7], [105, 125, 5],
-        [345, 370, 6], [505, 158, 5], [212, 48, 7], [435, 178, 4],
-      ].map(([cx, cy, r], i) => (
-        <circle key={`a-${i}`} cx={cx} cy={cy} r={r} fill={c[i % n]} />
-      ))}
+      {/* ═══ Row 3 — bottom band (y: 265–375) ═══ */}
 
-      {/* Thin accent arcs */}
-      <path d="M 178,22 Q 215,-2 250,18" fill="none" stroke={c[2 % n]} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M 472,315 Q 498,298 524,318" fill="none" stroke={c[0 % n]} strokeWidth="2" strokeLinecap="round" />
+      {/* Bottom-left: half circle, center at bottom edge */}
+      <circle cx="72" cy="375" r="125" fill={c[1 % n]} />
+
+      {/* Bottom-center: arch (rounded rect) */}
+      <rect x="200" y="310" width="210" height="65" rx="32" fill={c[0 % n]} />
+
+      {/* Bottom-right: quarter circle, center at (600,375) */}
+      <path d="M 600,375 L 600,200 A 175,175 0 0,0 425,375 Z" fill={c[(n > 4 ? 4 : 2) % n]} />
+
+      {/* ═══ Small accent shapes in gaps ═══ */}
+
+      <circle cx="160" cy="315" r="22" fill={c[2 % n]} />
+      <circle cx="400" cy="285" r="16" fill={c[1 % n]} />
+      <circle cx="250" cy="280" r="13" fill={c[(n > 3 ? 3 : 0) % n]} />
+      <circle cx="480" cy="340" r="11" fill={c[0 % n]} />
+      <circle cx="355" cy="355" r="16" fill={c[2 % n]} />
+      <circle cx="520" cy="160" r="14" fill={c[0 % n]} />
+      <circle cx="330" cy="150" r="10" fill={c[2 % n]} />
+      <circle cx="145" cy="280" r="8" fill={c[1 % n]} />
     </svg>
   )
 }

@@ -53,7 +53,7 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
       </section>
 
       {/* Features */}
-      <section style={{ padding: '8px 32px 40px' }}>
+      <section style={{ padding: '8px 32px 32px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 720, margin: '0 auto' }}>
           {[
             { title: 'Built for scale', desc: 'Handle millions of requests with zero config or maintenance.', color: p.all[0], icon: 'grid' },
@@ -67,7 +67,6 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 marginBottom: 14,
               }}>
-                {/* Simple CSS icon placeholder */}
                 {f.icon === 'grid' && (
                   <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                     <rect x="1" y="1" width="6" height="6" rx="1.5" fill={f.color} opacity="0.8" />
@@ -95,41 +94,39 @@ export function LandingPreview({ p }: { p: PreviewPalette }) {
         </div>
       </section>
 
+      {/* Stats */}
+      <section style={{ padding: '28px 32px', backgroundColor: '#ffffff' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
+          {[
+            { num: '10,000+', label: 'Teams' },
+            { num: '50M+', label: 'Colors generated' },
+            { num: '4.9/5', label: 'Rating' },
+          ].map((s, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: p.primary }}>{s.num}</div>
+              <div style={{ fontSize: 12, color: p.textMuted, marginTop: 4 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Testimonial */}
-      <section style={{ padding: '0 32px 40px' }}>
+      <section style={{ padding: '0 32px 32px' }}>
         <div style={{
           maxWidth: 520, margin: '0 auto', padding: '28px 32px',
           borderRadius: 14, backgroundColor: `${p.all[0]}0D`,
         }}>
-          <div style={{ fontSize: 32, fontWeight: 800, color: p.primary, lineHeight: 1, marginBottom: 12 }}>"</div>
+          <div style={{ fontSize: 48, fontWeight: 800, color: p.primary, lineHeight: 0.8, marginBottom: 10 }}>&ldquo;</div>
           <p style={{ fontSize: 14, color: p.textDark, lineHeight: 1.7, margin: '0 0 18px' }}>
             Paletta changed how our team handles color systems. We ship twice as fast.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%', backgroundColor: p.accent,
-            }} />
+            <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: p.accent }} />
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: p.textDark }}>Sarah Chen</div>
               <div style={{ fontSize: 11, color: p.textMuted }}>Design Lead at Linear</div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section style={{ padding: '36px 32px', backgroundColor: p.darkest }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
-          {[
-            { num: '300+', label: 'Integrations' },
-            { num: '50M+', label: 'API calls / day' },
-            { num: '99.9%', label: 'Uptime SLA' },
-          ].map((s, i) => (
-            <div key={i}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: p.primary }}>{s.num}</div>
-              <div style={{ fontSize: 12, color: p.onDarkest, opacity: 0.5, marginTop: 4 }}>{s.label}</div>
-            </div>
-          ))}
         </div>
       </section>
 

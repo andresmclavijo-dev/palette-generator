@@ -203,6 +203,22 @@ export function DashboardPreview({ p }: { p: PreviewPalette }) {
               </div>
             ))}
           </div>
+
+          {/* Recent Activity */}
+          <div style={{ backgroundColor: '#ffffff', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', padding: 16, marginTop: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: p.textDark, marginBottom: 12 }}>Recent Activity</div>
+            {[
+              { text: 'New subscription — Linear', time: '2 min ago', color: p.all[0] },
+              { text: 'Plan upgraded — Vercel', time: '18 min ago', color: p.all[1 % p.all.length] },
+              { text: 'Invoice paid — Stripe', time: '1 hr ago', color: p.all[2 % p.all.length] },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: 12, color: p.textDark }}>{item.text}</span>
+                <span style={{ fontSize: 11, color: p.textMuted, flexShrink: 0 }}>{item.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
