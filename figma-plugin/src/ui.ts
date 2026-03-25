@@ -220,6 +220,7 @@ function completeAuth(token: string, user: { id: string; email: string; isPro: b
   state.user = user
   state.isSignedIn = true
   updateHomeAuthUI()
+  updateProUI()
   showToast(`Signed in as ${user.email}`)
 }
 
@@ -229,6 +230,7 @@ function handleSignOut() {
   state.user = null
   state.isSignedIn = false
   updateHomeAuthUI()
+  updateProUI()
   showToast('Signed out')
 }
 
@@ -300,6 +302,52 @@ function hideProModal() {
   document.getElementById('pro-modal')!.classList.remove('active')
 }
 
+// ── Home menu rendering (extracted so it can be re-rendered on auth change) ──
+
+function renderHomeMenu() {
+  const menu = document.getElementById('home-menu')
+  if (!menu) return
+  menu.innerHTML = ''
+  const menuData = [
+    { screen: 'studio', icon: 'sparkles', title: 'Studio', desc: 'Generate color palettes', pro: false },
+    { screen: 'library', icon: 'folder', title: 'Library', desc: 'Your saved color systems', pro: false },
+    { screen: 'vars', icon: 'box', title: 'Create Variables', desc: 'Push to Figma tokens', pro: false },
+    { screen: 'code', icon: 'code', title: 'Copy Code', desc: 'CSS or Tailwind config', pro: false },
+    { screen: 'contrast', icon: 'checkCircle', title: 'Contrast Checker', desc: 'WCAG AA/AAA validation', pro: false },
+    { screen: 'extract', icon: 'image', title: 'Extract from Image', desc: 'Pull colors from images', pro: !state.isPro },
+  ]
+  menuData.forEach(item => {
+    const btn = document.createElement('button')
+    btn.className = 'menu-item'
+    btn.setAttribute('aria-label', item.title)
+    btn.setAttribute('title', item.desc)
+    btn.innerHTML = `
+      <span class="menu-icon">${(ICONS as Record<string, string>)[item.icon]}</span>
+      <span class="menu-text">
+        <span class="menu-title">${item.title}</span>
+        <span class="menu-desc">${item.desc}</span>
+      </span>
+      ${item.pro ? '<span class="pro-badge">PRO</span>' : ''}
+      <span class="menu-chevron">${ICONS.chevronRight}</span>
+    `
+    btn.addEventListener('click', () => navigate(item.screen))
+    menu.appendChild(btn)
+  })
+}
+
+// ── Update all Pro badges/gates across the UI ──
+
+function updateProUI() {
+  // Re-render home menu (Extract from Image PRO badge)
+  renderHomeMenu()
+  // Re-render extract screen (Pro gate vs full UI)
+  buildExtractScreen()
+  // If currently viewing a screen that has pro-gated elements, re-render it
+  if (state.screen === 'studio') renderStudioAccordions()
+  if (state.screen === 'vars') renderVarsScreen()
+  if (state.screen === 'code') renderCodeScreen()
+}
+
 // ── Build static screens on init ──────────────────────────────────
 
 function buildHomeScreen() {
@@ -329,32 +377,7 @@ function buildHomeScreen() {
     </footer>
   `
   // Menu items
-  const menuData = [
-    { screen: 'studio', icon: 'sparkles', title: 'Studio', desc: 'Generate color palettes' },
-    { screen: 'library', icon: 'folder', title: 'Library', desc: 'Your saved color systems' },
-    { screen: 'vars', icon: 'box', title: 'Create Variables', desc: 'Push to Figma tokens' },
-    { screen: 'code', icon: 'code', title: 'Copy Code', desc: 'CSS or Tailwind config' },
-    { screen: 'contrast', icon: 'checkCircle', title: 'Contrast Checker', desc: 'WCAG AA/AAA validation' },
-    { screen: 'extract', icon: 'image', title: 'Extract from Image', desc: 'Pull colors from images', pro: !state.isPro },
-  ]
-  const menu = document.getElementById('home-menu')!
-  menuData.forEach(item => {
-    const btn = document.createElement('button')
-    btn.className = 'menu-item'
-    btn.setAttribute('aria-label', item.title)
-    btn.setAttribute('title', item.desc)
-    btn.innerHTML = `
-      <span class="menu-icon">${(ICONS as Record<string, string>)[item.icon]}</span>
-      <span class="menu-text">
-        <span class="menu-title">${item.title}</span>
-        <span class="menu-desc">${item.desc}</span>
-      </span>
-      ${item.pro ? '<span class="pro-badge">PRO</span>' : ''}
-      <span class="menu-chevron">${ICONS.chevronRight}</span>
-    `
-    btn.addEventListener('click', () => navigate(item.screen))
-    menu.appendChild(btn)
-  })
+  renderHomeMenu()
 
   // Theme toggle
   const toggle = document.getElementById('theme-toggle')!
@@ -1163,6 +1186,7 @@ window.onmessage = (event: MessageEvent) => {
       initAiUsage(msg.aiUsage)
       initAuth(msg.auth)
       updateHomeAuthUI()
+      updateProUI()
       if (!msg.hasSeenOnboarding) {
         send({ type: 'set-onboarded' })
       }
