@@ -83,7 +83,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           onClick={handleClick}
           className={`flex items-center gap-1.5 h-10 px-4 rounded-full text-[14px] font-medium transition-all duration-150 ${
             mode !== 'normal'
-              ? 'bg-blue-50 text-blue-600'
+              ? 'bg-primary/8 text-primary'
               : 'hover:bg-surface-secondary text-muted-foreground'
           }`}
           aria-label="Accessibility vision simulation"

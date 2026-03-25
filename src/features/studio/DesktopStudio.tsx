@@ -675,7 +675,7 @@ export default function DesktopStudio() {
                   className="absolute flex items-center"
                   style={{
                     top: 60, left: 12, zIndex: 70,
-                    borderRadius: 10,
+                    borderRadius: 12,
                     backgroundColor: 'rgba(255,255,255,0.95)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',

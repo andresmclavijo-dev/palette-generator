@@ -210,7 +210,7 @@ function DockItem({
                 right: -4,
                 minWidth: 16,
                 height: 16,
-                fontSize: 9,
+                fontSize: 10,
                 padding: '0 3px',
                 backgroundColor: BRAND_VIOLET,
                 border: '1px solid #ffffff',

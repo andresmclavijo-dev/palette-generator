@@ -191,7 +191,7 @@ export default function ColorPicker({ hex, onChange, onClose }: ColorPickerProps
 
             {/* Change color link */}
             <div style={{ textAlign: 'center' }}>
-              <label className="relative cursor-pointer text-[12px] font-medium text-blue-500 active:text-blue-700">
+              <label className="relative cursor-pointer text-[12px] font-medium text-primary active:text-primary/80">
                 Change color
                 <input
                   type="color"

@@ -130,7 +130,7 @@ export default function MobileDrawer({
             onClick={() => handleRow(onShare)}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
               {typeof navigator !== 'undefined' && typeof navigator.share === 'function' ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -215,7 +215,7 @@ export default function MobileDrawer({
             onClick={() => setVisionExpanded(o => !o)}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface active:bg-surface transition-colors"
           >
-            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
               </svg>
@@ -223,7 +223,7 @@ export default function MobileDrawer({
             <div className="flex-1 flex items-center gap-1.5">
               <span className="text-[14px] font-medium text-foreground">Accessibility</span>
               {visionMode !== 'normal' && (
-                <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
+                <span className="text-[10px] text-primary font-medium">{visionMode}</span>
               )}
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"

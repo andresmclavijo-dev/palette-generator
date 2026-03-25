@@ -131,7 +131,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => handleLoad(p.colors)}
-                        className="px-3 h-7 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold hover:bg-blue-100 transition-colors"
+                        className="px-3 h-7 rounded-full bg-primary/8 text-primary text-[11px] font-semibold hover:bg-primary/12 transition-colors"
                       >
                         Load
                       </button>
@@ -154,7 +154,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
 
               {/* Free user limit banner */}
               {atLimit && onProGate && (
-                <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 text-center">
+                <div className="rounded-xl bg-primary/8 border border-primary/12 p-4 text-center">
                   <p className="text-[13px] font-medium text-foreground">
                     You've reached {FREE_SAVE_LIMIT} saved palettes
                   </p>

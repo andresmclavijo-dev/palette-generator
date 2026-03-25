@@ -153,7 +153,7 @@ export default function ToolsSheet({
             onClick={handleVisionClick}
             className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-surface active:bg-surface transition-colors"
           >
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -163,7 +163,7 @@ export default function ToolsSheet({
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-foreground">Vision</span>
                 {visionMode !== 'normal' && (
-                  <span className="text-[10px] text-blue-500 font-medium">{visionMode}</span>
+                  <span className="text-[10px] text-primary font-medium">{visionMode}</span>
                 )}
               </div>
               <p className="text-[12px] text-muted-foreground mt-0.5">Check color blindness accessibility</p>
@@ -181,7 +181,7 @@ export default function ToolsSheet({
               <button
                 onClick={() => handleVisionSelect('normal')}
                 className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                  visionMode === 'normal' ? 'text-blue-600 bg-blue-50' : 'text-muted-foreground hover:bg-surface'
+                  visionMode === 'normal' ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:bg-surface'
                 }`}
               >
                 Normal {visionMode === 'normal' && '\u2713'}
@@ -191,7 +191,7 @@ export default function ToolsSheet({
                   key={m.value}
                   onClick={() => handleVisionSelect(m.value)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                    visionMode === m.value ? 'text-blue-600 bg-blue-50' : 'text-muted-foreground hover:bg-surface'
+                    visionMode === m.value ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:bg-surface'
                   }`}
                 >
                   {m.label} {visionMode === m.value && '\u2713'}

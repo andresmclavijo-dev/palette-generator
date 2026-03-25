@@ -302,9 +302,9 @@ export default function ColorSwatch({
           <Tooltip text={contrastTip(contrast.level)}>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white`}>
               {contrast.ratio}:1 {contrast.pass ? (
-                <span className="text-green-300">{contrast.level} ✓</span>
+                <span className="text-success">{contrast.level} ✓</span>
               ) : (
-                <span className="text-red-300">✗</span>
+                <span className="text-destructive">✗</span>
               )}
             </span>
           </Tooltip>
@@ -433,9 +433,9 @@ export default function ColorSwatch({
             <Tooltip text={contrastTip(contrast.level)}>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/70 text-white mt-1`}>
                 {contrast.ratio}:1 {contrast.pass ? (
-                  <span className="text-green-300">{contrast.level} ✓</span>
+                  <span className="text-success">{contrast.level} ✓</span>
                 ) : (
-                  <span className="text-red-300">✗</span>
+                  <span className="text-destructive">✗</span>
                 )}
               </span>
             </Tooltip>
