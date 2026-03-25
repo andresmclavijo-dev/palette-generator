@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ChevronDown, Eye, Image, Star, Heart,
   Lock, Unlock, Copy, Check, Info,
   Share2, Link2, Download, Grid3X3,
-  Plus, Minus, Music,
+  Plus, Minus,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -52,12 +52,12 @@ type SectionId = 'studio' | 'library' | 'profile'
 type ViewMode = 'colors' | 'preview'
 type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
-const HARMONIES: { mode: HarmonyMode; label: string; desc: string }[] = [
-  { mode: 'random', label: 'Random', desc: 'Fully random colors' },
-  { mode: 'analogous', label: 'Analogous', desc: 'Colors next to each other' },
-  { mode: 'monochromatic', label: 'Monochromatic', desc: 'Shades of one hue' },
-  { mode: 'complementary', label: 'Complementary', desc: 'Opposite on the wheel' },
-  { mode: 'triadic', label: 'Triadic', desc: 'Three evenly spaced' },
+const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string }[] = [
+  { mode: 'random', label: 'Random', short: 'Random', desc: 'Fully random colors' },
+  { mode: 'analogous', label: 'Analogous', short: 'Analogous', desc: 'Colors next to each other' },
+  { mode: 'triadic', label: 'Triadic', short: 'Triadic', desc: 'Three evenly spaced' },
+  { mode: 'complementary', label: 'Complementary', short: 'Compl.', desc: 'Opposite on the wheel' },
+  { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of one hue' },
 ]
 
 const VISION_MODES: { mode: VisionMode; label: string; desc: string; pro: boolean }[] = [
@@ -369,14 +369,6 @@ export default function DesktopStudio() {
   }
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
-
-  // Compute a11y grade from average contrast ratio
-  const avgContrastRatio = useMemo(() => {
-    if (swatches.length === 0) return 0
-    const sum = swatches.reduce((acc, s) => acc + getContrastBadge(s.hex).ratio, 0)
-    return sum / swatches.length
-  }, [swatches])
-  const a11yGrade: 'A' | 'B' | 'C' = avgContrastRatio >= 7 ? 'A' : avgContrastRatio >= 4.5 ? 'B' : 'C'
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -721,76 +713,38 @@ export default function DesktopStudio() {
                 />
               )}
 
-              {/* ─── Floating Toolbars (bottom of canvas, Colors view only) ─── */}
+              {/* ─── Floating Bars (bottom of canvas, Colors view only) ─── */}
               {viewMode === 'colors' && activeDialog === null && (
                 <>
-                  {/* Harmony — bottom-left */}
+                  {/* Left bar — Harmony modes */}
                   <FloatingHarmonyBar
                     harmonyMode={harmonyMode}
                     onSelect={handleHarmonySelect}
                   />
-                  {/* Lens — bottom-right */}
-                  <FloatingLensBar
+                  {/* Right bar — Count + Lens + Generate hint */}
+                  <FloatingControlsBar
+                    count={count}
+                    isPro={isPro}
+                    isAtFreeCap={isAtFreeCap}
+                    isAtProMax={isAtProMax}
+                    isColorGated={isColorGated}
                     lensOn={lensOn}
                     visionMode={visionMode}
-                    isPro={isPro}
-                    a11yGrade={a11yGrade}
+                    onCountDown={() => { if (count > 3) setCount(count - 1) }}
+                    onCountUp={() => {
+                      const liveCount = usePaletteStore.getState().swatches.length
+                      const liveMax = isPro ? 8 : 5
+                      if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                      if (liveCount >= liveMax) return
+                      setCount(liveCount + 1)
+                    }}
                     onToggleLens={() => setLensOn(v => !v)}
                     onVisionChange={setVisionMode}
                     onProGate={() => openProModal('vision_sim', 'lens_bar')}
+                    shortcutsOpen={activeDialog === 'shortcuts'}
+                    onShortcutsToggle={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
                   />
                 </>
-              )}
-
-              {/* Bottom bar — color count + spacebar hint */}
-              {viewMode === 'colors' && activeDialog !== 'ai-full' && activeDialog !== 'export' && activeDialog !== 'shades' && (
-                <div
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center"
-                  style={{ gap: 6, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '4px 6px' }}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => { if (count > 3) setCount(count - 1) }}
-                      className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
-                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: count <= 3 ? 0.3 : 1 }}
-                      disabled={count <= 3}
-                      aria-label="Remove color"
-                    >
-                      <Minus size={16} style={{ color: '#fff' }} />
-                    </button>
-                    <span className="text-[14px] font-mono font-semibold text-white tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
-                    <button
-                      onClick={() => {
-                        const liveCount = usePaletteStore.getState().swatches.length
-                        const liveMax = isPro ? 8 : 5
-                        if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
-                        if (liveCount >= liveMax) return
-                        setCount(liveCount + 1)
-                      }}
-                      className={`relative flex items-center justify-center transition-all active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-white/10' : ''}`}
-                      style={{ width: 32, height: 32, padding: 0, borderRadius: 8, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
-                      disabled={isAtProMax}
-                      aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
-                    >
-                      <Plus size={16} style={{ color: '#fff' }} />
-                      {isAtFreeCap && (
-                        <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -6, right: -6, width: 16, height: 16, backgroundColor: 'rgba(0,0,0,0.75)' }}>
-                          <Lock size={10} style={{ color: '#fff' }} />
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                  <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
-                  <div className="flex items-center gap-2">
-                    <kbd className="inline-flex items-center justify-center text-[11px] font-mono font-semibold" style={{ padding: '2px 8px', borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>Space</kbd>
-                    <span className="text-[12px] font-medium text-white/70">generate</span>
-                  </div>
-                  <div style={{ width: 1, height: 18, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
-                  <ShortcutsPopover
-                    open={activeDialog === 'shortcuts'}
-                    onToggle={() => activeDialog === 'shortcuts' ? closeDialog() : openDialog('shortcuts')}
-                  />
-                </div>
               )}
             </>
           )}
@@ -915,281 +869,260 @@ export default function DesktopStudio() {
   )
 }
 
-// ─── Floating Toolbar Styles ───
+// ─── Floating Bar Shared Style ───
 const FLOATING_BAR_STYLE: React.CSSProperties = {
-  height: 40,
   borderRadius: 12,
   backgroundColor: 'hsl(var(--card) / 0.80)',
   backdropFilter: 'blur(16px)',
   WebkitBackdropFilter: 'blur(16px)',
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
   border: '0.5px solid rgba(0,0,0,0.08)',
-  padding: '0 12px',
 }
 
-// ─── Floating Harmony Bar (bottom-left) ───
+// ─── Floating Harmony Bar (bottom-left, inline mode buttons) ───
 function FloatingHarmonyBar({ harmonyMode, onSelect }: {
   harmonyMode: HarmonyMode
   onSelect: (mode: HarmonyMode) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const barRef = useRef<HTMLDivElement>(null)
-  const dropRef = useRef<HTMLDivElement>(null)
-  const [dropPos, setDropPos] = useState({ bottom: 0, left: 0 })
-
-  const handleClick = () => {
-    if (!open && barRef.current) {
-      const rect = barRef.current.getBoundingClientRect()
-      setDropPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left })
-    }
-    setOpen(o => !o)
-  }
-
-  const handleSelect = (mode: HarmonyMode) => {
-    onSelect(mode)
-    setOpen(false)
-  }
-
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (barRef.current?.contains(target) || dropRef.current?.contains(target)) return
-      setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setOpen(false); barRef.current?.querySelector('button')?.focus() }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [open])
-
   return (
-    <>
+    <div
+      className="absolute z-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
+      style={{ bottom: 72, left: 16 }}
+    >
       <div
-        ref={barRef}
-        className="absolute z-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
-        style={{ bottom: 72, left: 16 }}
+        className="flex items-center"
+        style={{ ...FLOATING_BAR_STYLE, padding: 3, gap: 2 }}
+        role="radiogroup"
+        aria-label="Harmony mode"
       >
-        <button
-          onClick={handleClick}
-          className="flex items-center gap-2 text-[13px] font-medium text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-          style={FLOATING_BAR_STYLE}
-          aria-label="Harmony mode"
-          aria-haspopup="listbox"
-          aria-expanded={open}
-        >
-          <Music size={16} strokeWidth={1.5} className="text-muted-foreground" />
-          <span>{HARMONIES.find(h => h.mode === harmonyMode)?.label ?? 'Random'}</span>
-          <ChevronDown size={14} className="text-muted-foreground" style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
-        </button>
+        {HARMONIES.map(h => {
+          const isActive = harmonyMode === h.mode
+          return (
+            <button
+              key={h.mode}
+              role="radio"
+              aria-checked={isActive}
+              onClick={() => onSelect(h.mode)}
+              className="transition-all active:scale-[0.98]"
+              style={{
+                height: 30,
+                padding: '0 10px',
+                borderRadius: 7,
+                fontSize: 12,
+                fontWeight: isActive ? 500 : 400,
+                backgroundColor: isActive ? 'hsl(var(--surface))' : 'transparent',
+                color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                border: 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+              aria-label={h.label}
+            >
+              {h.short}
+            </button>
+          )
+        })}
       </div>
-      {open && createPortal(
-        <div
-          ref={dropRef}
-          role="listbox"
-          aria-label="Harmony modes"
-          className="fixed z-[200] bg-card overflow-hidden"
-          style={{
-            bottom: dropPos.bottom,
-            left: dropPos.left,
-            width: 240,
-            borderRadius: 12,
-            border: '1px solid hsl(var(--border-light))',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          }}
-        >
-          {HARMONIES.map((h, i) => {
-            const isActive = harmonyMode === h.mode
-            return (
-              <button
-                key={h.mode}
-                role="option"
-                aria-selected={isActive}
-                onClick={() => handleSelect(h.mode)}
-                className="w-full text-left transition-colors duration-150"
-                style={{
-                  padding: '10px 14px',
-                  background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
-                  borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
-                }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-semibold" style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
-                    {h.label}
-                  </span>
-                  {isActive && <Check size={14} style={{ color: BRAND_VIOLET }} />}
-                </div>
-                <p className="text-[11px] mt-0.5 m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{h.desc}</p>
-              </button>
-            )
-          })}
-        </div>,
-        document.body,
-      )}
-    </>
+    </div>
   )
 }
 
-// ─── Floating Lens Bar (bottom-right) ───
-function FloatingLensBar({ lensOn, visionMode, isPro, a11yGrade, onToggleLens, onVisionChange, onProGate }: {
+// ─── Floating Controls Bar (bottom-right: count + lens + generate hint) ───
+function FloatingControlsBar({
+  count, isPro, isAtFreeCap, isAtProMax, isColorGated,
+  lensOn, visionMode,
+  onCountDown, onCountUp,
+  onToggleLens, onVisionChange, onProGate,
+  shortcutsOpen, onShortcutsToggle,
+}: {
+  count: number
+  isPro: boolean
+  isAtFreeCap: boolean
+  isAtProMax: boolean
+  isColorGated: boolean
   lensOn: boolean
   visionMode: VisionMode
-  isPro: boolean
-  a11yGrade: 'A' | 'B' | 'C'
+  onCountDown: () => void
+  onCountUp: () => void
   onToggleLens: () => void
   onVisionChange: (mode: VisionMode) => void
   onProGate: () => void
+  shortcutsOpen: boolean
+  onShortcutsToggle: () => void
 }) {
-  const [open, setOpen] = useState(false)
-  const barRef = useRef<HTMLDivElement>(null)
-  const dropRef = useRef<HTMLDivElement>(null)
-  const [dropPos, setDropPos] = useState({ bottom: 0, right: 0 })
+  const [lensOpen, setLensOpen] = useState(false)
+  const lensBtnRef = useRef<HTMLButtonElement>(null)
+  const lensDropRef = useRef<HTMLDivElement>(null)
+  const [lensDropPos, setLensDropPos] = useState({ bottom: 0, right: 0 })
 
-  const handleBarClick = () => {
-    if (!lensOn) {
-      // First click turns lens ON with default mode
-      onToggleLens()
-      return
+  const handleLensClick = () => {
+    if (!lensOpen && lensBtnRef.current) {
+      const rect = lensBtnRef.current.getBoundingClientRect()
+      setLensDropPos({ bottom: window.innerHeight - rect.top + 8, right: window.innerWidth - rect.right })
     }
-    // If already on, open the mode picker
-    if (!open && barRef.current) {
-      const rect = barRef.current.getBoundingClientRect()
-      setDropPos({ bottom: window.innerHeight - rect.top + 8, right: window.innerWidth - rect.right })
-    }
-    setOpen(o => !o)
+    setLensOpen(o => !o)
   }
 
-  const handleSelect = (v: typeof VISION_MODES[number]) => {
-    if (v.pro && !isPro) { setOpen(false); onProGate(); return }
+  const handleLensSelect = (v: typeof VISION_MODES[number]) => {
+    if (v.pro && !isPro) { setLensOpen(false); onProGate(); return }
     if (v.mode === 'normal') {
-      onToggleLens() // turn off
+      if (lensOn) onToggleLens() // turn off
     } else {
+      if (!lensOn) onToggleLens() // turn on if off
       onVisionChange(v.mode)
     }
-    setOpen(false)
+    setLensOpen(false)
   }
 
-  // Close on outside click
+  // Close lens dropdown on outside click
   useEffect(() => {
-    if (!open) return
+    if (!lensOpen) return
     const handler = (e: MouseEvent) => {
       const target = e.target as Node
-      if (barRef.current?.contains(target) || dropRef.current?.contains(target)) return
-      setOpen(false)
+      if (lensBtnRef.current?.contains(target) || lensDropRef.current?.contains(target)) return
+      setLensOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+  }, [lensOpen])
 
-  // Close on Escape
+  // Close lens dropdown on Escape
   useEffect(() => {
-    if (!open) return
+    if (!lensOpen) return
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setOpen(false); barRef.current?.querySelector('button')?.focus() }
+      if (e.key === 'Escape') { setLensOpen(false); lensBtnRef.current?.focus() }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [open])
+  }, [lensOpen])
 
-  const activeLabel = lensOn
+  const lensLabel = lensOn
     ? VISION_MODES.find(v => v.mode === visionMode)?.label.replace(' Vision', '') ?? 'Normal'
     : 'Lens'
 
   return (
     <>
       <div
-        ref={barRef}
         className="absolute z-20 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-200"
         style={{ bottom: 72, right: 16 }}
       >
-        <button
-          onClick={handleBarClick}
-          className="flex items-center gap-2 text-[13px] font-medium transition-all hover:bg-surface/50 active:scale-[0.98]"
-          style={{
-            ...FLOATING_BAR_STYLE,
-            backgroundColor: lensOn ? BRAND_VIOLET : FLOATING_BAR_STYLE.backgroundColor,
-            color: lensOn ? 'white' : 'hsl(var(--foreground))',
-            border: lensOn ? '0.5px solid rgba(255,255,255,0.15)' : FLOATING_BAR_STYLE.border,
-          }}
-          aria-pressed={lensOn}
-          aria-label="Accessibility lens"
-          aria-haspopup={lensOn ? 'listbox' : undefined}
-          aria-expanded={lensOn ? open : undefined}
-        >
-          <Eye size={16} strokeWidth={1.5} style={{ opacity: lensOn ? 1 : 0.6 }} />
-          <span>{activeLabel}</span>
-          {lensOn && (
-            <>
-              <span
-                className="text-[10px] font-bold px-1.5 py-0.5"
-                style={{
-                  borderRadius: 6,
-                  backgroundColor: a11yGrade === 'A' ? 'rgba(255,255,255,0.25)' : a11yGrade === 'B' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.15)',
-                  color: 'white',
-                }}
-              >
-                {a11yGrade}
-              </span>
-              <ChevronDown size={14} style={{ opacity: 0.7, transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
-            </>
-          )}
-        </button>
-      </div>
-      {open && lensOn && createPortal(
         <div
-          ref={dropRef}
+          className="flex items-center"
+          style={{ ...FLOATING_BAR_STYLE, height: 40, padding: '0 4px', gap: 0 }}
+        >
+          {/* Count selector */}
+          <div className="flex items-center" style={{ padding: '0 4px' }}>
+            <button
+              onClick={onCountDown}
+              className="flex items-center justify-center transition-all hover:bg-surface active:scale-[0.98]"
+              style={{ width: 28, height: 28, borderRadius: 7, opacity: count <= 3 ? 0.3 : 1 }}
+              disabled={count <= 3}
+              aria-label="Remove color"
+            >
+              <Minus size={14} className="text-muted-foreground" />
+            </button>
+            <span className="text-[13px] font-mono font-semibold text-foreground tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
+            <button
+              onClick={onCountUp}
+              className={`relative flex items-center justify-center transition-all active:scale-[0.98] ${isAtProMax ? 'cursor-not-allowed' : 'cursor-pointer'} ${!isColorGated ? 'hover:bg-surface' : ''}`}
+              style={{ width: 28, height: 28, borderRadius: 7, opacity: !isColorGated ? 1 : isAtFreeCap ? 0.5 : 0.3 }}
+              disabled={isAtProMax}
+              aria-label={isAtFreeCap ? 'Upgrade to Pro for more colors' : isAtProMax ? 'Maximum colors reached' : 'Add color'}
+            >
+              <Plus size={14} className="text-muted-foreground" />
+              {isAtFreeCap && (
+                <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
+                  <Lock size={8} className="text-muted-foreground" />
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))', margin: '0 4px' }} />
+
+          {/* Lens toggle */}
+          <button
+            ref={lensBtnRef}
+            onClick={handleLensClick}
+            className="flex items-center gap-1.5 transition-all hover:bg-surface active:scale-[0.98]"
+            style={{
+              height: 30,
+              padding: '0 10px',
+              borderRadius: 7,
+              color: lensOn ? BRAND_VIOLET : 'hsl(var(--muted-foreground))',
+              fontWeight: lensOn ? 500 : 400,
+            }}
+            aria-label="Accessibility lens"
+            aria-haspopup="listbox"
+            aria-expanded={lensOpen}
+          >
+            <Eye size={16} strokeWidth={1.5} />
+            <span className="text-[12px]">{lensLabel}</span>
+            <ChevronDown size={12} style={{ opacity: 0.5, transform: lensOpen ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }} />
+          </button>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))', margin: '0 4px' }} />
+
+          {/* Space hint */}
+          <div className="flex items-center gap-1.5" style={{ padding: '0 6px' }}>
+            <kbd className="inline-flex items-center justify-center text-[10px] font-mono font-semibold" style={{ padding: '2px 6px', borderRadius: 5, backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--muted-foreground))' }}>Space</kbd>
+            <span className="text-[11px] text-muted-foreground">generate</span>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))', margin: '0 2px 0 4px' }} />
+
+          {/* Shortcuts */}
+          <ShortcutsPopover open={shortcutsOpen} onToggle={onShortcutsToggle} />
+        </div>
+      </div>
+
+      {/* Lens dropdown (portal) */}
+      {lensOpen && createPortal(
+        <div
+          ref={lensDropRef}
           role="listbox"
           aria-label="Vision simulation modes"
           className="fixed z-[200] bg-card overflow-hidden"
           style={{
-            bottom: dropPos.bottom,
-            right: dropPos.right,
-            width: 260,
-            borderRadius: 12,
+            bottom: lensDropPos.bottom,
+            right: lensDropPos.right,
+            width: 240,
+            borderRadius: 8,
             border: '1px solid hsl(var(--border-light))',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
           {VISION_MODES.map((v, i) => {
-            const isActive = visionMode === v.mode
+            const isActive = lensOn && visionMode === v.mode
+            const isOff = v.mode === 'normal' && !lensOn
             const needsPro = v.pro && !isPro
             return (
               <button
                 key={v.mode}
                 role="option"
-                aria-selected={isActive}
-                onClick={() => handleSelect(v)}
-                className="w-full text-left transition-colors duration-150"
+                aria-selected={isActive || isOff}
+                onClick={() => handleLensSelect(v)}
+                className="w-full flex items-center justify-between transition-colors duration-150"
                 style={{
-                  padding: '10px 14px',
-                  background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
+                  height: 36,
+                  padding: '0 12px',
+                  background: (isActive || isOff) ? 'rgba(108,71,255,0.08)' : undefined,
                   borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
                   opacity: needsPro ? 0.6 : 1,
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'hsl(var(--surface))' }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = '' }}
+                onMouseEnter={e => { if (!isActive && !isOff) e.currentTarget.style.background = 'hsl(var(--surface))' }}
+                onMouseLeave={e => { if (!isActive && !isOff) e.currentTarget.style.background = '' }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-semibold" style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
-                    {v.label}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {needsPro && <Badge variant="pro">PRO</Badge>}
-                    {isActive && <Check size={14} style={{ color: BRAND_VIOLET }} />}
-                  </div>
+                <span className="text-[13px]" style={{ fontWeight: (isActive || isOff) ? 600 : 400, color: (isActive || isOff) ? BRAND_VIOLET : 'hsl(var(--foreground))' }}>
+                  {v.label}
+                </span>
+                <div className="flex items-center gap-2">
+                  {needsPro && <Lock size={12} className="text-muted-foreground" />}
+                  {(isActive || isOff) && <Check size={14} style={{ color: BRAND_VIOLET }} />}
                 </div>
-                <p className="text-[11px] mt-0.5 m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{v.desc}</p>
               </button>
             )
           })}
@@ -1239,12 +1172,12 @@ function ShortcutsPopover({ open, onToggle }: { open: boolean; onToggle: () => v
       <button
         ref={btnRef}
         onClick={onToggle}
-        className="flex items-center justify-center transition-all hover:bg-white/10 active:scale-[0.98]"
-        style={{ width: 32, height: 32, padding: 0, borderRadius: 8 }}
+        className="flex items-center justify-center transition-all hover:bg-surface active:scale-[0.98]"
+        style={{ width: 28, height: 28, padding: 0, borderRadius: 7 }}
         aria-label="Keyboard shortcuts"
         aria-expanded={open}
       >
-        <span className="text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }} aria-hidden="true">?</span>
+        <span className="text-[13px] text-muted-foreground" aria-hidden="true">?</span>
       </button>
       {open && createPortal(
         <div
