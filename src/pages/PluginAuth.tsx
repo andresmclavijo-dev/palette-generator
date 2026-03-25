@@ -8,19 +8,14 @@
  * since query params can be lost through the Google → Supabase round-trip.
  */
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const SESSION_STORAGE_KEY = 'paletta_plugin_session_id'
 
-interface PluginUser {
-  id: string
-  email: string
-  isPro: boolean
-}
-
 export default function PluginAuth() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [debugInfo, setDebugInfo] = useState('')
 
   useEffect(() => {
     handleAuth()
@@ -28,44 +23,71 @@ export default function PluginAuth() {
 
   async function handleAuth() {
     try {
-      const params = new URLSearchParams(window.location.search)
-      let sessionId = params.get('session')
+      // Step 1: Get session ID from URL or sessionStorage
+      const urlParams = new URLSearchParams(window.location.search)
+      let sessionId = urlParams.get('session')
 
-      // If no session ID in URL, try recovering from sessionStorage
-      // (OAuth redirect strips query params)
       if (!sessionId) {
         sessionId = sessionStorage.getItem(SESSION_STORAGE_KEY)
       }
 
+      console.log('[PluginAuth] sessionId:', sessionId)
+      console.log('[PluginAuth] URL:', window.location.href)
+
       if (!sessionId) {
-        setErrorMessage('No session ID found. Please try again from the plugin.')
+        setErrorMsg('No session ID. Please close this window and try again from the plugin.')
         setStatus('error')
         return
       }
 
-      // Check if we already have a Supabase session (post-OAuth redirect)
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (error) throw error
+      // Store session ID so it survives the OAuth redirect
+      sessionStorage.setItem(SESSION_STORAGE_KEY, sessionId)
 
-      if (session) {
-        await sendTokenToPlugin(session, sessionId)
+      // Step 2: Check for existing Supabase session (post-OAuth redirect)
+      const { data, error: sessionError } = await supabase.auth.getSession()
+
+      console.log('[PluginAuth] getSession result:', {
+        hasSession: !!data?.session,
+        error: sessionError?.message,
+        userEmail: data?.session?.user?.email,
+      })
+
+      if (sessionError) {
+        console.error('[PluginAuth] getSession error:', sessionError)
+        // Don't throw — try to sign in fresh
+      }
+
+      if (data?.session) {
+        console.log('[PluginAuth] Session found, generating token...')
+        await sendTokenToPlugin(data.session, sessionId)
         return
       }
 
-      // No session — store session ID and kick off Google OAuth
-      sessionStorage.setItem(SESSION_STORAGE_KEY, sessionId)
+      // Step 3: No session — start Google OAuth
+      console.log('[PluginAuth] No session, starting OAuth...')
+
+      const redirectUrl = window.location.origin + '/auth/plugin?session=' + encodeURIComponent(sessionId)
+      console.log('[PluginAuth] redirectTo:', redirectUrl)
 
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/plugin`,
+          redirectTo: redirectUrl,
           queryParams: { prompt: 'select_account' },
         },
       })
-      if (signInError) throw signInError
-    } catch (err) {
-      console.error('Plugin auth error:', err)
-      setErrorMessage('Something went wrong. Please try again from the plugin.')
+
+      if (signInError) {
+        console.error('[PluginAuth] signInWithOAuth error:', signInError)
+        throw signInError
+      }
+
+      // Browser redirects to Google — this code won't execute
+    } catch (err: unknown) {
+      console.error('[PluginAuth] handleAuth error:', err)
+      const message = err instanceof Error ? err.message : 'Unknown error during sign in'
+      setErrorMsg(message)
+      setDebugInfo(JSON.stringify(err, null, 2))
       setStatus('error')
     }
   }
@@ -75,49 +97,87 @@ export default function PluginAuth() {
     sessionId: string,
   ) {
     try {
-      // Generate plugin token
-      const response = await fetch('/api/plugin-token', {
+      console.log('[PluginAuth] sendTokenToPlugin called')
+      console.log('[PluginAuth] User:', session.user?.email)
+      console.log('[PluginAuth] SessionId:', sessionId)
+
+      // Step 1: Generate plugin token
+      const tokenResponse = await fetch('/api/plugin-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': 'Bearer ' + session.access_token,
         },
       })
-      if (!response.ok) throw new Error('Failed to generate plugin token')
 
-      const { token } = await response.json() as { token: string }
+      console.log('[PluginAuth] plugin-token response status:', tokenResponse.status)
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_pro')
-        .eq('id', session.user.id)
-        .single()
-
-      const user: PluginUser = {
-        id: session.user.id,
-        email: session.user.email || '',
-        isPro: profile?.is_pro || false,
+      if (!tokenResponse.ok) {
+        const errText = await tokenResponse.text()
+        console.error('[PluginAuth] plugin-token error body:', errText)
+        throw new Error('Token generation failed (' + tokenResponse.status + '): ' + errText)
       }
 
-      // POST to polling endpoint — plugin will pick this up
-      const statusRes = await fetch(`/api/plugin-auth-status?session=${sessionId}`, {
+      const tokenData = await tokenResponse.json() as { token: string }
+      const token = tokenData.token
+
+      if (!token) {
+        throw new Error('No token in response')
+      }
+
+      console.log('[PluginAuth] Got token, length:', token.length)
+
+      // Step 2: Get Pro status
+      let isPro = false
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_pro')
+          .eq('id', session.user.id)
+          .single()
+        isPro = profile?.is_pro || false
+        console.log('[PluginAuth] isPro:', isPro)
+      } catch (profileErr) {
+        console.warn('[PluginAuth] Profile lookup failed, defaulting to free:', profileErr)
+      }
+
+      const user = {
+        id: session.user.id,
+        email: session.user.email || '',
+        isPro,
+      }
+
+      // Step 3: POST to polling endpoint
+      const statusUrl = '/api/plugin-auth-status?session=' + encodeURIComponent(sessionId)
+      console.log('[PluginAuth] Posting to:', statusUrl)
+
+      const statusResponse = await fetch(statusUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, user }),
       })
-      if (!statusRes.ok) throw new Error('Failed to store token for plugin')
 
-      // Clean up sessionStorage
+      console.log('[PluginAuth] plugin-auth-status response status:', statusResponse.status)
+
+      if (!statusResponse.ok) {
+        const errText = await statusResponse.text()
+        console.error('[PluginAuth] plugin-auth-status error:', errText)
+        throw new Error('Failed to store token (' + statusResponse.status + '): ' + errText)
+      }
+
+      // Success!
+      console.log('[PluginAuth] Auth complete! Token stored for plugin to poll.')
       sessionStorage.removeItem(SESSION_STORAGE_KEY)
-
       setStatus('success')
 
       setTimeout(() => {
         try { window.close() } catch { /* may not work in all browsers */ }
-      }, 2000)
-    } catch (err) {
-      console.error('Token generation error:', err)
-      setErrorMessage('Failed to connect your account. Please try again from the plugin.')
+      }, 3000)
+    } catch (err: unknown) {
+      console.error('[PluginAuth] sendTokenToPlugin error:', err)
+      const message = err instanceof Error ? err.message : 'Failed to connect your account'
+      setErrorMsg(message)
+      setDebugInfo(JSON.stringify(err, null, 2))
       setStatus('error')
     }
   }
@@ -125,9 +185,8 @@ export default function PluginAuth() {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', height: '100vh',
-      fontFamily: 'system-ui, sans-serif', background: '#FAFAF8',
-      padding: '24px', textAlign: 'center',
+      justifyContent: 'center', height: '100vh', fontFamily: 'system-ui, sans-serif',
+      background: '#FAFAF8', padding: '24px', textAlign: 'center',
     }}>
       {status === 'loading' && (
         <>
@@ -135,14 +194,13 @@ export default function PluginAuth() {
             role="status"
             aria-label="Signing in"
             style={{
-              width: '32px', height: '32px', borderRadius: '50%',
-              border: '3px solid #E5E5E5', borderTopColor: '#6C47FF',
-              animation: 'spin 0.8s linear infinite',
-              marginBottom: '16px',
+              width: '40px', height: '40px', border: '3px solid #E5E7EB',
+              borderTopColor: '#6C47FF', borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite', marginBottom: '16px',
             }}
           />
-          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-          <div style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#1a1a2e' }}>
+          <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+          <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: '#1a1a2e' }}>
             Signing in...
           </div>
           <p style={{ color: '#666', fontSize: '14px' }}>
@@ -161,11 +219,11 @@ export default function PluginAuth() {
           }}>
             &#10003;
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#1a1a2e' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: '#1a1a2e' }}>
             Connected!
           </div>
           <p style={{ color: '#666', fontSize: '14px' }}>
-            You can close this window and return to Figma.
+            Return to Figma — the plugin will update automatically.
           </p>
           <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>
             This window will close automatically...
@@ -175,24 +233,51 @@ export default function PluginAuth() {
 
       {status === 'error' && (
         <>
-          <div style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#EF4444' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: '#EF4444' }}>
             Sign in failed
           </div>
-          <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
-            {errorMessage || 'Something went wrong. Please try again from the plugin.'}
+          <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px', maxWidth: '360px' }}>
+            {errorMsg || 'Something went wrong. Please try again from the plugin.'}
           </p>
-          <button
-            onClick={() => window.close()}
-            aria-label="Close window"
-            type="button"
-            style={{
-              padding: '10px 24px', borderRadius: '8px',
-              background: '#6C47FF', color: 'white', border: 'none',
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-            }}
-          >
-            Close window
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem(SESSION_STORAGE_KEY)
+                window.location.reload()
+              }}
+              type="button"
+              aria-label="Try again"
+              style={{
+                padding: '10px 24px', borderRadius: '8px',
+                background: '#6C47FF', color: 'white', border: 'none',
+                fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              Try again
+            </button>
+            <button
+              onClick={() => { try { window.close() } catch { /* noop */ } }}
+              type="button"
+              aria-label="Close window"
+              style={{
+                padding: '10px 24px', borderRadius: '8px',
+                background: 'transparent', color: '#666', border: '1px solid #E5E7EB',
+                fontSize: '14px', fontWeight: 500, cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+          </div>
+          {debugInfo && (
+            <pre style={{
+              marginTop: '24px', padding: '12px', background: '#F3F4F6',
+              borderRadius: '8px', fontSize: '10px', color: '#666',
+              textAlign: 'left', maxWidth: '400px', overflow: 'auto',
+              maxHeight: '100px',
+            }}>
+              {debugInfo}
+            </pre>
+          )}
         </>
       )}
     </div>
