@@ -363,7 +363,14 @@ function renderStudioScreen() {
     if (state.colorCount > 3) { state.colorCount--; updateStepper(); generatePalette() }
   })
   document.getElementById('stepper-plus')!.addEventListener('click', () => {
-    if (state.colorCount < 8) { state.colorCount++; updateStepper(); generatePalette() }
+    if (state.colorCount >= 8) return
+    if (state.colorCount >= 5 && !state.isPro) {
+      showProModal()
+      return
+    }
+    state.colorCount++
+    updateStepper()
+    generatePalette()
   })
   document.getElementById('studio-generate')!.addEventListener('click', generatePalette)
   document.getElementById('studio-save')!.addEventListener('click', () => {
@@ -376,13 +383,13 @@ function renderStudioScreen() {
     send({ type: 'save-palette', name, colors: state.palette })
   })
 
-  // AI
+  // AI — fetch directly from UI iframe (figma.fetch not available in sandbox)
   const aiInput = document.getElementById('studio-ai-input') as HTMLInputElement
   const aiBtn = document.getElementById('studio-ai-btn') as HTMLButtonElement
   aiBtn.addEventListener('click', () => {
     const prompt = aiInput.value.trim()
     if (!prompt) { showToast('Enter a prompt first'); return }
-    send({ type: 'ai-generate', prompt, count: state.colorCount })
+    aiGenerateFromUI(prompt, state.colorCount, aiBtn)
   })
   aiInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); aiBtn.click() }
@@ -534,6 +541,40 @@ function updateStepper() {
   if (val) val.textContent = String(state.colorCount)
   if (minus) minus.disabled = state.colorCount <= 3
   if (plus) plus.disabled = state.colorCount >= 8
+}
+
+async function aiGenerateFromUI(prompt: string, count: number, btn: HTMLButtonElement) {
+  btn.disabled = true
+  btn.classList.add('loading')
+  btn.textContent = '\u2026'
+  try {
+    const response = await fetch('https://www.usepaletta.io/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, colorCount: count, isPro: state.isPro }),
+    })
+    if (!response.ok) {
+      const body = await response.text().catch(() => '')
+      throw new Error(`API ${response.status}: ${body.slice(0, 100)}`)
+    }
+    const data = await response.json() as { colors: string[] }
+    if (!data.colors || !Array.isArray(data.colors)) throw new Error('Invalid response')
+    state.palette = data.colors.map(hex => ({ hex, name: hex, locked: false }))
+    state.colorCount = data.colors.length
+    renderStudioBars()
+    renderStudioAccordions()
+    updateStepper()
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err)
+    console.error('[AI_FETCH_ERROR]', detail)
+    showToast(`AI error: ${detail.slice(0, 60)}`)
+    // Fallback: generate random palette via sandbox
+    send({ type: 'generate', mode: 'random', count, seedColor: null, lockedIndices: [] })
+  } finally {
+    btn.disabled = false
+    btn.classList.remove('loading')
+    btn.textContent = 'AI'
+  }
 }
 
 function generatePalette() {
@@ -992,21 +1033,6 @@ window.onmessage = (event: MessageEvent) => {
       state.hasSelection = msg.hasSelection
       state.selectionCount = msg.count
       break
-
-    case 'ai-loading': {
-      const aiBtn = document.getElementById('studio-ai-btn') as HTMLButtonElement | null
-      if (aiBtn) {
-        aiBtn.disabled = msg.loading
-        if (msg.loading) {
-          aiBtn.classList.add('loading')
-          aiBtn.textContent = '\u2026'
-        } else {
-          aiBtn.classList.remove('loading')
-          aiBtn.textContent = 'AI'
-        }
-      }
-      break
-    }
 
     case 'palettes-loaded':
       state.savedPalettes = msg.palettes

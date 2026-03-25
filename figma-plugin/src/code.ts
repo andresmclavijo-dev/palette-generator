@@ -163,43 +163,6 @@ figma.ui.onmessage = async (msg: UIMessage) => {
       break
     }
 
-    case 'ai-generate': {
-      send({ type: 'ai-loading', loading: true })
-      try {
-        const response = await figma.fetch('https://www.usepaletta.io/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: msg.prompt,
-            colorCount: msg.count,
-            isPro: true,
-          }),
-        })
-        if (!response.ok) {
-          const body = await response.text().catch(() => '')
-          throw new Error(`API ${response.status}: ${body.slice(0, 200)}`)
-        }
-        const data = await response.json() as { colors: string[] }
-        if (!data.colors || !Array.isArray(data.colors)) throw new Error('Invalid response')
-        currentPalette = data.colors.map(hex => ({
-          hex,
-          name: getColorName(hex),
-          locked: false,
-        }))
-        send({ type: 'ai-loading', loading: false })
-        send({ type: 'palette-generated', colors: currentPalette })
-      } catch (err) {
-        send({ type: 'ai-loading', loading: false })
-        const hexes = generateByMode('random', null, msg.count)
-        currentPalette = hexes.map(hex => ({ hex, name: getColorName(hex), locked: false }))
-        send({ type: 'palette-generated', colors: currentPalette })
-        const detail = err instanceof Error ? err.message : String(err)
-        console.error('[AI_FETCH_ERROR]', detail)
-        send({ type: 'error', message: `AI unavailable (${detail.slice(0, 80)}) — random palette instead` })
-      }
-      break
-    }
-
     case 'save-palette': {
       const palettes = await loadPalettes()
       const palette: SavedPalette = {

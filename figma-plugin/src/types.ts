@@ -20,7 +20,6 @@ export type UIMessage =
   | { type: 'generate'; mode: HarmonyMode; count: number; seedColor: string | null; lockedIndices: number[] }
   | { type: 'apply-to-selection'; colors: string[] }
   | { type: 'push-variables'; colors: PaletteColor[]; prefix: string; includeShades: boolean }
-  | { type: 'ai-generate'; prompt: string; count: number }
   | { type: 'extract-from-selection' }
   | { type: 'set-onboarded' }
   | { type: 'notify'; message: string }
@@ -36,7 +35,6 @@ export type PluginMessage =
   | { type: 'variables-pushed'; count: number }
   | { type: 'colors-extracted'; colors: string[] }
   | { type: 'selection-changed'; hasSelection: boolean; count: number }
-  | { type: 'ai-loading'; loading: boolean }
   | { type: 'init'; hasSeenOnboarding: boolean; palettes: SavedPalette[] }
   | { type: 'error'; message: string }
   | { type: 'palettes-loaded'; palettes: SavedPalette[] }
