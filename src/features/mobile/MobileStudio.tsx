@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,12 +34,12 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; Icon: t
   { mode: 'triadic', label: 'Triadic', desc: 'Three evenly spaced colors', Icon: Triangle },
 ]
 
-const VISION_MODES: { mode: VisionMode; label: string; emoji: string; pro: boolean }[] = [
-  { mode: 'normal', label: 'Normal', emoji: '👁', pro: false },
-  { mode: 'protanopia', label: 'Protanopia', emoji: '🔴', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', emoji: '🟢', pro: false },
-  { mode: 'tritanopia', label: 'Tritanopia', emoji: '🔵', pro: true },
-  { mode: 'achromatopsia', label: 'Achromatopsia', emoji: '⚫', pro: true },
+const VISION_MODES: { mode: VisionMode; label: string; desc: string; pro: boolean }[] = [
+  { mode: 'normal', label: 'Normal Vision', desc: 'Full color spectrum', pro: false },
+  { mode: 'protanopia', label: 'Protanopia', desc: 'Red-green · reds appear dark or missing', pro: false },
+  { mode: 'deuteranopia', label: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)', pro: false },
+  { mode: 'tritanopia', label: 'Tritanopia', desc: 'Blue-yellow confusion', pro: true },
+  { mode: 'achromatopsia', label: 'Achromatopsia', desc: 'Grayscale only · no color perception', pro: true },
 ]
 
 interface MobileStudioProps {
@@ -57,12 +57,11 @@ export function MobileStudio(_props: MobileStudioProps) {
 
   // ─── Sheet state (single-sheet rule) ───
   const [activeSheet, setActiveSheet] = useState<
-    'harmony' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
+    'harmony' | 'lens' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
   >(null)
   const [viewMode, setViewMode] = useState<'colors' | 'preview'>('colors')
   const [activeColorIdx, setActiveColorIdx] = useState(0)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
-  const [lensOn, setLensOn] = useState(false)
   const [copiedHex, setCopiedHex] = useState<string | null>(null)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [coachVisible, setCoachVisible] = useState(false)
@@ -181,22 +180,9 @@ export function MobileStudio(_props: MobileStudioProps) {
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
 
-  const handleToggleLens = () => {
-    if (lensOn) {
-      setLensOn(false)
-      setVisionMode('normal')
-    } else {
-      setLensOn(true)
-    }
-  }
-
   const handleVisionSelect = (mode: VisionMode) => {
-    if (mode === 'normal') {
-      setVisionMode('normal')
-      setLensOn(false)
-    } else {
-      setVisionMode(mode)
-    }
+    setVisionMode(mode)
+    setActiveSheet(null)
   }
 
   const activeSwatch = swatches[activeColorIdx]
@@ -225,20 +211,17 @@ export function MobileStudio(_props: MobileStudioProps) {
         </button>
 
         <button
-          onClick={handleToggleLens}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-button text-[13px] font-medium transition-all ${
-            lensOn
-              ? 'bg-primary text-primary-foreground'
-              : 'border border-border text-muted-foreground'
-          }`}
-          style={{ minHeight: 32 }}
-          aria-label={lensOn ? 'Disable accessibility lens' : 'Enable accessibility lens'}
-          aria-pressed={lensOn}
+          onClick={() => setActiveSheet('lens')}
+          className={cn(
+            'flex items-center gap-1 text-[15px] font-bold tracking-tight',
+            visionMode !== 'normal' ? 'text-primary' : 'text-foreground'
+          )}
+          aria-label={`Lens: ${VISION_MODES.find(v => v.mode === visionMode)?.label ?? 'Normal Vision'}. Tap to change.`}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+          Lens: {visionMode === 'normal' ? 'Normal' : VISION_MODES.find(v => v.mode === visionMode)?.label}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="ml-0.5 text-muted-foreground" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9" />
           </svg>
-          Lens
         </button>
       </div>
 
@@ -302,48 +285,6 @@ export function MobileStudio(_props: MobileStudioProps) {
                 )
               })}
             </div>
-
-            {/* Vision filter strip */}
-            {lensOn && (
-              <div
-                className="mx-3 mt-2 flex gap-1.5 overflow-x-auto scrollbar-none rounded-xl bg-card/90 border border-border/30 px-2 py-2"
-                style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
-              >
-                {VISION_MODES.map(({ mode, label, emoji, pro }) => {
-                  const isActive = visionMode === mode
-                  const isLocked = pro && !isPro
-                  return (
-                    <button
-                      key={mode}
-                      onClick={() => {
-                        if (isLocked) { openProModal('vision_sim', 'mobile_strip'); return }
-                        handleVisionSelect(mode)
-                      }}
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
-                        isActive
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'bg-surface text-muted-foreground'
-                      }`}
-                      style={{ minHeight: 32 }}
-                      aria-label={`${label}${isLocked ? ' (Pro)' : ''}`}
-                      aria-pressed={isActive}
-                    >
-                      <span aria-hidden="true">{emoji}</span>
-                      {label}
-                      {isLocked && <Badge variant="pro" className="text-[10px] px-1 py-0">PRO</Badge>}
-                    </button>
-                  )
-                })}
-                <button
-                  onClick={() => { setVisionMode('normal'); setLensOn(false) }}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground whitespace-nowrap"
-                  style={{ minHeight: 32 }}
-                  aria-label="Close vision simulation"
-                >
-                  ✕ Done
-                </button>
-              </div>
-            )}
 
             {/* Action tools row */}
             <div className="flex justify-center gap-2 px-3 pt-3 pb-2">
@@ -518,6 +459,55 @@ export function MobileStudio(_props: MobileStudioProps) {
                 {isActive && (
                   <Check size={20} className="text-primary shrink-0" strokeWidth={2} aria-hidden="true" />
                 )}
+              </button>
+            )
+          })}
+        </div>
+      </MobileBottomSheet>
+
+      {/* Lens sheet */}
+      <MobileBottomSheet
+        open={activeSheet === 'lens'}
+        onClose={closeSheet}
+        title="Accessibility Lens"
+        subtitle="See how people with color vision differences experience your palette"
+      >
+        <div className="flex flex-col gap-1 pb-4">
+          {VISION_MODES.map(({ mode, label, desc, pro }) => {
+            const isActive = visionMode === mode
+            const isLocked = pro && !isPro
+            return (
+              <button
+                key={mode}
+                onClick={() => {
+                  if (isLocked) { closeSheet(); openProModal('vision_sim', 'mobile_lens_sheet'); return }
+                  handleVisionSelect(mode)
+                }}
+                className={cn(
+                  'w-full flex items-center justify-between p-4 rounded-xl text-left transition-all',
+                  isActive ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface'
+                )}
+                aria-label={`${label}: ${desc}${isLocked ? ' (Pro)' : ''}`}
+                aria-current={isActive ? 'true' : undefined}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    'w-10 h-10 rounded-xl flex items-center justify-center',
+                    isActive ? 'bg-primary/10' : 'bg-surface'
+                  )}>
+                    <Eye size={20} className={cn(
+                      isActive ? 'text-primary' : 'text-muted-foreground'
+                    )} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <div className="text-[15px] font-semibold text-foreground">{label}</div>
+                    <div className="text-[13px] text-muted-foreground">{desc}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {isLocked && <Lock size={16} className="text-muted-foreground" />}
+                  {isActive && <Check size={20} className="text-primary" strokeWidth={2} aria-hidden="true" />}
+                </div>
               </button>
             )
           })}
