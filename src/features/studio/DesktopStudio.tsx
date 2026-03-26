@@ -756,7 +756,6 @@ export default function DesktopStudio() {
                       setCount(liveCount + 1)
                     }}
                     onGenerate={() => triggerGenerate('button')}
-                    onExport={() => openDialog('export')}
                   />
                 ) : null
               )}
@@ -1226,7 +1225,7 @@ function PreviewBottomBar({
   swatches, onLock,
   onUndo, onRedo,
   count, isAtFreeCap, isAtProMax, isColorGated,
-  onCountDown, onCountUp, onGenerate, onExport,
+  onCountDown, onCountUp, onGenerate,
 }: {
   swatches: { id: string; hex: string; locked: boolean }[]
   onLock: (id: string) => void
@@ -1239,7 +1238,6 @@ function PreviewBottomBar({
   onCountDown: () => void
   onCountUp: () => void
   onGenerate: () => void
-  onExport: () => void
 }) {
   return (
     <div
@@ -1317,7 +1315,7 @@ function PreviewBottomBar({
             </button>
           </div>
 
-          {/* Generate — purple CTA */}
+          {/* Generate — purple CTA (matches Colors bar exactly) */}
           <button
             onClick={onGenerate}
             className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
@@ -1326,17 +1324,7 @@ function PreviewBottomBar({
           >
             <Sparkles size={14} className="text-primary-foreground" />
             <span className="text-[13px] font-semibold text-primary-foreground">Generate</span>
-          </button>
-
-          {/* Export — outlined */}
-          <button
-            onClick={onExport}
-            className="flex items-center gap-1.5 transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-            style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid hsl(var(--border))' }}
-            aria-label="Export palette"
-          >
-            <Download size={14} className="text-foreground" />
-            <span className="text-[13px] font-medium text-foreground">Export</span>
+            <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-primary-foreground/60" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.15)' }}>space</kbd>
           </button>
         </div>
       </div>
