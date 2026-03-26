@@ -646,6 +646,13 @@ function renderStudioAccordions() {
   const harmonyAcc = createAccordion('harmony', 'Harmony')
   const harmonyList = document.createElement('div')
   harmonyList.className = 'accordion-list'
+  const harmonyHeader = document.createElement('div')
+  harmonyHeader.style.cssText = 'padding:8px 12px 8px;margin-bottom:2px;border-bottom:1px solid var(--border)'
+  harmonyHeader.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text)">Harmony Mode</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Choose how colors relate to each other on the wheel</div>
+  `
+  harmonyList.appendChild(harmonyHeader)
   HARMONY_OPTIONS.forEach(opt => {
     const row = document.createElement('button')
     row.className = 'option-row'

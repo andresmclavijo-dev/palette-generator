@@ -95,11 +95,15 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
           className="bg-card overflow-hidden"
           style={{
             position: 'fixed', top: dropPos.top, left: dropPos.left, zIndex: 9999,
-            width: 300, borderRadius: 12,
+            minWidth: 280, borderRadius: 12,
             border: '1px solid hsl(var(--border))',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
+          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
+            <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
+          </div>
           {MODES.map((m, i) => {
             const isActive = mode === m.value
             return (
@@ -119,7 +123,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="text-[14px] font-bold"
+                    className="text-[14px] font-medium"
                     style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
                   >
                     {m.label}
@@ -145,6 +149,10 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
 export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
   return (
     <div>
+      <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
+        <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
+        <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
+      </div>
       {MODES.map((m, i) => {
         const isActive = mode === m.value
         return (
@@ -160,7 +168,7 @@ export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
           >
             <div className="flex items-center justify-between">
               <span
-                className="text-[14px] font-bold"
+                className="text-[14px] font-medium"
                 style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
               >
                 {m.label}

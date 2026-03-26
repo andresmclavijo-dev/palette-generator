@@ -1114,6 +1114,10 @@ function ColorsBottomBar({
             boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
+          <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border))' }}>
+            <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
+            <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
+          </div>
           <div style={{ padding: 6 }}>
             {HARMONIES.map(h => {
               const isActive = harmonyMode === h.mode
