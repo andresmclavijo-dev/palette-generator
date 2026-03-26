@@ -1137,14 +1137,17 @@ function ColorsBottomBar({
                     alignItems: 'center',
                     gap: 12,
                     borderRadius: 8,
-                    background: isActive ? 'hsl(var(--surface))' : undefined,
+                    background: isActive ? 'hsla(263, 100%, 64%, 0.08)' : undefined,
                   }}
                 >
                   <div
                     className="flex items-center justify-center flex-shrink-0"
-                    style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: h.iconBg }}
+                    style={{
+                      width: 36, height: 36, borderRadius: 10,
+                      backgroundColor: isActive ? 'hsla(263, 100%, 64%, 0.12)' : h.iconBg,
+                    }}
                   >
-                    <Icon size={16} className="text-foreground" />
+                    <Icon size={16} className={isActive ? 'text-primary' : 'text-foreground'} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[14px] font-medium text-foreground whitespace-nowrap">{h.label}</div>
@@ -1193,7 +1196,7 @@ function ColorsBottomBar({
                     alignItems: 'center',
                     gap: 12,
                     borderRadius: 8,
-                    background: isActive ? 'hsl(var(--surface))' : undefined,
+                    background: isActive ? 'hsla(263, 100%, 64%, 0.08)' : undefined,
                     opacity: needsPro ? 0.5 : 1,
                   }}
                 >
@@ -1201,12 +1204,12 @@ function ColorsBottomBar({
                     className="flex items-center justify-center flex-shrink-0"
                     style={{
                       width: 36, height: 36, borderRadius: 10,
-                      backgroundColor: isActive && v.mode !== 'normal'
+                      backgroundColor: isActive
                         ? 'hsla(263, 100%, 64%, 0.12)'
                         : 'hsl(var(--muted-foreground) / 0.08)',
                     }}
                   >
-                    <Eye size={16} className={isActive && v.mode !== 'normal' ? 'text-primary' : 'text-foreground'} />
+                    <Eye size={16} className={isActive ? 'text-primary' : 'text-foreground'} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[14px] font-medium text-foreground whitespace-nowrap">{v.label}</div>

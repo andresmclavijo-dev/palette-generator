@@ -664,7 +664,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 >
                   <Grid3X3 size={16} className={isPro ? "text-muted-foreground" : "text-muted/50"} />
                   <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted-foreground/60")}>Shades</span>
-                  {!isPro && <Badge variant="pro" className="text-[10px] px-1 py-0 ml-auto">PRO</Badge>}
+                  {!isPro && <Badge variant="pro" className="ml-auto">PRO</Badge>}
                 </button>
                 <button
                   onClick={() => lockSwatch(activeSwatch.id)}

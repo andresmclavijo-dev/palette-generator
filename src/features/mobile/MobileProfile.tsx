@@ -191,7 +191,7 @@ export function MobileProfile() {
         {isPro ? (
           <div className="bg-surface rounded-xl p-4 mb-4">
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="pro" className="text-[10px] font-bold px-2">PRO</Badge>
+              <Badge variant="pro">PRO</Badge>
               <span className="text-[13px] font-medium text-foreground">Active subscription</span>
             </div>
             <Button
