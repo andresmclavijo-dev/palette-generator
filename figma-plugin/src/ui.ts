@@ -71,11 +71,77 @@ const state = {
   isPro: false,
   isSignedIn: false,
   user: null as { id: string; email: string; isPro: boolean } | null,
+  authToken: null as string | null,
 }
 
 // ── Send to plugin sandbox ────────────────────────────────────────
 function send(msg: UIMessage) {
   parent.postMessage({ pluginMessage: msg }, '*')
+}
+
+// ── Cloud API helpers (Supabase via Vercel) ──────────────────────
+const API_BASE = 'https://www.usepaletta.io/api'
+
+function apiHeaders(): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${state.authToken}`,
+  }
+}
+
+/** DB row → plugin SavedPalette */
+function dbToPlugin(row: { id: string; name: string; colors: string[]; created_at: string }): SavedPalette {
+  return {
+    id: row.id,
+    name: row.name,
+    colors: row.colors.map(hex => ({ hex, name: hex, locked: false })),
+    date: new Date(row.created_at).toLocaleDateString('en-US'),
+  }
+}
+
+async function apiListPalettes(): Promise<SavedPalette[]> {
+  const res = await fetch(`${API_BASE}/palettes`, { headers: apiHeaders() })
+  if (!res.ok) return []
+  const data = await res.json() as { palettes: { id: string; name: string; colors: string[]; created_at: string }[] }
+  return (data.palettes || []).map(dbToPlugin)
+}
+
+async function apiSavePalette(name: string, colors: PaletteColor[]): Promise<SavedPalette | null> {
+  const hexColors = colors.map(c => c.hex)
+  const res = await fetch(`${API_BASE}/palettes`, {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ name, colors: hexColors }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({})) as { error?: string }
+    if (data.error === 'FREE_LIMIT') {
+      showProModal()
+      return null
+    }
+    showToast('Failed to save')
+    return null
+  }
+  const data = await res.json() as { palette: { id: string; name: string; colors: string[]; created_at: string } }
+  return dbToPlugin(data.palette)
+}
+
+async function apiDeletePalette(id: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/palettes-delete`, {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ id }),
+  })
+  return res.ok
+}
+
+async function syncCloudPalettes() {
+  if (!state.isSignedIn || !state.authToken) return
+  try {
+    const palettes = await apiListPalettes()
+    state.savedPalettes = palettes
+    if (state.screen === 'library') renderLibraryScreen()
+  } catch { /* network error — use local cache */ }
 }
 
 // ── WCAG utilities ────────────────────────────────────────────────
@@ -216,19 +282,24 @@ function handleLogin() {
 
 function completeAuth(token: string, user: { id: string; email: string; isPro: boolean }) {
   send({ type: 'set-auth', token, user })
+  state.authToken = token
   state.isPro = user.isPro
   state.user = user
   state.isSignedIn = true
   updateHomeAuthUI()
   updateProUI()
   showToast(`Signed in as ${user.email}`)
+  syncCloudPalettes()
 }
 
 function handleSignOut() {
   send({ type: 'clear-auth' })
+  state.authToken = null
   state.isPro = false
   state.user = null
   state.isSignedIn = false
+  // Reload local palettes from sandbox
+  send({ type: 'load-palettes' })
   updateHomeAuthUI()
   updateProUI()
   showToast('Signed out')
@@ -239,9 +310,11 @@ function initAuth(auth: { token: string; user: { id: string; email: string; isPr
   try {
     const payload = JSON.parse(atob(auth.token)) as { exp?: number }
     if (payload.exp && payload.exp > Date.now()) {
+      state.authToken = auth.token
       state.isPro = auth.user.isPro
       state.user = auth.user
       state.isSignedIn = true
+      syncCloudPalettes()
       return
     }
   } catch { /* invalid token */ }
@@ -502,14 +575,25 @@ function renderStudioScreen() {
     generatePalette()
   })
   document.getElementById('studio-generate')!.addEventListener('click', generatePalette)
-  document.getElementById('studio-save')!.addEventListener('click', () => {
+  document.getElementById('studio-save')!.addEventListener('click', async () => {
     if (state.palette.length === 0) { showToast('Generate a palette first'); return }
-    if (!state.isPro && state.savedPalettes.length >= 3) {
-      showProModal()
-      return
-    }
     const name = state.palette.map(c => c.name).slice(0, 3).join(' \u00b7 ')
-    send({ type: 'save-palette', name, colors: state.palette })
+
+    if (state.isSignedIn && state.authToken) {
+      // Cloud save via API
+      const saved = await apiSavePalette(name, state.palette)
+      if (saved) {
+        state.savedPalettes.unshift(saved)
+        showToast('Saved!')
+      }
+    } else {
+      // Local save: check free limit client-side
+      if (!state.isPro && state.savedPalettes.length >= 3) {
+        showProModal()
+        return
+      }
+      send({ type: 'save-palette', name, colors: state.palette })
+    }
   })
 
   // AI — fetch directly from UI iframe (figma.fetch not available in sandbox)
@@ -830,9 +914,22 @@ function renderLibraryScreen() {
     })
     const delBtn = card.querySelector('[data-delete]')
     if (delBtn) {
-      delBtn.addEventListener('click', (e) => {
+      delBtn.addEventListener('click', async (e) => {
         e.stopPropagation()
-        send({ type: 'delete-palette', id: p.id })
+        if (state.isSignedIn && state.authToken) {
+          // Cloud delete via API
+          const ok = await apiDeletePalette(p.id)
+          if (ok) {
+            state.savedPalettes = state.savedPalettes.filter(sp => sp.id !== p.id)
+            renderLibraryScreen()
+            showToast('Deleted')
+          } else {
+            showToast('Failed to delete')
+          }
+        } else {
+          // Local delete via sandbox
+          send({ type: 'delete-palette', id: p.id })
+        }
       })
     }
     list.appendChild(card)
