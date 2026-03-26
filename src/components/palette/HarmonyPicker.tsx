@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { HarmonyMode } from '../../lib/colorEngine'
 import { BRAND_VIOLET } from '@/lib/tokens'
+import DropdownSectionHeader from '@/components/ui/DropdownSectionHeader'
 
 const MODES: { value: HarmonyMode; label: string; desc: string }[] = [
   { value: 'random',        label: 'Random',        desc: 'No rules, pure exploration' },
@@ -100,10 +101,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
-          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
-            <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
-            <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
-          </div>
+          <DropdownSectionHeader title="Harmony Mode" subtitle="Choose how colors relate to each other on the wheel" />
           {MODES.map((m, i) => {
             const isActive = mode === m.value
             return (
@@ -114,7 +112,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
                 onClick={() => handleSelect(m.value)}
                 className="w-full text-left transition-colors duration-150"
                 style={{
-                  padding: '12px 16px',
+                  padding: '10px 16px',
                   background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
                   borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
                 }}
@@ -149,10 +147,7 @@ export default function HarmonyPicker({ mode, onChange }: HarmonyPickerProps) {
 export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
   return (
     <div>
-      <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
-        <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
-        <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
-      </div>
+      <DropdownSectionHeader title="Harmony Mode" subtitle="Choose how colors relate to each other on the wheel" />
       {MODES.map((m, i) => {
         const isActive = mode === m.value
         return (
@@ -161,7 +156,7 @@ export function HarmonyPickerList({ mode, onChange }: HarmonyPickerProps) {
             onClick={() => onChange(m.value)}
             className="w-full text-left rounded-xl transition-colors duration-150 hover:bg-surface active:bg-surface"
             style={{
-              padding: '12px 16px',
+              padding: '10px 16px',
               background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
               borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
             }}

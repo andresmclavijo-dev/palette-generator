@@ -647,10 +647,10 @@ function renderStudioAccordions() {
   const harmonyList = document.createElement('div')
   harmonyList.className = 'accordion-list'
   const harmonyHeader = document.createElement('div')
-  harmonyHeader.style.cssText = 'padding:8px 12px 8px;margin-bottom:2px;border-bottom:1px solid var(--border)'
+  harmonyHeader.style.cssText = 'padding:12px 16px 8px;margin-bottom:8px;border-bottom:1px solid var(--border)'
   harmonyHeader.innerHTML = `
-    <div style="font-size:13px;font-weight:600;color:var(--text)">Harmony Mode</div>
-    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Choose how colors relate to each other on the wheel</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.3">Harmony Mode</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.4">Choose how colors relate to each other on the wheel</div>
   `
   harmonyList.appendChild(harmonyHeader)
   HARMONY_OPTIONS.forEach(opt => {
@@ -685,10 +685,10 @@ function renderStudioAccordions() {
   const lensList = document.createElement('div')
   lensList.className = 'accordion-list'
   const lensHeader = document.createElement('div')
-  lensHeader.style.cssText = 'padding:8px 12px 8px;margin-bottom:2px;border-bottom:1px solid var(--border)'
+  lensHeader.style.cssText = 'padding:12px 16px 8px;margin-bottom:8px;border-bottom:1px solid var(--border)'
   lensHeader.innerHTML = `
-    <div style="font-size:13px;font-weight:600;color:var(--text)">Accessibility Lens</div>
-    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">See how people with color vision differences experience your palette</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.3">Accessibility Lens</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.4">See how people with color vision differences experience your palette</div>
   `
   lensList.appendChild(lensHeader)
   LENS_OPTIONS.forEach(opt => {

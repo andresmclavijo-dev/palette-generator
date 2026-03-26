@@ -4,6 +4,7 @@ import { usePro } from '../../hooks/usePro'
 import { Badge } from '@/components/ui/badge'
 import ToolTooltip from '../ui/ToolTooltip'
 import { analytics } from '../../lib/posthog'
+import DropdownSectionHeader from '../ui/DropdownSectionHeader'
 
 export type VisionMode = 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia'
 
@@ -119,10 +120,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
-          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
-            <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
-            <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
-          </div>
+          <DropdownSectionHeader title="Accessibility Lens" subtitle="See how people with color vision differences experience your palette" />
           {MODES.map((m, i) => {
             const isActive = mode === m.value
             const needsPro = !m.free && !isPro
@@ -134,7 +132,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
                 onClick={() => handleSelect(m)}
                 className="w-full text-left transition-colors duration-150"
                 style={{
-                  padding: '12px 16px',
+                  padding: '10px 16px',
                   background: isActive ? 'rgba(108,71,255,0.08)' : undefined,
                   borderTop: i > 0 ? '1px solid hsl(var(--border-light))' : undefined,
                 }}

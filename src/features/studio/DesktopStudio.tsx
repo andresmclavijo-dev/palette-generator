@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
+import DropdownSectionHeader from '@/components/ui/DropdownSectionHeader'
 import {
   readableOn, getColorName, getContrastBadge,
   makeSwatch,
@@ -1114,11 +1115,8 @@ function ColorsBottomBar({
             boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
-          <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border))' }}>
-            <div className="text-[13px] font-semibold text-foreground">Harmony Mode</div>
-            <div className="text-[12px] text-muted-foreground mt-0.5">Choose how colors relate to each other on the wheel</div>
-          </div>
-          <div style={{ padding: 6 }}>
+          <DropdownSectionHeader title="Harmony Mode" subtitle="Choose how colors relate to each other on the wheel" />
+          <div style={{ padding: 8 }}>
             {HARMONIES.map(h => {
               const isActive = harmonyMode === h.mode
               const Icon = h.icon
@@ -1130,10 +1128,10 @@ function ColorsBottomBar({
                   onClick={() => selectHarmony(h.mode)}
                   className="w-full text-left transition-colors duration-150 hover:bg-surface"
                   style={{
-                    padding: '8px 10px',
+                    padding: '10px 16px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
+                    gap: 12,
                     borderRadius: 8,
                     background: isActive ? 'hsl(var(--surface))' : undefined,
                   }}
@@ -1173,11 +1171,8 @@ function ColorsBottomBar({
             boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
-          <div style={{ padding: 6 }}>
-            <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border))' }}>
-              <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
-              <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
-            </div>
+          <DropdownSectionHeader title="Accessibility Lens" subtitle="See how people with color vision differences experience your palette" />
+          <div style={{ padding: 8 }}>
             {VISION_MODES.map(v => {
               const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
               const needsPro = v.pro && !isPro
@@ -1189,10 +1184,10 @@ function ColorsBottomBar({
                   onClick={() => selectVision(v)}
                   className="w-full text-left transition-colors duration-150 hover:bg-surface"
                   style={{
-                    padding: '8px 10px',
+                    padding: '10px 16px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
+                    gap: 12,
                     borderRadius: 8,
                     background: isActive ? 'hsl(var(--surface))' : undefined,
                     opacity: needsPro ? 0.5 : 1,
