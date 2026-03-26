@@ -16,15 +16,17 @@ const tabs: { id: MobileTab; label: string; Icon: typeof Sparkles }[] = [
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   return (
     <nav
-      className="flex-none bg-card/90 border-t border-border/30"
+      className="flex-none bg-card"
       style={{
-        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        backdropFilter: 'blur(20px)',
+        margin: '6px 12px',
+        marginBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)',
+        borderRadius: 16,
+        border: '0.5px solid hsl(var(--border))',
+        padding: '6px 0 8px',
       }}
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-around pt-2">
+      <div className="flex items-center justify-around">
         {tabs.map(({ id, label, Icon }) => {
           const isActive = activeTab === id
           return (

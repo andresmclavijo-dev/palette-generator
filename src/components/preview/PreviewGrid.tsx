@@ -106,7 +106,7 @@ export function PreviewGrid({
         maxWidth: 1000,
         margin: '0 auto',
         paddingTop: isMobile ? 8 : 0,
-        paddingBottom: isMobile ? 160 : 0,
+        paddingBottom: isMobile ? 16 : 0,
       }}
     >
       {TEMPLATES.map(t => {

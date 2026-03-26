@@ -13,7 +13,7 @@ export function MobileShell() {
   return (
     <div className="h-[100dvh] flex flex-col bg-background">
       <CookieConsent compact />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden">
         {tab === 'studio' && <MobileStudio onNavigate={setTab} />}
         {tab === 'library' && <MobileLibrary onNavigate={setTab} />}
         {tab === 'profile' && <MobileProfile />}

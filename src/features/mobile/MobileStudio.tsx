@@ -282,8 +282,16 @@ export function MobileStudio(_props: MobileStudioProps) {
         )}
       </div>
 
-      {/* Generate bar */}
-      <div className="flex items-center gap-2 px-3 pb-2 pt-1">
+      {/* Generate bar — floating */}
+      <div
+        className="flex items-center gap-2 bg-card shrink-0"
+        style={{
+          margin: '6px 12px 0',
+          padding: '8px 12px',
+          borderRadius: 16,
+          border: '0.5px solid hsl(var(--border))',
+        }}
+      >
         {/* Tools pill */}
         <div className="relative">
           <button
