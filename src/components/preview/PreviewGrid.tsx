@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { BRAND_VIOLET, BRAND_DARK } from '@/lib/tokens'
+import { BRAND_DARK } from '@/lib/tokens'
 import { mapPreviewColors } from '@/lib/previewColors'
 import { BrandPattern } from './BrandPattern'
 import { LandingPreview } from './LandingPreview'
@@ -172,11 +171,10 @@ export function PreviewGrid({
                       padding: '20px 28px',
                     }}
                   >
-                    <Lock size={22} style={{ color: BRAND_VIOLET }} />
+                    <Badge variant="pro" className="text-[12px] px-2.5 py-1">PRO</Badge>
                     <span className="text-[13px] font-semibold" style={{ color: BRAND_DARK }}>
                       Go Pro to preview {t.label}
                     </span>
-                    <Badge variant="pro">PRO</Badge>
                   </div>
                 </button>
               )}

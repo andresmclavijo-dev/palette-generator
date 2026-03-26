@@ -327,8 +327,8 @@ export function MobileStudio(_props: MobileStudioProps) {
         >
           <Plus size={16} className="text-foreground" />
           {!isPro && count >= 5 && (
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-foreground/75 flex items-center justify-center">
-              <Lock size={8} className="text-white" />
+            <span className="absolute -bottom-1.5 -right-2">
+              <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
             </span>
           )}
         </button>
@@ -430,7 +430,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {isLocked && <Lock size={16} className="text-muted-foreground" />}
+                  {isLocked && <Badge variant="pro">PRO</Badge>}
                   {isActive && <Check size={20} className="text-primary" strokeWidth={2} aria-hidden="true" />}
                 </div>
               </button>
@@ -540,7 +540,7 @@ export function MobileStudio(_props: MobileStudioProps) {
               </div>
             </div>
             {!isPro && (
-              <Lock size={16} className="text-muted-foreground shrink-0" />
+              <Badge variant="pro" className="shrink-0">PRO</Badge>
             )}
           </button>
 

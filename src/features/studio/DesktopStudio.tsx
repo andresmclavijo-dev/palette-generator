@@ -1077,8 +1077,8 @@ function ColorsBottomBar({
               >
                 <Plus size={14} className="text-muted-foreground" />
                 {isAtFreeCap && (
-                  <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
-                    <Lock size={8} className="text-muted-foreground" />
+                  <span className="absolute flex items-center justify-center" style={{ bottom: -6, right: -8 }}>
+                    <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
                   </span>
                 )}
               </button>
@@ -1209,7 +1209,7 @@ function ColorsBottomBar({
                     <div className="text-[13px] text-muted-foreground whitespace-nowrap">{v.desc}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {needsPro && <Lock size={12} className="text-muted-foreground" />}
+                    {needsPro && <Badge variant="pro">PRO</Badge>}
                     {isActive && <Check size={14} className="text-primary" />}
                   </div>
                 </button>
@@ -1311,8 +1311,8 @@ function PreviewBottomBar({
             >
               <Plus size={14} className="text-muted-foreground" />
               {isAtFreeCap && (
-                <span className="absolute flex items-center justify-center rounded-full" style={{ bottom: -4, right: -4, width: 14, height: 14, backgroundColor: 'hsl(var(--muted))' }}>
-                  <Lock size={8} className="text-muted-foreground" />
+                <span className="absolute flex items-center justify-center" style={{ bottom: -6, right: -8 }}>
+                  <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
                 </span>
               )}
             </button>

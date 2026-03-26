@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Copy, Check, Lock } from 'lucide-react'
+import { Copy, Check } from 'lucide-react'
 import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
@@ -146,10 +146,9 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
                 cursor: 'pointer',
               }}
             >
-              {f.pro && !isPro && <Lock size={14} strokeWidth={2} />}
               {f.label}
               {f.pro && !isPro && (
-                <Badge variant="pro" className="ml-0.5">PRO</Badge>
+                <Badge variant="pro" className="ml-1">PRO</Badge>
               )}
             </button>
           ))}
