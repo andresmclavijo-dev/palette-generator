@@ -37,7 +37,7 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; Icon: t
 const VISION_MODES: { mode: VisionMode; label: string; emoji: string; pro: boolean }[] = [
   { mode: 'normal', label: 'Normal', emoji: '👁', pro: false },
   { mode: 'protanopia', label: 'Protanopia', emoji: '🔴', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', emoji: '🟢', pro: true },
+  { mode: 'deuteranopia', label: 'Deuteranopia', emoji: '🟢', pro: false },
   { mode: 'tritanopia', label: 'Tritanopia', emoji: '🔵', pro: true },
   { mode: 'achromatopsia', label: 'Achromatopsia', emoji: '⚫', pro: true },
 ]

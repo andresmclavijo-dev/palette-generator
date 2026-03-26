@@ -16,11 +16,11 @@ interface ToolsSheetProps {
   onVisionChange: (mode: VisionMode) => void
 }
 
-const VISION_MODES: { value: VisionMode; label: string }[] = [
-  { value: 'protanopia',    label: 'Protanopia' },
-  { value: 'deuteranopia',  label: 'Deuteranopia' },
-  { value: 'tritanopia',    label: 'Tritanopia' },
-  { value: 'achromatopsia', label: 'Achromatopsia' },
+const VISION_MODES: { value: VisionMode; label: string; desc: string; free: boolean }[] = [
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-green · reds appear dark or missing', free: true },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Red-green · most common (~5% of men)',    free: true },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-yellow confusion',                   free: false },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Grayscale only · no color perception',    free: false },
 ]
 
 export default function ToolsSheet({
@@ -175,28 +175,52 @@ export default function ToolsSheet({
             </svg>
           </button>
 
-          {/* Vision sub-options — Pro only */}
-          {visionExpanded && isPro && (
+          {/* Vision sub-options */}
+          {visionExpanded && (
             <div className="pl-[4.5rem] pr-5 pb-2 space-y-1">
+              <div style={{ paddingBottom: 6, marginBottom: 4, borderBottom: '1px solid hsl(var(--border-light))' }}>
+                <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
+              </div>
               <button
                 onClick={() => handleVisionSelect('normal')}
                 className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                   visionMode === 'normal' ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:bg-surface'
                 }`}
               >
-                Normal {visionMode === 'normal' && '\u2713'}
+                <div className="flex items-center justify-between">
+                  <span>Normal Vision</span>
+                  {visionMode === 'normal' && <span>✓</span>}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 m-0 font-normal">Full color spectrum</p>
               </button>
-              {VISION_MODES.map(m => (
-                <button
-                  key={m.value}
-                  onClick={() => handleVisionSelect(m.value)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                    visionMode === m.value ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:bg-surface'
-                  }`}
-                >
-                  {m.label} {visionMode === m.value && '\u2713'}
-                </button>
-              ))}
+              {VISION_MODES.map(m => {
+                const needsPro = !m.free && !isPro
+                return (
+                  <button
+                    key={m.value}
+                    onClick={() => {
+                      if (needsPro) { onProGate(); onClose(); return }
+                      handleVisionSelect(m.value)
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                      visionMode === m.value ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:bg-surface'
+                    }`}
+                    style={{ opacity: needsPro ? 0.5 : 1 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{m.label}</span>
+                      <div className="flex items-center gap-1.5">
+                        {needsPro && (
+                          <span className="inline-flex items-center px-1.5 rounded text-[9px] font-bold uppercase text-primary-foreground leading-none" style={{ backgroundColor: BRAND_VIOLET, height: 14 }}>PRO</span>
+                        )}
+                        {visionMode === m.value && <span>✓</span>}
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 m-0 font-normal">{m.desc}</p>
+                  </button>
+                )
+              })}
             </div>
           )}
 

@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { BRAND_VIOLET } from '@/lib/tokens'
 
 const VISION_MODES: { value: VisionMode; label: string; desc: string }[] = [
-  { value: 'normal',        label: 'Normal Vision',  desc: 'Default color rendering' },
-  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-blind color vision' },
-  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Green-blind color vision' },
-  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-blind color vision' },
-  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness' },
+  { value: 'normal',        label: 'Normal Vision',  desc: 'Full color spectrum' },
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-green · reds appear dark or missing' },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Red-green · most common (~5% of men)' },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-yellow confusion' },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Grayscale only · no color perception' },
 ]
 
 interface MobileDrawerProps {
@@ -236,8 +236,12 @@ export default function MobileDrawer({
           {/* Vision sub-options — inline accordion, styled to match HarmonyPickerList */}
           {visionExpanded && onVisionChange && (
             <div className="pl-[3.75rem] pr-3 pb-1">
+              <div style={{ padding: '8px 16px 8px', borderBottom: '1px solid hsl(var(--border-light))' }}>
+                <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
+                <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
+              </div>
               {VISION_MODES.map((m, i) => {
-                const isFree = m.value === 'normal' || m.value === 'protanopia'
+                const isFree = m.value === 'normal' || m.value === 'protanopia' || m.value === 'deuteranopia'
                 const needsPro = !isFree && !isPro
                 const isActive = visionMode === m.value
                 return (

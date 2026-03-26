@@ -47,11 +47,11 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: s
   { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced hues' },
 ]
 const LENS_OPTIONS = [
-  { id: 'normal', title: 'Normal vision', desc: 'No simulation', free: true },
-  { id: 'protanopia', title: 'Protanopia', desc: 'Red-blind — affects ~1.3% of men', free: true },
-  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Green-blind — affects ~4.6% of men', free: false },
-  { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-blind — rare, ~0.01%', free: false },
-  { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Total color blindness', free: false },
+  { id: 'normal', title: 'Normal Vision', desc: 'Full color spectrum', free: true },
+  { id: 'protanopia', title: 'Protanopia', desc: 'Red-green \u00b7 reds appear dark or missing', free: true },
+  { id: 'deuteranopia', title: 'Deuteranopia', desc: 'Red-green \u00b7 most common (~5% of men)', free: true },
+  { id: 'tritanopia', title: 'Tritanopia', desc: 'Blue-yellow confusion', free: false },
+  { id: 'achromatopsia', title: 'Achromatopsia', desc: 'Grayscale only \u00b7 no color perception', free: false },
 ]
 
 // ── State ─────────────────────────────────────────────────────────
@@ -677,6 +677,13 @@ function renderStudioAccordions() {
   const lensAcc = createAccordion('lens', 'Accessibility Lens')
   const lensList = document.createElement('div')
   lensList.className = 'accordion-list'
+  const lensHeader = document.createElement('div')
+  lensHeader.style.cssText = 'padding:8px 12px 8px;margin-bottom:2px;border-bottom:1px solid var(--border)'
+  lensHeader.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text)">Accessibility Lens</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">See how people with color vision differences experience your palette</div>
+  `
+  lensList.appendChild(lensHeader)
   LENS_OPTIONS.forEach(opt => {
     const isGated = !opt.free && !state.isPro
     const row = document.createElement('button')

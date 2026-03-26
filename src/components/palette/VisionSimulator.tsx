@@ -8,11 +8,11 @@ import { analytics } from '../../lib/posthog'
 export type VisionMode = 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia'
 
 const MODES: { value: VisionMode; label: string; desc: string; free: boolean }[] = [
-  { value: 'normal',        label: 'Normal Vision',  desc: 'Default color rendering',    free: true },
-  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-blind color vision',     free: true },
-  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Green-blind color vision',   free: false },
-  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-blind color vision',    free: false },
-  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Complete color blindness',   free: false },
+  { value: 'normal',        label: 'Normal Vision',  desc: 'Full color spectrum',                      free: true },
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-green · reds appear dark or missing',  free: true },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Red-green · most common (~5% of men)',     free: true },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-yellow confusion',                    free: false },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Grayscale only · no color perception',     free: false },
 ]
 
 import { BRAND_VIOLET } from '../../lib/tokens'
@@ -119,6 +119,10 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
+          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border-light))' }}>
+            <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
+            <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
+          </div>
           {MODES.map((m, i) => {
             const isActive = mode === m.value
             const needsPro = !m.free && !isPro

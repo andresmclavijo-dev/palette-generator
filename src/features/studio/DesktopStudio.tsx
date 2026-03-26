@@ -63,10 +63,10 @@ const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string
 
 const VISION_MODES: { mode: VisionMode; label: string; short: string; desc: string; pro: boolean }[] = [
   { mode: 'normal', label: 'Normal Vision', short: 'Normal', desc: 'Full color spectrum', pro: false },
-  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', desc: 'Reduced red sensitivity', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', desc: 'Reduced green sensitivity', pro: true },
-  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', desc: 'Reduced blue sensitivity', pro: true },
-  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', desc: 'Complete color blindness', pro: true },
+  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', desc: 'Red-green · reds appear dark or missing', pro: false },
+  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)', pro: false },
+  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', desc: 'Blue-yellow confusion', pro: true },
+  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', desc: 'Grayscale only · no color perception', pro: true },
 ]
 
 const DOCK_STORAGE_KEY = 'paletta_dock_expanded'
@@ -1170,6 +1170,10 @@ function ColorsBottomBar({
           }}
         >
           <div style={{ padding: 6 }}>
+            <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border-light))' }}>
+              <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
+              <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
+            </div>
             {VISION_MODES.map(v => {
               const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
               const needsPro = v.pro && !isPro
