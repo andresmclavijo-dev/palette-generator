@@ -384,7 +384,7 @@ export default function DesktopStudio() {
         {/* Skip link */}
         <a
           href="#main-canvas"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-primary focus:rounded-lg focus:border focus:border-primary focus:font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-primary focus:rounded-button focus:border focus:border-primary focus:font-medium"
         >
           Skip to main content
         </a>
@@ -465,8 +465,8 @@ export default function DesktopStudio() {
                         <span className="text-[12px] font-medium">AI</span>
                         {!isPro && (
                           <span
-                            className="text-[10px] font-bold text-white px-1.5 py-0.5"
-                            style={{ borderRadius: 6, backgroundColor: BRAND_VIOLET }}
+                            className="text-[10px] font-bold text-primary-foreground px-1.5 py-0.5 rounded-badge"
+                            style={{ backgroundColor: BRAND_VIOLET }}
                           >
                             {aiRemaining}
                           </span>
@@ -594,7 +594,7 @@ export default function DesktopStudio() {
                           <div className="flex flex-col items-center justify-center gap-3">
                             {/* WCAG badge */}
                             <div
-                              className="px-2.5 py-1 rounded-md font-mono font-semibold text-white"
+                              className="px-2.5 py-1 rounded-button font-mono font-semibold text-card"
                               style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: lensOn ? 18 : 11 }}
                             >
                               {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
@@ -603,8 +603,8 @@ export default function DesktopStudio() {
                             {/* Accessibility Lens: Aa text previews */}
                             {lensOn && (
                               <div className="flex gap-2">
-                                <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#ffffff', color: s.hex }}>Aa</span>
-                                <span className="text-[14px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#000000', color: s.hex }}>Aa</span>
+                                <span className="text-[14px] font-bold px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'hsl(var(--card))', color: s.hex }}>Aa</span>
+                                <span className="text-[14px] font-bold px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'hsl(var(--foreground))', color: s.hex }}>Aa</span>
                               </div>
                             )}
 
@@ -689,7 +689,7 @@ export default function DesktopStudio() {
                             </div>
 
                             {s.locked && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: '#ffffff' }}>Locked</span>
+                              <span className="text-[10px] font-bold text-card px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}>Locked</span>
                             )}
                           </div>
                         </div>

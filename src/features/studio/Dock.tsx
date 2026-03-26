@@ -186,10 +186,10 @@ function DockItem({
           justifyContent: expanded ? 'flex-start' : 'center',
           ...(primary ? {
             backgroundColor: BRAND_VIOLET,
-            color: '#ffffff',
+            color: 'hsl(var(--primary-foreground))',
             fontWeight: 600,
           } : active ? {
-            backgroundColor: 'rgba(108,71,255,0.08)',
+            backgroundColor: 'hsl(var(--primary) / 0.08)',
             color: BRAND_VIOLET,
             fontWeight: 600,
           } : {
@@ -204,7 +204,7 @@ function DockItem({
           {icon}
           {isCollapsed && badge && (
             <span
-              className="absolute flex items-center justify-center rounded-full font-bold text-white leading-none pointer-events-none"
+              className="absolute flex items-center justify-center rounded-full font-bold text-primary-foreground leading-none pointer-events-none"
               style={{
                 top: -4,
                 right: -4,
@@ -213,14 +213,14 @@ function DockItem({
                 fontSize: 10,
                 padding: '0 3px',
                 backgroundColor: BRAND_VIOLET,
-                border: '1px solid #ffffff',
+                border: '1px solid hsl(var(--card))',
               }}
             >
               {badge}
             </span>
           )}
           {isCollapsed && proBadge && (
-            <Badge variant="pro" className="absolute -top-1 -right-1 text-[10px] px-1 py-0 pointer-events-none border border-white">PRO</Badge>
+            <Badge variant="pro" className="absolute -top-1 -right-1 text-[10px] px-1 py-0 pointer-events-none border border-card">PRO</Badge>
           )}
         </span>
         {expanded && (
@@ -228,7 +228,7 @@ function DockItem({
             <span className="text-[14px] whitespace-nowrap">{label}</span>
             {badge && (
               <span
-                className="text-[10px] font-bold text-white flex items-center justify-center"
+                className="text-[10px] font-bold text-primary-foreground flex items-center justify-center"
                 style={{ marginLeft: 'auto', minWidth: 18, height: 18, borderRadius: 4, backgroundColor: BRAND_VIOLET, padding: '0 5px' }}
               >
                 {badge}

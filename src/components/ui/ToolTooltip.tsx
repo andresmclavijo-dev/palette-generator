@@ -103,12 +103,12 @@ export default function ToolTooltip({ description, showProBadge, children, disab
               height: 0,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
-              borderBottom: '6px solid white',
+              borderBottom: '6px solid hsl(var(--card))',
               margin: '0 auto',
             }}
           />
           {/* Popover body */}
-          <div className="bg-card border border-border rounded-lg shadow-md px-3 py-2" style={{ maxWidth: 220 }}>
+          <div className="bg-card border border-border rounded-button shadow-md px-3 py-2" style={{ maxWidth: 220 }}>
             <p className="text-[13px] text-muted-foreground leading-snug m-0">
               {description}
             </p>

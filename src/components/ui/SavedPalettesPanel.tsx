@@ -69,7 +69,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
       <div
-        className="relative max-w-md w-[90vw] max-h-[80vh] bg-card rounded-2xl shadow-xl overflow-hidden flex flex-col"
+        className="relative max-w-md w-[90vw] max-h-[80vh] bg-card rounded-card shadow-xl overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -82,7 +82,7 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-all"
+            className="w-8 h-8 rounded-button flex items-center justify-center bg-surface hover:bg-border text-muted-foreground transition-all"
             aria-label="Close saved palettes"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -112,9 +112,9 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
           ) : (
             <div className="space-y-3">
               {palettes.map(p => (
-                <div key={p.id} className="border border-border-light rounded-xl p-3 hover:border-border transition-colors">
+                <div key={p.id} className="border border-border-light rounded-card p-3 hover:border-border transition-colors">
                   {/* Color preview */}
-                  <div className="flex h-8 rounded-lg overflow-hidden mb-2">
+                  <div className="flex h-8 rounded-button overflow-hidden mb-2">
                     {p.colors.map((h, i) => (
                       <div key={i} className="flex-1" style={{ backgroundColor: h }} />
                     ))}
@@ -131,14 +131,14 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => handleLoad(p.colors)}
-                        className="px-3 h-7 rounded-full bg-primary/8 text-primary text-[11px] font-semibold hover:bg-primary/12 transition-colors"
+                        className="px-3 h-7 rounded-badge bg-primary/8 text-primary text-[11px] font-semibold hover:bg-primary/12 transition-colors"
                       >
                         Load
                       </button>
                       <DarkTooltip label="Delete" position="top">
                         <button
                           onClick={() => handleDelete(p.id)}
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+                          className="w-7 h-7 rounded-button flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
                           aria-label="Delete"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -154,14 +154,14 @@ export default function SavedPalettesPanel({ open, onClose, userId, onLoad, isPr
 
               {/* Free user limit banner */}
               {atLimit && onProGate && (
-                <div className="rounded-xl bg-primary/8 border border-primary/12 p-4 text-center">
+                <div className="rounded-card bg-primary/8 border border-primary/12 p-4 text-center">
                   <p className="text-[13px] font-medium text-foreground">
                     You've reached {FREE_SAVE_LIMIT} saved palettes
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-1">Upgrade to Pro for unlimited saves</p>
                   <button
                     onClick={() => { onClose(); onProGate() }}
-                    className="mt-3 px-4 h-8 rounded-full text-white text-[12px] font-semibold hover:opacity-90 active:scale-95 transition-all"
+                    className="mt-3 px-4 h-8 rounded-button text-primary-foreground text-[12px] font-semibold hover:opacity-90 active:scale-95 transition-all"
                     style={{ backgroundColor: BRAND }}
                   >
                     Go Pro →

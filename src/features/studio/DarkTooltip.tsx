@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const TOOLTIP_BG = '#1F2937'
+const TOOLTIP_BG = 'hsl(var(--foreground))'
 
 /** Positioned tooltip bubble — used standalone (DockItem) or via DarkTooltip wrapper */
 export function DarkTooltipBubble({ label, position }: { label: string; position: 'right' | 'bottom' | 'top' }) {
@@ -21,7 +21,7 @@ export function DarkTooltipBubble({ label, position }: { label: string; position
   return (
     <div className={`absolute z-50 whitespace-nowrap pointer-events-none ${posClass}`} role="tooltip">
       <div
-        className="relative text-[11px] font-medium text-white"
+        className="relative text-[11px] font-medium text-card"
         style={{ backgroundColor: TOOLTIP_BG, padding: '4px 9px', borderRadius: 6 }}
       >
         {label}

@@ -49,7 +49,7 @@ export function UserMenu({
 
       {open && (
         <div
-          className="absolute top-full right-0 mt-2 bg-card rounded-2xl overflow-hidden"
+          className="absolute top-full right-0 mt-2 bg-card rounded-card overflow-hidden"
           style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)', minWidth: 200 }}
         >
           <div className="px-4 py-3 border-b border-border-light">

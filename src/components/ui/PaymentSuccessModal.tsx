@@ -23,7 +23,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="payment-success-title"
-        className="relative max-w-sm w-[90vw] bg-card rounded-2xl shadow-xl overflow-hidden p-6"
+        className="relative max-w-sm w-[90vw] bg-card rounded-card shadow-xl overflow-hidden p-6"
         onClick={e => e.stopPropagation()}
       >
         {/* Close button */}
@@ -54,7 +54,7 @@ export default function PaymentSuccessModal({ open, onClose }: PaymentSuccessMod
         {/* Google Sign In */}
         <button
           onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-3 w-full h-11 rounded-full text-white text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
+          className="flex items-center justify-center gap-3 w-full h-11 rounded-button text-primary-foreground text-[14px] font-semibold transition-all hover:opacity-90 active:scale-95"
           style={{ backgroundColor: BRAND_BLUE }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
