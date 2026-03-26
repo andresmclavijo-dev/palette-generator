@@ -192,7 +192,7 @@ export default function ToolsSheet({
                   <span>Normal Vision</span>
                   {visionMode === 'normal' && <span>✓</span>}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 m-0 font-normal">Full color spectrum</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5 m-0 font-normal">Full color spectrum</p>
               </button>
               {VISION_MODES.map(m => {
                 const needsPro = !m.free && !isPro
@@ -217,7 +217,7 @@ export default function ToolsSheet({
                         {visionMode === m.value && <span>✓</span>}
                       </div>
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 m-0 font-normal">{m.desc}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5 m-0 font-normal">{m.desc}</p>
                   </button>
                 )
               })}

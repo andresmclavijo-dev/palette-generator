@@ -595,7 +595,7 @@ export default function DesktopStudio() {
                             {/* WCAG badge */}
                             <div
                               className="px-2.5 py-1 rounded-button font-mono font-semibold text-card"
-                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: lensOn ? 18 : 11 }}
+                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: 11 }}
                             >
                               {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
                             </div>
@@ -1206,8 +1206,8 @@ function ColorsBottomBar({
                     <Eye size={16} className={isActive && v.mode !== 'normal' ? 'text-primary' : 'text-foreground'} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium text-foreground">{v.label}</div>
-                    <div className="text-[11px] text-muted-foreground">{v.desc}</div>
+                    <div className="text-[14px] font-medium text-foreground">{v.label}</div>
+                    <div className="text-[13px] text-muted-foreground">{v.desc}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {needsPro && <Lock size={12} className="text-muted-foreground" />}
