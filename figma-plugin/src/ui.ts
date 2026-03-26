@@ -40,11 +40,11 @@ const ICONS = {
 // ── Constants ─────────────────────────────────────────────────────
 const ROLES = ['primary', 'secondary', 'accent', 'surface', 'muted', 'highlight', 'border', 'overlay']
 const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: string }[] = [
-  { mode: 'random', icon: 'shuffle', title: 'Random', desc: 'No constraints — pure variety' },
-  { mode: 'analogous', icon: 'arc', title: 'Analogous', desc: 'Adjacent on the color wheel' },
-  { mode: 'monochromatic', icon: 'circle', title: 'Monochromatic', desc: 'One hue, varied lightness' },
-  { mode: 'complementary', icon: 'contrast', title: 'Complementary', desc: 'Opposite colors for contrast' },
-  { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced hues' },
+  { mode: 'random', icon: 'shuffle', title: 'Random', desc: 'No rules, pure exploration' },
+  { mode: 'analogous', icon: 'arc', title: 'Analogous', desc: 'Colors next to each other on the wheel' },
+  { mode: 'monochromatic', icon: 'circle', title: 'Monochromatic', desc: 'Shades of a single hue' },
+  { mode: 'complementary', icon: 'contrast', title: 'Complementary', desc: 'Opposite sides of the wheel' },
+  { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced colors' },
 ]
 const LENS_OPTIONS = [
   { id: 'normal', title: 'Normal Vision', desc: 'Full color spectrum', free: true },

@@ -27,11 +27,11 @@ import type { MobileTab } from './MobileShell'
 
 // ─── Constants ───
 const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; Icon: typeof Shuffle }[] = [
-  { mode: 'random', label: 'Random', desc: 'No constraints — pure variety', Icon: Shuffle },
-  { mode: 'analogous', label: 'Analogous', desc: 'Adjacent on the color wheel', Icon: Palette },
-  { mode: 'monochromatic', label: 'Monochromatic', desc: 'One hue, varied lightness', Icon: Circle },
-  { mode: 'complementary', label: 'Complementary', desc: 'Opposite colors for contrast', Icon: Contrast },
-  { mode: 'triadic', label: 'Triadic', desc: 'Three equally spaced hues', Icon: Triangle },
+  { mode: 'random', label: 'Random', desc: 'No rules, pure exploration', Icon: Shuffle },
+  { mode: 'analogous', label: 'Analogous', desc: 'Colors next to each other on the wheel', Icon: Palette },
+  { mode: 'monochromatic', label: 'Monochromatic', desc: 'Shades of a single hue', Icon: Circle },
+  { mode: 'complementary', label: 'Complementary', desc: 'Opposite sides of the wheel', Icon: Contrast },
+  { mode: 'triadic', label: 'Triadic', desc: 'Three evenly spaced colors', Icon: Triangle },
 ]
 
 const VISION_MODES: { mode: VisionMode; label: string; emoji: string; pro: boolean }[] = [

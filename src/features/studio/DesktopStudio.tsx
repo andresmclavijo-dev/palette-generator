@@ -55,11 +55,11 @@ type ViewMode = 'colors' | 'preview'
 type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
 const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string; icon: typeof Shuffle; iconBg: string }[] = [
-  { mode: 'random', label: 'Random', short: 'Random', desc: 'Fully random colors', icon: Shuffle, iconBg: 'hsl(var(--muted-foreground) / 0.12)' },
-  { mode: 'analogous', label: 'Analogous', short: 'Analogous', desc: 'Colors next to each other', icon: Palette, iconBg: 'hsla(25, 95%, 53%, 0.12)' },
-  { mode: 'triadic', label: 'Triadic', short: 'Triadic', desc: 'Three evenly spaced', icon: Triangle, iconBg: 'hsla(142, 71%, 45%, 0.12)' },
-  { mode: 'complementary', label: 'Complementary', short: 'Compl.', desc: 'Opposite on the wheel', icon: Contrast, iconBg: 'hsla(217, 91%, 60%, 0.12)' },
-  { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of one hue', icon: Droplet, iconBg: 'hsla(263, 100%, 64%, 0.12)' },
+  { mode: 'random', label: 'Random', short: 'Random', desc: 'No rules, pure exploration', icon: Shuffle, iconBg: 'hsl(var(--muted-foreground) / 0.12)' },
+  { mode: 'analogous', label: 'Analogous', short: 'Analogous', desc: 'Colors next to each other on the wheel', icon: Palette, iconBg: 'hsla(25, 95%, 53%, 0.12)' },
+  { mode: 'triadic', label: 'Triadic', short: 'Triadic', desc: 'Three evenly spaced colors', icon: Triangle, iconBg: 'hsla(142, 71%, 45%, 0.12)' },
+  { mode: 'complementary', label: 'Complementary', short: 'Compl.', desc: 'Opposite sides of the wheel', icon: Contrast, iconBg: 'hsla(217, 91%, 60%, 0.12)' },
+  { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of a single hue', icon: Droplet, iconBg: 'hsla(263, 100%, 64%, 0.12)' },
 ]
 
 const VISION_MODES: { mode: VisionMode; label: string; short: string; desc: string; pro: boolean }[] = [
