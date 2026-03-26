@@ -57,7 +57,7 @@ export function MobileStudio(_props: MobileStudioProps) {
 
   // ─── Sheet state (single-sheet rule) ───
   const [activeSheet, setActiveSheet] = useState<
-    'harmony' | 'lens' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
+    'harmony' | 'lens' | 'tools' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
   >(null)
   const [viewMode, setViewMode] = useState<'colors' | 'preview'>('colors')
   const [activeColorIdx, setActiveColorIdx] = useState(0)
@@ -286,78 +286,6 @@ export function MobileStudio(_props: MobileStudioProps) {
               })}
             </div>
 
-            {/* Action tools row */}
-            <div className="flex justify-center gap-2 px-3 pt-3 pb-2">
-              {/* AI */}
-              <div className="relative">
-                <button
-                  onClick={() => setActiveSheet('ai')}
-                  className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                  aria-label="AI palette"
-                >
-                  <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                  {!isPro && (
-                    <span className="absolute -top-1 -right-0.5 text-[10px] font-bold bg-primary text-white rounded-full px-1.5 min-w-[16px] text-center leading-relaxed">
-                      {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
-                    </span>
-                  )}
-                  <span className="text-[10px] font-medium text-muted-foreground">AI</span>
-                </button>
-                <AiCoachMark
-                  visible={coachVisible}
-                  onDismiss={() => setCoachVisible(false)}
-                  onTry={() => { setCoachVisible(false); setActiveSheet('ai') }}
-                  position="above"
-                />
-              </div>
-              {/* Extract */}
-              <button
-                onClick={() => {
-                  if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
-                  setActiveSheet('extract')
-                }}
-                className="relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label="Extract palette from image"
-              >
-                <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                {!isPro && (
-                  <span className="absolute -top-1 -right-0.5">
-                    <Badge variant="pro" className="text-[10px] px-1 py-0">PRO</Badge>
-                  </span>
-                )}
-                <span className="text-[10px] font-medium text-muted-foreground">Extract</span>
-              </button>
-              {/* Save */}
-              <button
-                onClick={handleSave}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label="Save palette"
-              >
-                <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                <span className="text-[10px] font-medium text-muted-foreground">Save</span>
-              </button>
-              {/* Share */}
-              <button
-                onClick={handleShare}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label={canNativeShare ? "Share palette" : "Copy link"}
-              >
-                {canNativeShare
-                  ? <Share2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                  : <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                }
-                <span className="text-[10px] font-medium text-muted-foreground">{canNativeShare ? 'Share' : 'Copy link'}</span>
-              </button>
-              {/* Export */}
-              <button
-                onClick={() => setActiveSheet('export')}
-                className="flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-button bg-card border border-border/40 active:scale-[0.98] transition-all duration-150 min-w-[56px]"
-                aria-label="Export palette"
-              >
-                <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                <span className="text-[10px] font-medium text-muted-foreground">Export</span>
-              </button>
-            </div>
           </>
         ) : (
           /* Preview view */
@@ -379,7 +307,29 @@ export function MobileStudio(_props: MobileStudioProps) {
       </div>
 
       {/* Generate bar */}
-      <div className="flex items-center gap-2.5 px-3 pb-2 pt-1">
+      <div className="flex items-center gap-2 px-3 pb-2 pt-1">
+        {/* Tools pill */}
+        <div className="relative">
+          <button
+            onClick={() => setActiveSheet('tools')}
+            className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground border border-border rounded-button transition-all duration-150 active:scale-[0.98]"
+            style={{ height: 36, paddingLeft: 12, paddingRight: 10 }}
+            aria-label="Open tools menu"
+          >
+            Tools
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <AiCoachMark
+            visible={coachVisible}
+            onDismiss={() => setCoachVisible(false)}
+            onTry={() => { setCoachVisible(false); setActiveSheet('ai') }}
+            position="above"
+          />
+        </div>
+
+        {/* Count controls */}
         <button
           onClick={() => { if (count > 3) setCount(count - 1) }}
           disabled={count <= 3}
@@ -511,6 +461,116 @@ export function MobileStudio(_props: MobileStudioProps) {
               </button>
             )
           })}
+        </div>
+      </MobileBottomSheet>
+
+      {/* Tools sheet */}
+      <MobileBottomSheet
+        open={activeSheet === 'tools'}
+        onClose={closeSheet}
+        title="Tools"
+        subtitle="Actions for your palette"
+      >
+        <div className="flex flex-col gap-1 pb-4">
+          {/* AI Palette */}
+          <button
+            onClick={() => { closeSheet(); setActiveSheet('ai') }}
+            className="w-full flex items-center justify-between p-4 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label="AI Palette: Generate colors from a description"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+                <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-foreground">AI Palette</div>
+                <div className="text-[13px] text-muted-foreground">Generate colors from a description</div>
+              </div>
+            </div>
+            {!isPro && (
+              <span className="text-[11px] font-bold bg-primary text-primary-foreground rounded-full px-2 py-0.5 shrink-0">
+                {Math.max(0, AI_MAX_FREE - getAiUsageToday())}
+              </span>
+            )}
+          </button>
+
+          {/* Extract from Image */}
+          <button
+            onClick={() => {
+              closeSheet()
+              if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
+              setActiveSheet('extract')
+            }}
+            className="w-full flex items-center justify-between p-4 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label="Extract from Image: Pull colors from a photo"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+                <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-foreground">Extract from Image</div>
+                <div className="text-[13px] text-muted-foreground">Pull colors from a photo</div>
+              </div>
+            </div>
+            {!isPro && (
+              <Lock size={16} className="text-muted-foreground shrink-0" />
+            )}
+          </button>
+
+          {/* Save */}
+          <button
+            onClick={() => { closeSheet(); handleSave() }}
+            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label="Save palette to your Library"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+                <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-foreground">Save</div>
+                <div className="text-[13px] text-muted-foreground">Save palette to your Library</div>
+              </div>
+            </div>
+          </button>
+
+          {/* Share */}
+          <button
+            onClick={() => { closeSheet(); handleShare() }}
+            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label={canNativeShare ? 'Share palette' : 'Copy shareable link'}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+                {canNativeShare
+                  ? <Share2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                  : <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                }
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-foreground">Share</div>
+                <div className="text-[13px] text-muted-foreground">Copy shareable link</div>
+              </div>
+            </div>
+          </button>
+
+          {/* Export */}
+          <button
+            onClick={() => { closeSheet(); setActiveSheet('export') }}
+            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label="Export palette as CSS, Tailwind, or SVG"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+                <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-foreground">Export</div>
+                <div className="text-[13px] text-muted-foreground">Download as CSS, Tailwind, or SVG</div>
+              </div>
+            </div>
+          </button>
         </div>
       </MobileBottomSheet>
 
