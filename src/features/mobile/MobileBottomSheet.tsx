@@ -18,7 +18,7 @@ export function MobileBottomSheet({ open, onClose, title, subtitle, full, childr
       <SheetContent
         side="bottom"
         className={cn(
-          'rounded-t-[20px] border-t-0 px-5 pb-0 pt-0',
+          'rounded-t-[20px] border-t-0 px-5 pb-0 pt-0 flex flex-col',
           full ? 'max-h-[90dvh]' : 'max-h-[55dvh]',
         )}
         style={{
