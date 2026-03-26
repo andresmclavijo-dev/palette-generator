@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -190,39 +190,14 @@ export function MobileStudio(_props: MobileStudioProps) {
   // ─── Render ───
   return (
     <div className="flex flex-col h-full">
-      {/* Paletta header */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <span className="text-[15px] font-medium tracking-tight text-foreground font-brand">
-          Paletta
-        </span>
-      </div>
-
-      {/* Header row */}
-      <div className="flex items-center justify-between px-4 pb-1.5">
-        <button
-          onClick={() => setActiveSheet('harmony')}
-          className="flex items-center gap-1 text-[15px] font-bold tracking-tight text-foreground"
-          aria-label={`Harmony: ${harmonyMode}. Tap to change.`}
-        >
-          Harmony: {HARMONY_OPTIONS.find(h => h.mode === harmonyMode)?.label}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="ml-0.5 text-muted-foreground" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-
-        <button
-          onClick={() => setActiveSheet('lens')}
-          className={cn(
-            'flex items-center gap-1 text-[15px] font-bold tracking-tight',
-            visionMode !== 'normal' ? 'text-primary' : 'text-foreground'
-          )}
-          aria-label={`Lens: ${VISION_MODES.find(v => v.mode === visionMode)?.label ?? 'Normal Vision'}. Tap to change.`}
-        >
-          Lens: {visionMode === 'normal' ? 'Normal' : VISION_MODES.find(v => v.mode === visionMode)?.label}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="ml-0.5 text-muted-foreground" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
+      {/* Minimal brand header */}
+      <div className="flex items-center justify-center" style={{ height: 48 }}>
+        <img
+          src="/logo.svg"
+          alt="Paletta"
+          className="shrink-0"
+          style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'contain' }}
+        />
       </div>
 
       {/* Segmented control */}
@@ -469,22 +444,73 @@ export function MobileStudio(_props: MobileStudioProps) {
         open={activeSheet === 'tools'}
         onClose={closeSheet}
         title="Tools"
-        subtitle="Actions for your palette"
+        subtitle="Settings and actions for your palette"
+        full
       >
-        <div className="flex flex-col gap-1 pb-4">
+        <div className="flex flex-col gap-0.5 pb-4">
+          {/* ── Settings section ── */}
+
+          {/* Harmony Mode */}
+          <button
+            onClick={() => setActiveSheet('harmony')}
+            className="w-full flex items-center justify-between p-3 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label={`Harmony Mode: ${HARMONY_OPTIONS.find(h => h.mode === harmonyMode)?.label}. Tap to change.`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
+                <Shuffle size={18} className="text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[14px] font-semibold text-foreground">Harmony Mode</div>
+                <div className="text-[13px] text-muted-foreground">{HARMONY_OPTIONS.find(h => h.mode === harmonyMode)?.label}</div>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground shrink-0" />
+          </button>
+
+          {/* Accessibility Lens */}
+          <button
+            onClick={() => setActiveSheet('lens')}
+            className="w-full flex items-center justify-between p-3 rounded-xl text-left transition-all hover:bg-surface"
+            aria-label={`Accessibility Lens: ${VISION_MODES.find(v => v.mode === visionMode)?.label}. Tap to change.`}
+          >
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'w-9 h-9 rounded-xl flex items-center justify-center',
+                visionMode !== 'normal' ? 'bg-primary/10' : 'bg-surface'
+              )}>
+                <Eye size={18} className={cn(
+                  visionMode !== 'normal' ? 'text-primary' : 'text-muted-foreground'
+                )} strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="text-[14px] font-semibold text-foreground">Accessibility Lens</div>
+                <div className={cn('text-[13px]', visionMode !== 'normal' ? 'text-primary font-medium' : 'text-muted-foreground')}>
+                  {visionMode === 'normal' ? 'Normal' : VISION_MODES.find(v => v.mode === visionMode)?.label}
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground shrink-0" />
+          </button>
+
+          {/* ── Separator ── */}
+          <div className="border-t border-border my-1.5 mx-3" />
+
+          {/* ── Actions section ── */}
+
           {/* AI Palette */}
           <button
             onClick={() => { closeSheet(); setActiveSheet('ai') }}
-            className="w-full flex items-center justify-between p-4 rounded-xl text-left transition-all hover:bg-surface"
+            className="w-full flex items-center justify-between p-3 rounded-xl text-left transition-all hover:bg-surface"
             aria-label="AI Palette: Generate colors from a description"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
-                <Sparkles size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
+                <Sparkles size={18} className="text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-foreground">AI Palette</div>
-                <div className="text-[13px] text-muted-foreground">Generate colors from a description</div>
+                <div className="text-[14px] font-semibold text-foreground">AI Palette</div>
+                <div className="text-[13px] text-muted-foreground">Generate from a description</div>
               </div>
             </div>
             {!isPro && (
@@ -501,15 +527,15 @@ export function MobileStudio(_props: MobileStudioProps) {
               if (!isPro) { openProModal('image_extraction', 'mobile_tools'); return }
               setActiveSheet('extract')
             }}
-            className="w-full flex items-center justify-between p-4 rounded-xl text-left transition-all hover:bg-surface"
+            className="w-full flex items-center justify-between p-3 rounded-xl text-left transition-all hover:bg-surface"
             aria-label="Extract from Image: Pull colors from a photo"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
-                <ImagePlus size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
+                <ImagePlus size={18} className="text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-foreground">Extract from Image</div>
+                <div className="text-[14px] font-semibold text-foreground">Extract from Image</div>
                 <div className="text-[13px] text-muted-foreground">Pull colors from a photo</div>
               </div>
             </div>
@@ -521,15 +547,15 @@ export function MobileStudio(_props: MobileStudioProps) {
           {/* Save */}
           <button
             onClick={() => { closeSheet(); handleSave() }}
-            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            className="w-full flex items-center p-3 rounded-xl text-left transition-all hover:bg-surface"
             aria-label="Save palette to your Library"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
-                <Heart size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
+                <Heart size={18} className="text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-foreground">Save</div>
+                <div className="text-[14px] font-semibold text-foreground">Save</div>
                 <div className="text-[13px] text-muted-foreground">Save palette to your Library</div>
               </div>
             </div>
@@ -538,18 +564,18 @@ export function MobileStudio(_props: MobileStudioProps) {
           {/* Share */}
           <button
             onClick={() => { closeSheet(); handleShare() }}
-            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            className="w-full flex items-center p-3 rounded-xl text-left transition-all hover:bg-surface"
             aria-label={canNativeShare ? 'Share palette' : 'Copy shareable link'}
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
                 {canNativeShare
-                  ? <Share2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
-                  : <Link2 size={20} className="text-muted-foreground" strokeWidth={1.5} />
+                  ? <Share2 size={18} className="text-muted-foreground" strokeWidth={1.5} />
+                  : <Link2 size={18} className="text-muted-foreground" strokeWidth={1.5} />
                 }
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-foreground">Share</div>
+                <div className="text-[14px] font-semibold text-foreground">Share</div>
                 <div className="text-[13px] text-muted-foreground">Copy shareable link</div>
               </div>
             </div>
@@ -558,16 +584,16 @@ export function MobileStudio(_props: MobileStudioProps) {
           {/* Export */}
           <button
             onClick={() => { closeSheet(); setActiveSheet('export') }}
-            className="w-full flex items-center p-4 rounded-xl text-left transition-all hover:bg-surface"
+            className="w-full flex items-center p-3 rounded-xl text-left transition-all hover:bg-surface"
             aria-label="Export palette as CSS, Tailwind, or SVG"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface">
-                <Download size={20} className="text-muted-foreground" strokeWidth={1.5} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
+                <Download size={18} className="text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-[15px] font-semibold text-foreground">Export</div>
-                <div className="text-[13px] text-muted-foreground">Download as CSS, Tailwind, or SVG</div>
+                <div className="text-[14px] font-semibold text-foreground">Export</div>
+                <div className="text-[13px] text-muted-foreground">CSS, Tailwind, or SVG</div>
               </div>
             </div>
           </button>
