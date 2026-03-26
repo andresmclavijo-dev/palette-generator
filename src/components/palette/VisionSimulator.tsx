@@ -5,15 +5,16 @@ import { Badge } from '@/components/ui/badge'
 import ToolTooltip from '../ui/ToolTooltip'
 import { analytics } from '../../lib/posthog'
 import DropdownSectionHeader from '../ui/DropdownSectionHeader'
+import { isLensModeFree } from '../../lib/proFeatures'
 
 export type VisionMode = 'normal' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia'
 
-const MODES: { value: VisionMode; label: string; desc: string; free: boolean }[] = [
-  { value: 'normal',        label: 'Normal Vision',  desc: 'Full color spectrum',                      free: true },
-  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-green · reds appear dark or missing',  free: true },
-  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Red-green · most common (~5% of men)',     free: true },
-  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-yellow confusion',                    free: false },
-  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Grayscale only · no color perception',     free: false },
+const MODES: { value: VisionMode; label: string; desc: string }[] = [
+  { value: 'normal',        label: 'Normal Vision',  desc: 'Full color spectrum' },
+  { value: 'protanopia',    label: 'Protanopia',     desc: 'Red-green · reds appear dark or missing' },
+  { value: 'deuteranopia',  label: 'Deuteranopia',   desc: 'Red-green · most common (~5% of men)' },
+  { value: 'tritanopia',    label: 'Tritanopia',     desc: 'Blue-yellow confusion' },
+  { value: 'achromatopsia', label: 'Achromatopsia',  desc: 'Grayscale only · no color perception' },
 ]
 
 import { BRAND_VIOLET } from '../../lib/tokens'
@@ -40,7 +41,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
   }
 
   const handleSelect = (m: typeof MODES[number]) => {
-    if (!m.free && !isPro) {
+    if (!isLensModeFree(m.value) && !isPro) {
       setDropOpen(false)
       analytics.track('pro_gate_hit', { feature: 'vision_sim', source: 'accessibility_panel' })
       onProGate()
@@ -123,7 +124,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           <DropdownSectionHeader title="Accessibility Lens" subtitle="See how people with color vision differences experience your palette" />
           {MODES.map((m, i) => {
             const isActive = mode === m.value
-            const needsPro = !m.free && !isPro
+            const needsPro = !isLensModeFree(m.value) && !isPro
             return (
               <button
                 key={m.value}

@@ -12,12 +12,13 @@ import { Badge } from '@/components/ui/badge'
 const PENDING_PLAN_KEY = 'paletta_pending_checkout'
 
 const PRO_FEATURES: { bold: string; rest: string }[] = [
-  { bold: 'AI palette', rest: ' from text prompt' },
+  { bold: 'AI palette', rest: ' \u2014 unlimited prompts (free: 3/day)' },
   { bold: '6, 7 & 8', rest: ' color palettes' },
-  { bold: 'Unlimited', rest: ' saved palettes' },
-  { bold: 'Image \u2192', rest: ' palette extraction' },
-  { bold: 'Accessibility lens', rest: ' — vision simulation' },
-  { bold: 'Full shade scales', rest: ' (50\u2013900)' },
+  { bold: 'Unlimited', rest: ' saved palettes (free: 3)' },
+  { bold: 'Image extraction', rest: ' \u2014 pull colors from photos' },
+  { bold: 'Full Accessibility Lens', rest: ' \u2014 all 5 vision modes (free: 3)' },
+  { bold: 'Shade scales', rest: ' 50\u2013900 for every color' },
+  { bold: 'Tailwind export', rest: ' \u2014 production-ready config' },
   { bold: 'Export', rest: ' without watermark' },
 ]
 

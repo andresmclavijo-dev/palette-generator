@@ -7,7 +7,8 @@ import { analytics } from '../../lib/posthog'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '../ui/dialog'
-export const AI_MAX_FREE = 3
+import { PRO_GATES } from '../../lib/proFeatures'
+export const AI_MAX_FREE = PRO_GATES.MAX_FREE_AI_PER_DAY
 
 function todayKey() {
   return `paletta_ai_uses_${new Date().toISOString().slice(0, 10)}`

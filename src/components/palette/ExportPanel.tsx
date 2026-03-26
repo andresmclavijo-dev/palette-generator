@@ -5,6 +5,7 @@ import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
 import { Badge } from '@/components/ui/badge'
+import { isExportFormatFree } from '../../lib/proFeatures'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription,
@@ -80,9 +81,9 @@ function buildSVG(hexes: string[]): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${h + 24}" width="${totalW}" height="${h + 24}">\n${rects}\n</svg>`
 }
 
-const FORMATS: { id: Format; label: string; pro?: boolean }[] = [
+const FORMATS: { id: Format; label: string }[] = [
   { id: 'css', label: 'CSS' },
-  { id: 'tailwind', label: 'Tailwind', pro: true },
+  { id: 'tailwind', label: 'Tailwind' },
   { id: 'svg', label: 'SVG' },
 ]
 
@@ -125,33 +126,36 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
           className="flex mb-4"
           style={{ backgroundColor: 'hsl(var(--border-light))', borderRadius: 8, padding: 3, gap: 3 }}
         >
-          {FORMATS.map(f => (
-            <button
-              key={f.id}
-              onClick={() => {
-                if (f.pro && !isPro && onProGate) { onProGate(); return }
-                setFormat(f.id)
-              }}
-              className="flex items-center justify-center gap-1.5 transition-all"
-              style={{
-                flex: 1,
-                height: 36,
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: format === f.id ? 600 : 500,
-                backgroundColor: format === f.id ? 'hsl(var(--card))' : 'transparent',
-                boxShadow: format === f.id ? '0 1px 3px rgba(0,0,0,0.1)' : undefined,
-                color: f.pro && !isPro ? 'hsl(var(--muted-foreground))' : format === f.id ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {f.label}
-              {f.pro && !isPro && (
-                <Badge variant="pro" className="ml-1">PRO</Badge>
-              )}
-            </button>
-          ))}
+          {FORMATS.map(f => {
+            const isProFormat = !isExportFormatFree(f.id) && !isPro
+            return (
+              <button
+                key={f.id}
+                onClick={() => {
+                  if (isProFormat && onProGate) { onProGate(); return }
+                  setFormat(f.id)
+                }}
+                className="flex items-center justify-center gap-1.5 transition-all"
+                style={{
+                  flex: 1,
+                  height: 36,
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: format === f.id ? 600 : 500,
+                  backgroundColor: format === f.id ? 'hsl(var(--card))' : 'transparent',
+                  boxShadow: format === f.id ? '0 1px 3px rgba(0,0,0,0.1)' : undefined,
+                  color: isProFormat ? 'hsl(var(--muted-foreground))' : format === f.id ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {f.label}
+                {isProFormat && (
+                  <Badge variant="pro" className="ml-1">PRO</Badge>
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* Code block — intentionally dark theme, not tokenized */}

@@ -1,8 +1,9 @@
 import { usePro } from '../../hooks/usePro'
 import Tooltip from '../ui/Tooltip'
 import { analytics } from '../../lib/posthog'
+import { PRO_GATES } from '../../lib/proFeatures'
 
-const FREE_MAX   = 5
+const FREE_MAX   = PRO_GATES.MAX_FREE_COLORS
 const ALL_COUNTS = [3, 4, 5, 6, 7, 8]
 const COMPACT_COUNTS = [3, 4, 5, 6]
 

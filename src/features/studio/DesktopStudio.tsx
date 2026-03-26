@@ -31,6 +31,7 @@ import {
 } from '@/lib/colorEngine'
 import { extractColorsFromFile } from '@/lib/kMeans'
 import { BRAND_VIOLET } from '@/lib/tokens'
+import { PRO_GATES, isLensModeFree } from '@/lib/proFeatures'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { createCheckoutSession, createPortalSession } from '@/lib/stripe'
@@ -62,12 +63,12 @@ const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string
   { mode: 'monochromatic', label: 'Monochromatic', short: 'Mono', desc: 'Shades of a single hue', icon: Droplet, iconBg: 'hsla(263, 100%, 64%, 0.12)' },
 ]
 
-const VISION_MODES: { mode: VisionMode; label: string; short: string; desc: string; pro: boolean }[] = [
-  { mode: 'normal', label: 'Normal Vision', short: 'Normal', desc: 'Full color spectrum', pro: false },
-  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', desc: 'Red-green · reds appear dark or missing', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)', pro: false },
-  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', desc: 'Blue-yellow confusion', pro: true },
-  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', desc: 'Grayscale only · no color perception', pro: true },
+const VISION_MODES: { mode: VisionMode; label: string; short: string; desc: string }[] = [
+  { mode: 'normal', label: 'Normal Vision', short: 'Normal', desc: 'Full color spectrum' },
+  { mode: 'protanopia', label: 'Protanopia', short: 'Protanopia', desc: 'Red-green · reds appear dark or missing' },
+  { mode: 'deuteranopia', label: 'Deuteranopia', short: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)' },
+  { mode: 'tritanopia', label: 'Tritanopia', short: 'Tritanopia', desc: 'Blue-yellow confusion' },
+  { mode: 'achromatopsia', label: 'Achromatopsia', short: 'Achrom.', desc: 'Grayscale only · no color perception' },
 ]
 
 const DOCK_STORAGE_KEY = 'paletta_dock_expanded'
@@ -115,8 +116,8 @@ export default function DesktopStudio() {
   const trackedRef = useRef(false)
 
   // Color count gating — computed from reactive state
-  const isAtFreeCap = !isPro && swatches.length >= 5
-  const isAtProMax = isPro && swatches.length >= 8
+  const isAtFreeCap = !isPro && swatches.length >= PRO_GATES.MAX_FREE_COLORS
+  const isAtProMax = isPro && swatches.length >= PRO_GATES.MAX_PRO_COLORS
   const isColorGated = isAtFreeCap || isAtProMax
 
   // Track desktop_studio_loaded once
@@ -263,7 +264,7 @@ export default function DesktopStudio() {
         .from('saved_palettes')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-      if ((savedCount ?? 0) >= 3) { openProModal('save_limit', 'toolbar'); return }
+      if ((savedCount ?? 0) >= PRO_GATES.MAX_FREE_SAVES) { openProModal('save_limit', 'toolbar'); return }
     }
     openDialog('save-name')
   }
@@ -302,7 +303,7 @@ export default function DesktopStudio() {
   }
 
   const handleAiPalette = (hexes: string[]) => {
-    const max = isPro ? 8 : 5
+    const max = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
     const clamped = hexes.slice(0, max)
 
     // Save scroll position — dialog close + state update can cause focus
@@ -664,12 +665,15 @@ export default function DesktopStudio() {
                                   <Info size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
-                              <DarkTooltip label="Shade scale" position="right">
+                              <DarkTooltip label={isPro ? 'Shade scale' : 'Shade scale (Pro)'} position="right">
                                 <button
-                                  onClick={() => { setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog() }}
+                                  onClick={() => {
+                                    if (!isPro) { openProModal('shade_scale', 'swatch_action'); return }
+                                    setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog()
+                                  }}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
-                                  aria-label="View shade scale"
+                                  aria-label={isPro ? 'View shade scale' : 'Shade scale (Pro feature)'}
                                   aria-expanded={showShades}
                                 >
                                   <Grid3X3 size={16} strokeWidth={1.5} style={{ color: textColor }} />
@@ -731,8 +735,8 @@ export default function DesktopStudio() {
                     onCountDown={() => { if (count > 3) setCount(count - 1) }}
                     onCountUp={() => {
                       const liveCount = usePaletteStore.getState().swatches.length
-                      const liveMax = isPro ? 8 : 5
-                      if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                      const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
+                      if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
                       if (liveCount >= liveMax) return
                       setCount(liveCount + 1)
                     }}
@@ -751,8 +755,8 @@ export default function DesktopStudio() {
                     onCountDown={() => { if (count > 3) setCount(count - 1) }}
                     onCountUp={() => {
                       const liveCount = usePaletteStore.getState().swatches.length
-                      const liveMax = isPro ? 8 : 5
-                      if (!isPro && liveCount >= 5) { openProModal('color_count', 'canvas_bar'); return }
+                      const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
+                      if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
                       if (liveCount >= liveMax) return
                       setCount(liveCount + 1)
                     }}
@@ -957,7 +961,7 @@ function ColorsBottomBar({
   }
 
   const selectVision = (v: typeof VISION_MODES[number]) => {
-    if (v.pro && !isPro) { setVisionOpen(false); onProGate(); return }
+    if (!isLensModeFree(v.mode) && !isPro) { setVisionOpen(false); onProGate(); return }
     if (v.mode === 'normal') {
       if (lensOn) onToggleLens()
     } else {
@@ -1175,7 +1179,7 @@ function ColorsBottomBar({
           <div style={{ padding: 8 }}>
             {VISION_MODES.map(v => {
               const isActive = lensOn ? visionMode === v.mode : v.mode === 'normal'
-              const needsPro = v.pro && !isPro
+              const needsPro = !isLensModeFree(v.mode) && !isPro
               return (
                 <button
                   key={v.mode}

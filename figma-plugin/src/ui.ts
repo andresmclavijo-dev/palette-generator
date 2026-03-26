@@ -46,6 +46,7 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; icon: string; title: string; desc: s
   { mode: 'complementary', icon: 'contrast', title: 'Complementary', desc: 'Opposite sides of the wheel' },
   { mode: 'triadic', icon: 'triangle', title: 'Triadic', desc: 'Three evenly spaced colors' },
 ]
+// Pro gating must match src/lib/proFeatures.ts (web SSOT)
 const LENS_OPTIONS = [
   { id: 'normal', title: 'Normal Vision', desc: 'Full color spectrum', free: true },
   { id: 'protanopia', title: 'Protanopia', desc: 'Red-green \u00b7 reds appear dark or missing', free: true },

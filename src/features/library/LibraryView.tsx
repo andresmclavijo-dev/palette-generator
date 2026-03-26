@@ -8,6 +8,7 @@ import {
 import { BRAND_VIOLET } from '@/lib/tokens'
 import { buildShareUrl } from '@/lib/colorEngine'
 import { showToast } from '@/utils/toast'
+import { PRO_GATES } from '@/lib/proFeatures'
 import { analytics } from '@/lib/posthog'
 import ExportPanel from '@/components/palette/ExportPanel'
 import { DarkTooltip } from '@/features/studio/DarkTooltip'
@@ -92,7 +93,7 @@ export function LibraryView({
     return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(date))
   }
 
-  const slotsText = isPro ? 'Unlimited saves' : `${palettes.length} of 3 free slots used`
+  const slotsText = isPro ? 'Unlimited saves' : `${palettes.length} of ${PRO_GATES.MAX_FREE_SAVES} free slots used`
 
   if (!isSignedIn) {
     return (
@@ -102,7 +103,7 @@ export function LibraryView({
         </div>
         <h2 className="text-[24px] font-bold text-foreground">Your collection starts here</h2>
         <p className="text-[14px] mt-2 mb-6 max-w-[320px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
-          Save your favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
+          Save your favorites and export to Figma or Tailwind CSS. {PRO_GATES.MAX_FREE_SAVES} free saves, unlimited with Pro.
         </p>
         <Button
           variant="default"
@@ -200,7 +201,7 @@ export function LibraryView({
           </div>
         )}
 
-        {!isPro && palettes.length >= 3 && (
+        {!isPro && palettes.length >= PRO_GATES.MAX_FREE_SAVES && (
           <Button
             variant="default"
             size="lg"

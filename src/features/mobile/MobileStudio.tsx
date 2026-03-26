@@ -12,6 +12,7 @@ import { VisionFilterDefs } from '@/components/palette/VisionSimulator'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { cn } from '@/lib/utils'
+import { PRO_GATES, isLensModeFree } from '@/lib/proFeatures'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MobileBottomSheet } from './MobileBottomSheet'
@@ -34,12 +35,12 @@ const HARMONY_OPTIONS: { mode: HarmonyMode; label: string; desc: string; Icon: t
   { mode: 'triadic', label: 'Triadic', desc: 'Three evenly spaced colors', Icon: Triangle },
 ]
 
-const VISION_MODES: { mode: VisionMode; label: string; desc: string; pro: boolean }[] = [
-  { mode: 'normal', label: 'Normal Vision', desc: 'Full color spectrum', pro: false },
-  { mode: 'protanopia', label: 'Protanopia', desc: 'Red-green · reds appear dark or missing', pro: false },
-  { mode: 'deuteranopia', label: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)', pro: false },
-  { mode: 'tritanopia', label: 'Tritanopia', desc: 'Blue-yellow confusion', pro: true },
-  { mode: 'achromatopsia', label: 'Achromatopsia', desc: 'Grayscale only · no color perception', pro: true },
+const VISION_MODES: { mode: VisionMode; label: string; desc: string }[] = [
+  { mode: 'normal', label: 'Normal Vision', desc: 'Full color spectrum' },
+  { mode: 'protanopia', label: 'Protanopia', desc: 'Red-green · reds appear dark or missing' },
+  { mode: 'deuteranopia', label: 'Deuteranopia', desc: 'Red-green · most common (~5% of men)' },
+  { mode: 'tritanopia', label: 'Tritanopia', desc: 'Blue-yellow confusion' },
+  { mode: 'achromatopsia', label: 'Achromatopsia', desc: 'Grayscale only · no color perception' },
 ]
 
 interface MobileStudioProps {
@@ -145,7 +146,7 @@ export function MobileStudio(_props: MobileStudioProps) {
 
   const handleSave = () => {
     if (!user) { setActiveSheet('sign-in'); return }
-    if (!isPro && (savedCount ?? 0) >= 3) {
+    if (!isPro && (savedCount ?? 0) >= PRO_GATES.MAX_FREE_SAVES) {
       openProModal('save_limit', 'mobile_studio')
       return
     }
@@ -175,7 +176,7 @@ export function MobileStudio(_props: MobileStudioProps) {
   }
 
   const handleAiPalette = (hexes: string[]) => {
-    const max = isPro ? 8 : 5
+    const max = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
     setSwatches(hexes.slice(0, max).map(h => makeSwatch(h)))
     analytics.track('palette_generated', { method: 'ai', style: harmonyMode, color_count: hexes.length })
   }
@@ -317,16 +318,16 @@ export function MobileStudio(_props: MobileStudioProps) {
         <span className="text-base font-extrabold text-foreground tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
         <button
           onClick={() => {
-            if (!isPro && count >= 5) { openProModal('color_count', 'mobile_bar'); return }
-            if (count < (isPro ? 8 : 5)) setCount(count + 1)
+            if (!isPro && count >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'mobile_bar'); return }
+            if (count < (isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS)) setCount(count + 1)
           }}
-          disabled={isPro ? count >= 8 : false}
+          disabled={isPro ? count >= PRO_GATES.MAX_PRO_COLORS : false}
           className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
           style={{ width: 36, height: 36 }}
-          aria-label={!isPro && count >= 5 ? 'Upgrade to Pro for more colors' : 'Add color'}
+          aria-label={!isPro && count >= PRO_GATES.MAX_FREE_COLORS ? 'Upgrade to Pro for more colors' : 'Add color'}
         >
           <Plus size={16} className="text-foreground" />
-          {!isPro && count >= 5 && (
+          {!isPro && count >= PRO_GATES.MAX_FREE_COLORS && (
             <span className="absolute -bottom-1.5 -right-2">
               <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
             </span>
@@ -398,9 +399,9 @@ export function MobileStudio(_props: MobileStudioProps) {
         subtitle="See how people with color vision differences experience your palette"
       >
         <div className="flex flex-col gap-1 pb-4">
-          {VISION_MODES.map(({ mode, label, desc, pro }) => {
+          {VISION_MODES.map(({ mode, label, desc }) => {
             const isActive = visionMode === mode
-            const isLocked = pro && !isPro
+            const isLocked = !isLensModeFree(mode) && !isPro
             return (
               <button
                 key={mode}

@@ -6,6 +6,7 @@ import { makeSwatch, buildShareUrl } from '@/lib/colorEngine'
 import { showToast } from '@/utils/toast'
 import { analytics } from '@/lib/posthog'
 import { Button } from '@/components/ui/button'
+import { PRO_GATES } from '@/lib/proFeatures'
 import type { MobileTab } from './MobileShell'
 
 interface SavedPalette {
@@ -87,7 +88,7 @@ export function MobileLibrary({ onNavigate }: MobileLibraryProps) {
         </div>
         <h2 className="text-xl font-extrabold text-foreground mb-1">Your collection starts here</h2>
         <p className="text-[15px] text-foreground/60 text-center leading-relaxed max-w-[280px] mb-6">
-          Save favorites and export to Figma or Tailwind CSS. 3 free saves, unlimited with Pro.
+          Save favorites and export to Figma or Tailwind CSS. {PRO_GATES.MAX_FREE_SAVES} free saves, unlimited with Pro.
         </p>
         <Button
           size="lg"

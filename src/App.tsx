@@ -39,6 +39,7 @@ import { extractColorsFromFile } from './lib/kMeans'
 import { createCheckoutSession, createPortalSession } from './lib/stripe'
 import { BRAND_VIOLET } from './lib/tokens'
 import { analytics } from './lib/posthog'
+import { PRO_GATES } from './lib/proFeatures'
 const FREE_COUNTS = [3, 4, 5]
 
 export default function App() {
@@ -216,7 +217,7 @@ export default function App() {
         .from('saved_palettes')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-      if ((savedCount ?? 0) >= 3) { openProModal('save_limit', 'toolbar'); return }
+      if ((savedCount ?? 0) >= PRO_GATES.MAX_FREE_SAVES) { openProModal('save_limit', 'toolbar'); return }
     }
     setSaveNameOpen(true)
   }
