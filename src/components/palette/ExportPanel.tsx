@@ -5,7 +5,6 @@ import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
 import { Badge } from '@/components/ui/badge'
-import { BRAND_VIOLET } from '../../lib/tokens'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription,
@@ -83,7 +82,7 @@ function buildSVG(hexes: string[]): string {
 
 const FORMATS: { id: Format; label: string; pro?: boolean }[] = [
   { id: 'css', label: 'CSS' },
-  { id: 'tailwind', label: 'Tailwind' },
+  { id: 'tailwind', label: 'Tailwind', pro: true },
   { id: 'svg', label: 'SVG' },
 ]
 
@@ -226,37 +225,6 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
           </div>
         )}
 
-        {/* Pro tease */}
-        {!isPro && (
-          <div
-            className="flex items-center justify-between"
-            style={{
-              borderTop: '1px solid hsl(var(--border-light))',
-              paddingTop: 16,
-              marginTop: 4,
-            }}
-          >
-            <span className="text-[12px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
-              Need more? Export as SCSS or Flutter
-            </span>
-            {onProGate && (
-              <button
-                onClick={onProGate}
-                className="shrink-0 text-[12px] font-semibold transition-all hover:opacity-80"
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 8,
-                  border: `1px solid ${BRAND_VIOLET}`,
-                  backgroundColor: 'transparent',
-                  color: BRAND_VIOLET,
-                  cursor: 'pointer',
-                }}
-              >
-                Unlock with Pro
-              </button>
-            )}
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   )
