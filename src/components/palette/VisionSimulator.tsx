@@ -114,12 +114,12 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
           className="bg-card overflow-hidden"
           style={{
             position: 'fixed', top: dropPos.top, right: dropPos.right, zIndex: 9999,
-            width: 300, borderRadius: 12,
+            minWidth: 280, borderRadius: 12,
             border: '1px solid hsl(var(--border-light))',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
         >
-          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border-light))' }}>
+          <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
             <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
             <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
           </div>
@@ -143,7 +143,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="text-[14px] font-bold"
+                    className="text-[14px] font-medium whitespace-nowrap"
                     style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
                   >
                     {m.label}
@@ -159,7 +159,7 @@ export default function VisionSimulator({ mode, onChange, onProGate }: VisionSim
                     )}
                   </div>
                 </div>
-                <p className="text-[13px] mt-0.5 leading-snug m-0" style={{ color: 'hsl(var(--muted-foreground))' }}>{m.desc}</p>
+                <p className="text-[13px] mt-0.5 leading-snug m-0 whitespace-nowrap" style={{ color: 'hsl(var(--muted-foreground))' }}>{m.desc}</p>
               </button>
             )
           })}

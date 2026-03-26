@@ -236,7 +236,7 @@ export default function MobileDrawer({
           {/* Vision sub-options — inline accordion, styled to match HarmonyPickerList */}
           {visionExpanded && onVisionChange && (
             <div className="pl-[3.75rem] pr-3 pb-1">
-              <div style={{ padding: '8px 16px 8px', borderBottom: '1px solid hsl(var(--border-light))' }}>
+              <div style={{ padding: '8px 16px 8px', borderBottom: '1px solid hsl(var(--border))' }}>
                 <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
                 <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
               </div>
@@ -261,7 +261,7 @@ export default function MobileDrawer({
                   >
                     <div className="flex items-center justify-between">
                       <span
-                        className="text-[14px] font-bold"
+                        className="text-[14px] font-medium"
                         style={{ color: isActive ? BRAND_VIOLET : 'hsl(var(--foreground))' }}
                       >
                         {m.label}

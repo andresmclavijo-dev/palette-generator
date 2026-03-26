@@ -1108,7 +1108,7 @@ function ColorsBottomBar({
           style={{
             bottom: harmonyPos.bottom,
             left: harmonyPos.left,
-            width: 280,
+            minWidth: 280,
             borderRadius: 12,
             border: '1px solid hsl(var(--border-light))',
             boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
@@ -1141,8 +1141,8 @@ function ColorsBottomBar({
                     <Icon size={16} className="text-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-medium text-foreground">{h.label}</div>
-                    <div className="text-[11px] text-muted-foreground">{h.desc}</div>
+                    <div className="text-[14px] font-medium text-foreground whitespace-nowrap">{h.label}</div>
+                    <div className="text-[13px] text-muted-foreground whitespace-nowrap">{h.desc}</div>
                   </div>
                   {isActive && <Check size={14} className="text-primary flex-shrink-0" />}
                 </button>
@@ -1163,14 +1163,14 @@ function ColorsBottomBar({
           style={{
             bottom: visionPos.bottom,
             left: visionPos.left,
-            width: 280,
+            minWidth: 280,
             borderRadius: 12,
             border: '1px solid hsl(var(--border-light))',
             boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           }}
         >
           <div style={{ padding: 6 }}>
-            <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border-light))' }}>
+            <div style={{ padding: '8px 10px 8px', marginBottom: 2, borderBottom: '1px solid hsl(var(--border))' }}>
               <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
               <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
             </div>
@@ -1206,8 +1206,8 @@ function ColorsBottomBar({
                     <Eye size={16} className={isActive && v.mode !== 'normal' ? 'text-primary' : 'text-foreground'} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-medium text-foreground">{v.label}</div>
-                    <div className="text-[13px] text-muted-foreground">{v.desc}</div>
+                    <div className="text-[14px] font-medium text-foreground whitespace-nowrap">{v.label}</div>
+                    <div className="text-[13px] text-muted-foreground whitespace-nowrap">{v.desc}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {needsPro && <Lock size={12} className="text-muted-foreground" />}

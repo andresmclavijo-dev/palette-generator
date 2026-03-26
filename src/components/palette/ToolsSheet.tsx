@@ -178,7 +178,7 @@ export default function ToolsSheet({
           {/* Vision sub-options */}
           {visionExpanded && (
             <div className="pl-[4.5rem] pr-5 pb-2 space-y-1">
-              <div style={{ paddingBottom: 6, marginBottom: 4, borderBottom: '1px solid hsl(var(--border-light))' }}>
+              <div style={{ paddingBottom: 6, marginBottom: 4, borderBottom: '1px solid hsl(var(--border))' }}>
                 <div className="text-[13px] font-semibold text-foreground">Accessibility Lens</div>
                 <div className="text-[12px] text-muted-foreground mt-0.5">See how people with color vision differences experience your palette</div>
               </div>
