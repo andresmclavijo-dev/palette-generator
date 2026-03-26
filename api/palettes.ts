@@ -86,8 +86,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {
     const { name, colors } = req.body ?? {}
 
-    if (!name || !Array.isArray(colors) || colors.length === 0) {
+    if (!name || typeof name !== 'string' || !Array.isArray(colors) || colors.length === 0) {
       return res.status(400).json({ error: 'Missing name or colors' })
+    }
+
+    if (name.length > 200 || colors.length > 8) {
+      return res.status(400).json({ error: 'Name too long or too many colors' })
     }
 
     // Pro gating: check palette count for free users
@@ -111,6 +115,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const hexColors: string[] = colors.map((c: string | { hex: string }) =>
       typeof c === 'string' ? c : c.hex
     )
+
+    // Validate hex format
+    const hexRegex = /^#[0-9a-fA-F]{6}$/
+    if (!hexColors.every(h => hexRegex.test(h))) {
+      return res.status(400).json({ error: 'Invalid color format — expected #RRGGBB' })
+    }
 
     const { data, error } = await supabase
       .from('saved_palettes')

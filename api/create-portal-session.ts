@@ -28,23 +28,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Invalid or expired session' })
     }
 
-    const { customerId, email: bodyEmail } = req.body as {
-      customerId?: string
-      email?: string
+    // Always derive email from authenticated user — never trust client-sent customerId
+    const email = user.email
+    if (!email) {
+      return res.status(400).json({ error: 'No email on authenticated user' })
     }
 
-    // Use the authenticated user's email as fallback, not just client-provided
-    const email = bodyEmail || user.email
-
-    let stripeCustomerId = customerId
-
-    // If no customerId provided, look up by email
-    if (!stripeCustomerId && email) {
-      const existing = await stripe.customers.list({ email, limit: 1 })
-      if (existing.data.length > 0) {
-        stripeCustomerId = existing.data[0].id
-      }
-    }
+    // Look up Stripe customer by verified email only
+    const existing = await stripe.customers.list({ email, limit: 1 })
+    const stripeCustomerId = existing.data[0]?.id
 
     if (!stripeCustomerId) {
       return res.status(400).json({ error: 'No Stripe customer found' })
@@ -63,7 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       stack: err instanceof Error ? err.stack?.slice(0, 500) : undefined,
       timestamp: new Date().toISOString(),
     })
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return res.status(500).json({ error: message })
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' })
   }
 }

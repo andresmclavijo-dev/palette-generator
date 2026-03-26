@@ -51,7 +51,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       stack: err instanceof Error ? err.stack?.slice(0, 500) : undefined,
       timestamp: new Date().toISOString(),
     })
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return res.status(500).json({ error: message })
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' })
   }
 }
