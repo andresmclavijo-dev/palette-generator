@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ChevronDown, Image, Star, Heart,
-  Lock, Unlock, Copy, Check, Info,
+  Lock, Unlock, Copy, Check, Info, GripVertical,
   Share2, Link2, Download, Grid3X3,
   Plus, Minus, Undo2, Redo2,
   Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles,
@@ -82,7 +82,7 @@ export default function DesktopStudio() {
   const {
     swatches, harmonyMode, count,
     generate, lockSwatch, editSwatch, setHarmonyMode, setCount,
-    undo, redo, setSwatches,
+    undo, redo, setSwatches, reorderSwatches,
   } = usePaletteStore()
 
   // Local UI state
@@ -112,6 +112,62 @@ export default function DesktopStudio() {
 
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
   const [coachVisible, setCoachVisible] = useState(false)
+
+  // Drag-to-reorder state
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [overIdx, setOverIdx] = useState<number | null>(null)
+  const dragRef = useRef<number | null>(null)
+  const overRef = useRef<number | null>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
+
+  const handleDragStart = useCallback((index: number) => {
+    dragRef.current = index
+    overRef.current = index
+    setDragIdx(index)
+    setOverIdx(index)
+  }, [])
+
+  useEffect(() => {
+    if (dragIdx === null) return
+    const handleMove = (e: PointerEvent) => {
+      const el = canvasRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const fraction = (e.clientX - rect.left) / rect.width
+      const idx = Math.max(0, Math.min(swatches.length - 1, Math.floor(fraction * swatches.length)))
+      overRef.current = idx
+      setOverIdx(idx)
+    }
+    const handleUp = () => {
+      const from = dragRef.current
+      const to = overRef.current
+      if (from !== null && to !== null && from !== to) {
+        reorderSwatches(from, to)
+      }
+      dragRef.current = null
+      overRef.current = null
+      setDragIdx(null)
+      setOverIdx(null)
+    }
+    document.addEventListener('pointermove', handleMove)
+    document.addEventListener('pointerup', handleUp)
+    document.addEventListener('pointercancel', handleUp)
+    return () => {
+      document.removeEventListener('pointermove', handleMove)
+      document.removeEventListener('pointerup', handleUp)
+      document.removeEventListener('pointercancel', handleUp)
+    }
+  }, [dragIdx, swatches.length, reorderSwatches])
+
+  // Compute visual reorder during drag
+  const displayOrder = (() => {
+    const indices = swatches.map((_, i) => i)
+    if (dragIdx === null || overIdx === null || dragIdx === overIdx) return indices
+    const order = [...indices]
+    const [removed] = order.splice(dragIdx, 1)
+    order.splice(overIdx, 0, removed)
+    return order
+  })()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const trackedRef = useRef(false)
@@ -580,19 +636,27 @@ export default function DesktopStudio() {
               {/* ─── Colors View ─── */}
               {viewMode === 'colors' && (
                 <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: lensOn ? visionFilter : undefined }}>
-                  <div className="flex h-full">
-                    {swatches.map((s, swatchIdx) => {
+                  <div ref={canvasRef} className="flex h-full" style={{ touchAction: dragIdx !== null ? 'none' : undefined }}>
+                    {displayOrder.map((swatchIdx) => {
+                      const s = swatches[swatchIdx]
                       const textColor = readableOn(s.hex)
                       const contrast = getContrastBadge(s.hex)
                       const isCopied = copiedId === s.id
                       const isEditing = editingId === s.id
                       const showShades = shadesOpen === s.id
                       const showInfo = infoOpen === s.id
+                      const positionIdx = displayOrder.indexOf(swatchIdx)
                       return (
                         <div
                           key={s.id}
                           className="relative flex-1 flex flex-col items-center justify-center transition-all group/swatch"
-                          style={{ backgroundColor: s.hex, paddingTop: 70, paddingBottom: 72 }}
+                          style={{
+                            backgroundColor: s.hex,
+                            paddingTop: 70,
+                            paddingBottom: 72,
+                            opacity: dragIdx === swatchIdx ? 0.6 : 1,
+                            zIndex: dragIdx === swatchIdx ? 20 : undefined,
+                          }}
                         >
                           <div className="flex flex-col items-center justify-center gap-3">
                             {/* WCAG badge */}
@@ -611,15 +675,15 @@ export default function DesktopStudio() {
                               </div>
                             )}
 
-                            {/* Role label */}
+                            {/* Semantic role name — primary label */}
                             <span
-                              className="text-[12px] font-medium"
-                              style={{ color: textColor, opacity: 0.6 }}
+                              className="text-[14px] font-semibold"
+                              style={{ color: textColor }}
                             >
-                              {SEMANTIC_ROLES[swatchIdx]?.role ?? `Color ${swatchIdx + 1}`}
+                              {SEMANTIC_ROLES[positionIdx]?.role ?? `Color ${positionIdx + 1}`}
                             </span>
 
-                            {/* Hex code */}
+                            {/* Hex code — secondary label */}
                             {isEditing ? (
                               <input
                                 autoFocus
@@ -630,15 +694,15 @@ export default function DesktopStudio() {
                                   if (e.key === 'Enter') confirmEdit(s.id)
                                   if (e.key === 'Escape') setEditingId(null)
                                 }}
-                                className="bg-transparent border-b-2 text-center font-mono text-[16px] font-bold outline-none w-24"
-                                style={{ color: textColor, borderColor: textColor }}
+                                className="bg-transparent border-b-2 text-center font-mono text-[12px] font-normal outline-none w-24"
+                                style={{ color: textColor, borderColor: textColor, opacity: 0.7 }}
                                 aria-label="Edit hex code"
                               />
                             ) : (
                               <button
                                 onClick={() => startEdit(s.id, s.hex)}
-                                className="font-mono text-[16px] font-bold tracking-wide cursor-text transition-all hover:opacity-80"
-                                style={{ color: textColor }}
+                                className="font-mono text-[12px] font-normal tracking-wide cursor-text transition-all hover:opacity-80"
+                                style={{ color: textColor, opacity: 0.7 }}
                                 aria-label={`Edit color ${s.hex}`}
                               >
                                 {s.hex.toUpperCase()}
@@ -647,6 +711,18 @@ export default function DesktopStudio() {
 
                             {/* Action buttons */}
                             <div className="flex flex-col items-center" style={{ gap: 6 }}>
+                              <DarkTooltip label="Drag to reorder" position="right">
+                                <div
+                                  className="flex items-center justify-center transition-all cursor-grab active:cursor-grabbing"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', touchAction: 'none' }}
+                                  onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); handleDragStart(swatchIdx) }}
+                                  role="button"
+                                  aria-label="Drag to reorder"
+                                  tabIndex={0}
+                                >
+                                  <GripVertical size={16} strokeWidth={1.5} style={{ color: textColor }} />
+                                </div>
+                              </DarkTooltip>
                               <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
                                 <button
                                   onClick={() => copyHex(s.id, s.hex)}

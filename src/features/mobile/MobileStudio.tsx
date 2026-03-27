@@ -241,29 +241,27 @@ export function MobileStudio(_props: MobileStudioProps) {
                     {swatch.locked && (
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
-                    {/* Role label */}
+                    {/* Semantic role name — primary label */}
                     <span
-                      className="text-[10px] font-medium mb-1 truncate max-w-[calc(100%-8px)]"
-                      style={{ color: textColor, opacity: 0.6 }}
+                      className="text-[11px] font-semibold mb-0.5 truncate max-w-[calc(100%-8px)]"
+                      style={{ color: textColor }}
                     >
                       {SEMANTIC_ROLES[i]?.role ?? `Color ${i + 1}`}
                     </span>
+                    {/* Hex code — secondary label */}
+                    <span
+                      className="text-[9px] font-mono font-normal mb-1 truncate max-w-[calc(100%-8px)]"
+                      style={{ color: textColor, opacity: 0.6 }}
+                    >
+                      {swatch.hex.toUpperCase().slice(0, 7)}
+                    </span>
                     {/* WCAG badge */}
-                    <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
+                    <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 max-w-[calc(100%-8px)]">
                       <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>
                       {swatches.length <= 6 && (
                         <span className="text-[10px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
                       )}
                       {badge.pass && <span className="text-[10px] text-success font-bold leading-none">✓</span>}
-                    </div>
-                    {/* Hex */}
-                    <div className="bg-card shadow-sm rounded-md px-1.5 py-0.5 border border-black/5 max-w-[calc(100%-8px)]">
-                      <span className={cn(
-                        'font-semibold font-mono text-foreground leading-none truncate block',
-                        swatches.length > 6 ? 'text-[10px] tracking-normal' : 'text-[10px] tracking-wider'
-                      )}>
-                        {swatch.hex.toUpperCase().slice(0, 7)}
-                      </span>
                     </div>
                   </button>
                 )

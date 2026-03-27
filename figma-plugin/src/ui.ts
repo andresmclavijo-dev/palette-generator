@@ -627,9 +627,9 @@ function renderStudioBars() {
     bar.style.backgroundColor = displayHex
     bar.innerHTML = `
       <span class="bar-lock" style="color:${textColor}">${ICONS.lock}</span>
-      <span class="bar-role" style="color:${textColor};opacity:0.6;font-size:10px;font-weight:500">${ROLES[i] || `Color ${i + 1}`}</span>
+      <span class="bar-role" style="color:${textColor};font-size:12px;font-weight:600">${ROLES[i] || `Color ${i + 1}`}</span>
+      <span class="bar-hex" style="color:${textColor};opacity:0.6;font-size:10px;font-weight:400">${color.hex.toUpperCase()}</span>
       <span class="bar-badge ${badge.pass ? 'bar-badge-pass' : 'bar-badge-fail'}">${badge.label} ${badge.ratio}</span>
-      <span class="bar-hex" style="color:${textColor}">${color.hex.toUpperCase()}</span>
     `
     bar.addEventListener('click', () => {
       state.palette[i] = { ...state.palette[i], locked: !state.palette[i].locked }
