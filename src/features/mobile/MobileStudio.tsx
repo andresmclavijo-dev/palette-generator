@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft, Pencil } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
 import {
   readableOn, getColorName, getContrastBadge, getColorInfo, makeSwatch, buildShareUrl,
-  SEMANTIC_ROLES,
+  SEMANTIC_ROLES, parseHex,
 } from '@/lib/colorEngine'
 import type { HarmonyMode } from '@/lib/colorEngine'
 import type { VisionMode } from '@/components/palette/VisionSimulator'
@@ -25,6 +25,7 @@ import SaveNameModal from '@/components/ui/SaveNameModal'
 import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
 import { PreviewGrid } from '@/components/preview/PreviewGrid'
+import { HexColorPicker } from 'react-colorful'
 import type { MobileTab } from './MobileShell'
 
 // ─── Constants ───
@@ -54,7 +55,7 @@ export function MobileStudio(_props: MobileStudioProps) {
 
   const {
     swatches, harmonyMode, count, generate,
-    lockSwatch, setHarmonyMode, setCount, setSwatches,
+    lockSwatch, editSwatch, reorderSwatches, setHarmonyMode, setCount, setSwatches,
   } = usePaletteStore()
 
   // ─── Sheet state (single-sheet rule) ───
@@ -67,6 +68,9 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [copiedHex, setCopiedHex] = useState<string | null>(null)
   const [saveNameOpen, setSaveNameOpen] = useState(false)
   const [coachVisible, setCoachVisible] = useState(false)
+  const [editingHex, setEditingHex] = useState(false)
+  const [hexDraft, setHexDraft] = useState('')
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
@@ -618,19 +622,36 @@ export function MobileStudio(_props: MobileStudioProps) {
       {/* Color Detail sheet */}
       <MobileBottomSheet
         open={activeSheet === 'color-detail'}
-        onClose={closeSheet}
+        onClose={() => { closeSheet(); setEditingHex(false); setPickerOpen(false) }}
         title="Color Detail"
+        full={pickerOpen}
       >
         {activeSwatch && (() => {
           const hex = activeSwatch.hex
           const textColor = readableOn(hex)
           const badge = getContrastBadge(hex)
           const name = getColorName(hex)
+          const isFirst = activeColorIdx === 0
+          const isLast = activeColorIdx === swatches.length - 1
+
+          const confirmHexEdit = () => {
+            const parsed = parseHex(hexDraft)
+            if (parsed) editSwatch(activeSwatch.id, parsed)
+            setEditingHex(false)
+          }
+
+          const handleMove = (direction: -1 | 1) => {
+            const newIdx = activeColorIdx + direction
+            if (newIdx < 0 || newIdx >= swatches.length) return
+            reorderSwatches(activeColorIdx, newIdx)
+            setActiveColorIdx(newIdx)
+          }
+
           return (
             <div className="flex flex-col gap-4 pb-4">
               {/* Contrast specimen */}
               <div
-                className="flex flex-col items-center justify-center rounded-xl"
+                className="flex flex-col items-center justify-center rounded-xl relative"
                 style={{ height: 100, backgroundColor: hex }}
               >
                 <span style={{ fontSize: 36, fontWeight: 800, color: textColor, lineHeight: 1 }}>Aa</span>
@@ -639,18 +660,71 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </span>
               </div>
 
-              {/* Info */}
+              {/* Reorder arrows */}
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => handleMove(-1)}
+                  disabled={isFirst}
+                  className="flex items-center justify-center transition-all active:scale-[0.98]"
+                  style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'hsl(var(--surface))', opacity: isFirst ? 0.3 : 1 }}
+                  aria-label="Move left"
+                >
+                  <ChevronLeft size={20} className="text-foreground" />
+                </button>
+                <span className="text-[13px] font-medium text-muted-foreground">
+                  Position {activeColorIdx + 1} of {swatches.length}
+                </span>
+                <button
+                  onClick={() => handleMove(1)}
+                  disabled={isLast}
+                  className="flex items-center justify-center transition-all active:scale-[0.98]"
+                  style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'hsl(var(--surface))', opacity: isLast ? 0.3 : 1 }}
+                  aria-label="Move right"
+                >
+                  <ChevronRight size={20} className="text-foreground" />
+                </button>
+              </div>
+
+              {/* Info — role name leads, hex follows */}
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-[20px] font-bold font-mono text-foreground">{hex.toUpperCase()}</div>
-                  <div className="text-[13px] text-muted-foreground">{name}</div>
+                  <div className="text-[16px] font-semibold text-foreground">
+                    {SEMANTIC_ROLES[activeColorIdx]?.role ?? `Color ${activeColorIdx + 1}`}
+                  </div>
+                  {editingHex ? (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[14px] font-mono text-muted-foreground">#</span>
+                      <input
+                        autoFocus
+                        value={hexDraft}
+                        onChange={e => setHexDraft(e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6).toUpperCase())}
+                        onBlur={confirmHexEdit}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') confirmHexEdit()
+                          if (e.key === 'Escape') setEditingHex(false)
+                        }}
+                        maxLength={6}
+                        className="bg-transparent text-[14px] font-mono text-foreground outline-none border-b-2 border-primary w-20"
+                        aria-label="Edit hex value"
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setHexDraft(hex.replace('#', '').toUpperCase()); setEditingHex(true) }}
+                      className="text-[14px] font-mono text-muted-foreground mt-0.5 transition-all active:opacity-70"
+                      aria-label={`Edit hex value ${hex}`}
+                    >
+                      {hex.toUpperCase()}
+                    </button>
+                  )}
+                  <div className="text-[13px] text-muted-foreground mt-0.5">{name}</div>
                 </div>
                 <span className={`text-[11px] font-bold rounded-full px-2.5 py-1 ${badge.pass ? 'bg-success-bg text-success' : 'bg-destructive/10 text-destructive'}`}>
                   {badge.level} {badge.pass ? '✓' : '✗'}
                 </span>
               </div>
 
-              {/* Action grid — 2×2 */}
+              {/* Action grid — 3×2 */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleCopyHex(hex)}
@@ -659,6 +733,18 @@ export function MobileStudio(_props: MobileStudioProps) {
                 >
                   {copiedHex === hex ? <Check size={16} className="text-success" /> : <Copy size={16} className="text-muted-foreground" />}
                   <span className="text-[13px] font-medium text-foreground">{copiedHex === hex ? 'Copied' : 'Copy hex'}</span>
+                </button>
+                <button
+                  onClick={() => setPickerOpen(v => !v)}
+                  className={cn(
+                    "flex items-center gap-2.5 px-3 py-3 rounded-button transition-all active:scale-[0.98]",
+                    pickerOpen ? "bg-primary/10" : "bg-surface"
+                  )}
+                  aria-label="Edit color"
+                  aria-expanded={pickerOpen}
+                >
+                  <Pencil size={16} className={pickerOpen ? "text-primary" : "text-muted-foreground"} />
+                  <span className="text-[13px] font-medium text-foreground">Edit color</span>
                 </button>
                 <button
                   onClick={() => {
@@ -700,6 +786,18 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className="text-[13px] font-medium text-foreground">Info</span>
                 </button>
               </div>
+
+              {/* Color picker — inline, expands sheet */}
+              {pickerOpen && (
+                <div className="flex flex-col gap-3">
+                  <div className="react-colorful-wrapper rounded-xl overflow-hidden">
+                    <HexColorPicker
+                      color={hex}
+                      onChange={(newHex) => editSwatch(activeSwatch.id, newHex)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )
         })()}
