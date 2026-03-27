@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Code } from 'lucide-react'
+import { Code, Sparkles } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { VisionFilterDefs } from '@/components/palette/VisionSimulator'
@@ -77,10 +77,11 @@ export function MobilePreview() {
           <Button
             onClick={triggerGenerate}
             size="lg"
-            className="flex-1 text-[14px] font-bold"
+            className="flex-1 text-[14px] font-bold gap-1.5"
             style={{ height: 44, borderRadius: 8, boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
             aria-label="Generate new palette"
           >
+            <Sparkles size={16} className="text-primary-foreground" />
             Generate
           </Button>
         </div>
