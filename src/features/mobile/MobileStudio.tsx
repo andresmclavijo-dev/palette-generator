@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -70,8 +70,19 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [coachVisible, setCoachVisible] = useState(false)
   const [editingHex, setEditingHex] = useState(false)
   const [hexDraft, setHexDraft] = useState('')
+  const [pickerColor, setPickerColor] = useState<string | null>(null)
+  const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
+
+  // Sync local picker color when active swatch changes
+  const activeSwatch = swatches[activeColorIdx]
+  useEffect(() => {
+    if (activeSwatch) setPickerColor(activeSwatch.hex)
+  }, [activeSwatch?.id, activeSwatch?.hex]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cleanup debounce timer
+  useEffect(() => () => { if (commitTimer.current) clearTimeout(commitTimer.current) }, [])
 
   const closeSheet = useCallback(() => setActiveSheet(null), [])
 
@@ -189,8 +200,6 @@ export function MobileStudio(_props: MobileStudioProps) {
     setVisionMode(mode)
     setActiveSheet(null)
   }
-
-  const activeSwatch = swatches[activeColorIdx]
 
   // ─── Render ───
   return (
@@ -621,12 +630,12 @@ export function MobileStudio(_props: MobileStudioProps) {
       {/* Color Detail sheet */}
       <MobileBottomSheet
         open={activeSheet === 'color-detail'}
-        onClose={() => { closeSheet(); setEditingHex(false) }}
+        onClose={() => { closeSheet(); setEditingHex(false); setPickerColor(null) }}
         title="Color Detail"
         full
       >
         {activeSwatch && (() => {
-          const hex = activeSwatch.hex
+          const hex = pickerColor ?? activeSwatch.hex
           const textColor = readableOn(hex)
           const badge = getContrastBadge(hex)
           const name = getColorName(hex)
@@ -774,11 +783,17 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </button>
               </div>
 
-              {/* Color picker — always visible */}
+              {/* Color picker — always visible, debounced store commit */}
               <div className="react-colorful-wrapper rounded-xl overflow-hidden">
                 <HexColorPicker
-                  color={hex}
-                  onChange={(newHex) => editSwatch(activeSwatch.id, newHex)}
+                  color={pickerColor ?? hex}
+                  onChange={(newHex) => {
+                    setPickerColor(newHex)
+                    if (commitTimer.current) clearTimeout(commitTimer.current)
+                    commitTimer.current = setTimeout(() => {
+                      editSwatch(activeSwatch.id, newHex)
+                    }, 80)
+                  }}
                 />
               </div>
             </div>
