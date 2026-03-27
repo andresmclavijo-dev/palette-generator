@@ -599,7 +599,7 @@ export default function DesktopStudio() {
                                     : <Copy size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                 </button>
                               </DarkTooltip>
-                              <DarkTooltip label="Color details" position="right">
+                              <DarkTooltip label="Edit & info" position="right">
                                 <button
                                   onClick={(e) => {
                                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -608,7 +608,7 @@ export default function DesktopStudio() {
                                   }}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
-                                  aria-label="Color info"
+                                  aria-label="Edit color and info"
                                   aria-expanded={showInfo}
                                 >
                                   <Info size={16} strokeWidth={1.5} style={{ color: textColor }} />
@@ -845,15 +845,17 @@ export default function DesktopStudio() {
 
       </div>{/* close app shell (100dvh) */}
 
-      {/* Color info popover — fixed positioned, outside overflow containers */}
+      {/* Color picker + info popover — fixed positioned, outside overflow containers */}
       {infoOpen && infoAnchorRect && (() => {
         const sw = swatches.find(s => s.id === infoOpen)
         if (!sw) return null
         return (
           <ColorInfoPopover
             hex={sw.hex}
+            swatchId={sw.id}
             anchorRect={infoAnchorRect}
             onClose={() => { setInfoOpen(null); setInfoAnchorRect(null) }}
+            onEditSwatch={editSwatch}
           />
         )
       })()}
