@@ -158,7 +158,7 @@ export default function MobileDrawer({
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
             </div>
-            <span className="text-[14px] font-medium text-foreground">Export</span>
+            <span className="text-[14px] font-medium text-foreground">Get code</span>
           </button>
 
           {/* Sign In or Sign Out */}

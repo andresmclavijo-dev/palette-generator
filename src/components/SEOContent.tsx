@@ -12,8 +12,8 @@ export default function SEOContent() {
           Paletta is a free, AI-powered color palette generator that puts
           accessibility at the center of every palette you create. Generate
           harmonious color schemes in one click, fine-tune individual shades,
-          and export directly to Tailwind CSS config, plain CSS custom
-          properties, JSON tokens, SVG swatches, or PNG — whatever your
+          and get production-ready code for Tailwind CSS config, plain CSS custom
+          properties, or SVG swatches — whatever your
           project needs. Every palette is checked against WCAG contrast
           ratios so your colors look great and work for everyone.
         </p>
@@ -47,11 +47,9 @@ export default function SEOContent() {
         </h2>
         <p className="text-sm mt-3 text-muted-foreground" style={{ lineHeight: 1.7 }}>
           Generate a color palette, preview it on real UI templates, then
-          export the values and drop them into your Figma design tokens.
-          Paletta bridges the gap between inspiration and implementation so
-          your design system stays consistent from canvas to code. A
-          dedicated Figma plugin is coming soon to make the handoff even
-          faster.
+          use it directly in Figma with the Paletta plugin. Create variables,
+          check contrast, and keep your design system consistent from
+          canvas to code — all without leaving Figma.
         </p>
 
         <hr

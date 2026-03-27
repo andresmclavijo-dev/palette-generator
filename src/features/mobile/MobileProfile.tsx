@@ -20,14 +20,14 @@ function PluginCard() {
       }}
       type="button"
       className="w-full bg-card border border-border/30 rounded-2xl p-4 mb-3 text-left"
-      aria-label="Figma Plugin — Create variables and check contrast in Figma"
+      aria-label="Use in Figma — Create variables and check contrast in Figma"
     >
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
           <Puzzle size={20} className="text-primary" />
         </div>
         <div className="flex-1">
-          <div className="text-[13px] font-semibold text-foreground">Figma Plugin</div>
+          <div className="text-[13px] font-semibold text-foreground">Use in Figma</div>
           <div className="text-[11px] text-muted-foreground">Create variables and check contrast in Figma</div>
         </div>
         <ChevronRight size={16} className="text-muted-foreground" aria-hidden="true" />

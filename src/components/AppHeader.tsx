@@ -157,12 +157,12 @@ export default function AppHeader({
             </Tooltip>
           )}
 
-          {/* Desktop: Export — icon-only */}
-          <Tooltip text="Export" position="bottom">
+          {/* Desktop: Get code — icon-only */}
+          <Tooltip text="Get code" position="bottom">
             <button
               onClick={onExport}
               className="w-9 h-9 rounded-full bg-card hover:bg-surface flex items-center justify-center transition-all duration-150 active:scale-[0.98] shrink-0 text-muted-foreground"
-              aria-label="Export palette"
+              aria-label="Get code"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

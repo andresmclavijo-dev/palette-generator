@@ -608,18 +608,18 @@ export function MobileStudio(_props: MobileStudioProps) {
             </div>
           </button>
 
-          {/* Export */}
+          {/* Get code */}
           <button
             onClick={() => { closeSheet(); setActiveSheet('export') }}
             className="w-full flex items-center p-3 rounded-xl text-left transition-all hover:bg-surface"
-            aria-label="Export palette as CSS, Tailwind, or SVG"
+            aria-label="Get code as CSS, Tailwind, or SVG"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-surface">
                 <Download size={18} className="text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-[14px] font-semibold text-foreground">Export</div>
+                <div className="text-[14px] font-semibold text-foreground">Get code</div>
                 <div className="text-[13px] text-muted-foreground">CSS, Tailwind, or SVG</div>
               </div>
             </div>

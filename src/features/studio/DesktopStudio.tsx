@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ChevronDown, Image, Star, Heart,
-  Lock, Unlock, Copy, Check, Info, GripVertical,
-  Share2, Link2, Download, Grid3X3,
+  Lock, Unlock, Copy, Check, Info, GripVertical, Code,
+  Share2, Link2, Grid3X3,
   Plus, Minus, Undo2, Redo2,
   Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles,
 } from 'lucide-react'
@@ -590,18 +590,6 @@ export default function DesktopStudio() {
                     </button>
                   </DarkTooltip>
 
-                  {/* Export */}
-                  <DarkTooltip label="Export" position="bottom">
-                    <button
-                      onClick={() => activeDialog === 'export' ? closeDialog() : openDialog('export')}
-                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-                      aria-label="Export palette"
-                    >
-                      <Download size={16} strokeWidth={1.5} />
-                    </button>
-                  </DarkTooltip>
-
                   {/* Divider */}
                   <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
 
@@ -826,6 +814,7 @@ export default function DesktopStudio() {
                       setCount(liveCount + 1)
                     }}
                     onGenerate={() => triggerGenerate('button')}
+                    onGetCode={() => openDialog('export')}
                   />
                 ) : viewMode === 'preview' ? (
                   <PreviewBottomBar
@@ -990,7 +979,7 @@ function ColorsBottomBar({
   onToggleLens, onVisionChange, onProGate,
   onUndo, onRedo,
   count, isAtFreeCap, isAtProMax, isColorGated,
-  onCountDown, onCountUp, onGenerate,
+  onCountDown, onCountUp, onGenerate, onGetCode,
 }: {
   harmonyMode: HarmonyMode
   onHarmonySelect: (mode: HarmonyMode) => void
@@ -1009,6 +998,7 @@ function ColorsBottomBar({
   onCountDown: () => void
   onCountUp: () => void
   onGenerate: () => void
+  onGetCode: () => void
 }) {
   // Harmony dropdown
   const [harmonyOpen, setHarmonyOpen] = useState(false)
@@ -1172,6 +1162,17 @@ function ColorsBottomBar({
                 )}
               </button>
             </div>
+
+            {/* Get code — secondary CTA */}
+            <button
+              onClick={onGetCode}
+              className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+              style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
+              aria-label="Get code"
+            >
+              <Code size={14} className="text-foreground" />
+              <span className="text-[13px] font-semibold text-foreground">Get code</span>
+            </button>
 
             {/* Generate — purple CTA */}
             <button

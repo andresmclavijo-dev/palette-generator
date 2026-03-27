@@ -80,7 +80,7 @@ export default function Plugin() {
           className="h-9 px-4 rounded-button flex items-center text-[13px] font-semibold text-white no-underline transition-colors"
           style={{ backgroundColor: BRAND_VIOLET }}
         >
-          Install Plugin
+          Install from Figma
         </a>
       </header>
 
@@ -109,7 +109,7 @@ export default function Plugin() {
             style={{ backgroundColor: BRAND_VIOLET }}
             aria-label="Install Paletta plugin from Figma Community"
           >
-            Install Plugin
+            Install from Figma
           </a>
           <Link
             to="/"

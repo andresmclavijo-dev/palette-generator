@@ -176,11 +176,11 @@ export function LibraryView({
                         {canNativeShare ? <Share2 size={16} /> : <Link2 size={16} />}
                       </button>
                     </DarkTooltip>
-                    <DarkTooltip label="Export" position="top">
+                    <DarkTooltip label="Get code" position="top">
                       <button
                         onClick={e => { e.stopPropagation(); setExportColors(p.colors) }}
                         className="w-9 h-9 flex items-center justify-center rounded-button text-muted-foreground hover:text-foreground hover:bg-surface transition-colors active:scale-[0.98]"
-                        aria-label="Export palette"
+                        aria-label="Get code"
                       >
                         <Download size={16} />
                       </button>

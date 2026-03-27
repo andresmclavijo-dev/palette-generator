@@ -115,7 +115,7 @@ export default function ExportPanel({ open, hexes, onClose, onProGate }: ExportP
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg" style={{ maxHeight: '80vh' }}>
         <DialogHeader className="mb-4">
-          <DialogTitle>Export palette</DialogTitle>
+          <DialogTitle>Get code</DialogTitle>
           <DialogDescription>Copy your palette in any format</DialogDescription>
         </DialogHeader>
 

@@ -95,7 +95,7 @@ export function Dock({
           />
           <DockItem
             icon={<Puzzle size={20} />}
-            label="Plugin"
+            label="Use in Figma"
             active={false}
             expanded={expanded}
             onClick={() => {

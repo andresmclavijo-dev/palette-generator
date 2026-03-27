@@ -19,7 +19,7 @@ const PRO_FEATURES: { bold: string; rest: string }[] = [
   { bold: 'Full Accessibility Lens', rest: ' \u2014 all 5 vision modes (free: 3)' },
   { bold: 'Shade scales', rest: ' 50\u2013900 for every color' },
   { bold: 'Tailwind export', rest: ' \u2014 production-ready config' },
-  { bold: 'Export', rest: ' without watermark' },
+  { bold: 'Get code', rest: ' without watermark' },
 ]
 
 const SHADE_COLORS = [
