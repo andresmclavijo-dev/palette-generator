@@ -1206,6 +1206,7 @@ function ColorsBottomBar({
             {/* Get code — secondary CTA */}
             <button
               onClick={onGetCode}
+              data-tour-id="get-code"
               className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
               style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
               aria-label="Get code"
@@ -1217,6 +1218,7 @@ function ColorsBottomBar({
             {/* Generate — purple CTA */}
             <button
               onClick={onGenerate}
+              data-tour-id="generate"
               className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
               style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
               aria-label="Generate new palette"
@@ -1455,7 +1457,6 @@ function PreviewBottomBar({
           {/* Get code — outline button */}
           <button
             onClick={onGetCode}
-            data-tour-id="get-code"
             className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
             style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
             aria-label="Get code"
@@ -1467,7 +1468,6 @@ function PreviewBottomBar({
           {/* Generate — purple CTA */}
           <button
             onClick={onGenerate}
-            data-tour-id="generate"
             className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
             style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
             aria-label="Generate new palette"
