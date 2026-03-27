@@ -47,6 +47,7 @@ import { ColorInfoPopover } from './ColorInfoPopover'
 import { PreviewMode } from './PreviewMode'
 import { UserMenu } from './UserMenu'
 import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
+import { OnboardingTour } from '@/components/OnboardingTour'
 // Cross-feature imports
 import { LibraryView } from '@/features/library/LibraryView'
 import { ProfileView } from '@/features/profile/ProfileView'
@@ -791,6 +792,7 @@ export default function DesktopStudio() {
       <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
       <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} paletteColors={swatches.map(s => s.hex)} />
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
+      <OnboardingTour isPro={isPro} />
 
       <SaveNameModal
         open={activeDialog === 'save-name'}
@@ -1453,6 +1455,7 @@ function PreviewBottomBar({
           {/* Get code — outline button */}
           <button
             onClick={onGetCode}
+            data-tour-id="get-code"
             className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
             style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
             aria-label="Get code"
@@ -1464,6 +1467,7 @@ function PreviewBottomBar({
           {/* Generate — purple CTA */}
           <button
             onClick={onGenerate}
+            data-tour-id="generate"
             className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
             style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
             aria-label="Generate new palette"

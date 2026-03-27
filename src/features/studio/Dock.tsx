@@ -93,6 +93,7 @@ export function Dock({
             active={section === 'preview'}
             expanded={expanded}
             onClick={() => onSectionChange('preview')}
+            dataTourId="preview-nav"
           />
           <DockItem
             icon={<Folder size={20} />}
@@ -158,7 +159,7 @@ export function Dock({
 
 // ─── Dock Item ───────────────────────────────────────────────
 function DockItem({
-  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse,
+  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse, dataTourId,
 }: {
   icon: React.ReactNode
   label: string
@@ -169,12 +170,13 @@ function DockItem({
   badge?: string
   proBadge?: boolean
   pulse?: boolean
+  dataTourId?: string
 }) {
   const [showTooltip, setShowTooltip] = useState(false)
   const isCollapsed = !expanded
 
   return (
-    <div className="relative" style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'stretch' }}>
+    <div className="relative" data-tour-id={dataTourId} style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'stretch' }}>
       <button
         onClick={onClick}
         onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}

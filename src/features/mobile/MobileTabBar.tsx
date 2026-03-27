@@ -34,6 +34,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
             <button
               key={id}
               onClick={() => onTabChange(id)}
+              data-tour-id={id === 'preview' ? 'preview-nav' : undefined}
               className="flex-1 flex flex-col items-center gap-1 py-2 transition-all duration-200"
               style={{ minHeight: 44 }}
               aria-label={label}

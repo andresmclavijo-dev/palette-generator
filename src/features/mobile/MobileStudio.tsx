@@ -330,6 +330,7 @@ export function MobileStudio(_props: MobileStudioProps) {
         <div className="flex items-center gap-2" style={{ padding: '8px 12px' }}>
           <button
             onClick={() => setActiveSheet('export')}
+            data-tour-id="get-code"
             className="flex-1 flex items-center justify-center gap-1.5 border border-border rounded-button transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             style={{ height: 44, borderRadius: 8 }}
             aria-label="Get code"
@@ -339,6 +340,7 @@ export function MobileStudio(_props: MobileStudioProps) {
           </button>
           <Button
             onClick={triggerGenerate}
+            data-tour-id="generate"
             size="lg"
             className="flex-1 text-[14px] font-bold gap-1.5"
             style={{ height: 44, borderRadius: 8, boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}

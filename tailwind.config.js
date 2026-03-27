@@ -122,9 +122,14 @@ export default {
           '0%': { opacity: '0', transform: 'translateX(-50%) translateY(-8px)' },
           '100%': { opacity: '1', transform: 'translateX(-50%) translateY(0)' },
         },
+        'tour-ring': {
+          '0%': { transform: 'scale(0.96)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease',
+        'tour-ring': 'tour-ring 200ms ease-out forwards',
       },
       boxShadow: {
         'swatch-pill': '0 2px 8px rgba(0,0,0,0.12)',
