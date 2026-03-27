@@ -659,6 +659,8 @@ export function MobileStudio(_props: MobileStudioProps) {
                 <div>
                   <div className="text-[16px] font-semibold text-foreground">
                     {SEMANTIC_ROLES[activeColorIdx]?.role ?? `Color ${activeColorIdx + 1}`}
+                    <span className="text-muted-foreground font-normal"> / </span>
+                    {name}
                   </div>
                   {editingHex ? (
                     <div className="flex items-center gap-1 mt-0.5">
@@ -686,7 +688,6 @@ export function MobileStudio(_props: MobileStudioProps) {
                       {hex.toUpperCase()}
                     </button>
                   )}
-                  <div className="text-[13px] text-muted-foreground mt-0.5">{name}</div>
                 </div>
                 <span className={`text-[11px] font-bold rounded-full px-2.5 py-1 ${badge.pass ? 'bg-success-bg text-success' : 'bg-destructive/10 text-destructive'}`}>
                   {badge.level} {badge.pass ? '✓' : '✗'}

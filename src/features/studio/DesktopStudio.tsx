@@ -531,11 +531,11 @@ export default function DesktopStudio() {
 
                             {/* Combined role / color name label */}
                             <span
-                              className="text-[14px] font-medium text-center max-w-[calc(100%-16px)] truncate"
-                              style={{ color: textColor }}
+                              className="text-[13px] font-medium text-center leading-tight px-2"
+                              style={{ color: textColor, wordBreak: 'break-word' }}
                             >
                               {SEMANTIC_ROLES[positionIdx]?.role ?? `Color ${positionIdx + 1}`}
-                              <span style={{ opacity: 0.5 }}>/</span>
+                              <span style={{ opacity: 0.5 }}> / </span>
                               {getColorName(s.hex)}
                             </span>
 
