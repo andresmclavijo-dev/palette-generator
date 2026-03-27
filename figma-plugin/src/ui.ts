@@ -627,6 +627,7 @@ function renderStudioBars() {
     bar.style.backgroundColor = displayHex
     bar.innerHTML = `
       <span class="bar-lock" style="color:${textColor}">${ICONS.lock}</span>
+      <span class="bar-role" style="color:${textColor};opacity:0.6;font-size:10px;font-weight:500">${ROLES[i] || `Color ${i + 1}`}</span>
       <span class="bar-badge ${badge.pass ? 'bar-badge-pass' : 'bar-badge-fail'}">${badge.label} ${badge.ratio}</span>
       <span class="bar-hex" style="color:${textColor}">${color.hex.toUpperCase()}</span>
     `

@@ -28,6 +28,7 @@ import {
   readableOn, getColorName, getContrastBadge,
   makeSwatch,
   encodePalette, decodePalette, parseHex, buildShareUrl,
+  SEMANTIC_ROLES,
 } from '@/lib/colorEngine'
 import { extractColorsFromFile } from '@/lib/kMeans'
 import { BRAND_VIOLET } from '@/lib/tokens'
@@ -580,7 +581,7 @@ export default function DesktopStudio() {
               {viewMode === 'colors' && (
                 <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: lensOn ? visionFilter : undefined }}>
                   <div className="flex h-full">
-                    {swatches.map(s => {
+                    {swatches.map((s, swatchIdx) => {
                       const textColor = readableOn(s.hex)
                       const contrast = getContrastBadge(s.hex)
                       const isCopied = copiedId === s.id
@@ -609,6 +610,14 @@ export default function DesktopStudio() {
                                 <span className="text-[14px] font-bold px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'hsl(var(--foreground))', color: s.hex }}>Aa</span>
                               </div>
                             )}
+
+                            {/* Role label */}
+                            <span
+                              className="text-[12px] font-medium"
+                              style={{ color: textColor, opacity: 0.6 }}
+                            >
+                              {SEMANTIC_ROLES[swatchIdx]?.role ?? `Color ${swatchIdx + 1}`}
+                            </span>
 
                             {/* Hex code */}
                             {isEditing ? (

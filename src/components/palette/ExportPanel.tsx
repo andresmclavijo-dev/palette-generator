@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
-import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS } from '../../lib/colorEngine'
+import { getColorName, slugifyColorName, generateShades, TAILWIND_SHADE_LABELS, getSemanticSlug } from '../../lib/colorEngine'
 import { usePro } from '../../hooks/usePro'
 import { showToast } from '../../utils/toast'
 import { analytics } from '../../lib/posthog'
@@ -23,8 +23,6 @@ interface ExportPanelProps {
 
 const WATERMARK = '/* Made with Paletta · usepaletta.io */'
 
-const SMART_NAMES = ['primary', 'secondary', 'accent', 'highlight', 'dark', 'surface', 'muted', 'subtle']
-
 function getSlug(h: string, seen: Record<string, number>): string {
   let slug = slugifyColorName(getColorName(h) || 'color')
   if (!slug) slug = 'color'
@@ -37,7 +35,7 @@ function buildCSS(hexes: string[], isPro: boolean, naming: NamingMode): string {
   const lines: string[] = []
   for (let i = 0; i < hexes.length; i++) {
     const h = hexes[i]
-    const key = naming === 'smart' ? (SMART_NAMES[i] || `color-${i + 1}`) : getSlug(h, seen)
+    const key = naming === 'smart' ? getSemanticSlug(i) : getSlug(h, seen)
     if (isPro) {
       const shades = generateShades(h, 10)
       shades.forEach((s, j) => {
@@ -55,7 +53,7 @@ function buildTailwind(hexes: string[], isPro: boolean, naming: NamingMode): str
   const seen: Record<string, number> = {}
   if (isPro) {
     const blocks = hexes.map((h, i) => {
-      const key = naming === 'smart' ? (SMART_NAMES[i] || `color-${i + 1}`) : getSlug(h, seen)
+      const key = naming === 'smart' ? getSemanticSlug(i) : getSlug(h, seen)
       const shades = generateShades(h, 10)
       const inner = shades.map((s, j) => `        ${TAILWIND_SHADE_LABELS[j]}: '${s}',`).join('\n')
       return `      '${key}': {\n${inner}\n      },`
@@ -63,7 +61,7 @@ function buildTailwind(hexes: string[], isPro: boolean, naming: NamingMode): str
     return `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${blocks}\n      }\n    }\n  }\n}`
   }
   const inner = hexes.map((h, i) => {
-    const key = naming === 'smart' ? (SMART_NAMES[i] || `color-${i + 1}`) : getSlug(h, seen)
+    const key = naming === 'smart' ? getSemanticSlug(i) : getSlug(h, seen)
     return `        '${key}': '${h}',`
   }).join('\n')
   return (isPro ? '' : WATERMARK + '\n') + `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n${inner}\n      }\n    }\n  }\n}`

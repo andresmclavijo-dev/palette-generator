@@ -5,6 +5,7 @@ import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
 import {
   readableOn, getColorName, getContrastBadge, getColorInfo, makeSwatch, buildShareUrl,
+  SEMANTIC_ROLES,
 } from '@/lib/colorEngine'
 import type { HarmonyMode } from '@/lib/colorEngine'
 import type { VisionMode } from '@/components/palette/VisionSimulator'
@@ -240,6 +241,13 @@ export function MobileStudio(_props: MobileStudioProps) {
                     {swatch.locked && (
                       <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
                     )}
+                    {/* Role label */}
+                    <span
+                      className="text-[10px] font-medium mb-1 truncate max-w-[calc(100%-8px)]"
+                      style={{ color: textColor, opacity: 0.6 }}
+                    >
+                      {SEMANTIC_ROLES[i]?.role ?? `Color ${i + 1}`}
+                    </span>
                     {/* WCAG badge */}
                     <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 mb-1 max-w-[calc(100%-8px)]">
                       <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>

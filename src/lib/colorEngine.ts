@@ -233,6 +233,23 @@ export function getDeduplicatedNames(hexes: string[]): string[] {
   })
 }
 
+// ── Semantic role labels ─────────────────────────────────────────
+export const SEMANTIC_ROLES: { role: string; subtitle: string }[] = [
+  { role: 'Primary',   subtitle: 'Brand & CTAs' },
+  { role: 'Secondary', subtitle: 'UI support' },
+  { role: 'Accent',    subtitle: 'Highlights' },
+  { role: 'Surface',   subtitle: 'Backgrounds' },
+  { role: 'Muted',     subtitle: 'Neutral tones' },
+  { role: 'Info',      subtitle: 'Information' },
+  { role: 'Success',   subtitle: 'Positive states' },
+  { role: 'Warning',   subtitle: 'Caution states' },
+]
+
+/** Get the semantic role slug for a palette index (lowercase, for export keys) */
+export function getSemanticSlug(index: number): string {
+  return (SEMANTIC_ROLES[index]?.role ?? `color-${index + 1}`).toLowerCase()
+}
+
 // ── Tailwind shade labels ────────────────────────────────────────
 export const TAILWIND_SHADE_LABELS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
