@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Sparkles, Folder, User, ChevronLeft, ChevronRight,
   MoreHorizontal, ExternalLink, Puzzle, Shield, Sun, Moon,
+  LayoutTemplate,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -10,7 +11,7 @@ import { DarkTooltip, DarkTooltipBubble } from './DarkTooltip'
 import { useTheme } from '@/hooks/useTheme'
 import { analytics } from '@/lib/posthog'
 
-type SectionId = 'studio' | 'library' | 'profile'
+type SectionId = 'studio' | 'preview' | 'library' | 'profile'
 
 export function Dock({
   expanded, section, dockPulse,
@@ -85,6 +86,13 @@ export function Dock({
             expanded={expanded}
             onClick={() => onSectionChange('studio')}
             pulse={dockPulse}
+          />
+          <DockItem
+            icon={<LayoutTemplate size={20} />}
+            label="Preview"
+            active={section === 'preview'}
+            expanded={expanded}
+            onClick={() => onSectionChange('preview')}
           />
           <DockItem
             icon={<Folder size={20} />}

@@ -24,7 +24,6 @@ import SignInModal from '@/components/ui/SignInModal'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import { AiCoachMark, incrementGenerateCount } from '@/components/AiCoachMark'
-import { PreviewGrid } from '@/components/preview/PreviewGrid'
 import { HexColorPicker } from 'react-colorful'
 import type { MobileTab } from './MobileShell'
 
@@ -62,7 +61,6 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [activeSheet, setActiveSheet] = useState<
     'harmony' | 'lens' | 'tools' | 'color-detail' | 'ai' | 'export' | 'extract' | 'save' | 'pro' | 'sign-in' | null
   >(null)
-  const [viewMode, setViewMode] = useState<'colors' | 'preview'>('colors')
   const [activeColorIdx, setActiveColorIdx] = useState(0)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
   const [copiedHex, setCopiedHex] = useState<string | null>(null)
@@ -214,90 +212,53 @@ export function MobileStudio(_props: MobileStudioProps) {
         />
       </div>
 
-      {/* Segmented control */}
-      <div className="flex mx-4 mb-2 rounded-button bg-surface p-0.5">
-        {(['colors', 'preview'] as const).map(mode => (
-          <button
-            key={mode}
-            onClick={() => setViewMode(mode)}
-            className={`flex-1 py-1.5 text-[13px] font-medium rounded-button transition-all ${
-              viewMode === mode ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
-            }`}
-            aria-label={mode === 'colors' ? 'Colors' : 'Preview'}
-          >
-            {mode === 'colors' ? 'Colors' : 'Preview'}
-          </button>
-        ))}
-      </div>
-
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {viewMode === 'colors' ? (
-          <>
-            {/* Swatch canvas */}
-            <div
-              className="mx-3 rounded-bento overflow-hidden bg-card shadow-lg flex flex-1"
-              style={{ filter: visionFilter }}
-            >
-              {swatches.map((swatch, i) => {
-                const textColor = readableOn(swatch.hex)
-                const badge = getContrastBadge(swatch.hex)
-                return (
-                  <button
-                    key={swatch.id}
-                    className="flex-1 min-w-0 flex flex-col items-center justify-end relative overflow-hidden"
-                    style={{ backgroundColor: swatch.hex, paddingBottom: 12, minHeight: 44 }}
-                    onClick={() => { setActiveColorIdx(i); setActiveSheet('color-detail') }}
-                    aria-label={`${getColorName(swatch.hex)} ${swatch.hex}. Tap for details.`}
-                  >
-                    {swatch.locked && (
-                      <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
-                    )}
-                    {/* Semantic role name — primary label */}
-                    <span
-                      className="text-[11px] font-semibold mb-0.5 truncate max-w-[calc(100%-8px)]"
-                      style={{ color: textColor }}
-                    >
-                      {SEMANTIC_ROLES[i]?.role ?? `Color ${i + 1}`}
-                    </span>
-                    {/* Hex code — secondary label */}
-                    <span
-                      className="text-[9px] font-mono font-normal mb-1 truncate max-w-[calc(100%-8px)]"
-                      style={{ color: textColor, opacity: 0.6 }}
-                    >
-                      {swatch.hex.toUpperCase().slice(0, 7)}
-                    </span>
-                    {/* WCAG badge */}
-                    <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 max-w-[calc(100%-8px)]">
-                      <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>
-                      {swatches.length <= 6 && (
-                        <span className="text-[10px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
-                      )}
-                      {badge.pass && <span className="text-[10px] text-success font-bold leading-none">✓</span>}
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-
-          </>
-        ) : (
-          /* Preview view */
-          <div
-            className="flex-1 overflow-auto px-3 pt-3 pb-4"
-            style={{
-              WebkitOverflowScrolling: 'touch',
-              filter: visionFilter,
-            }}
-          >
-            <PreviewGrid
-              hexes={swatches.map(s => s.hex)}
-              isPro={isPro}
-              onProGate={openProModal}
-              isMobile
-            />
-          </div>
-        )}
+        {/* Swatch canvas */}
+        <div
+          className="mx-3 rounded-bento overflow-hidden bg-card shadow-lg flex flex-1"
+          style={{ filter: visionFilter }}
+        >
+          {swatches.map((swatch, i) => {
+            const textColor = readableOn(swatch.hex)
+            const badge = getContrastBadge(swatch.hex)
+            return (
+              <button
+                key={swatch.id}
+                className="flex-1 min-w-0 flex flex-col items-center justify-end relative overflow-hidden"
+                style={{ backgroundColor: swatch.hex, paddingBottom: 12, minHeight: 44 }}
+                onClick={() => { setActiveColorIdx(i); setActiveSheet('color-detail') }}
+                aria-label={`${getColorName(swatch.hex)} ${swatch.hex}. Tap for details.`}
+              >
+                {swatch.locked && (
+                  <Lock size={12} style={{ color: textColor, opacity: 0.5, position: 'absolute', top: 10 }} aria-label="Locked" />
+                )}
+                {/* Semantic role name — primary label */}
+                <span
+                  className="text-[11px] font-semibold mb-0.5 truncate max-w-[calc(100%-8px)]"
+                  style={{ color: textColor }}
+                >
+                  {SEMANTIC_ROLES[i]?.role ?? `Color ${i + 1}`}
+                </span>
+                {/* Hex code — secondary label */}
+                <span
+                  className="text-[9px] font-mono font-normal mb-1 truncate max-w-[calc(100%-8px)]"
+                  style={{ color: textColor, opacity: 0.6 }}
+                >
+                  {swatch.hex.toUpperCase().slice(0, 7)}
+                </span>
+                {/* WCAG badge */}
+                <div className="bg-card shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-0.5 border border-black/5 max-w-[calc(100%-8px)]">
+                  <span className={cn('font-bold text-foreground leading-none truncate', swatches.length > 6 ? 'text-[10px]' : 'text-[10px]')}>{badge.level}</span>
+                  {swatches.length <= 6 && (
+                    <span className="text-[10px] font-medium text-muted-foreground leading-none">{badge.ratio.toFixed(1)}</span>
+                  )}
+                  {badge.pass && <span className="text-[10px] text-success font-bold leading-none">✓</span>}
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Generate bar — floating */}

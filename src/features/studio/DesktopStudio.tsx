@@ -20,7 +20,7 @@ import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import SavedPalettesPanel from '@/components/ui/SavedPalettesPanel'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+// Tabs import removed — Preview is its own section now
 import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
 import DropdownSectionHeader from '@/components/ui/DropdownSectionHeader'
@@ -52,8 +52,8 @@ import { LibraryView } from '@/features/library/LibraryView'
 import { ProfileView } from '@/features/profile/ProfileView'
 
 // ─── Types ───────────────────────────────────────────────────
-type SectionId = 'studio' | 'library' | 'profile'
-type ViewMode = 'colors' | 'preview'
+type SectionId = 'studio' | 'preview' | 'library' | 'profile'
+// ViewMode removed — Preview is now its own section
 type HarmonyMode = 'random' | 'analogous' | 'monochromatic' | 'complementary' | 'triadic'
 
 const HARMONIES: { mode: HarmonyMode; label: string; short: string; desc: string; icon: typeof Shuffle; iconBg: string }[] = [
@@ -91,7 +91,6 @@ export default function DesktopStudio() {
     return stored !== null ? stored === 'true' : true
   })
   const [section, setSection] = useState<SectionId>('studio')
-  const [viewMode, setViewMode] = useState<ViewMode>('colors')
   const [lensOn, setLensOn] = useState(false)
   const [visionMode, setVisionMode] = useState<VisionMode>('normal')
   // Unified dialog state — only one dialog open at a time
@@ -275,11 +274,11 @@ export default function DesktopStudio() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.code === 'Space' && section === 'studio') { e.preventDefault(); triggerGenerate('spacebar') }
+      if (e.code === 'Space' && (section === 'studio' || section === 'preview')) { e.preventDefault(); triggerGenerate('spacebar') }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && !e.shiftKey) { e.preventDefault(); undo() }
       if (e.key === 'z' && (e.metaKey || e.ctrlKey) && e.shiftKey) { e.preventDefault(); redo() }
-      if (e.key === '1' && section === 'studio') setViewMode('colors')
-      if (e.key === '2' && section === 'studio') setViewMode('preview')
+      if (e.key === '1' && (section === 'studio' || section === 'preview')) setSection('studio')
+      if (e.key === '2' && (section === 'studio' || section === 'preview')) setSection('preview')
       if (e.key === 'Escape') {
         closeDialog()
         setLensOn(false); setShadesOpen(null); setInfoOpen(null)
@@ -479,21 +478,21 @@ export default function DesktopStudio() {
                 className="absolute flex items-center justify-between"
                 style={{ top: 12, left: 12, right: 12, zIndex: 30 }}
               >
-                {/* LEFT GROUP — view tabs */}
-                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-                  <TabsList
-                    style={{
-                      backgroundColor: 'hsl(var(--card) / 0.95)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                      border: '1px solid hsl(var(--border-light))',
-                    }}
-                  >
-                    <TabsTrigger value="colors">Colors</TabsTrigger>
-                    <TabsTrigger value="preview">Preview</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                {/* LEFT GROUP — section label */}
+                <div
+                  className="flex items-center px-3 text-[13px] font-semibold text-foreground"
+                  style={{
+                    height: 36,
+                    borderRadius: 8,
+                    backgroundColor: 'hsl(var(--card) / 0.95)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                    border: '1px solid hsl(var(--border-light))',
+                  }}
+                >
+                  Colors
+                </div>
 
                 {/* RIGHT GROUP — single pill */}
                 <div
@@ -622,7 +621,7 @@ export default function DesktopStudio() {
               </div>
 
               {/* ─── Colors View ─── */}
-              {viewMode === 'colors' && (
+              {(
                 <main id="main-canvas" className="absolute inset-0 overflow-hidden" style={{ filter: lensOn ? visionFilter : undefined }}>
                   <div ref={canvasRef} className="flex h-full" style={{ touchAction: dragIdx !== null ? 'none' : undefined }}>
                     {displayOrder.map((swatchIdx) => {
@@ -777,66 +776,70 @@ export default function DesktopStudio() {
                 </main>
               )}
 
-              {/* ─── Preview View ─── */}
-              {viewMode === 'preview' && (
-                <PreviewMode
-                  swatches={swatches}
+              {/* ─── Floating Bottom Bar ─── */}
+              {activeDialog === null && (
+                <ColorsBottomBar
+                  harmonyMode={harmonyMode}
+                  onHarmonySelect={handleHarmonySelect}
+                  lensOn={lensOn}
+                  visionMode={visionMode}
                   isPro={isPro}
-                  onProGate={openProModal}
-                  visionFilter={lensOn ? visionFilter : undefined}
+                  onToggleLens={() => setLensOn(v => !v)}
+                  onVisionChange={setVisionMode}
+                  onProGate={() => openProModal('vision_sim', 'lens_bar')}
+                  onUndo={undo}
+                  onRedo={redo}
+                  count={count}
+                  isAtFreeCap={isAtFreeCap}
+                  isAtProMax={isAtProMax}
+                  isColorGated={isColorGated}
+                  onCountDown={() => { if (count > 3) setCount(count - 1) }}
+                  onCountUp={() => {
+                    const liveCount = usePaletteStore.getState().swatches.length
+                    const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
+                    if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
+                    if (liveCount >= liveMax) return
+                    setCount(liveCount + 1)
+                  }}
+                  onGenerate={() => triggerGenerate('button')}
+                  onGetCode={() => openDialog('export')}
                 />
               )}
+            </>
+          )}
 
-              {/* ─── Unified Floating Bottom Bar (both views) ─── */}
+          {/* ═══ PREVIEW SECTION ═══ */}
+          {section === 'preview' && (
+            <>
+              <PreviewMode
+                swatches={swatches}
+                isPro={isPro}
+                onProGate={openProModal}
+                visionFilter={lensOn ? visionFilter : undefined}
+              />
+
+              {/* Floating Bottom Bar */}
               {activeDialog === null && (
-                viewMode === 'colors' ? (
-                  <ColorsBottomBar
-                    harmonyMode={harmonyMode}
-                    onHarmonySelect={handleHarmonySelect}
-                    lensOn={lensOn}
-                    visionMode={visionMode}
-                    isPro={isPro}
-                    onToggleLens={() => setLensOn(v => !v)}
-                    onVisionChange={setVisionMode}
-                    onProGate={() => openProModal('vision_sim', 'lens_bar')}
-                    onUndo={undo}
-                    onRedo={redo}
-                    count={count}
-                    isAtFreeCap={isAtFreeCap}
-                    isAtProMax={isAtProMax}
-                    isColorGated={isColorGated}
-                    onCountDown={() => { if (count > 3) setCount(count - 1) }}
-                    onCountUp={() => {
-                      const liveCount = usePaletteStore.getState().swatches.length
-                      const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
-                      if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
-                      if (liveCount >= liveMax) return
-                      setCount(liveCount + 1)
-                    }}
-                    onGenerate={() => triggerGenerate('button')}
-                    onGetCode={() => openDialog('export')}
-                  />
-                ) : viewMode === 'preview' ? (
-                  <PreviewBottomBar
-                    swatches={swatches}
-                    onLock={lockSwatch}
-                    onUndo={undo}
-                    onRedo={redo}
-                    count={count}
-                    isAtFreeCap={isAtFreeCap}
-                    isAtProMax={isAtProMax}
-                    isColorGated={isColorGated}
-                    onCountDown={() => { if (count > 3) setCount(count - 1) }}
-                    onCountUp={() => {
-                      const liveCount = usePaletteStore.getState().swatches.length
-                      const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
-                      if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
-                      if (liveCount >= liveMax) return
-                      setCount(liveCount + 1)
-                    }}
-                    onGenerate={() => triggerGenerate('button')}
-                  />
-                ) : null
+                <PreviewBottomBar
+                  swatches={swatches}
+                  onLock={lockSwatch}
+                  onUndo={undo}
+                  onRedo={redo}
+                  count={count}
+                  isAtFreeCap={isAtFreeCap}
+                  isAtProMax={isAtProMax}
+                  isColorGated={isColorGated}
+                  onCountDown={() => { if (count > 3) setCount(count - 1) }}
+                  onCountUp={() => {
+                    const liveCount = usePaletteStore.getState().swatches.length
+                    const liveMax = isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS
+                    if (!isPro && liveCount >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'canvas_bar'); return }
+                    if (liveCount >= liveMax) return
+                    setCount(liveCount + 1)
+                  }}
+                  onGenerate={() => triggerGenerate('button')}
+                  onGetCode={() => openDialog('export')}
+                />
               )}
             </>
           )}
@@ -847,7 +850,7 @@ export default function DesktopStudio() {
               isSignedIn={isSignedIn}
               userId={user?.id}
               isPro={isPro}
-              onLoad={(hexes, name) => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio'); setViewMode('colors'); showToast(`Loaded · ${name || 'Untitled'}`) }}
+              onLoad={(hexes, name) => { setSwatches(hexes.map(h => makeSwatch(h))); setSection('studio'); showToast(`Loaded · ${name || 'Untitled'}`) }}
               onProGate={openProModal}
               onSignIn={() => openDialog('sign-in')}
             />
@@ -1321,7 +1324,7 @@ function PreviewBottomBar({
   swatches, onLock,
   onUndo, onRedo,
   count, isAtFreeCap, isAtProMax, isColorGated,
-  onCountDown, onCountUp, onGenerate,
+  onCountDown, onCountUp, onGenerate, onGetCode,
 }: {
   swatches: { id: string; hex: string; locked: boolean }[]
   onLock: (id: string) => void
@@ -1334,6 +1337,7 @@ function PreviewBottomBar({
   onCountDown: () => void
   onCountUp: () => void
   onGenerate: () => void
+  onGetCode: () => void
 }) {
   return (
     <div
@@ -1411,7 +1415,18 @@ function PreviewBottomBar({
             </button>
           </div>
 
-          {/* Generate — purple CTA (matches Colors bar exactly) */}
+          {/* Get code — outline button */}
+          <button
+            onClick={onGetCode}
+            className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+            style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
+            aria-label="Get code"
+          >
+            <Code size={14} className="text-foreground" />
+            <span className="text-[13px] font-semibold text-foreground">Get code</span>
+          </button>
+
+          {/* Generate — purple CTA */}
           <button
             onClick={onGenerate}
             className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
