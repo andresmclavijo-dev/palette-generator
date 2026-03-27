@@ -32,7 +32,7 @@ interface TargetRect {
 }
 
 // ─── Main component ─────────────────────────────────────────
-export function OnboardingTour({ isPro }: { isPro: boolean }) {
+export function OnboardingTour() {
   const [active, setActive] = useState(false)
   const [step, setStep] = useState(0)
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null)
@@ -41,14 +41,13 @@ export function OnboardingTour({ isPro }: { isPro: boolean }) {
   const [tooltipReady, setTooltipReady] = useState(false)
   const rafRef = useRef(0)
 
-  // Check if tour should show
+  // Check if tour should show (first visit only)
   useEffect(() => {
-    if (isPro) return
     if (localStorage.getItem(STORAGE_KEY)) return
     // Delay slightly so targets render
     const timer = setTimeout(() => setActive(true), 600)
     return () => clearTimeout(timer)
-  }, [isPro])
+  }, [])
 
   // Measure target element for current step
   const measureTarget = useCallback(() => {

@@ -6,13 +6,11 @@ import { MobileProfile } from './MobileProfile'
 import { MobileTabBar } from './MobileTabBar'
 import CookieConsent from '@/components/CookieConsent'
 import { OnboardingTour } from '@/components/OnboardingTour'
-import { usePro } from '@/hooks/usePro'
 
 export type MobileTab = 'studio' | 'preview' | 'library' | 'profile'
 
 export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('studio')
-  const { isPro } = usePro()
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background">
@@ -24,7 +22,7 @@ export function MobileShell() {
         {tab === 'profile' && <MobileProfile />}
       </div>
       <MobileTabBar activeTab={tab} onTabChange={setTab} />
-      <OnboardingTour isPro={isPro} />
+      <OnboardingTour />
     </div>
   )
 }

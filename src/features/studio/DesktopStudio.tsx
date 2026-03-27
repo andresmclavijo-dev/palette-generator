@@ -792,7 +792,7 @@ export default function DesktopStudio() {
       <SignInModal open={activeDialog === 'sign-in'} onClose={closeDialog} onGoogleSignIn={signInWithGoogle} />
       <ProUpgradeModal open={activeDialog === 'pro'} onClose={closeDialog} paletteColors={swatches.map(s => s.hex)} />
       <PaymentSuccessModal open={showPaymentModal} onClose={() => setShowPaymentModal(false)} />
-      <OnboardingTour isPro={isPro} />
+      <OnboardingTour />
 
       <SaveNameModal
         open={activeDialog === 'save-name'}
