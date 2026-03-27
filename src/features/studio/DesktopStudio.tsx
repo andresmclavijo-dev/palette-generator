@@ -25,9 +25,9 @@ import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
 import DropdownSectionHeader from '@/components/ui/DropdownSectionHeader'
 import {
-  readableOn, getColorName, getContrastBadge,
+  readableOn, getColorName, getColorInfo, getContrastBadge,
   makeSwatch,
-  encodePalette, decodePalette, parseHex, buildShareUrl,
+  encodePalette, decodePalette, buildShareUrl,
   SEMANTIC_ROLES,
 } from '@/lib/colorEngine'
 import { extractColorsFromFile } from '@/lib/kMeans'
@@ -105,8 +105,7 @@ export default function DesktopStudio() {
   const [infoOpen, setInfoOpen] = useState<string | null>(null)
   const [infoAnchorRect, setInfoAnchorRect] = useState<DOMRect | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState('')
+  // Inline hex editing removed — users edit via the color picker popover
   const [imageUploading, setImageUploading] = useState(false)
 
   const [dockPulse, setDockPulse] = useState(() => !sessionStorage.getItem('paletta_dock_pulsed'))
@@ -281,8 +280,7 @@ export default function DesktopStudio() {
       if (e.key === '2' && (section === 'studio' || section === 'preview')) setSection('preview')
       if (e.key === 'Escape') {
         closeDialog()
-        setLensOn(false); setShadesOpen(null); setInfoOpen(null)
-        setEditingId(null)
+        setLensOn(false); setShadesOpen(null); setInfoOpen(null); setInfoAnchorRect(null)
       }
     }
     window.addEventListener('keydown', handler)
@@ -410,17 +408,6 @@ export default function DesktopStudio() {
     } catch { /* silent */ }
   }
 
-  const startEdit = (id: string, hex: string) => {
-    setEditingId(id)
-    setEditValue(hex.replace('#', '').toUpperCase())
-  }
-
-  const confirmEdit = (id: string) => {
-    const parsed = parseHex(editValue)
-    if (parsed) editSwatch(id, parsed)
-    setEditingId(null)
-  }
-
   const handleHarmonySelect = (mode: HarmonyMode) => {
     setHarmonyMode(mode)
     closeDialog()
@@ -506,7 +493,6 @@ export default function DesktopStudio() {
                       const textColor = readableOn(s.hex)
                       const contrast = getContrastBadge(s.hex)
                       const isCopied = copiedId === s.id
-                      const isEditing = editingId === s.id
                       const showShades = shadesOpen === s.id
                       const showInfo = infoOpen === s.id
                       const positionIdx = displayOrder.indexOf(swatchIdx)
@@ -547,46 +533,17 @@ export default function DesktopStudio() {
                               {SEMANTIC_ROLES[positionIdx]?.role ?? `Color ${positionIdx + 1}`}
                             </span>
 
-                            {/* Hex code — secondary label */}
-                            {isEditing ? (
-                              <input
-                                autoFocus
-                                value={editValue}
-                                onChange={e => setEditValue(e.target.value.replace(/[^0-9a-fA-F#]/g, '').slice(0, 7))}
-                                onBlur={() => confirmEdit(s.id)}
-                                onKeyDown={e => {
-                                  if (e.key === 'Enter') confirmEdit(s.id)
-                                  if (e.key === 'Escape') setEditingId(null)
-                                }}
-                                className="bg-transparent border-b-2 text-center font-mono text-[12px] font-normal outline-none w-24"
-                                style={{ color: textColor, borderColor: textColor, opacity: 0.7 }}
-                                aria-label="Edit hex code"
-                              />
-                            ) : (
-                              <button
-                                onClick={() => startEdit(s.id, s.hex)}
-                                className="font-mono text-[12px] font-normal tracking-wide cursor-text transition-all hover:opacity-80"
-                                style={{ color: textColor, opacity: 0.7 }}
-                                aria-label={`Edit color ${s.hex}`}
-                              >
-                                {s.hex.toUpperCase()}
-                              </button>
-                            )}
+                            {/* Hex code — read-only secondary label */}
+                            <span
+                              className="font-mono text-[12px] font-normal tracking-wide"
+                              style={{ color: textColor, opacity: 0.7 }}
+                            >
+                              {s.hex.toUpperCase()}
+                            </span>
 
-                            {/* Action buttons */}
+                            {/* Action buttons — ordered by usage frequency */}
                             <div className="flex flex-col items-center" style={{ gap: 6 }}>
-                              <DarkTooltip label="Drag to reorder" position="right">
-                                <div
-                                  className="flex items-center justify-center transition-all cursor-grab active:cursor-grabbing"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', touchAction: 'none' }}
-                                  onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); handleDragStart(swatchIdx) }}
-                                  role="button"
-                                  aria-label="Drag to reorder"
-                                  tabIndex={0}
-                                >
-                                  <GripVertical size={16} strokeWidth={1.5} style={{ color: textColor }} />
-                                </div>
-                              </DarkTooltip>
+                              {/* 1. Copy hex (most used) */}
                               <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
                                 <button
                                   onClick={() => copyHex(s.id, s.hex)}
@@ -599,7 +556,8 @@ export default function DesktopStudio() {
                                     : <Copy size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                 </button>
                               </DarkTooltip>
-                              <DarkTooltip label="Edit & info" position="right">
+                              {/* 2. Edit color (opens picker popover) */}
+                              <DarkTooltip label="Edit color" position="right">
                                 <button
                                   onClick={(e) => {
                                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -608,12 +566,13 @@ export default function DesktopStudio() {
                                   }}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
                                   style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
-                                  aria-label="Edit color and info"
+                                  aria-label="Edit color"
                                   aria-expanded={showInfo}
                                 >
                                   <Info size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
+                              {/* 3. Shade scale (Pro) */}
                               <DarkTooltip label={isPro ? 'Shade scale' : 'Shade scale (Pro)'} position="right">
                                 <button
                                   onClick={() => {
@@ -628,6 +587,7 @@ export default function DesktopStudio() {
                                   <Grid3X3 size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
+                              {/* 4. Lock color */}
                               <DarkTooltip label={s.locked ? 'Unlock' : 'Lock'} position="right">
                                 <button
                                   onClick={() => lockSwatch(s.id)}
@@ -640,11 +600,37 @@ export default function DesktopStudio() {
                                     : <Unlock size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                 </button>
                               </DarkTooltip>
+                              {/* 5. Drag handle (least frequent) */}
+                              <DarkTooltip label="Drag to reorder" position="right">
+                                <div
+                                  className="flex items-center justify-center transition-all cursor-grab active:cursor-grabbing"
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', touchAction: 'none' }}
+                                  onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); handleDragStart(swatchIdx) }}
+                                  role="button"
+                                  aria-label="Drag to reorder"
+                                  tabIndex={0}
+                                >
+                                  <GripVertical size={16} strokeWidth={1.5} style={{ color: textColor }} />
+                                </div>
+                              </DarkTooltip>
                             </div>
 
                             {s.locked && (
                               <span className="text-[10px] font-bold text-card px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}>Locked</span>
                             )}
+
+                            {/* Inline color info */}
+                            {(() => {
+                              const info = getColorInfo(s.hex)
+                              const colorName = getColorName(s.hex)
+                              return (
+                                <div className="flex flex-col items-center gap-0.5 mt-1">
+                                  <span className="text-[11px] font-medium" style={{ color: textColor, opacity: 0.7 }}>{colorName}</span>
+                                  <span className="text-[11px] font-mono" style={{ color: textColor, opacity: 0.6 }}>{info.rgb}</span>
+                                  <span className="text-[11px] font-mono" style={{ color: textColor, opacity: 0.6 }}>{info.hsl}</span>
+                                </div>
+                              )
+                            })()}
                           </div>
                         </div>
                       )
