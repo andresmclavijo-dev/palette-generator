@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ChevronDown, Image, Star, Heart,
-  Lock, Unlock, Copy, Check, Info, GripVertical, Code,
+  Lock, Unlock, Copy, Check, Pencil, GripVertical, Code,
   Share2, Link2, Grid3X3,
   Plus, Minus, Undo2, Redo2,
   Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles,
@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
 import DropdownSectionHeader from '@/components/ui/DropdownSectionHeader'
 import {
-  readableOn, getColorName, getColorInfo, getContrastBadge,
+  readableOn, getColorName, getContrastBadge,
   makeSwatch,
   encodePalette, decodePalette, buildShareUrl,
   SEMANTIC_ROLES,
@@ -525,12 +525,14 @@ export default function DesktopStudio() {
                               </div>
                             )}
 
-                            {/* Semantic role name — primary label */}
+                            {/* Combined role / color name label */}
                             <span
-                              className="text-[14px] font-semibold"
+                              className="text-[14px] font-medium text-center max-w-[calc(100%-16px)] truncate"
                               style={{ color: textColor }}
                             >
                               {SEMANTIC_ROLES[positionIdx]?.role ?? `Color ${positionIdx + 1}`}
+                              <span style={{ opacity: 0.5 }}>/</span>
+                              {getColorName(s.hex)}
                             </span>
 
                             {/* Hex code — read-only secondary label */}
@@ -569,7 +571,7 @@ export default function DesktopStudio() {
                                   aria-label="Edit color"
                                   aria-expanded={showInfo}
                                 >
-                                  <Info size={16} strokeWidth={1.5} style={{ color: textColor }} />
+                                  <Pencil size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                 </button>
                               </DarkTooltip>
                               {/* 3. Shade scale (Pro) */}
@@ -618,19 +620,6 @@ export default function DesktopStudio() {
                             {s.locked && (
                               <span className="text-[10px] font-bold text-card px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}>Locked</span>
                             )}
-
-                            {/* Inline color info */}
-                            {(() => {
-                              const info = getColorInfo(s.hex)
-                              const colorName = getColorName(s.hex)
-                              return (
-                                <div className="flex flex-col items-center gap-0.5 mt-1">
-                                  <span className="text-[11px] font-medium" style={{ color: textColor, opacity: 0.7 }}>{colorName}</span>
-                                  <span className="text-[11px] font-mono" style={{ color: textColor, opacity: 0.6 }}>{info.rgb}</span>
-                                  <span className="text-[11px] font-mono" style={{ color: textColor, opacity: 0.6 }}>{info.hsl}</span>
-                                </div>
-                              )
-                            })()}
                           </div>
                         </div>
                       )

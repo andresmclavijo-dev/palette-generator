@@ -1,6 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
-import { parseHex } from '@/lib/colorEngine'
+import { getColorName, getColorInfo, parseHex } from '@/lib/colorEngine'
+
+function InfoRow({ label, value, copied, onClick }: { label: string; value: string; copied: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 w-full text-left transition-all hover:bg-surface -mx-1 px-1 rounded"
+      style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px 4px' }}
+      aria-label={`Copy ${label} value`}
+    >
+      <span className="text-[10px] font-bold tracking-wider opacity-40 w-7 text-muted-foreground">{label}</span>
+      <span className="text-[12px] font-mono" style={{ color: copied ? 'hsl(var(--success))' : 'hsl(var(--foreground))' }}>
+        {copied ? 'Copied!' : value}
+      </span>
+    </button>
+  )
+}
 
 export function ColorInfoPopover({
   hex, swatchId, anchorRect, onClose, onEditSwatch,
@@ -13,6 +29,7 @@ export function ColorInfoPopover({
 }) {
   const [pickerColor, setPickerColor] = useState(hex)
   const [hexDraft, setHexDraft] = useState(hex.replace('#', '').toUpperCase())
+  const [copied, setCopied] = useState<string | null>(null)
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Sync local state when the external hex changes (e.g. from undo/redo)
@@ -32,6 +49,8 @@ export function ColorInfoPopover({
   }, [onClose])
 
   const liveHex = pickerColor
+  const name = getColorName(liveHex)
+  const { rgb, hsl } = getColorInfo(liveHex)
 
   const handlePickerChange = (newHex: string) => {
     setPickerColor(newHex)
@@ -52,9 +71,17 @@ export function ColorInfoPopover({
     }
   }
 
+  const copyValue = async (label: string, val: string) => {
+    try {
+      await navigator.clipboard.writeText(val)
+      setCopied(label)
+      setTimeout(() => setCopied(null), 1200)
+    } catch { /* silent */ }
+  }
+
   // Position to the right of the anchor; flip left if not enough space
-  const popoverWidth = 220
-  const popoverEstHeight = 300
+  const popoverWidth = 240
+  const popoverEstHeight = 420
   const spaceRight = window.innerWidth - anchorRect.right
   const showRight = spaceRight > popoverWidth + 16
   const rawTop = anchorRect.top + anchorRect.height / 2
@@ -129,6 +156,19 @@ export function ColorInfoPopover({
                 style={{ border: 'none' }}
                 aria-label="Hex color value"
               />
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-border" />
+
+          {/* Color info */}
+          <div>
+            <p className="text-[14px] font-bold m-0 text-foreground">{name}</p>
+            <div className="mt-1.5 flex flex-col gap-0.5">
+              <InfoRow label="HEX" value={liveHex.toUpperCase()} copied={copied === 'HEX'} onClick={() => copyValue('HEX', liveHex.toUpperCase())} />
+              <InfoRow label="RGB" value={rgb} copied={copied === 'RGB'} onClick={() => copyValue('RGB', rgb)} />
+              <InfoRow label="HSL" value={hsl} copied={copied === 'HSL'} onClick={() => copyValue('HSL', hsl)} />
             </div>
           </div>
         </div>
