@@ -496,6 +496,10 @@ export default function DesktopStudio() {
                       const showShades = shadesOpen === s.id
                       const showInfo = infoOpen === s.id
                       const positionIdx = displayOrder.indexOf(swatchIdx)
+                      // Swatch-adaptive button overlays — white on dark swatches, black on light
+                      const isLightSwatch = textColor === '#000000'
+                      const btnBg = isLightSwatch ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.15)'
+                      const btnBgActive = isLightSwatch ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.25)'
                       return (
                         <div
                           key={s.id}
@@ -509,10 +513,10 @@ export default function DesktopStudio() {
                           }}
                         >
                           <div className="flex flex-col items-center justify-center gap-3">
-                            {/* WCAG badge */}
+                            {/* WCAG badge — theme-independent: dark overlay + white text */}
                             <div
-                              className="px-2.5 py-1 rounded-button font-mono font-semibold text-card"
-                              style={{ backgroundColor: 'rgba(0,0,0,0.45)', fontSize: 11 }}
+                              className="px-2.5 py-1 rounded-button font-mono font-semibold"
+                              style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 11 }}
                             >
                               {contrast.level} {contrast.ratio}:1 {contrast.pass ? '✓' : '✗'}
                             </div>
@@ -550,7 +554,7 @@ export default function DesktopStudio() {
                                 <button
                                   onClick={() => copyHex(s.id, s.hex)}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: btnBg }}
                                   aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
                                 >
                                   {isCopied
@@ -567,7 +571,7 @@ export default function DesktopStudio() {
                                     else { setInfoOpen(s.id); setInfoAnchorRect(rect) }
                                   }}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? btnBgActive : btnBg }}
                                   aria-label="Edit color"
                                   aria-expanded={showInfo}
                                 >
@@ -582,7 +586,7 @@ export default function DesktopStudio() {
                                     setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog()
                                   }}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)' }}
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? btnBgActive : btnBg }}
                                   aria-label={isPro ? 'View shade scale' : 'Shade scale (Pro feature)'}
                                   aria-expanded={showShades}
                                 >
@@ -594,7 +598,7 @@ export default function DesktopStudio() {
                                 <button
                                   onClick={() => lockSwatch(s.id)}
                                   className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' }}
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: btnBg }}
                                   aria-label={s.locked ? 'Unlock color' : 'Lock color'}
                                 >
                                   {s.locked
@@ -606,7 +610,7 @@ export default function DesktopStudio() {
                               <DarkTooltip label="Drag to reorder" position="right">
                                 <div
                                   className="flex items-center justify-center transition-all cursor-grab active:cursor-grabbing"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)', touchAction: 'none' }}
+                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: btnBg, touchAction: 'none' }}
                                   onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); handleDragStart(swatchIdx) }}
                                   role="button"
                                   aria-label="Drag to reorder"
@@ -618,7 +622,7 @@ export default function DesktopStudio() {
                             </div>
 
                             {s.locked && (
-                              <span className="text-[10px] font-bold text-card px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}>Locked</span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-badge" style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff' }}>Locked</span>
                             )}
                           </div>
                         </div>
