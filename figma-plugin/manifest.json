@@ -9,6 +9,7 @@
     "allowedDomains": ["https://www.usepaletta.io"],
     "reasoning": "AI palette generation, user authentication, and Pro subscription via Paletta API"
   },
+  "documentAccess": "dynamic-page",
   "capabilities": [],
   "permissions": ["currentuser"]
 }
