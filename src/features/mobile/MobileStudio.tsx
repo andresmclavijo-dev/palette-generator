@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft, Code } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -261,75 +261,92 @@ export function MobileStudio(_props: MobileStudioProps) {
         </div>
       </div>
 
-      {/* Generate bar — floating */}
+      {/* Two-row action bar */}
       <div
-        className="flex items-center gap-2 bg-card shrink-0"
+        className="flex flex-col bg-card shrink-0"
         style={{
           margin: '6px 12px 0',
-          padding: '8px 12px',
           borderRadius: 16,
           border: '0.5px solid hsl(var(--border))',
         }}
       >
-        {/* Tools pill */}
-        <div className="relative">
+        {/* Row 1: Tools + count selector */}
+        <div
+          className="flex items-center justify-center gap-2"
+          style={{ padding: '8px 12px', borderBottom: '0.5px solid hsl(var(--border))' }}
+        >
+          {/* Tools pill */}
+          <div className="relative">
+            <button
+              onClick={() => setActiveSheet('tools')}
+              className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground border border-border rounded-button transition-all duration-150 active:scale-[0.98]"
+              style={{ height: 32, paddingLeft: 12, paddingRight: 10 }}
+              aria-label="Open tools menu"
+            >
+              Tools
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <AiCoachMark
+              visible={coachVisible}
+              onDismiss={() => setCoachVisible(false)}
+              onTry={() => { setCoachVisible(false); setActiveSheet('ai') }}
+              position="above"
+            />
+          </div>
+
+          {/* Count controls */}
           <button
-            onClick={() => setActiveSheet('tools')}
-            className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground border border-border rounded-button transition-all duration-150 active:scale-[0.98]"
-            style={{ height: 36, paddingLeft: 12, paddingRight: 10 }}
-            aria-label="Open tools menu"
+            onClick={() => { if (count > 3) setCount(count - 1) }}
+            disabled={count <= 3}
+            className="flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
+            style={{ width: 28, height: 28 }}
+            aria-label="Remove color"
           >
-            Tools
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
+            <Minus size={14} className="text-foreground" />
           </button>
-          <AiCoachMark
-            visible={coachVisible}
-            onDismiss={() => setCoachVisible(false)}
-            onTry={() => { setCoachVisible(false); setActiveSheet('ai') }}
-            position="above"
-          />
+          <span className="text-[14px] font-extrabold text-foreground tabular-nums" style={{ minWidth: 18, textAlign: 'center' }}>{count}</span>
+          <button
+            onClick={() => {
+              if (!isPro && count >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'mobile_bar'); return }
+              if (count < (isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS)) setCount(count + 1)
+            }}
+            disabled={isPro ? count >= PRO_GATES.MAX_PRO_COLORS : false}
+            className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
+            style={{ width: 28, height: 28 }}
+            aria-label={!isPro && count >= PRO_GATES.MAX_FREE_COLORS ? 'Upgrade to Pro for more colors' : 'Add color'}
+          >
+            <Plus size={14} className="text-foreground" />
+            {!isPro && count >= PRO_GATES.MAX_FREE_COLORS && (
+              <span className="absolute -bottom-1.5 -right-2">
+                <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Count controls */}
-        <button
-          onClick={() => { if (count > 3) setCount(count - 1) }}
-          disabled={count <= 3}
-          className="flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
-          style={{ width: 36, height: 36 }}
-          aria-label="Remove color"
-        >
-          <Minus size={16} className="text-foreground" />
-        </button>
-        <span className="text-base font-extrabold text-foreground tabular-nums" style={{ minWidth: 20, textAlign: 'center' }}>{count}</span>
-        <button
-          onClick={() => {
-            if (!isPro && count >= PRO_GATES.MAX_FREE_COLORS) { openProModal('color_count', 'mobile_bar'); return }
-            if (count < (isPro ? PRO_GATES.MAX_PRO_COLORS : PRO_GATES.MAX_FREE_COLORS)) setCount(count + 1)
-          }}
-          disabled={isPro ? count >= PRO_GATES.MAX_PRO_COLORS : false}
-          className="relative flex items-center justify-center border border-border rounded-button disabled:opacity-30 transition-all active:scale-[0.98]"
-          style={{ width: 36, height: 36 }}
-          aria-label={!isPro && count >= PRO_GATES.MAX_FREE_COLORS ? 'Upgrade to Pro for more colors' : 'Add color'}
-        >
-          <Plus size={16} className="text-foreground" />
-          {!isPro && count >= PRO_GATES.MAX_FREE_COLORS && (
-            <span className="absolute -bottom-1.5 -right-2">
-              <Badge variant="pro" className="text-[8px] px-1 py-0 leading-tight">PRO</Badge>
-            </span>
-          )}
-        </button>
-
-        <Button
-          onClick={triggerGenerate}
-          size="lg"
-          className="flex-1 text-[15px] font-bold"
-          style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
-          aria-label="Generate new palette"
-        >
-          Generate
-        </Button>
+        {/* Row 2: Get code + Generate — equal width */}
+        <div className="flex items-center gap-2" style={{ padding: '8px 12px' }}>
+          <button
+            onClick={() => setActiveSheet('export')}
+            className="flex-1 flex items-center justify-center gap-1.5 border border-border rounded-button transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            style={{ height: 44, borderRadius: 8 }}
+            aria-label="Get code"
+          >
+            <Code size={16} className="text-foreground" />
+            <span className="text-[14px] font-semibold text-foreground">Get code</span>
+          </button>
+          <Button
+            onClick={triggerGenerate}
+            size="lg"
+            className="flex-1 text-[14px] font-bold"
+            style={{ height: 44, borderRadius: 8, boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
+            aria-label="Generate new palette"
+          >
+            Generate
+          </Button>
+        </div>
       </div>
 
       {/* ─── Bottom Sheets ─── */}

@@ -55,37 +55,35 @@ export function MobilePreview() {
         />
       </div>
 
-      {/* Bottom action bar */}
+      {/* Bottom action bar — two equal buttons */}
       <div
-        className="flex items-center gap-2 bg-card shrink-0"
+        className="bg-card shrink-0"
         style={{
           margin: '6px 12px 0',
-          padding: '8px 12px',
           borderRadius: 16,
           border: '0.5px solid hsl(var(--border))',
         }}
       >
-        {/* Get code */}
-        <button
-          onClick={() => setExportOpen(true)}
-          className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
-          style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
-          aria-label="Get code"
-        >
-          <Code size={14} className="text-foreground" />
-          <span className="text-[13px] font-semibold text-foreground">Get code</span>
-        </button>
-
-        {/* Generate */}
-        <Button
-          onClick={triggerGenerate}
-          size="lg"
-          className="flex-1 text-[15px] font-bold"
-          style={{ boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
-          aria-label="Generate new palette"
-        >
-          Generate
-        </Button>
+        <div className="flex items-center gap-2" style={{ padding: '8px 12px' }}>
+          <button
+            onClick={() => setExportOpen(true)}
+            className="flex-1 flex items-center justify-center gap-1.5 border border-border rounded-button transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            style={{ height: 44, borderRadius: 8 }}
+            aria-label="Get code"
+          >
+            <Code size={16} className="text-foreground" />
+            <span className="text-[14px] font-semibold text-foreground">Get code</span>
+          </button>
+          <Button
+            onClick={triggerGenerate}
+            size="lg"
+            className="flex-1 text-[14px] font-bold"
+            style={{ height: 44, borderRadius: 8, boxShadow: '0 4px 20px rgba(108,71,255,0.3)' }}
+            aria-label="Generate new palette"
+          >
+            Generate
+          </Button>
+        </div>
       </div>
 
       {/* Export dialog */}
