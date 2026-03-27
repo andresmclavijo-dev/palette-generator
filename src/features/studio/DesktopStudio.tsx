@@ -473,152 +473,29 @@ export default function DesktopStudio() {
           {/* ═══ STUDIO SECTION ═══ */}
           {section === 'studio' && (
             <>
-              {/* ─── Action Bar (top of bento) — always visible ─── */}
-              <div
-                className="absolute flex items-center justify-between"
-                style={{ top: 12, left: 12, right: 12, zIndex: 30 }}
-              >
-                {/* LEFT GROUP — section label */}
-                <div
-                  className="flex items-center px-3 text-[13px] font-semibold text-foreground"
-                  style={{
-                    height: 36,
-                    borderRadius: 8,
-                    backgroundColor: 'hsl(var(--card) / 0.95)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                    border: '1px solid hsl(var(--border-light))',
-                  }}
-                >
-                  Colors
-                </div>
-
-                {/* RIGHT GROUP — single pill */}
-                <div
-                  className="flex items-center bg-card/95"
-                  style={{
-                    borderRadius: 12,
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                    border: '1px solid hsl(var(--border-light))',
-                    padding: 4,
-                    gap: 6,
-                  }}
-                  role="toolbar"
-                  aria-label="Palette actions"
-                >
-                  {/* Action bar tooltips use position="bottom" — bar sits at viewport top edge, "top" would clip */}
-                  {/* AI */}
-                  <div className="relative">
-                    <DarkTooltip label="AI palette" position="bottom">
-                      <button
-                        onClick={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
-                        className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
-                        style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
-                        aria-label="AI palette"
-                      >
-                        <Star size={16} strokeWidth={1.5} />
-                        <span className="text-[12px] font-medium">AI</span>
-                        {!isPro && (
-                          <span
-                            className="text-[10px] font-bold text-primary-foreground px-1.5 py-0.5 rounded-badge"
-                            style={{ backgroundColor: BRAND_VIOLET }}
-                          >
-                            {aiRemaining}
-                          </span>
-                        )}
-                      </button>
-                    </DarkTooltip>
-                    <AiCoachMark
-                      visible={coachVisible}
-                      onDismiss={() => setCoachVisible(false)}
-                      onTry={() => { setCoachVisible(false); openDialog('ai-full') }}
-                      position="below"
-                    />
-                  </div>
-
-                  {/* Extract */}
-                  <DarkTooltip label="Extract from image" position="bottom">
-                    <button
-                      onClick={() => {
-                        if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
-                        activeDialog === 'extract' ? closeDialog() : openDialog('extract')
-                      }}
-                      className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
-                      style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
-                      aria-label="Extract colors from image"
-                    >
-                      <Image size={16} strokeWidth={1.5} />
-                      {!isPro && (
-                        <Badge variant="pro">PRO</Badge>
-                      )}
-                    </button>
-                  </DarkTooltip>
-
-                  {/* Divider */}
-                  <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
-
-                  {/* Save */}
-                  <DarkTooltip label="Save palette" position="bottom">
-                    <button
-                      onClick={handleSave}
-                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-                      aria-label="Save palette"
-                    >
-                      <Heart size={16} strokeWidth={1.5} />
-                    </button>
-                  </DarkTooltip>
-
-                  {/* Share / Copy link */}
-                  <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="bottom">
-                    <button
-                      onClick={handleShare}
-                      className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-                      style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-                      aria-label={canNativeShare ? "Share palette" : "Copy link"}
-                    >
-                      {shareCopied
-                        ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} />
-                        : canNativeShare
-                          ? <Share2 size={16} strokeWidth={1.5} />
-                          : <Link2 size={16} strokeWidth={1.5} />
-                      }
-                    </button>
-                  </DarkTooltip>
-
-                  {/* Divider */}
-                  <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
-
-                  {/* Go Pro */}
-                  {!isPro && (
-                    <Button
-                      variant="default"
-                      size="default"
-                      onClick={() => { openProModal(undefined, 'action_bar') }}
-                      className="text-[12px] font-semibold"
-                    >
-                      Go Pro
-                    </Button>
-                  )}
-
-                  {/* Auth */}
-                  {isSignedIn && user?.email ? (
-                    <UserMenu email={user.email} isPro={isPro} avatarUrl={user.user_metadata?.avatar_url} onSignOut={signOut} onManage={handleManageSubscription} />
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="default"
-                      onClick={() => openDialog('sign-in')}
-                      className="text-[13px] font-medium"
-                    >
-                      Sign In
-                    </Button>
-                  )}
-                </div>
-              </div>
+              {/* ─── Action Bar (top-right of bento) ─── */}
+              <ActionBar
+                isPro={isPro}
+                isSignedIn={isSignedIn}
+                user={user}
+                aiRemaining={aiRemaining}
+                coachVisible={coachVisible}
+                shareCopied={shareCopied}
+                canNativeShare={canNativeShare}
+                onAiToggle={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
+                onExtract={() => {
+                  if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
+                  activeDialog === 'extract' ? closeDialog() : openDialog('extract')
+                }}
+                onSave={handleSave}
+                onShare={handleShare}
+                onProGate={() => openProModal(undefined, 'action_bar')}
+                onSignIn={() => openDialog('sign-in')}
+                onSignOut={signOut}
+                onManage={handleManageSubscription}
+                onCoachDismiss={() => setCoachVisible(false)}
+                onCoachTry={() => { setCoachVisible(false); openDialog('ai-full') }}
+              />
 
               {/* ─── Colors View ─── */}
               {(
@@ -811,6 +688,30 @@ export default function DesktopStudio() {
           {/* ═══ PREVIEW SECTION ═══ */}
           {section === 'preview' && (
             <>
+              {/* ─── Action Bar (top-right of bento) ─── */}
+              <ActionBar
+                isPro={isPro}
+                isSignedIn={isSignedIn}
+                user={user}
+                aiRemaining={aiRemaining}
+                coachVisible={coachVisible}
+                shareCopied={shareCopied}
+                canNativeShare={canNativeShare}
+                onAiToggle={() => activeDialog === 'ai-full' ? closeDialog() : openDialog('ai-full')}
+                onExtract={() => {
+                  if (!isPro) { openProModal('image_extraction', 'action_bar'); return }
+                  activeDialog === 'extract' ? closeDialog() : openDialog('extract')
+                }}
+                onSave={handleSave}
+                onShare={handleShare}
+                onProGate={() => openProModal(undefined, 'action_bar')}
+                onSignIn={() => openDialog('sign-in')}
+                onSignOut={signOut}
+                onManage={handleManageSubscription}
+                onCoachDismiss={() => setCoachVisible(false)}
+                onCoachTry={() => { setCoachVisible(false); openDialog('ai-full') }}
+              />
+
               <PreviewMode
                 swatches={swatches}
                 isPro={isPro}
@@ -974,6 +875,159 @@ const FLOATING_BAR_STYLE: React.CSSProperties = {
   boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
   border: '1px solid hsl(var(--border-light))',
   padding: '0 12px',
+}
+
+// ─── Shared Action Bar (top-right of bento, used by Studio + Preview) ────
+function ActionBar({
+  isPro, isSignedIn, user, aiRemaining, coachVisible,
+  shareCopied, canNativeShare,
+  onAiToggle, onExtract, onSave, onShare, onProGate, onSignIn, onSignOut, onManage,
+  onCoachDismiss, onCoachTry,
+}: {
+  isPro: boolean
+  isSignedIn: boolean
+  user: { email?: string; user_metadata?: { avatar_url?: string } } | null
+  aiRemaining: number
+  coachVisible: boolean
+  shareCopied: boolean
+  canNativeShare: boolean
+  onAiToggle: () => void
+  onExtract: () => void
+  onSave: () => void
+  onShare: () => void
+  onProGate: () => void
+  onSignIn: () => void
+  onSignOut: () => void
+  onManage: () => void
+  onCoachDismiss: () => void
+  onCoachTry: () => void
+}) {
+  return (
+    <div
+      className="absolute flex items-center justify-end"
+      style={{ top: 12, left: 12, right: 12, zIndex: 30 }}
+    >
+      <div
+        className="flex items-center bg-card/95"
+        style={{
+          borderRadius: 12,
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '1px solid hsl(var(--border-light))',
+          padding: 4,
+          gap: 6,
+        }}
+        role="toolbar"
+        aria-label="Palette actions"
+      >
+        {/* AI */}
+        <div className="relative">
+          <DarkTooltip label="AI palette" position="bottom">
+            <button
+              onClick={onAiToggle}
+              className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
+              style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
+              aria-label="AI palette"
+            >
+              <Star size={16} strokeWidth={1.5} />
+              <span className="text-[12px] font-medium">AI</span>
+              {!isPro && (
+                <span
+                  className="text-[10px] font-bold text-primary-foreground px-1.5 py-0.5 rounded-badge"
+                  style={{ backgroundColor: BRAND_VIOLET }}
+                >
+                  {aiRemaining}
+                </span>
+              )}
+            </button>
+          </DarkTooltip>
+          <AiCoachMark
+            visible={coachVisible}
+            onDismiss={onCoachDismiss}
+            onTry={onCoachTry}
+            position="below"
+          />
+        </div>
+
+        {/* Extract */}
+        <DarkTooltip label="Extract from image" position="bottom">
+          <button
+            onClick={onExtract}
+            className="flex items-center gap-1 text-foreground transition-all hover:bg-surface/50"
+            style={{ height: 36, padding: '0 10px', borderRadius: 8 }}
+            aria-label="Extract colors from image"
+          >
+            <Image size={16} strokeWidth={1.5} />
+            {!isPro && (
+              <Badge variant="pro">PRO</Badge>
+            )}
+          </button>
+        </DarkTooltip>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
+
+        {/* Save */}
+        <DarkTooltip label="Save palette" position="bottom">
+          <button
+            onClick={onSave}
+            className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+            aria-label="Save palette"
+          >
+            <Heart size={16} strokeWidth={1.5} />
+          </button>
+        </DarkTooltip>
+
+        {/* Share / Copy link */}
+        <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="bottom">
+          <button
+            onClick={onShare}
+            className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
+            aria-label={canNativeShare ? "Share palette" : "Copy link"}
+          >
+            {shareCopied
+              ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} />
+              : canNativeShare
+                ? <Share2 size={16} strokeWidth={1.5} />
+                : <Link2 size={16} strokeWidth={1.5} />
+            }
+          </button>
+        </DarkTooltip>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, backgroundColor: 'hsl(var(--border-light))' }} />
+
+        {/* Go Pro */}
+        {!isPro && (
+          <Button
+            variant="default"
+            size="default"
+            onClick={onProGate}
+            className="text-[12px] font-semibold"
+          >
+            Go Pro
+          </Button>
+        )}
+
+        {/* Auth */}
+        {isSignedIn && user?.email ? (
+          <UserMenu email={user.email} isPro={isPro} avatarUrl={user.user_metadata?.avatar_url} onSignOut={onSignOut} onManage={onManage} />
+        ) : (
+          <Button
+            variant="outline"
+            size="default"
+            onClick={onSignIn}
+            className="text-[13px] font-medium"
+          >
+            Sign In
+          </Button>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function ColorsBottomBar({
