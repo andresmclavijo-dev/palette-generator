@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft, Pencil } from 'lucide-react'
+import { Minus, Plus, Copy, Check, Lock, Unlock, Sparkles, ImagePlus, Heart, Link2, Share2, Download, Grid3X3, Info, Shuffle, Palette, Circle, Contrast, Triangle, Eye, ChevronRight, ChevronLeft } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
 import { useAuth } from '@/hooks/useAuth'
@@ -70,7 +70,6 @@ export function MobileStudio(_props: MobileStudioProps) {
   const [coachVisible, setCoachVisible] = useState(false)
   const [editingHex, setEditingHex] = useState(false)
   const [hexDraft, setHexDraft] = useState('')
-  const [pickerOpen, setPickerOpen] = useState(false)
 
   const visionFilter = visionMode !== 'normal' ? `url(#vision-${visionMode})` : undefined
 
@@ -622,9 +621,9 @@ export function MobileStudio(_props: MobileStudioProps) {
       {/* Color Detail sheet */}
       <MobileBottomSheet
         open={activeSheet === 'color-detail'}
-        onClose={() => { closeSheet(); setEditingHex(false); setPickerOpen(false) }}
+        onClose={() => { closeSheet(); setEditingHex(false) }}
         title="Color Detail"
-        full={pickerOpen}
+        full
       >
         {activeSwatch && (() => {
           const hex = activeSwatch.hex
@@ -724,7 +723,7 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </span>
               </div>
 
-              {/* Action grid — 3×2 */}
+              {/* Action grid — 2×2 */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleCopyHex(hex)}
@@ -735,16 +734,23 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className="text-[13px] font-medium text-foreground">{copiedHex === hex ? 'Copied' : 'Copy hex'}</span>
                 </button>
                 <button
-                  onClick={() => setPickerOpen(v => !v)}
-                  className={cn(
-                    "flex items-center gap-2.5 px-3 py-3 rounded-button transition-all active:scale-[0.98]",
-                    pickerOpen ? "bg-primary/10" : "bg-surface"
-                  )}
-                  aria-label="Edit color"
-                  aria-expanded={pickerOpen}
+                  onClick={() => lockSwatch(activeSwatch.id)}
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
+                  aria-label={activeSwatch.locked ? 'Unlock color' : 'Lock color'}
                 >
-                  <Pencil size={16} className={pickerOpen ? "text-primary" : "text-muted-foreground"} />
-                  <span className="text-[13px] font-medium text-foreground">Edit color</span>
+                  {activeSwatch.locked ? <Lock size={16} className="text-primary" /> : <Unlock size={16} className="text-muted-foreground" />}
+                  <span className="text-[13px] font-medium text-foreground">{activeSwatch.locked ? 'Locked' : 'Lock color'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const info = getColorInfo(hex)
+                    showToast(`RGB: ${info.rgb} · HSL: ${info.hsl}`)
+                  }}
+                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
+                  aria-label="Color info"
+                >
+                  <Info size={16} className="text-muted-foreground" />
+                  <span className="text-[13px] font-medium text-foreground">Info</span>
                 </button>
                 <button
                   onClick={() => {
@@ -766,38 +772,15 @@ export function MobileStudio(_props: MobileStudioProps) {
                   <span className={cn("text-[13px] font-medium", isPro ? "text-foreground" : "text-muted-foreground/60")}>Shades</span>
                   {!isPro && <Badge variant="pro" className="ml-auto">PRO</Badge>}
                 </button>
-                <button
-                  onClick={() => lockSwatch(activeSwatch.id)}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
-                  aria-label={activeSwatch.locked ? 'Unlock color' : 'Lock color'}
-                >
-                  {activeSwatch.locked ? <Lock size={16} className="text-primary" /> : <Unlock size={16} className="text-muted-foreground" />}
-                  <span className="text-[13px] font-medium text-foreground">{activeSwatch.locked ? 'Locked' : 'Lock color'}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const info = getColorInfo(hex)
-                    showToast(`RGB: ${info.rgb} · HSL: ${info.hsl}`)
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
-                  aria-label="Color info"
-                >
-                  <Info size={16} className="text-muted-foreground" />
-                  <span className="text-[13px] font-medium text-foreground">Info</span>
-                </button>
               </div>
 
-              {/* Color picker — inline, expands sheet */}
-              {pickerOpen && (
-                <div className="flex flex-col gap-3">
-                  <div className="react-colorful-wrapper rounded-xl overflow-hidden">
-                    <HexColorPicker
-                      color={hex}
-                      onChange={(newHex) => editSwatch(activeSwatch.id, newHex)}
-                    />
-                  </div>
-                </div>
-              )}
+              {/* Color picker — always visible */}
+              <div className="react-colorful-wrapper rounded-xl overflow-hidden">
+                <HexColorPicker
+                  color={hex}
+                  onChange={(newHex) => editSwatch(activeSwatch.id, newHex)}
+                />
+              </div>
             </div>
           )
         })()}
