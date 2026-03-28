@@ -718,7 +718,8 @@ export function MobileStudio(_props: MobileStudioProps) {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleCopyHex(hex)}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 rounded-button bg-surface transition-all duration-150 ease-[cubic-bezier(0,0,0.2,1)] hover:text-primary hover:scale-[1.08] active:scale-[0.96] motion-reduce:transform-none"
+                  style={{ minHeight: 44 }}
                   aria-label={`Copy ${hex}`}
                 >
                   {copiedHex === hex ? <Check size={16} className="text-success" /> : <Copy size={16} className="text-muted-foreground" />}
@@ -726,7 +727,8 @@ export function MobileStudio(_props: MobileStudioProps) {
                 </button>
                 <button
                   onClick={() => lockSwatch(activeSwatch.id)}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 rounded-button bg-surface transition-all duration-150 ease-[cubic-bezier(0,0,0.2,1)] hover:text-primary hover:scale-[1.08] active:scale-[0.96] motion-reduce:transform-none"
+                  style={{ minHeight: 44 }}
                   aria-label={activeSwatch.locked ? 'Unlock color' : 'Lock color'}
                 >
                   {activeSwatch.locked ? <Lock size={16} className="text-primary" /> : <Unlock size={16} className="text-muted-foreground" />}
@@ -737,7 +739,8 @@ export function MobileStudio(_props: MobileStudioProps) {
                     const info = getColorInfo(hex)
                     showToast(`RGB: ${info.rgb} · HSL: ${info.hsl}`)
                   }}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-button bg-surface transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2.5 px-3 rounded-button bg-surface transition-all duration-150 ease-[cubic-bezier(0,0,0.2,1)] hover:text-primary hover:scale-[1.08] active:scale-[0.96] motion-reduce:transform-none"
+                  style={{ minHeight: 44 }}
                   aria-label="Color info"
                 >
                   <Info size={16} className="text-muted-foreground" />
@@ -754,9 +757,10 @@ export function MobileStudio(_props: MobileStudioProps) {
                     }
                   }}
                   className={cn(
-                    "flex items-center gap-2.5 px-3 py-3 rounded-button transition-all active:scale-[0.98]",
+                    "flex items-center gap-2.5 px-3 rounded-button transition-all duration-150 ease-[cubic-bezier(0,0,0.2,1)] hover:text-primary hover:scale-[1.08] active:scale-[0.96] motion-reduce:transform-none",
                     isPro ? "bg-surface" : "bg-surface/50"
                   )}
+                  style={{ minHeight: 44 }}
                   aria-label={isPro ? "View shade scale" : "Shade scale (Pro feature)"}
                 >
                   <Grid3X3 size={16} className={isPro ? "text-muted-foreground" : "text-muted/50"} />

@@ -20,6 +20,7 @@ import PaymentSuccessModal from '@/components/ui/PaymentSuccessModal'
 import SavedPalettesPanel from '@/components/ui/SavedPalettesPanel'
 import SaveNameModal from '@/components/ui/SaveNameModal'
 import { Button } from '@/components/ui/button'
+import IconButton from '@/components/ui/IconButton'
 // Tabs import removed — Preview is its own section now
 import { Badge } from '@/components/ui/badge'
 import CookieConsent from '@/components/CookieConsent'
@@ -552,60 +553,60 @@ export default function DesktopStudio() {
                             <div className="flex flex-col items-center" style={{ gap: 6 }}>
                               {/* 1. Copy hex (most used) */}
                               <DarkTooltip label={isCopied ? 'Copied' : 'Copy hex'} position="right">
-                                <button
-                                  onClick={() => copyHex(s.id, s.hex)}
-                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: btnBg }}
-                                  aria-label={isCopied ? 'Copied' : `Copy ${s.hex}`}
-                                >
-                                  {isCopied
+                                <IconButton
+                                  icon={isCopied
                                     ? <Check size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                     : <Copy size={16} strokeWidth={1.5} style={{ color: textColor }} />}
-                                </button>
+                                  onClick={() => copyHex(s.id, s.hex)}
+                                  label={isCopied ? 'Copied' : `Copy ${s.hex}`}
+                                  size={36}
+                                  className="rounded-button bg-transparent"
+                                  style={{ backgroundColor: btnBg }}
+                                />
                               </DarkTooltip>
                               {/* 2. Edit color (opens picker popover) */}
                               <DarkTooltip label="Edit color" position="right">
-                                <button
+                                <IconButton
+                                  icon={<Pencil size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                   onClick={(e) => {
                                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                                     if (infoOpen === s.id) { setInfoOpen(null); setInfoAnchorRect(null) }
                                     else { setInfoOpen(s.id); setInfoAnchorRect(rect) }
                                   }}
-                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showInfo ? btnBgActive : btnBg }}
-                                  aria-label="Edit color"
+                                  label="Edit color"
+                                  size={36}
+                                  className="rounded-button bg-transparent"
+                                  style={{ backgroundColor: showInfo ? btnBgActive : btnBg }}
                                   aria-expanded={showInfo}
-                                >
-                                  <Pencil size={16} strokeWidth={1.5} style={{ color: textColor }} />
-                                </button>
+                                />
                               </DarkTooltip>
                               {/* 3. Shade scale (Pro) */}
                               <DarkTooltip label={isPro ? 'Shade scale' : 'Shade scale (Pro)'} position="right">
-                                <button
+                                <IconButton
+                                  icon={<Grid3X3 size={16} strokeWidth={1.5} style={{ color: textColor }} />}
                                   onClick={() => {
                                     if (!isPro) { openProModal('shade_scale', 'swatch_action'); return }
                                     setShadesOpen(shadesOpen === s.id ? null : s.id); if (shadesOpen !== s.id) openDialog('shades'); else closeDialog()
                                   }}
-                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: showShades ? btnBgActive : btnBg }}
-                                  aria-label={isPro ? 'View shade scale' : 'Shade scale (Pro feature)'}
+                                  label={isPro ? 'View shade scale' : 'Shade scale (Pro feature)'}
+                                  size={36}
+                                  className="rounded-button bg-transparent"
+                                  style={{ backgroundColor: showShades ? btnBgActive : btnBg }}
                                   aria-expanded={showShades}
-                                >
-                                  <Grid3X3 size={16} strokeWidth={1.5} style={{ color: textColor }} />
-                                </button>
+                                />
                               </DarkTooltip>
                               {/* 4. Lock color */}
                               <DarkTooltip label={s.locked ? 'Unlock' : 'Lock'} position="right">
-                                <button
-                                  onClick={() => lockSwatch(s.id)}
-                                  className="flex items-center justify-center transition-all active:scale-[0.98]"
-                                  style={{ width: 36, height: 36, padding: 0, borderRadius: 8, backgroundColor: btnBg }}
-                                  aria-label={s.locked ? 'Unlock color' : 'Lock color'}
-                                >
-                                  {s.locked
+                                <IconButton
+                                  icon={s.locked
                                     ? <Lock size={16} strokeWidth={1.5} style={{ color: textColor }} />
                                     : <Unlock size={16} strokeWidth={1.5} style={{ color: textColor }} />}
-                                </button>
+                                  onClick={() => lockSwatch(s.id)}
+                                  label={s.locked ? 'Unlock color' : 'Lock color'}
+                                  size={36}
+                                  className="rounded-button bg-transparent"
+                                  style={{ backgroundColor: btnBg }}
+                                />
                               </DarkTooltip>
                               {/* 5. Drag handle (least frequent) */}
                               <DarkTooltip label="Drag to reorder" position="right">
@@ -953,31 +954,29 @@ function ActionBar({
 
         {/* Save */}
         <DarkTooltip label="Save palette" position="bottom">
-          <button
+          <IconButton
+            icon={<Heart size={16} strokeWidth={1.5} />}
             onClick={onSave}
-            className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-            aria-label="Save palette"
-          >
-            <Heart size={16} strokeWidth={1.5} />
-          </button>
+            label="Save palette"
+            size={36}
+            className="rounded-button bg-transparent text-foreground"
+          />
         </DarkTooltip>
 
         {/* Share / Copy link */}
         <DarkTooltip label={canNativeShare ? "Share" : "Copy link"} position="bottom">
-          <button
-            onClick={onShare}
-            className="flex items-center justify-center text-foreground transition-all hover:bg-surface/50 active:scale-[0.98]"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: 8 }}
-            aria-label={canNativeShare ? "Share palette" : "Copy link"}
-          >
-            {shareCopied
+          <IconButton
+            icon={shareCopied
               ? <Check size={16} strokeWidth={1.5} style={{ color: 'hsl(var(--success))' }} />
               : canNativeShare
                 ? <Share2 size={16} strokeWidth={1.5} />
                 : <Link2 size={16} strokeWidth={1.5} />
             }
-          </button>
+            onClick={onShare}
+            label={canNativeShare ? "Share palette" : "Copy link"}
+            size={36}
+            className="rounded-button bg-transparent text-foreground"
+          />
         </DarkTooltip>
 
         {/* Divider */}
@@ -1157,22 +1156,20 @@ function ColorsBottomBar({
           <div className="flex items-center" style={{ gap: 16 }}>
             {/* Undo / Redo */}
             <div className="flex items-center gap-1">
-              <button
+              <IconButton
+                icon={<Undo2 size={18} />}
                 onClick={onUndo}
-                className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-                style={{ width: 32, height: 32, borderRadius: 8 }}
-                aria-label="Undo"
-              >
-                <Undo2 size={18} className="text-muted-foreground" />
-              </button>
-              <button
+                label="Undo"
+                size={32}
+                className="rounded-button bg-transparent"
+              />
+              <IconButton
+                icon={<Redo2 size={18} />}
                 onClick={onRedo}
-                className="flex items-center justify-center transition-all duration-150 hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none active:scale-[0.98]"
-                style={{ width: 32, height: 32, borderRadius: 8 }}
-                aria-label="Redo"
-              >
-                <Redo2 size={18} className="text-muted-foreground" />
-              </button>
+                label="Redo"
+                size={32}
+                className="rounded-button bg-transparent"
+              />
             </div>
 
             {/* Count selector */}
