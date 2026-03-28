@@ -1222,17 +1222,18 @@ function ColorsBottomBar({
             </div>
 
             {/* Get code — secondary CTA */}
-            <button
-              onClick={onGetCode}
-              data-tour-id="get-code"
-              title="CSS · Tailwind · SVG"
-              className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
-              style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
-              aria-label="Get code"
-            >
-              <Code size={14} className="text-foreground" />
-              <span className="text-[13px] font-semibold text-foreground">Get code</span>
-            </button>
+            <DarkTooltip label="CSS · Tailwind · SVG" position="top">
+              <button
+                onClick={onGetCode}
+                data-tour-id="get-code"
+                className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+                style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
+                aria-label="Get code"
+              >
+                <Code size={14} className="text-foreground" />
+                <span className="text-[13px] font-semibold text-foreground">Get code</span>
+              </button>
+            </DarkTooltip>
 
             {/* Generate — purple CTA */}
             <button
