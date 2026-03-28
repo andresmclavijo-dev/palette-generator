@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { BRAND_DARK } from '@/lib/tokens'
 import { mapPreviewColors } from '@/lib/previewColors'
-import { BrandPattern } from './BrandPattern'
-import { LandingPreview } from './LandingPreview'
-import { DashboardPreview } from './DashboardPreview'
-import { MobilePreview } from './MobilePreview'
+
+const BrandPattern = lazy(() => import('./BrandPattern').then(m => ({ default: m.BrandPattern })))
+const LandingPreview = lazy(() => import('./LandingPreview').then(m => ({ default: m.LandingPreview })))
+const DashboardPreview = lazy(() => import('./DashboardPreview').then(m => ({ default: m.DashboardPreview })))
+const MobilePreview = lazy(() => import('./MobilePreview').then(m => ({ default: m.MobilePreview })))
 
 type TemplateId = 'brand' | 'landing' | 'dashboard' | 'mobile'
 
@@ -28,6 +29,15 @@ const TEMPLATE_WIDTH: Record<TemplateId, number> = {
   landing: 800,
   dashboard: 900,
   mobile: 380,
+}
+
+/** Skeleton placeholder while a mockup chunk loads */
+function MockupSkeleton() {
+  return (
+    <div className="flex items-center justify-center" style={{ aspectRatio: '3/2', backgroundColor: 'hsl(var(--surface))' }}>
+      <div className="animate-pulse" style={{ width: '40%', height: 12, borderRadius: 6, backgroundColor: 'hsl(var(--border-light))' }} />
+    </div>
+  )
 }
 
 /**
@@ -149,7 +159,9 @@ export function PreviewGrid({
                 height: '100%',
               }}>
                 <ScaledFrame templateWidth={tw}>
-                  {renderTemplate(t.id)}
+                  <Suspense fallback={<MockupSkeleton />}>
+                    {renderTemplate(t.id)}
+                  </Suspense>
                 </ScaledFrame>
               </div>
 

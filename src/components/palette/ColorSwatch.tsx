@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { getColorName, getColorInfo, getContrastBadge, isNearWhite, isLight } from '../../lib/colorEngine'
 import ShadesPanel from './ShadesPanel'
@@ -58,7 +58,7 @@ export default function ColorSwatch({
   const labelColor = lightBg ? 'rgba(0,0,0,0.78)' : 'rgba(255,255,255,0.92)'
   const labelMuted = lightBg ? 'rgba(0,0,0,0.42)' : 'rgba(255,255,255,0.55)'
   const lockShadow = 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))'
-  const contrast = getContrastBadge(hex)
+  const contrast = useMemo(() => getContrastBadge(hex), [hex])
 
   // Dismiss action bar on outside tap (mobile)
   useEffect(() => {
