@@ -16,12 +16,15 @@ type SectionId = 'studio' | 'preview' | 'library' | 'profile'
 export function Dock({
   expanded, section, dockPulse,
   onToggle, onSectionChange,
+  savedCount, isSignedIn,
 }: {
   expanded: boolean
   section: SectionId
   dockPulse: boolean
   onToggle: () => void
   onSectionChange: (s: SectionId) => void
+  savedCount?: number
+  isSignedIn?: boolean
 }) {
   const dockW = expanded ? 200 : 80
 
@@ -101,6 +104,7 @@ export function Dock({
             active={section === 'library'}
             expanded={expanded}
             onClick={() => onSectionChange('library')}
+            subtitle={isSignedIn ? `${savedCount ?? 0} saved` : 'Empty'}
           />
           <DockItem
             icon={<Puzzle size={20} />}
@@ -159,7 +163,7 @@ export function Dock({
 
 // ─── Dock Item ───────────────────────────────────────────────
 function DockItem({
-  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse, dataTourId,
+  icon, label, active, primary, expanded, onClick, badge, proBadge, pulse, dataTourId, subtitle,
 }: {
   icon: React.ReactNode
   label: string
@@ -171,16 +175,18 @@ function DockItem({
   proBadge?: boolean
   pulse?: boolean
   dataTourId?: string
+  subtitle?: string
 }) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const isCollapsed = !expanded
 
   return (
     <div className="relative" data-tour-id={dataTourId} style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'stretch' }}>
       <button
         onClick={onClick}
-        onMouseEnter={() => { if (isCollapsed) setShowTooltip(true) }}
-        onMouseLeave={() => setShowTooltip(false)}
+        onMouseEnter={() => { if (isCollapsed) setShowTooltip(true); setHovered(true) }}
+        onMouseLeave={() => { setShowTooltip(false); setHovered(false) }}
         className={cn(
           'flex items-center transition-colors duration-150 ease-in-out',
           !primary && !active && 'text-muted-foreground hover:bg-surface hover:text-foreground',
@@ -235,7 +241,17 @@ function DockItem({
         </span>
         {expanded && (
           <>
-            <span className="text-[14px] whitespace-nowrap">{label}</span>
+            <span className="flex flex-col">
+              <span className="text-[14px] whitespace-nowrap">{label}</span>
+              {subtitle && hovered && (
+                <span
+                  className="text-[11px] text-muted-foreground whitespace-nowrap"
+                  style={{ opacity: hovered ? 1 : 0, transition: 'opacity 150ms ease-out' }}
+                >
+                  {subtitle}
+                </span>
+              )}
+            </span>
             {badge && (
               <span
                 className="text-[10px] font-bold text-primary-foreground flex items-center justify-center"

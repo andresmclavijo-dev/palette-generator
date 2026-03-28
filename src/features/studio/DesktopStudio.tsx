@@ -5,7 +5,7 @@ import {
   Lock, Unlock, Copy, Check, Pencil, GripVertical, Code,
   Share2, Link2, Grid3X3,
   Plus, Minus, Undo2, Redo2,
-  Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles,
+  Shuffle, Palette, Triangle, Contrast, Droplet, Eye, Sparkles, Loader2,
 } from 'lucide-react'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePro } from '@/hooks/usePro'
@@ -101,6 +101,7 @@ export default function DesktopStudio() {
   const openDialog = useCallback((type: DialogType) => setActiveDialog(type), [])
   const closeDialog = useCallback(() => setActiveDialog(null), [])
 
+  const [savedCount, setSavedCount] = useState<number>(0)
   const [shareCopied, setShareCopied] = useState(false)
   const [aiRemaining, setAiRemaining] = useState(getAiRemaining)
   const [shadesOpen, setShadesOpen] = useState<string | null>(null)
@@ -212,6 +213,15 @@ export default function DesktopStudio() {
     createCheckoutSession(pending, user.id, user.email ?? undefined)
       .then(url => { window.location.href = url })
       .catch(() => showToast('Something went wrong — please try again'))
+  }, [user])
+
+  // Fetch saved palette count for Library hover preview
+  useEffect(() => {
+    if (!user) { setSavedCount(0); return }
+    import('@/lib/supabase').then(({ supabase }) =>
+      supabase.from('saved_palettes').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
+        .then(({ count: c }) => setSavedCount(c ?? 0))
+    )
   }, [user])
 
   // URL palette sync
@@ -446,6 +456,8 @@ export default function DesktopStudio() {
           dockPulse={dockPulse}
           onToggle={toggleDock}
           onSectionChange={setSection}
+          savedCount={savedCount}
+          isSignedIn={isSignedIn}
         />
 
         {/* ─── Main Area (bento container) ─── */}
@@ -1002,7 +1014,7 @@ function ActionBar({
             variant="outline"
             size="default"
             onClick={onSignIn}
-            className="text-[13px] font-medium"
+            className="text-[13px] font-medium border-primary text-primary hover:bg-surface"
           >
             Sign In
           </Button>
@@ -1050,6 +1062,15 @@ function ColorsBottomBar({
   const visionBtnRef = useRef<HTMLButtonElement>(null)
   const visionDropRef = useRef<HTMLDivElement>(null)
   const [visionPos, setVisionPos] = useState({ bottom: 0, left: 0 })
+
+  // Generate loading state
+  const [generating, setGenerating] = useState(false)
+  const handleGenerate = () => {
+    if (generating) return
+    setGenerating(true)
+    onGenerate()
+    setTimeout(() => setGenerating(false), 200)
+  }
 
   const toggleHarmony = () => {
     if (!harmonyOpen && harmonyBtnRef.current) {
@@ -1204,6 +1225,7 @@ function ColorsBottomBar({
             <button
               onClick={onGetCode}
               data-tour-id="get-code"
+              title="CSS · Tailwind · SVG"
               className="flex items-center gap-1.5 transition-all duration-150 border border-border hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
               style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
               aria-label="Get code"
@@ -1214,15 +1236,18 @@ function ColorsBottomBar({
 
             {/* Generate — purple CTA */}
             <button
-              onClick={onGenerate}
+              onClick={handleGenerate}
+              disabled={generating}
               data-tour-id="generate"
-              className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98]"
+              className="flex items-center gap-1.5 transition-all duration-150 bg-primary hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98] disabled:opacity-80 disabled:pointer-events-none"
               style={{ height: 36, padding: '0 14px', borderRadius: 8 }}
               aria-label="Generate new palette"
             >
-              <Sparkles size={14} className="text-primary-foreground" />
-              <span className="text-[13px] font-semibold text-primary-foreground">Generate</span>
-              <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-primary-foreground/60" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.15)' }}>space</kbd>
+              {generating
+                ? <Loader2 size={14} className="text-primary-foreground animate-spin" />
+                : <Sparkles size={14} className="text-primary-foreground" />}
+              <span className="text-[13px] font-semibold text-primary-foreground">{generating ? 'Generating...' : 'Generate'}</span>
+              {!generating && <kbd className="inline-flex items-center justify-center text-[11px] font-mono text-primary-foreground/60" style={{ padding: '2px 6px', borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.15)' }}>space</kbd>}
             </button>
           </div>
         </div>

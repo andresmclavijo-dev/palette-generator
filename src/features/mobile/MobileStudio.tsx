@@ -334,6 +334,7 @@ export function MobileStudio(_props: MobileStudioProps) {
             className="flex-1 flex items-center justify-center gap-1.5 border border-border rounded-button transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             style={{ height: 44, borderRadius: 8 }}
             aria-label="Get code"
+            title="CSS · Tailwind · SVG"
           >
             <Code size={16} className="text-foreground" />
             <span className="text-[14px] font-semibold text-foreground">Get code</span>
