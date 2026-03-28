@@ -101,7 +101,6 @@ export default function DesktopStudio() {
   const openDialog = useCallback((type: DialogType) => setActiveDialog(type), [])
   const closeDialog = useCallback(() => setActiveDialog(null), [])
 
-  const [savedCount, setSavedCount] = useState<number>(0)
   const [shareCopied, setShareCopied] = useState(false)
   const [aiRemaining, setAiRemaining] = useState(getAiRemaining)
   const [shadesOpen, setShadesOpen] = useState<string | null>(null)
@@ -213,15 +212,6 @@ export default function DesktopStudio() {
     createCheckoutSession(pending, user.id, user.email ?? undefined)
       .then(url => { window.location.href = url })
       .catch(() => showToast('Something went wrong — please try again'))
-  }, [user])
-
-  // Fetch saved palette count for Library hover preview
-  useEffect(() => {
-    if (!user) { setSavedCount(0); return }
-    import('@/lib/supabase').then(({ supabase }) =>
-      supabase.from('saved_palettes').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
-        .then(({ count: c }) => setSavedCount(c ?? 0))
-    )
   }, [user])
 
   // URL palette sync
@@ -456,8 +446,6 @@ export default function DesktopStudio() {
           dockPulse={dockPulse}
           onToggle={toggleDock}
           onSectionChange={setSection}
-          savedCount={savedCount}
-          isSignedIn={isSignedIn}
         />
 
         {/* ─── Main Area (bento container) ─── */}
